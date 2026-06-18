@@ -1,7 +1,7 @@
 {
-  "name": "被遗忘的伞",
-  "short_name": "忘伞地图",
-  "description": "城市街角被遗忘的伞的影像地图档案。",
+  "name": "被遗忘的伞 / Forgotten Umbrella",
+  "short_name": "Forgotten Umbrella",
+  "description": "A map archive of forgotten umbrellas in city corners.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f4f3ed",
