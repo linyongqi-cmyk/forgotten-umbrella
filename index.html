@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f2d2d" />
+    <title>&#34987;&#36951;&#24536;&#30340;&#20254; | &#22478;&#24066;&#35282;&#33853;&#22320;&#22270;</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=31" />
+  </head>
+  <body>
+    <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
+      <div class="welcome-crosshair" id="welcome-crosshair" aria-hidden="true">
+        <svg class="crosshair-filter" focusable="false">
+          <defs>
+            <filter id="filter-noise-x">
+              <feTurbulence id="filter-x-turbulence" type="fractalNoise" baseFrequency="0.000001" numOctaves="1" />
+              <feDisplacementMap in="SourceGraphic" scale="40" />
+            </filter>
+            <filter id="filter-noise-y">
+              <feTurbulence id="filter-y-turbulence" type="fractalNoise" baseFrequency="0.000001" numOctaves="1" />
+              <feDisplacementMap in="SourceGraphic" scale="40" />
+            </filter>
+            <filter id="filter-noise-image">
+              <feTurbulence id="filter-image-turbulence" type="fractalNoise" baseFrequency="0.000001" numOctaves="1" />
+              <feDisplacementMap in="SourceGraphic" scale="13" />
+            </filter>
+          </defs>
+        </svg>
+        <span class="crosshair-line crosshair-line-x" id="crosshair-line-x"></span>
+        <span class="crosshair-line crosshair-line-y" id="crosshair-line-y"></span>
+        <span class="crosshair-ring" id="crosshair-ring"></span>
+      </div>
+
+      <button class="welcome-title" id="enter-site" type="button" aria-label="enter site">
+        <span class="welcome-title-frame" aria-hidden="true">
+          <span class="welcome-title-text">
+            <span class="welcome-title-line" data-text="FORGOTTEN"></span>
+            <span class="welcome-title-line" data-text="UMBRELLA"></span>
+          </span>
+          <span class="welcome-title-media">
+            <img class="welcome-card is-active" src="filebox/welcome-pic/2.png" alt="" />
+          </span>
+        </span>
+      </button>
+    </section>
+
+    <div class="app-shell">
+      <header class="topbar" aria-label="top navigation">
+        <nav class="view-tabs" aria-label="view switcher">
+          <button class="tab is-active" data-view="map" type="button">Umbrella map</button>
+          <button class="tab" data-view="archive" type="button">Archive</button>
+          <button class="tab" data-view="about" type="button">About</button>
+          <div class="language-switcher">
+            <button
+              id="language-toggle"
+              class="language-toggle"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="language switch"
+            >
+              Language
+            </button>
+            <div class="language-menu" id="language-menu" hidden>
+              <button type="button" data-lang="zh-CN">&#20013;&#25991;</button>
+              <button type="button" data-lang="ja-JP">&#26085;&#26412;&#35486;</button>
+              <button type="button" data-lang="en-US">English</button>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <section class="workspace view is-active is-list-collapsed" id="map-view" aria-label="map view">
+          <section class="map-stage" aria-label="umbrella locations">
+            <div class="city-map" id="city-map">
+              <div id="google-map" class="google-map" role="application" aria-label="Google map"></div>
+              <div id="map-message" class="map-message" hidden></div>
+            </div>
+          </section>
+
+          <button
+            id="toggle-list"
+            class="panel-toggle panel-toggle-left"
+            type="button"
+            aria-label="expand location list"
+            aria-controls="list-panel"
+            aria-expanded="false"
+            title="expand location list"
+          >
+            <span aria-hidden="true">&#8249;</span>
+          </button>
+
+          <aside class="side-panel" id="list-panel" aria-label="location list">
+            <div class="panel-heading">
+              <h2>&#34903;&#35282;&#35760;&#24405;</h2>
+            </div>
+
+            <div class="search-shell">
+              <button id="search-toggle" class="search-toggle" type="button" aria-expanded="false" aria-label="open search">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="10.5" cy="10.5" r="5.5" />
+                  <path d="m15 15 5 5" />
+                </svg>
+              </button>
+            </div>
+            <label class="search-box" hidden>
+              <input id="search-input" type="search" placeholder="&#22320;&#28857;&#12289;&#26448;&#36136;&#12289;&#22825;&#27668;..." />
+            </label>
+
+            <div class="filter-row" aria-label="weather filters">
+              <button class="chip is-active" data-weather="all" type="button">&#20840;&#37096;</button>
+              <button class="chip" data-weather="&#38632;&#21518;" type="button">&#38632;&#21518;</button>
+              <button class="chip" data-weather="&#38452;&#22825;" type="button">&#38452;&#22825;</button>
+              <button class="chip" data-weather="&#22812;&#38632;" type="button">&#22812;&#38632;</button>
+            </div>
+
+            <div class="archive-list" id="archive-list" aria-live="polite"></div>
+          </aside>
+
+          <button id="reset-map" class="map-toolbar" type="button" aria-label="show all items" title="show all items">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M3.5 12h17M12 3.5c2.6 2.4 4 5.3 4 8.5s-1.4 6.1-4 8.5M12 3.5c-2.6 2.4-4 5.3-4 8.5s1.4 6.1 4 8.5" />
+              </svg>
+            <span id="result-count">14 item</span>
+          </button>
+
+          <button id="map-type-toggle" class="map-type-toggle" type="button" aria-label="switch to satellite map" title="switch to satellite map">
+            Satellite
+          </button>
+
+          <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
+
+          <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
+            <button class="focus-close" id="focus-close" type="button" aria-label="close image">&#215;</button>
+            <img id="focus-image" alt="" />
+            <figcaption id="focus-caption"></figcaption>
+          </figure>
+        </section>
+
+        <section class="archive-view view" id="archive-view" aria-label="archive view">
+          <div class="section-heading">
+            <h2>Archive</h2>
+          </div>
+
+          <div class="archive-toolbar" aria-label="archive controls">
+            <p>&#25490;&#24207;&#26041;&#24335;</p>
+            <div class="archive-primary-row">
+              <div class="archive-toolbar-group" role="group" aria-label="sort mode">
+                <button class="archive-control is-active" data-archive-mode="default" type="button">&#40664;&#35748;</button>
+                <button class="archive-control" data-archive-mode="time" type="button">&#26102;&#38388;</button>
+                <button class="archive-control" data-archive-mode="type" type="button">&#31867;&#22411;</button>
+                <button class="archive-control" data-archive-mode="place" type="button">&#22320;&#28857;</button>
+              </div>
+              <button id="archive-order-toggle" class="archive-order-toggle" type="button" aria-label="toggle time order" title="toggle time order" hidden>
+                <span aria-hidden="true">&#8597;</span>
+              </button>
+            </div>
+            <div class="archive-secondary-row" id="archive-secondary-row" hidden></div>
+          </div>
+
+          <div class="archive-content" id="archive-content"></div>
+        </section>
+
+        <section class="about-view view" id="about-view" aria-label="about project">
+          <div class="about-copy">
+            <h2>&#25226;&#30701;&#26242;&#20572;&#30041;&#21464;&#25104;&#21487;&#36820;&#22238;&#30340;&#22352;&#26631;</h2>
+            <span>
+              &#36825;&#20010;&#21407;&#22411;&#25226;&#34987;&#36951;&#24536;&#30340;&#20254;&#25286;&#25104;&#22320;&#28857;&#12289;&#26102;&#38388;&#12289;&#22825;&#27668;&#21644;&#26448;&#26009;&#22235;&#23618;&#32447;&#32034;&#12290;&#29616;&#22312;&#30340;&#22270;&#29255;&#20173;&#26377;&#21344;&#20301;&#20869;&#23481;&#65292;&#20294;&#22320;&#22270;&#12289;&#26723;&#26696;&#21644;&#31579;&#36873;&#36923;&#36753;&#37117;&#24050;&#32463;&#21487;&#20197;&#32487;&#32493;&#25193;&#23637;&#65292;&#21518;&#32493;&#21487;&#20197;&#30452;&#25509;&#25509;&#20837;&#30495;&#23454;&#29031;&#29255;&#12289;&#37319;&#35775;&#25991;&#23383;&#25110;&#22768;&#38899;&#35760;&#24405;&#12290;
+            </span>
+          </div>
+          <dl class="about-stats">
+            <div>
+              <dt id="stat-count">0</dt>
+              <dd>&#24050;&#35760;&#24405;&#22320;&#28857;</dd>
+            </div>
+            <div>
+              <dt>2026</dt>
+              <dd>&#39033;&#30446;&#21407;&#22411;</dd>
+            </div>
+            <div>
+              <dt>PWA</dt>
+              <dd>&#21487;&#23433;&#35013;&#20026;&#24212;&#29992;</dd>
+            </div>
+          </dl>
+        </section>
+      </main>
+    </div>
+
+    <script src="config.js" type="module"></script>
+    <script src="app.js?v=31" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="红伞倒在斑马线尽头">
+  <rect width="800" height="600" fill="#8f9a94"/>
+  <rect y="350" width="800" height="250" fill="#2b3432"/>
+  <g fill="#e9e7d8" opacity=".72">
+    <path d="M0 390h190l-40 42H0z"/>
+    <path d="M230 390h170l-32 42H210z"/>
+    <path d="M440 390h160l-22 42H422z"/>
+    <path d="M635 390h165v42H625z"/>
+  </g>
+  <g transform="translate(255 318) rotate(15)">
+    <path d="M0 148c38-86 105-126 200-120 82 5 145 46 188 126L0 148Z" fill="#c54f35"/>
+    <path d="M0 148c37-27 73-27 108 0 53-32 109-31 166 2 38-27 76-26 114 4" fill="none" stroke="#82311f" stroke-width="11"/>
+    <path d="M198 148v94c0 30 21 49 52 49 25 0 43-16 43-40" fill="none" stroke="#151c1b" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>

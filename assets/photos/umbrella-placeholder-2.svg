@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title2 desc2">
+  <title id="title2">Placeholder umbrella image</title>
+  <desc id="desc2">Abstract blocks used as a temporary umbrella image.</desc>
+  <rect width="1200" height="900" fill="#f1ece5" />
+  <rect x="110" y="110" width="980" height="680" rx="32" fill="#2d6b68" opacity="0.14" />
+  <rect x="170" y="178" width="280" height="430" rx="24" fill="#d8c9bd" />
+  <rect x="490" y="178" width="528" height="220" rx="24" fill="#9aa7a1" />
+  <rect x="490" y="432" width="228" height="226" rx="24" fill="#f8f5ef" />
+  <rect x="756" y="432" width="262" height="108" rx="24" fill="#c54f35" opacity="0.6" />
+  <rect x="756" y="566" width="262" height="92" rx="24" fill="#d0d5d1" />
+</svg>

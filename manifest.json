@@ -1,0 +1,16 @@
+{
+  "name": "被遗忘的伞",
+  "short_name": "忘伞地图",
+  "description": "城市街角被遗忘的伞的影像地图档案。",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f3ed",
+  "theme_color": "#1f2d2d",
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

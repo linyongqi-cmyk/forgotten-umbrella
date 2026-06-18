@@ -1,0 +1,156 @@
+[
+  {
+    "id": "kanda-blue",
+    "title": "Blue umbrella outside the konbini",
+    "location": "Tokyo, Kanda",
+    "time": "2026-04-13T17:42:00+09:00",
+    "weather": "雨后",
+    "material": "Nylon / metal frame",
+    "coordinates": { "lat": 35.69172, "lng": 139.77092 },
+    "image": "assets/photos/umbrella-kanda.svg",
+    "note": "Left beside the sliding door after the rain stopped."
+  },
+  {
+    "id": "ginza-clear",
+    "title": "Clear umbrella at the Ginza crossing",
+    "location": "Tokyo, Ginza",
+    "time": "2026-05-02T20:16:00+09:00",
+    "weather": "夜雨",
+    "material": "Clear plastic / white handle",
+    "coordinates": { "lat": 35.67193, "lng": 139.76502 },
+    "image": "assets/photos/umbrella-ginza.svg",
+    "note": "Almost disappeared into the reflections on the wet street."
+  },
+  {
+    "id": "yanaka-black",
+    "title": "Black umbrella by the old wall",
+    "location": "Tokyo, Yanaka",
+    "time": "2026-05-19T15:28:00+09:00",
+    "weather": "阴天",
+    "material": "Black cloth / curved wood handle",
+    "coordinates": { "lat": 35.72564, "lng": 139.76649 },
+    "image": "assets/photos/umbrella-yanaka.svg",
+    "note": "Hung carefully rather than dropped."
+  },
+  {
+    "id": "shibuya-red",
+    "title": "Red umbrella at the end of the crossing",
+    "location": "Tokyo, Shibuya",
+    "time": "2026-06-04T18:07:00+09:00",
+    "weather": "雨后",
+    "material": "Red polyester / black handle",
+    "coordinates": { "lat": 35.65803, "lng": 139.70164 },
+    "image": "assets/photos/umbrella-shibuya.svg",
+    "note": "A bright red pause in a dense stream of people."
+  },
+  {
+    "id": "osaka-nakanoshima",
+    "title": "Gray umbrella on the riverside path",
+    "location": "Osaka, Nakanoshima",
+    "time": "2026-03-21T08:35:00+09:00",
+    "weather": "阴天",
+    "material": "Polyester / aluminum frame",
+    "coordinates": { "lat": 34.69125, "lng": 135.49584 },
+    "image": "assets/photos/umbrella-placeholder-1.svg",
+    "note": "Pressed between a bench and the rail before the commute fully started."
+  },
+  {
+    "id": "kyoto-gion",
+    "title": "Paper-toned umbrella near Gion",
+    "location": "Kyoto, Gion",
+    "time": "2026-03-29T19:18:00+09:00",
+    "weather": "夜雨",
+    "material": "Light fabric / wood handle",
+    "coordinates": { "lat": 35.00368, "lng": 135.77855 },
+    "image": "assets/photos/umbrella-placeholder-2.svg",
+    "note": "Still glowing against the wet stone street after the rain line passed."
+  },
+  {
+    "id": "sapporo-odori",
+    "title": "White umbrella at Odori Park",
+    "location": "Sapporo, Odori",
+    "time": "2026-04-05T10:12:00+09:00",
+    "weather": "阴天",
+    "material": "Waterproof cloth / slim shaft",
+    "coordinates": { "lat": 43.06076, "lng": 141.35536 },
+    "image": "assets/photos/umbrella-placeholder-3.svg",
+    "note": "A colder trace of rain stayed on the edge."
+  },
+  {
+    "id": "fukuoka-ohori",
+    "title": "Dark green fold umbrella by the lake steps",
+    "location": "Fukuoka, Ohori Park",
+    "time": "2026-04-17T16:40:00+09:00",
+    "weather": "雨后",
+    "material": "Coated nylon / dark grip",
+    "coordinates": { "lat": 33.58537, "lng": 130.37655 },
+    "image": "assets/photos/umbrella-placeholder-4.svg",
+    "note": "A short gap between the umbrella and the bench felt like an interrupted talk."
+  },
+  {
+    "id": "nagoya-sakae",
+    "title": "Blue-gray umbrella at the underground entry",
+    "location": "Nagoya, Sakae",
+    "time": "2026-04-30T21:03:00+09:00",
+    "weather": "夜雨",
+    "material": "Water-repellent cloth / straight handle",
+    "coordinates": { "lat": 35.16858, "lng": 136.90862 },
+    "image": "assets/photos/umbrella-placeholder-1.svg",
+    "note": "Temporarily stored in a crack of the city while the crowd moved below."
+  },
+  {
+    "id": "kobe-harborland",
+    "title": "Clear umbrella caught in the harbor rail",
+    "location": "Kobe, Harborland",
+    "time": "2026-05-08T18:54:00+09:00",
+    "weather": "雨后",
+    "material": "Clear plastic / translucent handle",
+    "coordinates": { "lat": 34.68239, "lng": 135.18311 },
+    "image": "assets/photos/umbrella-placeholder-2.svg",
+    "note": "More like docking than being forgotten."
+  },
+  {
+    "id": "sendai-jozenji",
+    "title": "Deep blue umbrella under the trees",
+    "location": "Sendai, Jozenji-dori",
+    "time": "2026-05-14T11:26:00+09:00",
+    "weather": "阴天",
+    "material": "Blue cloth / black handle",
+    "coordinates": { "lat": 38.26482, "lng": 140.86939 },
+    "image": "assets/photos/umbrella-placeholder-3.svg",
+    "note": "Placed by the flowerbed under a quieter light."
+  },
+  {
+    "id": "hiroshima-peace",
+    "title": "Beige umbrella at the river bridge entrance",
+    "location": "Hiroshima, Peace Park",
+    "time": "2026-05-24T09:42:00+09:00",
+    "weather": "雨后",
+    "material": "Beige cloth / wood handle",
+    "coordinates": { "lat": 34.39552, "lng": 132.45362 },
+    "image": "assets/photos/umbrella-placeholder-4.svg",
+    "note": "Tilted slightly toward the bridge as if still waiting to be picked up."
+  },
+  {
+    "id": "kanazawa-higashi",
+    "title": "Crimson umbrella under the tea-house window",
+    "location": "Kanazawa, Higashi Chaya",
+    "time": "2026-06-01T14:14:00+09:00",
+    "weather": "阴天",
+    "material": "Brown-red cloth / wood shaft",
+    "coordinates": { "lat": 36.57216, "lng": 136.66377 },
+    "image": "assets/photos/umbrella-placeholder-1.svg",
+    "note": "The street seemed to absorb part of its color."
+  },
+  {
+    "id": "naha-kokusai",
+    "title": "Light gray umbrella at Kokusai-dori",
+    "location": "Naha, Kokusai-dori",
+    "time": "2026-06-09T13:09:00+09:00",
+    "weather": "雨后",
+    "material": "Light gray coated cloth / plastic handle",
+    "coordinates": { "lat": 26.21452, "lng": 127.68093 },
+    "image": "assets/photos/umbrella-placeholder-2.svg",
+    "note": "The sun was already back but the droplets had not left yet."
+  }
+]

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="黑伞挂在旧墙边">
+  <rect width="800" height="600" fill="#c7c2ae"/>
+  <g stroke="#a69f8b" stroke-width="3" opacity=".5">
+    <path d="M0 120h800M0 240h800M0 360h800M0 480h800"/>
+    <path d="M160 0v600M320 0v600M480 0v600M640 0v600"/>
+  </g>
+  <rect y="420" width="800" height="180" fill="#6f766f"/>
+  <path d="M282 352c36-78 94-116 173-112 81 4 139 43 178 118L282 352Z" fill="#182322"/>
+  <path d="M282 352c37-25 71-24 105 4 47-30 96-30 148 0 33-24 66-23 98 2" fill="none" stroke="#0d1211" stroke-width="10"/>
+  <path d="M457 352v98c0 31 22 51 55 51 26 0 45-17 45-42" fill="none" stroke="#4b2d1f" stroke-width="15" stroke-linecap="round"/>
+</svg>

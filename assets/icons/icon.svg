@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="被遗忘的伞图标">
+  <rect width="512" height="512" rx="96" fill="#1f2d2d"/>
+  <path d="M96 238C116 142 179 92 256 92s140 50 160 146H96Z" fill="#f4f3ed"/>
+  <path d="M96 238c34-28 66-28 96 0 37-30 91-30 128 0 30-28 62-28 96 0" fill="none" stroke="#c54f35" stroke-width="24" stroke-linecap="round"/>
+  <path d="M256 238v112c0 43 28 70 68 70 32 0 56-20 56-52" fill="none" stroke="#f4f3ed" stroke-width="28" stroke-linecap="round"/>
+</svg>
