@@ -21,9 +21,11 @@
     "media": [
       {
         "id": "IMG_6078",
+        "file": "IMG_6078.jpeg",
         "src": "filebox/records/corner(affordance)/IMG_6078/IMG_6078.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6078.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-19T20:21:56+09:00",
         "story": ""
       }
@@ -55,17 +57,21 @@
     "media": [
       {
         "id": "IMG_6872",
+        "file": "IMG_6872.jpeg",
         "src": "filebox/records/corner(affordance)/IMG_6872/IMG_6872.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6872.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T13:05:01+09:00",
         "story": ""
       },
       {
         "id": "pic_1",
+        "file": "pic_1.png",
         "src": "filebox/records/corner(affordance)/IMG_6872/pic_1.png",
         "thumb": "filebox/records/corner(affordance)/IMG_6872/pic_1.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -97,9 +103,11 @@
     "media": [
       {
         "id": "IMG_8302",
+        "file": "IMG_8302.jpeg",
         "src": "filebox/records/corner(affordance)/IMG_8302/IMG_8302.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8302.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-02T19:14:13+09:00",
         "story": ""
       }
@@ -128,9 +136,11 @@
     "media": [
       {
         "id": "IMG_8740",
+        "file": "IMG_8740.jpg",
         "src": "filebox/records/corner(affordance)/IMG_8740/IMG_8740.jpg",
         "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8740.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -159,9 +169,11 @@
     "media": [
       {
         "id": "IMG_6178",
+        "file": "IMG_6178.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6178/IMG_6178.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6178.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-04-18T11:28:17+09:00",
         "story": ""
       }
@@ -193,17 +205,21 @@
     "media": [
       {
         "id": "IMG_6660",
+        "file": "IMG_6660.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6660/IMG_6660.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6660.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-09-24T13:31:24+09:00",
         "story": ""
       },
       {
         "id": "pic_1",
+        "file": "pic_1.png",
         "src": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
         "thumb": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -235,9 +251,11 @@
     "media": [
       {
         "id": "IMG_6859",
+        "file": "IMG_6859.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6859/IMG_6859.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6859.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T12:55:31+09:00",
         "story": ""
       }
@@ -269,17 +287,21 @@
     "media": [
       {
         "id": "IMG_6895",
+        "file": "IMG_6895.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6895/IMG_6895.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6895.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T14:07:30+09:00",
         "story": ""
       },
       {
         "id": "IMG_6899",
+        "file": "IMG_6899.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6895/IMG_6899.jpeg",
         "thumb": "filebox/records/disposal(behavior)/IMG_6895/IMG_6899.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -311,9 +333,11 @@
     "media": [
       {
         "id": "IMG_6931",
+        "file": "IMG_6931.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_6931/IMG_6931.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6931.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-20T12:47:17+09:00",
         "story": ""
       }
@@ -345,9 +369,11 @@
     "media": [
       {
         "id": "IMG_7171",
+        "file": "IMG_7171.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_7171/IMG_7171.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_7171.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-11-27T15:38:06+09:00",
         "story": ""
       }
@@ -379,9 +405,11 @@
     "media": [
       {
         "id": "IMG_8056",
+        "file": "IMG_8056.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_8056/IMG_8056.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8056.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-02-25T16:59:36+09:00",
         "story": ""
       }
@@ -413,9 +441,11 @@
     "media": [
       {
         "id": "IMG_8317",
+        "file": "IMG_8317.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_8317/IMG_8317.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8317.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-05T16:14:10+09:00",
         "story": ""
       }
@@ -447,9 +477,11 @@
     "media": [
       {
         "id": "IMG_8476",
+        "file": "IMG_8476.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_8476/IMG_8476.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8476.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-10T21:09:54+09:00",
         "story": ""
       }
@@ -481,9 +513,11 @@
     "media": [
       {
         "id": "IMG_8591",
+        "file": "IMG_8591.jpeg",
         "src": "filebox/records/disposal(behavior)/IMG_8591/IMG_8591.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8591.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-23T19:49:52+09:00",
         "story": ""
       }
@@ -515,9 +549,11 @@
     "media": [
       {
         "id": "IMG_6260",
+        "file": "IMG_6260.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6260/IMG_6260.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6260.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-06-10T20:32:08+09:00",
         "story": ""
       }
@@ -549,9 +585,11 @@
     "media": [
       {
         "id": "IMG_6383",
+        "file": "IMG_6383.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6383/IMG_6383.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6383.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-07-21T15:20:55+09:00",
         "story": ""
       }
@@ -583,17 +621,21 @@
     "media": [
       {
         "id": "IMG_6838",
+        "file": "IMG_6838.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6838/IMG_6838.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6838.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T12:11:33+09:00",
         "story": ""
       },
       {
         "id": "pic_1",
+        "file": "pic_1.png",
         "src": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
         "thumb": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -625,17 +667,21 @@
     "media": [
       {
         "id": "IMG_6867",
+        "file": "IMG_6867.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6867/IMG_6867.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6867.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T13:01:17+09:00",
         "story": ""
       },
       {
         "id": "IMG_6868",
+        "file": "IMG_6868.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6867/IMG_6868.jpeg",
         "thumb": "filebox/records/drop(behavior)/IMG_6867/IMG_6868.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -667,9 +713,11 @@
     "media": [
       {
         "id": "IMG_6882",
+        "file": "IMG_6882.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6882/IMG_6882.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6882.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T13:07:38+09:00",
         "story": ""
       }
@@ -701,9 +749,11 @@
     "media": [
       {
         "id": "IMG_6889",
+        "file": "IMG_6889.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6889/IMG_6889.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6889.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T13:32:22+09:00",
         "story": ""
       }
@@ -735,9 +785,11 @@
     "media": [
       {
         "id": "IMG_6942",
+        "file": "IMG_6942.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_6942/IMG_6942.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6942.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-23T16:10:25+09:00",
         "story": ""
       }
@@ -769,9 +821,11 @@
     "media": [
       {
         "id": "IMG_7038",
+        "file": "IMG_7038.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_7038/IMG_7038.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7038.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-31T14:30:40+09:00",
         "story": ""
       }
@@ -803,25 +857,31 @@
     "media": [
       {
         "id": "IMG_7106",
+        "file": "IMG_7106.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_7106/IMG_7106.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7106.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-11-18T14:51:57+09:00",
         "story": ""
       },
       {
         "id": "IMG_7108",
+        "file": "IMG_7108.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_7106/IMG_7108.jpeg",
         "thumb": "filebox/records/drop(behavior)/IMG_7106/IMG_7108.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_7109",
+        "file": "IMG_7109.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_7106/IMG_7109.jpeg",
         "thumb": "filebox/records/drop(behavior)/IMG_7106/IMG_7109.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -853,9 +913,11 @@
     "media": [
       {
         "id": "IMG_8015",
+        "file": "IMG_8015.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8015/IMG_8015.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8015.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-02-15T14:39:39+09:00",
         "story": ""
       }
@@ -887,9 +949,11 @@
     "media": [
       {
         "id": "IMG_8114",
+        "file": "IMG_8114.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8114/IMG_8114.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8114.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-02-27T14:34:20+09:00",
         "story": ""
       }
@@ -921,9 +985,11 @@
     "media": [
       {
         "id": "IMG_8229",
+        "file": "IMG_8229.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8229/IMG_8229.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8229.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-03-08T17:19:42+09:00",
         "story": ""
       }
@@ -955,9 +1021,11 @@
     "media": [
       {
         "id": "IMG_8618",
+        "file": "IMG_8618.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8618/IMG_8618.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8618.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-24T18:14:04+09:00",
         "story": ""
       }
@@ -989,9 +1057,11 @@
     "media": [
       {
         "id": "IMG_8647",
+        "file": "IMG_8647.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8647/IMG_8647.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8647.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-27T16:11:45+09:00",
         "story": ""
       }
@@ -1023,9 +1093,11 @@
     "media": [
       {
         "id": "IMG_8680",
+        "file": "IMG_8680.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8680/IMG_8680.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8680.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T17:17:16+09:00",
         "story": ""
       }
@@ -1057,17 +1129,21 @@
     "media": [
       {
         "id": "IMG_8682",
+        "file": "IMG_8682.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8682/IMG_8682.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8682.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-30T13:48:01+09:00",
         "story": ""
       },
       {
         "id": "IMG_8684",
+        "file": "IMG_8684.png",
         "src": "filebox/records/drop(behavior)/IMG_8682/IMG_8684.png",
         "thumb": "filebox/records/drop(behavior)/IMG_8682/IMG_8684.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -1099,17 +1175,21 @@
     "media": [
       {
         "id": "IMG_8737",
+        "file": "IMG_8737.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8737/IMG_8737.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8737.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T21:08:44+09:00",
         "story": ""
       },
       {
         "id": "IMG_8745",
+        "file": "IMG_8745.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8737/IMG_8745.jpeg",
         "thumb": "filebox/records/drop(behavior)/IMG_8737/IMG_8745.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -1141,17 +1221,21 @@
     "media": [
       {
         "id": "IMG_5956",
+        "file": "IMG_5956.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_5956/IMG_5956.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5956.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-11T09:22:22+09:00",
         "story": ""
       },
       {
         "id": "pic_1",
+        "file": "pic_1.png",
         "src": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
         "thumb": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -1184,9 +1268,11 @@
     "media": [
       {
         "id": "IMG_5958",
+        "file": "IMG_5958.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_5958/IMG_5958.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5958.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-11T09:31:55+09:00",
         "story": ""
       }
@@ -1218,9 +1304,11 @@
     "media": [
       {
         "id": "IMG_5964",
+        "file": "IMG_5964.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_5964/IMG_5964.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5964.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-11T12:39:11+09:00",
         "story": ""
       }
@@ -1253,9 +1341,11 @@
     "media": [
       {
         "id": "IMG_6080",
+        "file": "IMG_6080.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6080/IMG_6080.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6080.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-19T22:57:09+09:00",
         "story": ""
       }
@@ -1288,9 +1378,11 @@
     "media": [
       {
         "id": "IMG_6220",
+        "file": "IMG_6220.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6220/IMG_6220.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6220.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-05-22T11:04:20+09:00",
         "story": ""
       }
@@ -1322,9 +1414,11 @@
     "media": [
       {
         "id": "IMG_6341",
+        "file": "IMG_6341.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6341/IMG_6341.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6341.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-07-04T14:36:19+09:00",
         "story": ""
       }
@@ -1356,9 +1450,11 @@
     "media": [
       {
         "id": "IMG_6393",
+        "file": "IMG_6393.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6393/IMG_6393.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6393.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-07-22T17:21:47+09:00",
         "story": ""
       }
@@ -1390,17 +1486,21 @@
     "media": [
       {
         "id": "IMG_6774",
+        "file": "IMG_6774.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6774/IMG_6774.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6774.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-09T15:30:58+09:00",
         "story": ""
       },
       {
         "id": "pic_1",
+        "file": "pic_1.png",
         "src": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
         "thumb": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -1432,9 +1532,11 @@
     "media": [
       {
         "id": "IMG_6781",
+        "file": "IMG_6781.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6781/IMG_6781.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6781.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-09T15:36:24+09:00",
         "story": ""
       }
@@ -1466,9 +1568,11 @@
     "media": [
       {
         "id": "IMG_6791",
+        "file": "IMG_6791.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6791/IMG_6791.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6791.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-10T15:52:02+09:00",
         "story": ""
       }
@@ -1500,9 +1604,11 @@
     "media": [
       {
         "id": "IMG_6848",
+        "file": "IMG_6848.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6848/IMG_6848.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6848.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T12:41:33+09:00",
         "story": ""
       }
@@ -1534,9 +1640,11 @@
     "media": [
       {
         "id": "IMG_6888",
+        "file": "IMG_6888.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_6888/IMG_6888.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6888.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-16T13:08:38+09:00",
         "story": ""
       }
@@ -1568,65 +1676,81 @@
     "media": [
       {
         "id": "IMG_8245",
+        "file": "IMG_8245.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8538",
+        "file": "IMG_8538.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8586",
+        "file": "IMG_8586.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8621",
+        "file": "IMG_8621.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8622",
+        "file": "IMG_8622.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8622.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8622.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-25T21:54:34+09:00",
         "story": ""
       },
       {
         "id": "IMG_8657",
+        "file": "IMG_8657.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8685",
+        "file": "IMG_8685.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       },
       {
         "id": "IMG_8703",
+        "file": "IMG_8703.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -1658,9 +1782,11 @@
     "media": [
       {
         "id": "IMG_8632",
+        "file": "IMG_8632.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8632/IMG_8632.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8632.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-25T16:53:03+09:00",
         "story": ""
       }
@@ -1692,9 +1818,11 @@
     "media": [
       {
         "id": "IMG_8664",
+        "file": "IMG_8664.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8664/IMG_8664.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8664.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-28T10:56:51+09:00",
         "story": ""
       }
@@ -1726,9 +1854,11 @@
     "media": [
       {
         "id": "IMG_8665",
+        "file": "IMG_8665.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8665/IMG_8665.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-28T10:57:23+09:00",
         "story": ""
       }
@@ -1760,9 +1890,11 @@
     "media": [
       {
         "id": "IMG_8670",
+        "file": "IMG_8670.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8670/IMG_8670.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8670.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-28T16:42:09+09:00",
         "story": ""
       }
@@ -1794,9 +1926,11 @@
     "media": [
       {
         "id": "IMG_8678",
+        "file": "IMG_8678.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8678/IMG_8678.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8678.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T17:15:35+09:00",
         "story": ""
       }
@@ -1828,9 +1962,11 @@
     "media": [
       {
         "id": "IMG_8697",
+        "file": "IMG_8697.jpg",
         "src": "filebox/records/hookable(affordance)/IMG_8697/IMG_8697.jpg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8697_post.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T17:20:15+09:00",
         "story": ""
       }
@@ -1862,9 +1998,11 @@
     "media": [
       {
         "id": "IMG_8704",
+        "file": "IMG_8704.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8704/IMG_8704.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8704.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T00:53:28+09:00",
         "story": ""
       }
@@ -1896,9 +2034,11 @@
     "media": [
       {
         "id": "IMG_8729",
+        "file": "IMG_8729.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8729/IMG_8729.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8729.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-01T20:40:21+09:00",
         "story": ""
       }
@@ -1930,9 +2070,11 @@
     "media": [
       {
         "id": "IMG_6529",
+        "file": "IMG_6529.jpeg",
         "src": "filebox/records/unknown/IMG_6529/IMG_6529.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__IMG_6529.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-08-11T18:01:07+09:00",
         "story": ""
       }
@@ -1964,9 +2106,11 @@
     "media": [
       {
         "id": "IMG_6617",
+        "file": "IMG_6617.jpeg",
         "src": "filebox/records/unknown/IMG_6617/IMG_6617.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__IMG_6617.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-09-03T15:51:10+09:00",
         "story": ""
       }
@@ -1998,9 +2142,11 @@
     "media": [
       {
         "id": "IMG_6637",
+        "file": "IMG_6637.jpeg",
         "src": "filebox/records/unknown/IMG_6637/IMG_6637.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__IMG_6637.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-09-07T13:22:30+09:00",
         "story": ""
       }
@@ -2032,9 +2178,11 @@
     "media": [
       {
         "id": "IMG_6761",
+        "file": "IMG_6761.jpeg",
         "src": "filebox/records/unknown/IMG_6761/IMG_6761.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__IMG_6761.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-09T21:19:54+09:00",
         "story": ""
       }
@@ -2066,9 +2214,11 @@
     "media": [
       {
         "id": "IMG_6079",
+        "file": "IMG_6079.jpeg",
         "src": "filebox/records/payment(behavior)/IMG_6079/IMG_6079.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6079.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-19T22:54:34+09:00",
         "story": ""
       }
@@ -2101,9 +2251,11 @@
     "media": [
       {
         "id": "IMG_6937",
+        "file": "IMG_6937.jpeg",
         "src": "filebox/records/payment(behavior)/IMG_6937/IMG_6937.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6937.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-23T10:25:30+09:00",
         "story": ""
       }
@@ -2135,9 +2287,11 @@
     "media": [
       {
         "id": "IMG_8465",
+        "file": "IMG_8465.jpeg",
         "src": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-10T16:33:32+09:00",
         "story": ""
       }
@@ -2169,9 +2323,11 @@
     "media": [
       {
         "id": "IMG_8465_post",
+        "file": "IMG_8465_post.jpg",
         "src": "filebox/records/payment(behavior)/IMG_8465_post/IMG_8465_post.jpg",
         "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465_post.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-19T17:02:07+09:00",
         "story": ""
       }
@@ -2203,9 +2359,11 @@
     "media": [
       {
         "id": "IMG_8636",
+        "file": "IMG_8636.jpeg",
         "src": "filebox/records/payment(behavior)/IMG_8636/IMG_8636.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8636.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-25T17:13:48+09:00",
         "story": ""
       }
@@ -2237,9 +2395,11 @@
     "media": [
       {
         "id": "IMG_6225",
+        "file": "IMG_6225.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_6225/IMG_6225.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6225.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-05-22T16:20:11+09:00",
         "story": ""
       }
@@ -2271,9 +2431,11 @@
     "media": [
       {
         "id": "IMG_6530",
+        "file": "IMG_6530.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_6530/IMG_6530.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6530.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-08-11T18:21:23+09:00",
         "story": ""
       }
@@ -2305,9 +2467,11 @@
     "media": [
       {
         "id": "IMG_6643",
+        "file": "IMG_6643.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_6643/IMG_6643.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6643.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-09-08T08:56:20+09:00",
         "story": ""
       }
@@ -2339,17 +2503,21 @@
     "media": [
       {
         "id": "IMG_6667",
+        "file": "IMG_6667.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_6667/IMG_6667.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6667.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-01T11:55:13+09:00",
         "story": ""
       },
       {
         "id": "IMG_6780",
+        "file": "IMG_6780.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_6667/IMG_6780.jpeg",
         "thumb": "filebox/records/placement(behavior)/IMG_6667/IMG_6780.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -2381,9 +2549,11 @@
     "media": [
       {
         "id": "IMG_8062",
+        "file": "IMG_8062.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8062/IMG_8062.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8062.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-02-25T22:08:09+09:00",
         "story": ""
       }
@@ -2415,9 +2585,11 @@
     "media": [
       {
         "id": "IMG_8251",
+        "file": "IMG_8251.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8251/IMG_8251.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8251.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-03-14T11:37:35+09:00",
         "story": ""
       }
@@ -2449,9 +2621,11 @@
     "media": [
       {
         "id": "IMG_8508",
+        "file": "IMG_8508.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8508/IMG_8508.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8508.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-15T17:19:22+09:00",
         "story": ""
       }
@@ -2483,9 +2657,11 @@
     "media": [
       {
         "id": "IMG_8584",
+        "file": "IMG_8584.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8584/IMG_8584.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8584.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-04-23T18:06:43+09:00",
         "story": ""
       }
@@ -2517,17 +2693,21 @@
     "media": [
       {
         "id": "IMG_8724",
+        "file": "IMG_8724.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8724/IMG_8724.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8724.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-05-04T03:58:20+09:00",
         "story": ""
       },
       {
         "id": "IMG_8725",
+        "file": "IMG_8725.jpeg",
         "src": "filebox/records/placement(behavior)/IMG_8724/IMG_8725.jpeg",
         "thumb": "filebox/records/placement(behavior)/IMG_8724/IMG_8725.jpeg",
         "role": "detail",
+        "title": "",
         "photoTime": "",
         "story": ""
       }
@@ -2559,9 +2739,11 @@
     "media": [
       {
         "id": "IMG_5917",
+        "file": "IMG_5917.jpeg",
         "src": "filebox/records/restroom(place)/IMG_5917/IMG_5917.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_5917.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-03-03T17:39:15+09:00",
         "story": ""
       }
@@ -2594,9 +2776,11 @@
     "media": [
       {
         "id": "IMG_6651",
+        "file": "IMG_6651.jpeg",
         "src": "filebox/records/restroom(place)/IMG_6651/IMG_6651.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6651.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-09-11T21:47:18+09:00",
         "story": ""
       }
@@ -2628,9 +2812,11 @@
     "media": [
       {
         "id": "IMG_6720",
+        "file": "IMG_6720.jpeg",
         "src": "filebox/records/restroom(place)/IMG_6720/IMG_6720.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6720.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-09T12:13:40+09:00",
         "story": ""
       }
@@ -2662,9 +2848,11 @@
     "media": [
       {
         "id": "IMG_6753",
+        "file": "IMG_6753.jpeg",
         "src": "filebox/records/restroom(place)/IMG_6753/IMG_6753.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6753.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2025-10-09T14:53:10+09:00",
         "story": ""
       }
@@ -2696,9 +2884,11 @@
     "media": [
       {
         "id": "IMG_8066",
+        "file": "IMG_8066.jpeg",
         "src": "filebox/records/restroom(place)/IMG_8066/IMG_8066.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_8066.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-02-25T22:36:28+09:00",
         "story": ""
       }
@@ -2730,9 +2920,11 @@
     "media": [
       {
         "id": "IMG_8208",
+        "file": "IMG_8208.jpeg",
         "src": "filebox/records/transit(place)/IMG_8208/IMG_8208.jpeg",
         "thumb": "filebox/thumbs/filebox__choice__transit(place)__IMG_8208.jpg",
         "role": "primary",
+        "title": "",
         "photoTime": "2026-03-05T16:13:55+09:00",
         "story": ""
       }

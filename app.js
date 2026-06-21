@@ -33,6 +33,8 @@ const state = {
   ignoreFocusCloseUntil: 0,
   isFocusCameraAnimating: false,
   languageMenuOpen: false,
+  editMode: false,
+  editingId: null,
 };
 
 const FOCUS_ANIMATION_MS = 900;
@@ -91,6 +93,11 @@ const els = {
   languageMenu: document.querySelector("#language-menu"),
 };
 
+// The editor only ever exists on the local machine. On the published
+// (GitHub Pages) site this is false, so none of the editor UI is created and
+// visitors never see an entry point.
+const IS_LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(location.hostname);
+
 init();
 
 async function init() {
@@ -102,6 +109,9 @@ async function init() {
   render();
   await initGoogleMap();
   render();
+  if (IS_LOCAL) {
+    setupEditor();
+  }
   registerServiceWorker();
 }
 
@@ -111,7 +121,14 @@ async function loadUmbrellaData() {
     if (!response.ok) {
       throw new Error(`Failed to load data/umbrellas.json: ${response.status}`);
     }
-    return normalizeUmbrellaData(await response.json());
+    const raw = await response.json();
+    // Keep the raw, un-merged records so the editor can show real manual
+    // override values (e.g. manual time vs. EXIF time) rather than the
+    // display-merged ones.
+    state.rawById = new Map(
+      Array.isArray(raw) ? raw.filter((item) => item?.id).map((item) => [item.id, item]) : [],
+    );
+    return normalizeUmbrellaData(raw);
   } catch (error) {
     console.error(error);
     showMapMessage("Archive data could not be loaded.");
@@ -164,9 +181,11 @@ function normalizeMedia(item) {
     : [
         {
           id: item.id,
+          file: item.image?.split("/").pop() || "",
           src: item.image,
           thumb: item.thumb || item.image,
           role: "primary",
+          title: "",
           photoTime: item.photoTime || "",
           story: item.story || "",
         },
@@ -174,9 +193,11 @@ function normalizeMedia(item) {
 
   const normalized = baseMedia.map((entry, index) => ({
     id: entry.id || `${item.id}-${index + 1}`,
+    file: entry.file || (entry.src || item.image || "").split("/").pop() || "",
     src: entry.src || item.image,
     thumb: entry.thumb || entry.src || item.thumb || item.image,
     role: entry.role || (index === 0 ? "primary" : "detail"),
+    title: entry.title || "",
     photoTime: entry.photoTime || "",
     story: entry.story || "",
   }));
@@ -914,12 +935,24 @@ function renderMapMarkers(items) {
       position: item.coordinates,
       title: item.id,
       icon: markerIcon(item.id === state.focusMarkerId),
+      draggable: state.editMode,
     });
 
     marker.addListener("click", (event) => {
       event.domEvent?.stopPropagation?.();
+      if (state.editMode) {
+        openEditor(item.id);
+        return;
+      }
       state.ignoreFocusCloseUntil = performance.now() + 180;
       selectUmbrella(item.id, { focus: true });
+    });
+    marker.addListener("dragend", (event) => {
+      const lat = event.latLng?.lat();
+      const lng = event.latLng?.lng();
+      if (typeof lat === "number" && typeof lng === "number") {
+        onMarkerDragged(item.id, { lat, lng });
+      }
     });
     marker.addListener("mouseover", () => {
       marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId));
@@ -1288,6 +1321,10 @@ function groupByPlace(items) {
 }
 
 function selectUmbrella(id, options = {}) {
+  if (state.editMode) {
+    openEditor(id);
+    return;
+  }
   state.selectedId = id;
   state.focusMediaIndex = 0;
 
@@ -1734,8 +1771,472 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=46", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=48", { updateViaCache: "none" });
   }
+}
+
+/* ----------------------------------------------------------------------------
+ * Local-only admin editor
+ *
+ * Everything below runs only when IS_LOCAL is true (see init). It lets you edit
+ * a record's text fields and drag its map marker to adjust coordinates, then
+ * saves back to filebox/records via the local /api/save-record endpoint.
+ * ------------------------------------------------------------------------- */
+
+const EDITOR_TEXT_FIELDS = [
+  { key: "title", label: "标题 Title", type: "input" },
+  { key: "locationText", label: "显示地址 Location", type: "input" },
+  { key: "umbrellaType", label: "伞的类型 Type", type: "input" },
+  { key: "umbrellaColor", label: "伞的颜色 Color", type: "input" },
+  { key: "umbrellaStatus", label: "状态 Status", type: "input" },
+  { key: "time", label: "拍摄时间(覆盖) Time", type: "input" },
+  { key: "story", label: "故事/说明 Story", type: "textarea" },
+];
+
+const editor = { root: null, fields: {}, levels: [], coordReadout: null, draftCoords: null };
+
+function setupEditor() {
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.id = "editor-toggle";
+  toggle.className = "editor-toggle";
+  toggle.textContent = "✎ 编辑模式";
+  toggle.addEventListener("click", toggleEditMode);
+  document.body.appendChild(toggle);
+  editor.toggle = toggle;
+
+  const drawer = document.createElement("aside");
+  drawer.className = "editor-drawer";
+  drawer.setAttribute("aria-label", "record editor");
+  drawer.innerHTML = `
+    <header class="editor-head">
+      <strong id="editor-title">编辑记录</strong>
+      <button type="button" class="editor-close" aria-label="close">×</button>
+    </header>
+    <div class="editor-body"></div>
+    <footer class="editor-actions">
+      <button type="button" class="editor-save">保存</button>
+      <button type="button" class="editor-cancel">取消</button>
+    </footer>`;
+  document.body.appendChild(drawer);
+  editor.root = drawer;
+  editor.titleEl = drawer.querySelector("#editor-title");
+
+  const body = drawer.querySelector(".editor-body");
+
+  EDITOR_TEXT_FIELDS.forEach((field) => {
+    const row = document.createElement("label");
+    row.className = "editor-row";
+    const control = field.type === "textarea" ? document.createElement("textarea") : document.createElement("input");
+    if (field.type === "textarea") {
+      control.rows = 3;
+    }
+    row.innerHTML = `<span>${field.label}</span>`;
+    row.appendChild(control);
+    body.appendChild(row);
+    editor.fields[field.key] = control;
+  });
+
+  // Three location levels (large → small).
+  const levelsRow = document.createElement("div");
+  levelsRow.className = "editor-row";
+  levelsRow.innerHTML = "<span>地址层级 Levels（大→小）</span>";
+  const levelsWrap = document.createElement("div");
+  levelsWrap.className = "editor-levels";
+  for (let i = 0; i < 3; i += 1) {
+    const input = document.createElement("input");
+    input.placeholder = `层级 ${i + 1}`;
+    levelsWrap.appendChild(input);
+    editor.levels.push(input);
+  }
+  levelsRow.appendChild(levelsWrap);
+  body.appendChild(levelsRow);
+
+  // Coordinate readout + reset.
+  const coordRow = document.createElement("div");
+  coordRow.className = "editor-row";
+  coordRow.innerHTML = `
+    <span>坐标 Coordinates（在地图上拖动标记可调整）</span>
+    <div class="editor-coord"><code class="editor-coord-readout">—</code>
+      <button type="button" class="editor-coord-reset">恢复用照片坐标</button>
+    </div>`;
+  body.appendChild(coordRow);
+  editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
+
+  // Image management section.
+  const mediaRow = document.createElement("div");
+  mediaRow.className = "editor-row";
+  mediaRow.innerHTML = `
+    <span>图片 Images（拖按钮排序，可设主图）</span>
+    <div class="editor-media-list"></div>
+    <label class="editor-upload">
+      <span>＋ 上传图片</span>
+      <input type="file" accept="image/*" multiple hidden />
+    </label>`;
+  body.appendChild(mediaRow);
+  editor.mediaList = mediaRow.querySelector(".editor-media-list");
+  mediaRow.querySelector(".editor-upload input").addEventListener("change", onUploadImages);
+
+  // Danger zone: delete the whole record.
+  const dangerRow = document.createElement("div");
+  dangerRow.className = "editor-row editor-danger";
+  dangerRow.innerHTML = `<button type="button" class="editor-delete-record">🗑 删除此标点</button>`;
+  body.appendChild(dangerRow);
+  dangerRow.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
+
+  drawer.querySelector(".editor-close").addEventListener("click", closeEditor);
+  drawer.querySelector(".editor-cancel").addEventListener("click", closeEditor);
+  drawer.querySelector(".editor-save").addEventListener("click", saveEditor);
+  coordRow.querySelector(".editor-coord-reset").addEventListener("click", () => {
+    editor.draftCoords = null;
+    updateCoordReadout(getRawById(state.editingId));
+  });
+
+  // "Add record" button sits next to the edit toggle.
+  const addButton = document.createElement("button");
+  addButton.type = "button";
+  addButton.id = "editor-add";
+  addButton.className = "editor-add";
+  addButton.textContent = "＋ 新增标点";
+  addButton.addEventListener("click", () => editor.addInput?.click());
+  document.body.appendChild(addButton);
+  editor.addButton = addButton;
+
+  const addInput = document.createElement("input");
+  addInput.type = "file";
+  addInput.accept = "image/*";
+  addInput.hidden = true;
+  addInput.addEventListener("change", onCreateRecord);
+  document.body.appendChild(addInput);
+  editor.addInput = addInput;
+}
+
+const MEDIA_ROLE_LABELS = {
+  supplement: "补充图片",
+  detail: "细节",
+  illustration: "插图",
+};
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error("读取文件失败"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderEditorMedia() {
+  if (!editor.mediaList) {
+    return;
+  }
+  const items = editor.mediaDraft || [];
+  editor.mediaList.innerHTML = "";
+  items.forEach((media, index) => {
+    const isPrimary = media.role === "primary";
+    const row = document.createElement("div");
+    row.className = "editor-media-item";
+
+    const roleControl = isPrimary
+      ? `<span class="editor-media-badge">主图</span>`
+      : `<select class="editor-media-role">
+          ${Object.entries(MEDIA_ROLE_LABELS)
+            .map(([value, label]) => `<option value="${value}" ${media.role === value ? "selected" : ""}>${label}</option>`)
+            .join("")}
+        </select>`;
+
+    // Field visibility by role: supplement → id+title+time, detail → id+title,
+    // illustration → title only, primary → id only.
+    const showId = isPrimary || media.role === "supplement" || media.role === "detail";
+    const showTitle = !isPrimary;
+    const showTime = media.role === "supplement";
+
+    row.innerHTML = `
+      <img src="${escapeHtml(media.thumb || media.src || "")}" alt="" loading="lazy" />
+      <div class="editor-media-controls">
+        <div class="editor-media-top">
+          ${roleControl}
+          <div class="editor-media-buttons">
+            ${isPrimary ? "" : `<button type="button" data-act="primary" title="设为主图">★</button>`}
+            <button type="button" data-act="up" title="上移" ${index === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" data-act="down" title="下移" ${index === items.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" data-act="delete" title="删除图片">✕</button>
+          </div>
+        </div>
+        ${showId ? `<label class="editor-media-field">ID<input data-field="id" value="${escapeHtml(media.id || "")}" readonly /></label>` : ""}
+        ${showTitle ? `<label class="editor-media-field">标题<input data-field="title" value="${escapeHtml(media.title || "")}" placeholder="默认则空白" /></label>` : ""}
+        ${showTime ? `<label class="editor-media-field">时间<input data-field="photoTime" value="${escapeHtml(media.photoTime || "")}" placeholder="默认用照片时间" /></label>` : ""}
+      </div>`;
+
+    row.querySelector(".editor-media-role")?.addEventListener("change", (event) => {
+      media.role = event.target.value;
+      renderEditorMedia();
+    });
+    row.querySelectorAll("[data-field]").forEach((input) => {
+      input.addEventListener("input", () => {
+        media[input.dataset.field] = input.value;
+      });
+    });
+    row.querySelectorAll("[data-act]").forEach((button) => {
+      button.addEventListener("click", () => onMediaAction(button.dataset.act, index));
+    });
+
+    editor.mediaList.appendChild(row);
+  });
+}
+
+function onMediaAction(action, index) {
+  const items = editor.mediaDraft || [];
+  const media = items[index];
+  if (!media) {
+    return;
+  }
+  if (action === "up" && index > 0) {
+    items.splice(index - 1, 0, items.splice(index, 1)[0]);
+    renderEditorMedia();
+  } else if (action === "down" && index < items.length - 1) {
+    items.splice(index + 1, 0, items.splice(index, 1)[0]);
+    renderEditorMedia();
+  } else if (action === "primary") {
+    items.forEach((entry) => {
+      if (entry.role === "primary") {
+        entry.role = "detail";
+      }
+    });
+    media.role = "primary";
+    renderEditorMedia();
+  } else if (action === "delete") {
+    deleteMediaFile(media.file);
+  }
+}
+
+function toggleEditMode() {
+  state.editMode = !state.editMode;
+  document.body.classList.toggle("edit-mode", state.editMode);
+  editor.toggle.textContent = state.editMode ? "✓ 退出编辑" : "✎ 编辑模式";
+  editor.toggle.classList.toggle("is-active", state.editMode);
+  if (!state.editMode) {
+    closeEditor();
+  }
+  render();
+}
+
+function getRawById(id) {
+  return state.rawById?.get(id) || null;
+}
+
+function openEditor(id) {
+  const raw = getRawById(id);
+  if (!raw) {
+    return;
+  }
+  state.editingId = id;
+  editor.draftCoords = raw.locationCoordinates || null;
+  if (editor.titleEl) {
+    editor.titleEl.textContent = `编辑：${id}`;
+  }
+  EDITOR_TEXT_FIELDS.forEach((field) => {
+    editor.fields[field.key].value = raw[field.key] || "";
+  });
+  const levels = Array.isArray(raw.locationLevels) ? raw.locationLevels : [];
+  editor.levels.forEach((input, index) => {
+    input.value = levels[index] || "";
+  });
+  // Working copy of the media list (order + roles + per-photo text).
+  editor.mediaDraft = (Array.isArray(raw.media) ? raw.media : []).map((media) => ({
+    file: media.file || (media.src || "").split("/").pop() || "",
+    id: media.id || "",
+    role: media.role || "detail",
+    title: media.title || "",
+    photoTime: media.photoTime || "",
+    thumb: media.thumb || media.src || "",
+    src: media.src || "",
+  }));
+  renderEditorMedia();
+  updateCoordReadout(raw);
+  editor.root.classList.add("is-open");
+}
+
+function closeEditor() {
+  state.editingId = null;
+  editor.root?.classList.remove("is-open");
+}
+
+function updateCoordReadout(raw) {
+  if (!editor.coordReadout) {
+    return;
+  }
+  const coords = editor.draftCoords || raw?.photoCoordinates || null;
+  const source = editor.draftCoords ? "手动" : "照片";
+  editor.coordReadout.textContent = coords
+    ? `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}（${source}）`
+    : "—";
+}
+
+function onMarkerDragged(id, coords) {
+  editor.draftCoords = coords;
+  if (state.editingId !== id) {
+    openEditor(id);
+  }
+  updateCoordReadout(getRawById(id));
+}
+
+async function saveEditor() {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  const payload = { id, locationCoordinates: editor.draftCoords };
+  EDITOR_TEXT_FIELDS.forEach((field) => {
+    payload[field.key] = editor.fields[field.key].value;
+  });
+  payload.locationLevels = editor.levels.map((input) => input.value.trim()).filter(Boolean);
+  payload.media = (editor.mediaDraft || []).map((media) => ({
+    file: media.file,
+    id: media.id,
+    role: media.role,
+    title: media.title,
+    photoTime: media.photoTime,
+  }));
+
+  const saveButton = editor.root.querySelector(".editor-save");
+  saveButton.disabled = true;
+  saveButton.textContent = "保存中…";
+  try {
+    const response = await fetch("/api/save-record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || `保存失败（${response.status}）`);
+    }
+    // Reload the freshly-rebuilt database and re-render with edit mode intact.
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    showEditorToast("已保存 ✓");
+    openEditor(id);
+  } catch (error) {
+    showEditorToast(`保存失败：${error.message}`, true);
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "保存";
+  }
+}
+
+async function apiPost(pathname, payload) {
+  const response = await fetch(pathname, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || `请求失败（${response.status}）`);
+  }
+  return result;
+}
+
+// Upload one or more images into the currently-open record's folder.
+async function onUploadImages(event) {
+  const id = state.editingId;
+  const files = Array.from(event.target.files || []);
+  event.target.value = "";
+  if (!id || !files.length) {
+    return;
+  }
+  showEditorToast("上传中…");
+  try {
+    for (const file of files) {
+      const dataBase64 = await readFileAsDataUrl(file);
+      await apiPost("/api/upload-image", { id, filename: file.name, dataBase64 });
+    }
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    openEditor(id);
+    showEditorToast("已上传 ✓");
+  } catch (error) {
+    showEditorToast(`上传失败：${error.message}`, true);
+  }
+}
+
+async function deleteMediaFile(file) {
+  const id = state.editingId;
+  if (!id || !file) {
+    return;
+  }
+  if (!window.confirm(`确定删除图片 ${file}？`)) {
+    return;
+  }
+  try {
+    await apiPost("/api/delete-image", { id, file });
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    openEditor(id);
+    showEditorToast("已删除图片 ✓");
+  } catch (error) {
+    showEditorToast(`删除失败：${error.message}`, true);
+  }
+}
+
+// Create a new record from a chosen image, placed at the current map center.
+async function onCreateRecord(event) {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (!file) {
+    return;
+  }
+  showEditorToast("新增中…");
+  try {
+    const dataBase64 = await readFileAsDataUrl(file);
+    const center = state.map?.getCenter?.();
+    const coordinates = center ? { lat: center.lat(), lng: center.lng() } : null;
+    const result = await apiPost("/api/create-record", { filename: file.name, dataBase64, coordinates });
+    state.umbrellas = await loadUmbrellaData();
+    if (!state.editMode) {
+      toggleEditMode();
+    } else {
+      render();
+    }
+    openEditor(result.id);
+    showEditorToast("已新增标点 ✓，请拖动标记到准确位置");
+  } catch (error) {
+    showEditorToast(`新增失败：${error.message}`, true);
+  }
+}
+
+async function deleteCurrentRecord() {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  if (!window.confirm(`确定删除整条标点「${id}」？此操作会删除它的文件夹和所有图片，无法撤销。`)) {
+    return;
+  }
+  try {
+    await apiPost("/api/delete-record", { id });
+    closeEditor();
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    showEditorToast("已删除标点 ✓");
+  } catch (error) {
+    showEditorToast(`删除失败：${error.message}`, true);
+  }
+}
+
+function showEditorToast(message, isError = false) {
+  let toast = document.querySelector(".editor-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "editor-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.toggle("is-error", isError);
+  toast.classList.add("is-visible");
+  clearTimeout(showEditorToast.timer);
+  showEditorToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2600);
 }
 
 const mapStyles = [

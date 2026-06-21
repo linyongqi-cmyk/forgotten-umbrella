@@ -69,9 +69,11 @@ function buildUmbrellaItem(recordPath, record) {
     const mediaPath = path.join(recordDir, entry.file);
     return {
       id: entry.id || path.parse(entry.file).name,
+      file: entry.file,
       src: toPosix(path.relative(rootDir, mediaPath)),
       thumb: entry.legacyThumb || toPosix(path.relative(rootDir, mediaPath)),
       role: entry.role || "detail",
+      title: entry.title || "",
       photoTime: entry.photoTime || "",
       story: entry.story || "",
     };

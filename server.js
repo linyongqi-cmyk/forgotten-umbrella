@@ -16,8 +16,58 @@ const types = {
   ".svg": "image/svg+xml; charset=utf-8",
 };
 
+// Only requests coming from this machine may use the editing API.
+function isLocalRequest(request) {
+  const remote = request.socket.remoteAddress || "";
+  return (
+    remote === "127.0.0.1" ||
+    remote === "::1" ||
+    remote === "::ffff:127.0.0.1"
+  );
+}
+
+async function handleEditorRequest(request, response, url) {
+  if (!isLocalRequest(request)) {
+    response.writeHead(403, { "Content-Type": "application/json; charset=utf-8" });
+    response.end(JSON.stringify({ error: "Editing is only available on the local machine." }));
+    return;
+  }
+  if (request.method !== "POST") {
+    response.writeHead(405, { "Content-Type": "application/json; charset=utf-8" });
+    response.end(JSON.stringify({ error: "Use POST for editor requests." }));
+    return;
+  }
+
+  let body = "";
+  request.on("data", (chunk) => {
+    body += chunk;
+    if (body.length > 40_000_000) {
+      request.destroy();
+    }
+  });
+  request.on("end", async () => {
+    try {
+      const payload = body ? JSON.parse(body) : {};
+      const { handleEditorApi } = await import("./scripts/editor-api.mjs");
+      const result = await handleEditorApi(url.pathname, payload);
+      response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      response.end(JSON.stringify(result));
+    } catch (error) {
+      const statusCode = Number(error?.statusCode) || 500;
+      response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
+      response.end(JSON.stringify({ error: String(error?.message || error) }));
+    }
+  });
+}
+
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
+
+  if (url.pathname.startsWith("/api/")) {
+    handleEditorRequest(request, response, url);
+    return;
+  }
+
   const route = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
   const filePath = path.normalize(path.join(root, route));
 

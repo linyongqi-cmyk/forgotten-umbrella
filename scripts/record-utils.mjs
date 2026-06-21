@@ -51,6 +51,8 @@ export function stringifyRecordWithComments(record) {
     lines.push(`      "file": ${JSON.stringify(item.file ?? "")},`);
     lines.push('      // 角色。建议使用 primary、detail、illustration。');
     lines.push(`      "role": ${JSON.stringify(item.role ?? "")},`);
+    lines.push('      // 这张媒体自己的标题。没有就保持空字符串。');
+    lines.push(`      "title": ${JSON.stringify(item.title ?? "")},`);
     lines.push('      // 这张媒体自己的拍摄时间。没有就保持空字符串。');
     lines.push(`      "photoTime": ${JSON.stringify(item.photoTime ?? "")},`);
     lines.push('      // 这张媒体自己的说明文字。');
@@ -74,30 +76,42 @@ export async function listRecordImageFiles(recordDir) {
     .sort((a, b) => a.localeCompare(b, "en"));
 }
 
+// Sync the media list with the image files on disk while PRESERVING the order
+// stored in record.json (so the editor's reordering / primary choice sticks).
+// Stored entries whose file vanished are dropped; new files on disk are
+// appended at the end.
 export async function mergeRecordMediaWithFolder(recordPath, record) {
   const recordDir = path.dirname(recordPath);
   const recordId = path.basename(recordDir);
   const folderFiles = await listRecordImageFiles(recordDir);
-  const existingMedia = Array.isArray(record.media) ? record.media : [];
-  const existingByFile = new Map(existingMedia.filter((item) => item?.file).map((item) => [item.file, item]));
-  const existingPrimary = existingMedia.find((item) => item?.role === "primary" && item?.file);
+  const folderSet = new Set(folderFiles);
+  const existingMedia = Array.isArray(record.media) ? record.media.filter((item) => item?.file) : [];
 
-  const detectedPrimaryFile =
-    (existingPrimary && folderFiles.includes(existingPrimary.file) && existingPrimary.file) ||
-    folderFiles.find((file) => path.parse(file).name === recordId) ||
-    folderFiles[0] ||
+  const ordered = existingMedia.filter((item) => folderSet.has(item.file));
+  const referenced = new Set(ordered.map((item) => item.file));
+  folderFiles.forEach((file) => {
+    if (!referenced.has(file)) {
+      ordered.push({ file });
+    }
+  });
+
+  const explicitPrimary = ordered.find((item) => item.role === "primary");
+  const primaryFile =
+    (explicitPrimary && explicitPrimary.file) ||
+    ordered.find((item) => path.parse(item.file).name === recordId)?.file ||
+    ordered[0]?.file ||
     "";
 
-  const media = folderFiles.map((file) => {
-    const existing = existingByFile.get(file) || {};
-    const isPrimary = file === detectedPrimaryFile;
+  const media = ordered.map((item) => {
+    const isPrimary = item.file === primaryFile;
     return {
-      id: existing.id || path.parse(file).name,
-      file,
-      role: isPrimary ? "primary" : existing.role || "detail",
-      photoTime: existing.photoTime ?? (isPrimary ? record.photoTime || "" : ""),
-      story: existing.story ?? "",
-      legacyThumb: existing.legacyThumb ?? (isPrimary ? existingPrimary?.legacyThumb || "" : ""),
+      id: item.id || path.parse(item.file).name,
+      file: item.file,
+      role: isPrimary ? "primary" : item.role && item.role !== "primary" ? item.role : "detail",
+      title: item.title ?? "",
+      photoTime: item.photoTime ?? (isPrimary ? record.photoTime || "" : ""),
+      story: item.story ?? "",
+      legacyThumb: item.legacyThumb ?? "",
     };
   });
 
