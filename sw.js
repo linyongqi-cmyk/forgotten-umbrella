@@ -1,4 +1,4 @@
-const CACHE_NAME = "forgotten-umbrella-v31";
+const CACHE_NAME = "forgotten-umbrella-v46";
 const ASSETS = [
   ".",
   "index.html",
@@ -8,14 +8,6 @@ const ASSETS = [
   "data/umbrellas.json",
   "manifest.json",
   "assets/icons/icon.svg",
-  "assets/photos/umbrella-kanda.svg",
-  "assets/photos/umbrella-ginza.svg",
-  "assets/photos/umbrella-yanaka.svg",
-  "assets/photos/umbrella-shibuya.svg",
-  "assets/photos/umbrella-placeholder-1.svg",
-  "assets/photos/umbrella-placeholder-2.svg",
-  "assets/photos/umbrella-placeholder-3.svg",
-  "assets/photos/umbrella-placeholder-4.svg",
   "filebox/welcome-pic/2.png",
 ];
 
@@ -49,6 +41,28 @@ self.addEventListener("fetch", (event) => {
       requestUrl.pathname === "/");
 
   if (isAppShellRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
+    return;
+  }
+
+  const isSameOriginImage =
+    requestUrl.origin === self.location.origin &&
+    (requestUrl.pathname.endsWith(".png") ||
+      requestUrl.pathname.endsWith(".jpg") ||
+      requestUrl.pathname.endsWith(".jpeg") ||
+      requestUrl.pathname.endsWith(".webp") ||
+      requestUrl.pathname.endsWith(".gif") ||
+      requestUrl.pathname.endsWith(".avif"));
+
+  if (isSameOriginImage) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {

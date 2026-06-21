@@ -7,7 +7,7 @@
     <title>&#34987;&#36951;&#24536;&#30340;&#20254; | &#22478;&#24066;&#35282;&#33853;&#22320;&#22270;</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=31" />
+    <link rel="stylesheet" href="styles.css?v=46" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -95,7 +95,7 @@
 
           <aside class="side-panel" id="list-panel" aria-label="location list">
             <div class="panel-heading">
-              <h2>&#34903;&#35282;&#35760;&#24405;</h2>
+              <h2>Archive</h2>
             </div>
 
             <div class="search-shell">
@@ -107,15 +107,20 @@
               </button>
             </div>
             <label class="search-box" hidden>
-              <input id="search-input" type="search" placeholder="&#22320;&#28857;&#12289;&#26448;&#36136;&#12289;&#22825;&#27668;..." />
+              <input id="search-input" type="search" placeholder="ID, place, type, story..." />
             </label>
 
-            <div class="filter-row" aria-label="weather filters">
-              <button class="chip is-active" data-weather="all" type="button">&#20840;&#37096;</button>
-              <button class="chip" data-weather="&#38632;&#21518;" type="button">&#38632;&#21518;</button>
-              <button class="chip" data-weather="&#38452;&#22825;" type="button">&#38452;&#22825;</button>
-              <button class="chip" data-weather="&#22812;&#38632;" type="button">&#22812;&#38632;</button>
+            <div class="filter-row" aria-label="map archive sorting">
+              <button class="chip is-active" data-list-sort="default" type="button">&#40664;&#35748;</button>
+              <button class="chip" data-list-sort="time" type="button">&#26102;&#38388;</button>
+              <button class="chip" data-list-sort="type" type="button">&#31867;&#22411;</button>
+              <button class="chip" data-list-sort="place" type="button">&#22320;&#28857;</button>
+              <button id="list-order-toggle" class="list-order-toggle" type="button" aria-label="toggle list time order" title="toggle list time order" hidden>
+                <span aria-hidden="true">&#8597;</span>
+              </button>
             </div>
+
+            <div class="list-secondary-row" id="list-secondary-row" hidden></div>
 
             <div class="archive-list" id="archive-list" aria-live="polite"></div>
           </aside>
@@ -125,18 +130,22 @@
                 <circle cx="12" cy="12" r="8.5" />
                 <path d="M3.5 12h17M12 3.5c2.6 2.4 4 5.3 4 8.5s-1.4 6.1-4 8.5M12 3.5c-2.6 2.4-4 5.3-4 8.5s1.4 6.1 4 8.5" />
               </svg>
-            <span id="result-count">14 item</span>
+            <span id="result-count"></span>
           </button>
 
-          <button id="map-type-toggle" class="map-type-toggle" type="button" aria-label="switch to satellite map" title="switch to satellite map">
-            Satellite
+          <button id="map-type-toggle" class="map-type-toggle" type="button" aria-label="switch to map" title="switch to map">
+            Map
           </button>
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
-            <button class="focus-close" id="focus-close" type="button" aria-label="close image">&#215;</button>
-            <img id="focus-image" alt="" />
+            <button class="focus-close" id="focus-close" type="button" aria-label="close focus view" title="close focus view">
+              <span aria-hidden="true">×</span>
+            </button>
+            <div class="focus-image-frame">
+              <img id="focus-image" alt="" />
+            </div>
             <figcaption id="focus-caption"></figcaption>
           </figure>
         </section>
@@ -190,7 +199,6 @@
       </main>
     </div>
 
-    <script src="config.js" type="module"></script>
-    <script src="app.js?v=31" type="module"></script>
+    <script src="app.js?v=46" type="module"></script>
   </body>
 </html>

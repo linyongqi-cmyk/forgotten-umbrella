@@ -1,211 +1,16 @@
-const UMBRELLA_DATA = [
-  {
-    id: "kanda-blue",
-    title: "Blue umbrella outside the konbini",
-    location: "Tokyo, Kanda",
-    type: "type1",
-    prefecture: "Tokyo",
-    adminArea: "Tokyo, Chiyoda, Kanda",
-    time: "2026-04-13T17:42:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Nylon / metal frame",
-    coordinates: { lat: 35.69172, lng: 139.77092 },
-    image: "assets/photos/umbrella-kanda.svg",
-    note: "Left beside the sliding door after the rain stopped.",
-  },
-  {
-    id: "ginza-clear",
-    title: "Clear umbrella at the Ginza crossing",
-    location: "Tokyo, Ginza",
-    type: "type2",
-    prefecture: "Tokyo",
-    adminArea: "Tokyo, Chuo, Ginza",
-    time: "2026-05-02T20:16:00+09:00",
-    weather: "\u591c\u96e8",
-    material: "Clear plastic / white handle",
-    coordinates: { lat: 35.67193, lng: 139.76502 },
-    image: "assets/photos/umbrella-ginza.svg",
-    note: "Almost disappeared into the reflections on the wet street.",
-  },
-  {
-    id: "yanaka-black",
-    title: "Black umbrella by the old wall",
-    location: "Tokyo, Yanaka",
-    type: "type3",
-    prefecture: "Tokyo",
-    adminArea: "Tokyo, Taito, Yanaka",
-    time: "2026-05-19T15:28:00+09:00",
-    weather: "\u9634\u5929",
-    material: "Black cloth / curved wood handle",
-    coordinates: { lat: 35.72564, lng: 139.76649 },
-    image: "assets/photos/umbrella-yanaka.svg",
-    note: "Hung carefully rather than dropped.",
-  },
-  {
-    id: "shibuya-red",
-    title: "Red umbrella at the end of the crossing",
-    location: "Tokyo, Shibuya",
-    type: "type4",
-    prefecture: "Tokyo",
-    adminArea: "Tokyo, Shibuya",
-    time: "2026-06-04T18:07:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Red polyester / black handle",
-    coordinates: { lat: 35.65803, lng: 139.70164 },
-    image: "assets/photos/umbrella-shibuya.svg",
-    note: "A bright red pause in a dense stream of people.",
-  },
-  {
-    id: "osaka-nakanoshima",
-    title: "Gray umbrella on the riverside path",
-    location: "Osaka, Nakanoshima",
-    type: "type5",
-    prefecture: "Osaka",
-    adminArea: "Osaka, Kita, Nakanoshima",
-    time: "2026-03-21T08:35:00+09:00",
-    weather: "\u9634\u5929",
-    material: "Polyester / aluminum frame",
-    coordinates: { lat: 34.69125, lng: 135.49584 },
-    image: "assets/photos/umbrella-placeholder-1.svg",
-    note: "Pressed between a bench and the rail before the commute fully started.",
-  },
-  {
-    id: "kyoto-gion",
-    title: "Paper-toned umbrella near Gion",
-    location: "Kyoto, Gion",
-    type: "type6",
-    prefecture: "Kyoto",
-    adminArea: "Kyoto, Higashiyama, Gion",
-    time: "2026-03-29T19:18:00+09:00",
-    weather: "\u591c\u96e8",
-    material: "Light fabric / wood handle",
-    coordinates: { lat: 35.00368, lng: 135.77855 },
-    image: "assets/photos/umbrella-placeholder-2.svg",
-    note: "Still glowing against the wet stone street after the rain line passed.",
-  },
-  {
-    id: "sapporo-odori",
-    title: "White umbrella at Odori Park",
-    location: "Sapporo, Odori",
-    type: "type1",
-    prefecture: "Hokkaido",
-    adminArea: "Hokkaido, Sapporo, Chuo",
-    time: "2026-04-05T10:12:00+09:00",
-    weather: "\u9634\u5929",
-    material: "Waterproof cloth / slim shaft",
-    coordinates: { lat: 43.06076, lng: 141.35536 },
-    image: "assets/photos/umbrella-placeholder-3.svg",
-    note: "A colder trace of rain stayed on the edge.",
-  },
-  {
-    id: "fukuoka-ohori",
-    title: "Dark green fold umbrella by the lake steps",
-    location: "Fukuoka, Ohori Park",
-    type: "type2",
-    prefecture: "Fukuoka",
-    adminArea: "Fukuoka, Chuo, Ohori Park",
-    time: "2026-04-17T16:40:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Coated nylon / dark grip",
-    coordinates: { lat: 33.58537, lng: 130.37655 },
-    image: "assets/photos/umbrella-placeholder-4.svg",
-    note: "A short gap between the umbrella and the bench felt like an interrupted talk.",
-  },
-  {
-    id: "nagoya-sakae",
-    title: "Blue-gray umbrella at the underground entry",
-    location: "Nagoya, Sakae",
-    type: "type3",
-    prefecture: "Aichi",
-    adminArea: "Aichi, Nagoya, Naka",
-    time: "2026-04-30T21:03:00+09:00",
-    weather: "\u591c\u96e8",
-    material: "Water-repellent cloth / straight handle",
-    coordinates: { lat: 35.16858, lng: 136.90862 },
-    image: "assets/photos/umbrella-placeholder-1.svg",
-    note: "Temporarily stored in a crack of the city while the crowd moved below.",
-  },
-  {
-    id: "kobe-harborland",
-    title: "Clear umbrella caught in the harbor rail",
-    location: "Kobe, Harborland",
-    type: "type4",
-    prefecture: "Hyogo",
-    adminArea: "Hyogo, Kobe, Chuo",
-    time: "2026-05-08T18:54:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Clear plastic / translucent handle",
-    coordinates: { lat: 34.68239, lng: 135.18311 },
-    image: "assets/photos/umbrella-placeholder-2.svg",
-    note: "More like docking than being forgotten.",
-  },
-  {
-    id: "sendai-jozenji",
-    title: "Deep blue umbrella under the trees",
-    location: "Sendai, Jozenji-dori",
-    type: "type5",
-    prefecture: "Miyagi",
-    adminArea: "Miyagi, Sendai, Aoba",
-    time: "2026-05-14T11:26:00+09:00",
-    weather: "\u9634\u5929",
-    material: "Blue cloth / black handle",
-    coordinates: { lat: 38.26482, lng: 140.86939 },
-    image: "assets/photos/umbrella-placeholder-3.svg",
-    note: "Placed by the flowerbed under a quieter light.",
-  },
-  {
-    id: "hiroshima-peace",
-    title: "Beige umbrella at the river bridge entrance",
-    location: "Hiroshima, Peace Park",
-    type: "type6",
-    prefecture: "Hiroshima",
-    adminArea: "Hiroshima, Naka, Peace Park",
-    time: "2026-05-24T09:42:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Beige cloth / wood handle",
-    coordinates: { lat: 34.39552, lng: 132.45362 },
-    image: "assets/photos/umbrella-placeholder-4.svg",
-    note: "Tilted slightly toward the bridge as if still waiting to be picked up.",
-  },
-  {
-    id: "kanazawa-higashi",
-    title: "Crimson umbrella under the tea-house window",
-    location: "Kanazawa, Higashi Chaya",
-    type: "type1",
-    prefecture: "Ishikawa",
-    adminArea: "Ishikawa, Kanazawa, Higashi Chaya",
-    time: "2026-06-01T14:14:00+09:00",
-    weather: "\u9634\u5929",
-    material: "Brown-red cloth / wood shaft",
-    coordinates: { lat: 36.57216, lng: 136.66377 },
-    image: "assets/photos/umbrella-placeholder-1.svg",
-    note: "The street seemed to absorb part of its color.",
-  },
-  {
-    id: "naha-kokusai",
-    title: "Light gray umbrella at Kokusai-dori",
-    location: "Naha, Kokusai-dori",
-    type: "type2",
-    prefecture: "Okinawa",
-    adminArea: "Okinawa, Naha, Kokusai-dori",
-    time: "2026-06-09T13:09:00+09:00",
-    weather: "\u96e8\u540e",
-    material: "Light gray coated cloth / plastic handle",
-    coordinates: { lat: 26.21452, lng: 127.68093 },
-    image: "assets/photos/umbrella-placeholder-2.svg",
-    note: "The sun was already back but the droplets had not left yet.",
-  },
-];
+import { GOOGLE_MAPS_API_KEY } from "./config.js";
 
 const state = {
   umbrellas: [],
   selectedId: null,
-  weather: "all",
+  listSort: "default",
+  listSubfilter: "all",
+  listOrder: "desc",
   query: "",
   map: null,
   markers: new Map(),
   googleReady: false,
-  googleMapsApiKey: "",
+  googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   focusMarkerId: null,
   focusPositionedId: null,
   suppressNextFit: false,
@@ -216,9 +21,17 @@ const state = {
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
   searchOpen: false,
-  mapType: "roadmap",
+  mapType: "satellite",
+  imageExpanded: false,
+  focusMediaIndex: 0,
+  imageZoom: 1,
+  imagePanX: 0,
+  imagePanY: 0,
+  imageFrameWidth: 0,
+  imageFrameHeight: 0,
+  imageDragStart: null,
+  ignoreFocusCloseUntil: 0,
   isFocusCameraAnimating: false,
-  userMapInteractionPrimed: false,
   languageMenuOpen: false,
 };
 
@@ -252,7 +65,9 @@ const els = {
   search: document.querySelector("#search-input"),
   searchBox: document.querySelector(".search-box"),
   searchToggle: document.querySelector("#search-toggle"),
-  chips: document.querySelectorAll(".chip"),
+  chips: document.querySelectorAll("[data-list-sort]"),
+  listSecondary: document.querySelector("#list-secondary-row"),
+  listOrderToggle: document.querySelector("#list-order-toggle"),
   list: document.querySelector("#archive-list"),
   mapCanvas: document.querySelector("#google-map"),
   mapMessage: document.querySelector("#map-message"),
@@ -279,26 +94,98 @@ const els = {
 init();
 
 async function init() {
-  state.umbrellas = UMBRELLA_DATA;
+  state.umbrellas = await loadUmbrellaData();
   state.selectedId = null;
 
   initWelcomeTitleLayout();
   bindEvents();
   render();
-  state.googleMapsApiKey = await loadGoogleMapsApiKey();
   await initGoogleMap();
   render();
   registerServiceWorker();
 }
 
-async function loadGoogleMapsApiKey() {
+async function loadUmbrellaData() {
   try {
-    const localConfig = await import("./config.local.js");
-    return localConfig.GOOGLE_MAPS_API_KEY;
+    const response = await fetch("data/umbrellas.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load data/umbrellas.json: ${response.status}`);
+    }
+    return normalizeUmbrellaData(await response.json());
   } catch (error) {
-    const publicConfig = await import("./config.js");
-    return publicConfig.GOOGLE_MAPS_API_KEY;
+    console.error(error);
+    showMapMessage("Archive data could not be loaded.");
+    return [];
   }
+}
+
+function normalizeUmbrellaData(items) {
+  return items
+    .map((item) => {
+      const umbrellaType = item.umbrellaType || "";
+      const umbrellaColor = item.umbrellaColor || "";
+      const categoryType = formatCategoryType(item);
+      const locationLevels = normalizeLocationLevels(item.locationLevels);
+      const locationText = item.locationText || formatLocationLevels(locationLevels);
+      const coordinates = item.locationCoordinates || item.photoCoordinates;
+      const time = item.time || item.photoTime || "";
+      const prefecture = locationLevels[0] || "Unknown";
+      const adminArea = locationLevels.slice(1).join(", ") || locationText || "Unknown";
+      return {
+        ...item,
+        title: item.title || "",
+        displayName: item.id,
+        thumb: item.thumb || item.image,
+        location: locationText,
+        locationText,
+        locationLevels,
+        coordinates,
+        time,
+        photoTime: item.photoTime || "",
+        locationCoordinates: item.locationCoordinates || null,
+        photoCoordinates: item.photoCoordinates || null,
+        umbrellaType,
+        umbrellaColor,
+        umbrellaStatus: item.umbrellaStatus || "",
+        story: item.story || "",
+        media: normalizeMedia(item),
+        type: categoryType || "uncategorized",
+        prefecture,
+        adminArea,
+        material: [umbrellaColor, umbrellaType].filter(Boolean).join(" "),
+      };
+    })
+    .filter((item) => item.id && item.image);
+}
+
+function normalizeMedia(item) {
+  const baseMedia = Array.isArray(item.media) && item.media.length
+    ? item.media
+    : [
+        {
+          id: item.id,
+          src: item.image,
+          thumb: item.thumb || item.image,
+          role: "primary",
+          photoTime: item.photoTime || "",
+          story: item.story || "",
+        },
+      ];
+
+  const normalized = baseMedia.map((entry, index) => ({
+    id: entry.id || `${item.id}-${index + 1}`,
+    src: entry.src || item.image,
+    thumb: entry.thumb || entry.src || item.thumb || item.image,
+    role: entry.role || (index === 0 ? "primary" : "detail"),
+    photoTime: entry.photoTime || "",
+    story: entry.story || "",
+  }));
+
+  if (!normalized.some((entry) => entry.role === "primary") && normalized[0]) {
+    normalized[0].role = "primary";
+  }
+
+  return normalized;
 }
 
 function initWelcomeTitleLayout() {
@@ -321,6 +208,7 @@ function bindEvents() {
   initWelcomeCrosshair();
   syncPanelToggleLabels();
   syncArchiveControls();
+  syncListControls(filteredUmbrellas());
   syncSearchBox();
 
   els.tabs.forEach((tab) => {
@@ -346,14 +234,18 @@ function bindEvents() {
 
   els.chips.forEach((chip) => {
     chip.addEventListener("click", () => {
-      state.weather = chip.dataset.weather;
+      state.listSort = chip.dataset.listSort;
+      state.listSubfilter = "all";
       els.chips.forEach((item) => item.classList.toggle("is-active", item === chip));
+      syncListControls(filteredUmbrellas());
       render();
     });
   });
 
   els.resetMap?.addEventListener("click", () => {
-    state.weather = "all";
+    state.listSort = "default";
+    state.listSubfilter = "all";
+    state.listOrder = "desc";
     state.query = "";
     state.selectedId = null;
     state.focusMarkerId = null;
@@ -364,13 +256,49 @@ function bindEvents() {
       els.search.value = "";
     }
 
-    els.chips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.weather === "all"));
+    els.chips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.listSort === "default"));
+    syncListControls(filteredUmbrellas());
     render();
     fitMapToItems(filteredUmbrellas());
   });
 
   els.toggleList?.addEventListener("click", togglePanel);
+  els.focusImage?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    openExpandedImage(event);
+  });
+  els.focusImage?.addEventListener("load", () => {
+    els.focusPanel?.classList.remove("is-loading");
+    if (state.imageExpanded) {
+      setExpandedImageFrame();
+      updateExpandedImageTransform();
+    }
+  });
+  els.focusImage?.addEventListener("pointerdown", startExpandedImageDrag);
+  document.addEventListener("pointermove", dragExpandedImage);
+  document.addEventListener("pointerup", stopExpandedImageDrag);
+  els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
+  els.focusBlur?.addEventListener("click", () => {
+    if (state.imageExpanded) {
+      closeExpandedImage();
+    }
+  });
+  els.focusPanel?.addEventListener("wheel", handleExpandedImageWheel, { passive: false });
+  els.focusCaption?.addEventListener("click", (event) => {
+    const mediaButton = event.target.closest?.("[data-focus-media-index]");
+    if (!mediaButton) {
+      return;
+    }
+
+    const index = Number(mediaButton.dataset.focusMediaIndex);
+    if (!Number.isInteger(index)) {
+      return;
+    }
+
+    state.focusMediaIndex = index;
+    renderFocusImage();
+  });
 
   els.searchToggle?.addEventListener("click", () => {
     state.searchOpen = !state.searchOpen;
@@ -378,6 +306,22 @@ function bindEvents() {
   });
 
   els.mapTypeToggle?.addEventListener("click", toggleMapType);
+
+  els.listOrderToggle?.addEventListener("click", () => {
+    state.listOrder = state.listOrder === "desc" ? "asc" : "desc";
+    syncListControls(filteredUmbrellas());
+    render();
+  });
+
+  els.listSecondary?.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-list-subfilter]");
+    if (!button) {
+      return;
+    }
+
+    state.listSubfilter = button.dataset.listSubfilter;
+    render();
+  });
 
   els.archiveModeControls.forEach((button) => {
     button.addEventListener("click", () => {
@@ -425,13 +369,28 @@ function bindEvents() {
     "click",
     (event) => {
       const markerElement = event.target.closest?.("[title]");
-      const item = state.umbrellas.find((entry) => entry.title === markerElement?.getAttribute("title"));
+      const item = state.umbrellas.find((entry) => entry.id === markerElement?.getAttribute("title"));
       if (item) {
         selectUmbrella(item.id, { focus: true });
       }
     },
     true,
   );
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    if (state.imageExpanded) {
+      closeExpandedImage();
+      return;
+    }
+
+    if (els.mapView.classList.contains("is-focus-mode")) {
+      closeFocusMode({ resetZoom: true });
+    }
+  });
 }
 
 function syncPanelToggleLabels() {
@@ -452,6 +411,45 @@ function syncArchiveControls() {
     els.archiveOrderToggle.hidden = state.archiveMode !== "time";
     els.archiveOrderToggle.classList.toggle("is-asc", state.archiveOrder === "asc");
   }
+}
+
+function syncListControls(items) {
+  els.chips.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.listSort === state.listSort);
+  });
+
+  if (els.listOrderToggle) {
+    els.listOrderToggle.hidden = state.listSort !== "time";
+    els.listOrderToggle.classList.toggle("is-asc", state.listOrder === "asc");
+  }
+
+  if (!els.listSecondary) {
+    return;
+  }
+
+  if (state.listSort !== "type" && state.listSort !== "place") {
+    els.listSecondary.hidden = true;
+    els.listSecondary.innerHTML = "";
+    return;
+  }
+
+  const field = state.listSort === "type" ? "type" : "prefecture";
+  const counts = countByField(items, field);
+  const options = [
+    { key: "all", label: `all (${items.length})` },
+    ...Array.from(counts.entries()).map(([key, count]) => ({ key, label: `${key} (${count})` })),
+  ];
+
+  els.listSecondary.hidden = false;
+  els.listSecondary.innerHTML = options
+    .map(
+      (option) => `
+        <button class="list-subcontrol ${option.key === state.listSubfilter ? "is-active" : ""}" data-list-subfilter="${option.key}" type="button">
+          ${option.label}
+        </button>
+      `,
+    )
+    .join("");
 }
 
 function syncSearchBox() {
@@ -674,6 +672,7 @@ async function initGoogleMap() {
   const initialCenter = await getInitialMapCenter();
   state.map.setCenter(initialCenter);
   state.map.setZoom(DEFAULT_MAP_ZOOM);
+  syncMapTypeButton();
 
   state.googleReady = true;
   state.suppressNextFit = true;
@@ -727,6 +726,10 @@ function toggleMapType() {
 
   state.mapType = state.mapType === "roadmap" ? "satellite" : "roadmap";
   state.map.setMapTypeId(state.mapType);
+  syncMapTypeButton();
+}
+
+function syncMapTypeButton() {
   if (els.mapTypeToggle) {
     const nextLabel = state.mapType === "roadmap" ? "Satellite" : "Map";
     els.mapTypeToggle.textContent = nextLabel;
@@ -786,7 +789,7 @@ function loadGoogleMaps(apiKey) {
       fail(new Error("Google Maps loading timed out"));
     }, 12000);
 
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&language=zh-CN&region=JP&loading=async&callback=${callbackName}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&language=en&region=JP&loading=async&callback=${callbackName}`;
     script.async = true;
     script.defer = true;
     script.onerror = () => {
@@ -799,11 +802,18 @@ function loadGoogleMaps(apiKey) {
 
 function filteredUmbrellas() {
   return state.umbrellas.filter((item) => {
-    const matchesWeather = state.weather === "all" || item.weather === state.weather;
-    const haystack = [item.title, item.location, item.time, item.weather, item.material, item.note]
+    const haystack = [
+      item.id,
+      item.location,
+      item.time,
+      item.type,
+      item.material,
+      item.umbrellaStatus,
+      item.story,
+    ]
       .join(" ")
       .toLowerCase();
-    return matchesWeather && haystack.includes(state.query);
+    return haystack.includes(state.query);
   });
 }
 
@@ -835,15 +845,20 @@ function renderList(items) {
     return;
   }
 
-  els.list.innerHTML = items
+  syncListControls(items);
+  const sortedItems = sortListItems(filterListItems(items));
+
+  els.list.innerHTML = sortedItems
     .map(
       (item) => `
         <button class="location-button ${item.id === state.selectedId ? "is-active" : ""}" data-id="${item.id}" type="button">
-          <img src="${item.image}" alt="${item.title}" />
-          <span>
-            <strong>${item.title}</strong>
-            <span>${item.location}</span>
-            <span>${formatListDate(item.time)} / ${item.weather}</span>
+          <img src="${item.thumb}" alt="${item.id}" loading="lazy" decoding="async" />
+          <span class="location-copy">
+            <strong>${item.id}</strong>
+            ${item.title ? `<span class="location-title">${escapeHtml(item.title)}</span>` : ""}
+            <span class="location-meta">
+              <span>${escapeHtml(formatListMeta(item))}</span>
+            </span>
           </span>
         </button>
       `,
@@ -855,6 +870,36 @@ function renderList(items) {
   });
 }
 
+function filterListItems(items) {
+  if ((state.listSort !== "type" && state.listSort !== "place") || state.listSubfilter === "all") {
+    return items;
+  }
+
+  const field = state.listSort === "type" ? "type" : "prefecture";
+  return items.filter((item) => item[field] === state.listSubfilter);
+}
+
+function sortListItems(items) {
+  if (state.listSort === "time") {
+    return sortByTime(items, state.listOrder);
+  }
+
+  if (state.listSort === "type") {
+    return sortByCount(items, "type");
+  }
+
+  if (state.listSort === "place") {
+    return [...items].sort(
+      (a, b) =>
+        String(a.prefecture).localeCompare(String(b.prefecture)) ||
+        String(a.adminArea).localeCompare(String(b.adminArea)) ||
+        getTimeValue(b) - getTimeValue(a),
+    );
+  }
+
+  return [...items];
+}
+
 function renderMapMarkers(items) {
   if (!state.googleReady) {
     return;
@@ -863,15 +908,19 @@ function renderMapMarkers(items) {
   state.markers.forEach((marker) => marker.setMap(null));
   state.markers.clear();
 
-  items.forEach((item) => {
+  items.filter(hasCoordinates).forEach((item) => {
     const marker = new google.maps.Marker({
       map: state.map,
       position: item.coordinates,
-      title: item.title,
+      title: item.id,
       icon: markerIcon(item.id === state.focusMarkerId),
     });
 
-    marker.addListener("click", () => selectUmbrella(item.id, { focus: true }));
+    marker.addListener("click", (event) => {
+      event.domEvent?.stopPropagation?.();
+      state.ignoreFocusCloseUntil = performance.now() + 180;
+      selectUmbrella(item.id, { focus: true });
+    });
     marker.addListener("mouseover", () => {
       marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId));
     });
@@ -892,9 +941,65 @@ function renderFocusImage() {
     return;
   }
 
-  els.focusImage.src = item.image;
-  els.focusImage.alt = item.title;
-  els.focusCaption.textContent = `${item.title} / ${item.location} / ${formatDateTime(item.time)}`;
+  const media = item.media?.[state.focusMediaIndex] || item.media?.[0];
+  if (!media) {
+    return;
+  }
+
+  els.focusPanel?.classList.add("is-loading");
+  els.focusImage.src = media.src;
+  els.focusImage.alt = media.id || item.id;
+  els.focusCaption.innerHTML = renderFocusCaption(item, media);
+  if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
+    els.focusPanel?.classList.remove("is-loading");
+  }
+  closeExpandedImage();
+}
+
+function renderFocusCaption(item, media) {
+  const focusTitle = item.title ? `${item.id}(${item.title})` : item.id;
+  const objectLine = [item.umbrellaColor, item.umbrellaType].filter(Boolean).join(" ");
+  const infoLines = [
+    { label: "type", value: formatInformationType(item) },
+    { label: "object", value: objectLine },
+    { label: "state", value: item.umbrellaStatus },
+  ].filter((entry) => entry.value);
+  const mediaNoteLines = item.media.length > 1
+    ? [
+        media.photoTime && media.photoTime !== item.photoTime ? formatDateTime(media.photoTime) : "",
+        media.story || "",
+      ].filter(Boolean)
+    : [];
+
+  const mediaStrip = item.media.length > 1
+    ? `
+      <section class="focus-media-strip" aria-label="media list">
+        ${item.media
+          .map(
+            (entry, index) => `
+              <button class="focus-media-thumb ${index === state.focusMediaIndex ? "is-active" : ""}" type="button" data-focus-media-index="${index}" aria-label="show ${escapeHtml(entry.id)}">
+                <img src="${entry.thumb}" alt="${escapeHtml(entry.id)}" loading="lazy" decoding="async" />
+                <span>${escapeHtml(entry.id)}</span>
+              </button>
+            `,
+          )
+          .join("")}
+      </section>
+    `
+    : "";
+
+  return `
+    <div class="focus-caption-inner">
+      <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
+      ${item.location ? `<p class="item-detail">${escapeHtml(item.location)}</p>` : ""}
+      ${formatDateTime(item.time) ? `<p class="item-detail">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
+      ${infoLines.length ? '<h4 class="focus-info-heading">information</h4>' : ""}
+      ${infoLines.map((entry) => `<p class="item-detail">${escapeHtml(`${entry.label}: ${entry.value}`)}</p>`).join("")}
+      ${item.story ? `<p class="item-story">${escapeHtml(item.story)}</p>` : ""}
+      ${mediaNoteLines.map((detail) => `<p class="item-detail">${escapeHtml(detail)}</p>`).join("")}
+      ${mediaStrip}
+    </div>
+  `;
 }
 
 function renderArchive(items) {
@@ -1028,19 +1133,95 @@ function renderArchiveGroup(group) {
 function renderPhotoCard(item) {
   return `
     <article class="photo-card">
-      <img src="${item.image}" alt="${item.title}" />
+      <img src="${item.thumb}" alt="${item.id}" loading="lazy" decoding="async" />
       <div>
-        <h3>${item.title}</h3>
-        <p>${item.location}</p>
-        <p>${formatDateTime(item.time)}</p>
+        ${renderItemText(item, "card")}
       </div>
     </article>
   `;
 }
 
+function renderItemText(item, context) {
+  const isArchiveCard = context === "card";
+  const locationLine = formatDetailLine(item.location, formatDateTime(item.time));
+  const details = [
+    item.title,
+    locationLine || formatDateTime(item.time),
+    item.material,
+    item.umbrellaStatus,
+    item.story,
+  ].filter(Boolean);
+  const title = item.id;
+  const storyClass = context === "focus" ? "item-story" : "item-story is-compact";
+
+  return [
+    `<h3>${escapeHtml(title)}</h3>`,
+    ...details.map((detail, index) => {
+      const className = index === details.length - 1 && detail === item.story ? storyClass : "item-detail";
+      return `<p class="${className}">${escapeHtml(detail)}</p>`;
+    }),
+  ].join("");
+}
+
+function formatDetailLine(...parts) {
+  return parts.filter(Boolean).join(" / ");
+}
+
+function formatListMeta(item) {
+  return formatDetailLine(item.location, formatListDate(item.time)) || "time / location text needed";
+}
+
+function hasCoordinates(item) {
+  return Number.isFinite(Number(item.coordinates?.lat)) && Number.isFinite(Number(item.coordinates?.lng));
+}
+
+function formatCategoryType(item) {
+  if (item.category && item.categoryGroup) {
+    return `${item.category}(${item.categoryGroup})`;
+  }
+
+  return item.category || item.categoryGroup || item.type || "";
+}
+
+function formatInformationType(item) {
+  const categoryLabels = {
+    transit: "public transit",
+  };
+  const category = categoryLabels[item.category] || item.category || "";
+  if (category && item.categoryGroup) {
+    return `${category}(${item.categoryGroup})`;
+  }
+
+  return category || item.categoryGroup || item.type || "";
+}
+
+function normalizeLocationLevels(levels) {
+  return Array.isArray(levels)
+    ? levels.map((level) => String(level || "").trim()).filter(Boolean).slice(0, 3)
+    : [];
+}
+
+function formatLocationLevels(levels) {
+  return normalizeLocationLevels(levels).join(", ");
+}
+
+function getTimeValue(item) {
+  const value = new Date(item.time).getTime();
+  return Number.isFinite(value) ? value : -Infinity;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function sortByTime(items, order) {
   return [...items].sort((a, b) => {
-    const delta = new Date(a.time).getTime() - new Date(b.time).getTime();
+    const delta = getTimeValue(a) - getTimeValue(b);
     return order === "asc" ? delta : -delta;
   });
 }
@@ -1054,11 +1235,12 @@ function groupByMonth(items) {
 
   items.forEach((item) => {
     const date = new Date(item.time);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const hasTime = Number.isFinite(date.getTime());
+    const key = hasTime ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` : "no-time";
     if (!groups.has(key)) {
       groups.set(key, {
         key,
-        label: formatter.format(date),
+        label: hasTime ? formatter.format(date) : "time needed",
         items: [],
       });
     }
@@ -1107,6 +1289,7 @@ function groupByPlace(items) {
 
 function selectUmbrella(id, options = {}) {
   state.selectedId = id;
+  state.focusMediaIndex = 0;
 
   if (options.focus) {
     state.focusMarkerId = id;
@@ -1121,7 +1304,7 @@ function selectUmbrella(id, options = {}) {
     if (item) {
       if (options.focus) {
         focusUmbrellaOnMap(item, id);
-      } else {
+      } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
         closeFocusMode();
         state.map.panTo(item.coordinates);
@@ -1147,7 +1330,7 @@ function focusUmbrellaOnMap(item, id) {
 }
 
 function openFocusMode() {
-  state.userMapInteractionPrimed = false;
+  setFocusBlurSuppressed(false);
   els.mapView.classList.add("is-focus-mode");
   els.focusPanel?.setAttribute("aria-hidden", "false");
   setFocusMaskPosition();
@@ -1161,16 +1344,140 @@ function closeFocusMode(options = {}) {
   state.isFocusCameraAnimating = false;
 
   const item = state.umbrellas.find((entry) => entry.id === state.focusMarkerId || entry.id === state.selectedId);
-  if (options.resetZoom && state.googleReady && item) {
+  if (options.resetZoom && state.googleReady && item && hasCoordinates(item)) {
     zoomToDefaultAroundMarker(item);
   }
 
   state.focusPositionedId = null;
   state.focusMarkerId = null;
-  state.userMapInteractionPrimed = false;
+  setFocusBlurSuppressed(false);
+  closeExpandedImage();
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.focusPanel?.setAttribute("aria-hidden", "true");
+  els.focusPanel?.classList.remove("is-loading");
+}
+
+function openExpandedImage(event) {
+  if (!els.focusPanel || !els.focusImage) {
+    return;
+  }
+
+  if (state.imageExpanded) {
+    return;
+  }
+
+  state.imageExpanded = true;
+  state.imageZoom = 1;
+  state.imagePanX = 0;
+  state.imagePanY = 0;
+  els.focusPanel.classList.add("is-expanded");
+  els.mapView.classList.add("is-image-expanded");
+  setExpandedImageFrame();
+  updateExpandedImageTransform();
+}
+
+function closeExpandedImage() {
+  state.imageExpanded = false;
+  state.imageZoom = 1;
+  state.imagePanX = 0;
+  state.imagePanY = 0;
+  state.imageFrameWidth = 0;
+  state.imageFrameHeight = 0;
+  state.imageDragStart = null;
+  els.focusPanel?.classList.remove("is-expanded");
+  els.mapView?.classList.remove("is-image-expanded");
+  els.focusImage?.style.setProperty("--image-zoom", "1");
+  els.focusImage?.style.setProperty("--image-pan-x", "0px");
+  els.focusImage?.style.setProperty("--image-pan-y", "0px");
+  els.focusPanel?.style.removeProperty("--expanded-frame-width");
+  els.focusPanel?.style.removeProperty("--expanded-frame-height");
+  els.focusImage?.style.setProperty("--image-origin-x", "50%");
+  els.focusImage?.style.setProperty("--image-origin-y", "50%");
+}
+
+function handleExpandedImageWheel(event) {
+  if (!state.imageExpanded || !els.focusImage) {
+    return;
+  }
+
+  event.preventDefault();
+  const delta = event.deltaY < 0 ? 0.14 : -0.14;
+  state.imageZoom = Math.min(4, Math.max(1, state.imageZoom + delta));
+  clampExpandedImagePan();
+  updateExpandedImageTransform();
+}
+
+function setExpandedImageFrame() {
+  if (!els.focusPanel || !els.focusImage) {
+    return;
+  }
+
+  const naturalWidth = els.focusImage.naturalWidth || els.focusImage.width || 1;
+  const naturalHeight = els.focusImage.naturalHeight || els.focusImage.height || 1;
+  const ratio = naturalWidth / naturalHeight;
+  const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.8);
+  const maxHeight = window.innerHeight * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.9);
+  let width = maxHeight * ratio;
+  let height = maxHeight;
+
+  if (width > maxWidth) {
+    width = maxWidth;
+    height = width / ratio;
+  }
+
+  state.imageFrameWidth = Math.round(width);
+  state.imageFrameHeight = Math.round(height);
+  els.focusPanel.style.setProperty("--expanded-frame-width", `${state.imageFrameWidth}px`);
+  els.focusPanel.style.setProperty("--expanded-frame-height", `${state.imageFrameHeight}px`);
+  els.focusImage.style.setProperty("--image-origin-x", "50%");
+  els.focusImage.style.setProperty("--image-origin-y", "50%");
+}
+
+function updateExpandedImageTransform() {
+  clampExpandedImagePan();
+  els.focusImage?.style.setProperty("--image-zoom", String(state.imageZoom));
+  els.focusImage?.style.setProperty("--image-pan-x", `${state.imagePanX}px`);
+  els.focusImage?.style.setProperty("--image-pan-y", `${state.imagePanY}px`);
+}
+
+function clampExpandedImagePan() {
+  const maxX = Math.max(0, (state.imageFrameWidth * state.imageZoom - state.imageFrameWidth) / 2);
+  const maxY = Math.max(0, (state.imageFrameHeight * state.imageZoom - state.imageFrameHeight) / 2);
+  state.imagePanX = Math.min(maxX, Math.max(-maxX, state.imagePanX));
+  state.imagePanY = Math.min(maxY, Math.max(-maxY, state.imagePanY));
+}
+
+function startExpandedImageDrag(event) {
+  if (!state.imageExpanded) {
+    return;
+  }
+
+  event.preventDefault();
+  els.focusImage?.setPointerCapture?.(event.pointerId);
+  state.imageDragStart = {
+    pointerId: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    panX: state.imagePanX,
+    panY: state.imagePanY,
+  };
+}
+
+function dragExpandedImage(event) {
+  if (!state.imageDragStart || state.imageDragStart.pointerId !== event.pointerId) {
+    return;
+  }
+
+  state.imagePanX = state.imageDragStart.panX + event.clientX - state.imageDragStart.x;
+  state.imagePanY = state.imageDragStart.panY + event.clientY - state.imageDragStart.y;
+  updateExpandedImageTransform();
+}
+
+function stopExpandedImageDrag(event) {
+  if (state.imageDragStart?.pointerId === event.pointerId) {
+    state.imageDragStart = null;
+  }
 }
 
 function dismissFocusAfterUserMapInteraction() {
@@ -1178,12 +1485,7 @@ function dismissFocusAfterUserMapInteraction() {
     return;
   }
 
-  if (!state.userMapInteractionPrimed) {
-    state.userMapInteractionPrimed = true;
-    return;
-  }
-
-  closeFocusMode({ preserveCamera: true });
+  setFocusBlurSuppressed(true);
 }
 
 function zoomToDefaultAroundMarker(item) {
@@ -1224,6 +1526,10 @@ function setFocusMaskPosition() {
 }
 
 function animateMarkerToFocus(item) {
+  if (!hasCoordinates(item)) {
+    return;
+  }
+
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
     state.map.panTo(item.coordinates);
@@ -1264,7 +1570,6 @@ function animateMarkerToFocus(item) {
       setFocusMaskPosition();
       window.setTimeout(() => {
         state.isFocusCameraAnimating = false;
-        state.userMapInteractionPrimed = true;
       }, 80);
     }
   };
@@ -1274,11 +1579,11 @@ function animateMarkerToFocus(item) {
 }
 
 function getMarkerButtonScreenPoint(item) {
-  if (!item?.title) {
+  if (!item?.id) {
     return null;
   }
 
-  const escapedTitle = window.CSS?.escape ? CSS.escape(item.title) : item.title.replace(/"/g, '\\"');
+  const escapedTitle = window.CSS?.escape ? CSS.escape(item.id) : item.id.replace(/"/g, '\\"');
   const markerElement = els.mapCanvas.querySelector(`[title="${escapedTitle}"]`);
   const markerRect = markerElement?.getBoundingClientRect();
   const mapRect = els.mapCanvas.getBoundingClientRect();
@@ -1337,6 +1642,10 @@ function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
+function setFocusBlurSuppressed(isSuppressed) {
+  els.mapView?.classList.toggle("is-focus-map-active", isSuppressed);
+}
+
 function getFocusTargetScreenPoint() {
   const isMobile = window.matchMedia("(max-width: 820px)").matches;
   return {
@@ -1346,18 +1655,19 @@ function getFocusTargetScreenPoint() {
 }
 
 function fitMapToItems(items) {
-  if (!state.googleReady || items.length === 0) {
+  const itemsWithCoordinates = items.filter(hasCoordinates);
+  if (!state.googleReady || itemsWithCoordinates.length === 0) {
     return;
   }
 
-  if (items.length === 1) {
-    state.map.setCenter(items[0].coordinates);
+  if (itemsWithCoordinates.length === 1) {
+    state.map.setCenter(itemsWithCoordinates[0].coordinates);
     state.map.setZoom(15);
     return;
   }
 
   const bounds = new google.maps.LatLngBounds();
-  items.forEach((item) => bounds.extend(item.coordinates));
+  itemsWithCoordinates.forEach((item) => bounds.extend(item.coordinates));
   state.map.fitBounds(bounds, 72);
 }
 
@@ -1370,9 +1680,11 @@ function updateMarkerIcons() {
 function markerIcon(isActive) {
   return {
     path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
-    fillColor: isActive ? "#2d6b68" : "#c54f35",
+    fillColor: isActive ? "#1f8bb8" : "#c54f35",
     fillOpacity: 1,
-    strokeWeight: 0,
+    strokeColor: "#ffffff",
+    strokeOpacity: 1,
+    strokeWeight: 2.1,
     scale: 1.55,
     anchor: new google.maps.Point(12, 26),
   };
@@ -1395,25 +1707,34 @@ function showMapMessage(message) {
 }
 
 function formatListDate(value) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "numeric",
-    day: "numeric",
-  }).format(new Date(value));
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return "";
+  }
+  return [
+    String(date.getFullYear()).slice(-2),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join(".");
 }
 
 function formatDateTime(value) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return "";
+  }
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js");
+    navigator.serviceWorker.register("sw.js?v=46", { updateViaCache: "none" });
   }
 }
 

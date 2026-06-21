@@ -6,4 +6,7 @@ Thumbs.db
 node_modules/
 .env
 .env.*
-config.local.js
+
+# Legacy pre-migration image source (~400MB). Superseded by filebox/records/.
+# Keep on disk for reference, but never commit it to the repo.
+filebox/choice/

@@ -1,60 +1,97 @@
-# 被遗忘的伞 / Forgotten Umbrella
+# Forgotten Umbrella
 
-一个关于城市街角“被遗忘的伞”的艺术项目地图网站与 PWA 原型。
+An art-map website and installable PWA documenting forgotten umbrellas in public space.
 
-网站目前用于展示地点、照片、时间、天气、分类和观察记录。当前版本先使用本地静态数据，后期可以迁移到数据库或 API，让网站和 App 共用同一套数据源。
+## Local preview
 
-## 本地预览
+Requires [Node.js](https://nodejs.org/) 20 or newer (see `.nvmrc`). There are no third-party dependencies, so `npm install` is not needed.
 
-```bash
+The project must run through its local server. Opening `index.html` with a `file://` URL will not load the map or archive data correctly.
+
+```powershell
 npm start
 ```
 
-然后打开：
+Then open:
 
 ```text
 http://127.0.0.1:4173/
 ```
 
-不要直接用 `file://` 打开 `index.html`，否则 Google Maps、GPS 定位和 PWA 缓存可能无法正常工作。
+## Project structure
 
-## Google Maps
+- `filebox/records/`: the canonical editable source, one folder per record with its own `record.json`.
+- `data/umbrellas.json`: the generated website/app database.
+- `filebox/choice/`: the legacy pre-migration image source. Kept locally for reference but git-ignored (it is ~400MB of duplicates) and never deployed.
+- `filebox/thumbs/`: web thumbnails referenced by the database.
+- `filebox/welcome-pic/2.png`: welcome-screen image.
+- `config.js`: the browser-restricted Google Maps JavaScript API key.
 
-地图 API key 配置在 `config.js`：
+## Record workflow
 
-```js
-export const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+Records now live as one folder per entry under `filebox/records/`; `data/umbrellas.json` is generated from them. The typical editing loop:
+
+1. Seed the new source folders from the current aggregate:
+
+```powershell
+npm run records:seed
 ```
 
-发布到 GitHub Pages 后，需要在 Google Cloud Console 中把 GitHub Pages 域名加入 API key 的 Website restrictions。建议同时保留本地开发地址：
+2. Rebuild the website/app aggregate after editing any `record.json`:
+
+```powershell
+npm run records:build
+```
+
+3. If you want to rewrite all `record.json` files into the standard hand-editing format with Chinese notes:
+
+```powershell
+npm run records:format
+```
+
+4. If you add, remove, or rename image files inside a record folder, sync the `media` list before rebuilding:
+
+```powershell
+npm run records:sync-media
+```
+
+Each record folder lives at:
 
 ```text
-http://127.0.0.1:4173/*
-http://localhost:4173/*
-https://<your-github-user>.github.io/*
+filebox/records/<category>(<group>)/<record-id>/
 ```
 
-## 数据同步计划
+and contains:
 
-当前数据先保存在项目文件中，便于快速调整界面和交互。后期制作 App 时，建议迁移到数据库或后台 API，例如 Supabase、Firebase、Cloudflare 或自建 API。
+```text
+record.json
+<primary image>
+```
 
-建议长期数据字段包括：
+`record.json` is now the canonical editable source. `data/umbrellas.json` should be treated as generated output.
 
-- `title`: 作品标题
-- `location`: 拍摄地点
-- `time`: 拍摄时间
-- `coordinates`: 经纬度
-- `weather`: 天气或状态
-- `type`: 分类
-- `adminArea`: 精确行政区域
-- `image`: 图片路径或远程图片 URL
-- `note`: 观察记录
+These `record.json` files now support inline Chinese comments for manual editing. The build script strips comments before parsing, so you can keep the notes in place.
+Additional image files placed inside a record folder can be synced into the `media` array automatically.
 
-## 当前功能
+## Data model
 
-- Google Maps 地图标点
-- 标点聚焦图片视图
-- GPS 默认定位与京都站兜底
-- 档案页排序与分类筛选
-- 项目说明页
-- PWA manifest 与离线缓存脚本
+Photo EXIF values provide the map position and capture time. Displayed place names are manually curated and never translated at runtime.
+
+Important fields:
+
+- `id`: stable record ID, normally the primary photo filename.
+- `image` and `thumb`: original and thumbnail paths.
+- `photoCoordinates`: coordinates read from photo EXIF.
+- `locationCoordinates`: optional manual coordinate override.
+- `photoTime`: capture time read from photo EXIF.
+- `time`: optional manual capture-time override.
+- `locationText`: manually written display address.
+- `locationLevels`: up to three manually written levels used for place sorting.
+- `category` and `categoryGroup`: values derived from the photo folder.
+- `title`, `umbrellaType`, `umbrellaColor`, `umbrellaStatus`, and `story`: optional editorial fields.
+
+Empty optional fields are not rendered.
+
+## Publishing
+
+The site is published through GitHub Pages. Local changes only appear online after they are committed and pushed to GitHub.

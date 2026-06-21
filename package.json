@@ -2,7 +2,14 @@
   "name": "forgotten-umbrella-map",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "records:seed": "node scripts/seed-records.mjs",
+    "records:build": "node scripts/build-umbrellas.mjs",
+    "records:format": "node scripts/format-records.mjs",
+    "records:sync-media": "node scripts/sync-record-media.mjs"
   }
 }

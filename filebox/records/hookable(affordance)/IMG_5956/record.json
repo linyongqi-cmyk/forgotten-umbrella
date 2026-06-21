@@ -1,0 +1,66 @@
+{
+  // 版本号。以后如果记录结构升级，可以用这个字段做兼容。
+  "schemaVersion": 1,
+  // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
+  "sourceIndex": 39,
+  // 手动填写的展示地址。
+  "locationText": "Tokyo, Toshima City, Ikebukuro",
+  // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
+  "locationLevels": [
+    "Tokyo",
+    "Toshima City",
+    "Ikebukuro"
+  ],
+  // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
+  "photoCoordinates": {
+    "lat": 35.73579444,
+    "lng": 139.70645278
+  },
+  // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
+  "locationCoordinates": null,
+  // 照片 EXIF 读取到的拍摄时间。
+  "photoTime": "2025-03-11T09:22:22+09:00",
+  // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
+  "time": "",
+  // 手动标题。没有就保持空字符串。
+  "title": "",
+  // 伞的类型，例如 transparent、folding。没有就保持空字符串。
+  "umbrellaType": "",
+  // 伞的颜色。没有就保持空字符串。
+  "umbrellaColor": "",
+  // 伞的状态，例如 broken、left-behind。没有就保持空字符串。
+  "umbrellaStatus": "",
+  // 这个标点整体的文字说明。
+  "story": "",
+  // 这个标点下的媒体列表。第一项通常是主图。
+  "media": [
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "IMG_5956",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "IMG_5956.jpeg",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "primary",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "2025-03-11T09:22:22+09:00",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5956.jpg"
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "pic_1",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "pic_1.png",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "detail",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": ""
+    }
+  ]
+}
