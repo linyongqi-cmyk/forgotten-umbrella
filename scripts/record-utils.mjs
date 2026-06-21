@@ -41,8 +41,10 @@ export function stringifyRecordWithComments(record) {
     `  "umbrellaStatus": ${JSON.stringify(Array.isArray(record.umbrellaStatus) ? record.umbrellaStatus : record.umbrellaStatus ? [record.umbrellaStatus] : [], null, 2).replace(/\n/g, "\n  ")},`,
     '  // 当状态包含 other 时的自定义文字。',
     `  "umbrellaStatusOther": ${JSON.stringify(record.umbrellaStatusOther ?? "")},`,
-    '  // 这个标点整体的文字说明。',
+    '  // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。',
     `  "story": ${JSON.stringify(record.story ?? "")},`,
+    '  // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。',
+    `  "blocks": ${JSON.stringify(record.blocks ?? [], null, 2).replace(/\n/g, "\n  ")},`,
     '  // 这个标点下的媒体列表。第一项通常是主图。',
     '  "media": ['
   ];

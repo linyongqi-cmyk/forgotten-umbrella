@@ -208,6 +208,7 @@ function normalizeUmbrellaData(items) {
         statusText,
         objectText,
         story: item.story || "",
+        blocks: Array.isArray(item.blocks) ? item.blocks : [],
         media: normalizeMedia(item),
         type: categoryType || "uncategorized",
         prefecture,
@@ -1017,51 +1018,67 @@ function renderFocusImage() {
     return;
   }
 
-  const media = item.media?.[state.focusMediaIndex] || item.media?.[0];
-  if (!media) {
-    return;
-  }
+  const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
 
   els.focusPanel?.classList.add("is-loading");
-  els.focusImage.src = media.src;
-  els.focusImage.alt = media.id || item.id;
-  els.focusCaption.innerHTML = renderFocusCaption(item, media);
+  els.focusImage.src = cover?.src || item.image;
+  els.focusImage.alt = item.title || item.id;
+  els.focusCaption.innerHTML = renderFocusArticle(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     els.focusPanel?.classList.remove("is-loading");
   }
   closeExpandedImage();
 }
 
-function renderFocusCaption(item, media) {
+// The detail page body: an ordered flow of paragraphs and photos. Falls back
+// to story + non-primary photos for records saved before blocks existed.
+function effectiveBlocks(item) {
+  const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+  if (blocks.length) {
+    return blocks;
+  }
+  const out = [];
+  if (item.story) {
+    item.story
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((text) => out.push({ type: "text", text }));
+  }
+  (item.media || [])
+    .filter((m) => m.role !== "primary")
+    .forEach((m) => out.push({ type: "photo", file: m.file }));
+  return out;
+}
+
+function renderFocusArticle(item) {
   const focusTitle = item.title ? `${item.id}(${item.title})` : item.id;
   const infoLines = [
     { label: "type", value: formatInformationType(item) },
     { label: "object", value: item.objectText },
     { label: "state", value: item.statusText },
   ].filter((entry) => entry.value);
-  const mediaNoteLines = item.media.length > 1
-    ? [
-        media.photoTime && media.photoTime !== item.photoTime ? formatDateTime(media.photoTime) : "",
-        media.story || "",
-      ].filter(Boolean)
-    : [];
 
-  const mediaStrip = item.media.length > 1
-    ? `
-      <section class="focus-media-strip" aria-label="media list">
-        ${item.media
-          .map(
-            (entry, index) => `
-              <button class="focus-media-thumb ${index === state.focusMediaIndex ? "is-active" : ""}" type="button" data-focus-media-index="${index}" aria-label="show ${escapeHtml(entry.id)}">
-                <img src="${entry.thumb}" alt="${escapeHtml(entry.id)}" loading="lazy" decoding="async" />
-                <span>${escapeHtml(entry.id)}</span>
-              </button>
-            `,
-          )
-          .join("")}
-      </section>
-    `
-    : "";
+  const mediaByFile = {};
+  (item.media || []).forEach((m) => {
+    mediaByFile[m.file] = m;
+  });
+
+  const blocksHtml = effectiveBlocks(item)
+    .map((block) => {
+      if (block.type === "text") {
+        return `<p class="item-story">${escapeHtml(block.text)}</p>`;
+      }
+      const media = mediaByFile[block.file];
+      if (!media) {
+        return "";
+      }
+      return `<figure class="focus-photo">
+          <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async" />
+          ${media.title ? `<figcaption>${escapeHtml(media.title)}</figcaption>` : ""}
+        </figure>`;
+    })
+    .join("");
 
   return `
     <div class="focus-caption-inner">
@@ -1070,9 +1087,7 @@ function renderFocusCaption(item, media) {
       ${formatDateTime(item.time) ? `<p class="item-detail">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
       ${infoLines.length ? '<h4 class="focus-info-heading">information</h4>' : ""}
       ${infoLines.map((entry) => `<p class="item-detail">${escapeHtml(`${entry.label}: ${entry.value}`)}</p>`).join("")}
-      ${item.story ? `<p class="item-story">${escapeHtml(item.story)}</p>` : ""}
-      ${mediaNoteLines.map((detail) => `<p class="item-detail">${escapeHtml(detail)}</p>`).join("")}
-      ${mediaStrip}
+      ${blocksHtml}
     </div>
   `;
 }
@@ -1875,7 +1890,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=50", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=51", { updateViaCache: "none" });
   }
 }
 
@@ -1888,7 +1903,7 @@ function registerServiceWorker() {
  * ------------------------------------------------------------------------- */
 
 // Plain single-line/textarea fields keyed by record field name.
-const PLAIN_FIELD_KEYS = ["title", "time", "locationText", "umbrellaType", "story"];
+const PLAIN_FIELD_KEYS = ["title", "time", "locationText", "umbrellaType"];
 
 const editor = {
   root: null,
@@ -2031,8 +2046,20 @@ function setupEditor() {
   editor.statusWrap.addEventListener("change", onStatusChange);
   body.appendChild(statusRow);
 
-  // 10. Story.
-  addField("story", "故事/说明 Story", { textarea: true });
+  // 10. Content flow — ordered paragraphs interleaved with the non-primary
+  // photos. This is what the detail page renders top to bottom.
+  const contentRow = document.createElement("div");
+  contentRow.className = "editor-row";
+  contentRow.innerHTML = `
+    <span>正文编排 Content（段落与照片可一起排序，主图只当封面）</span>
+    <div class="editor-blocks"></div>
+    <button type="button" class="editor-add-para">＋ 加段落</button>`;
+  body.appendChild(contentRow);
+  editor.blocksList = contentRow.querySelector(".editor-blocks");
+  contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
+    editor.blocksDraft.push({ type: "text", text: "" });
+    renderContentFlow();
+  });
 
   // Coordinate readout + reset.
   const coordRow = document.createElement("div");
@@ -2187,9 +2214,112 @@ function onMediaAction(action, index) {
     });
     media.role = "primary";
     renderEditorMedia();
+    reconcileBlocks();
+    renderContentFlow();
   } else if (action === "delete") {
     deleteMediaFile(media.file);
   }
+}
+
+// ---- Detail-page content flow (paragraphs + non-primary photos) ------------
+
+// Make the blocks draft consistent with the current non-primary photos:
+// drop photo blocks for images that are gone/now-primary, append new ones.
+function reconcileBlocks() {
+  const nonPrimary = (editor.mediaDraft || []).filter((m) => m.role !== "primary").map((m) => m.file);
+  const npSet = new Set(nonPrimary);
+  editor.blocksDraft = (editor.blocksDraft || []).filter((b) => b.type !== "photo" || npSet.has(b.file));
+  const present = new Set(editor.blocksDraft.filter((b) => b.type === "photo").map((b) => b.file));
+  nonPrimary.forEach((file) => {
+    if (!present.has(file)) {
+      editor.blocksDraft.push({ type: "photo", file });
+    }
+  });
+}
+
+function buildBlocksDraft(raw) {
+  const stored = Array.isArray(raw.blocks) ? raw.blocks : [];
+  if (stored.length) {
+    editor.blocksDraft = stored.map((b) =>
+      b.type === "text" ? { type: "text", text: b.text || "" } : { type: "photo", file: b.file },
+    );
+  } else {
+    editor.blocksDraft = [];
+    if (raw.story && raw.story.trim()) {
+      raw.story
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .forEach((text) => editor.blocksDraft.push({ type: "text", text }));
+    }
+  }
+  reconcileBlocks();
+}
+
+function renderContentFlow() {
+  const wrap = editor.blocksList;
+  if (!wrap) {
+    return;
+  }
+  const blocks = editor.blocksDraft || [];
+  const mediaByFile = {};
+  (editor.mediaDraft || []).forEach((m) => {
+    mediaByFile[m.file] = m;
+  });
+  wrap.innerHTML = "";
+  if (!blocks.length) {
+    wrap.innerHTML = `<p class="editor-hint">还没有正文。点「＋ 加段落」或上传图片。</p>`;
+    return;
+  }
+  blocks.forEach((block, index) => {
+    const row = document.createElement("div");
+    row.className = `editor-block editor-block-${block.type}`;
+    const buttons = `<div class="editor-block-buttons">
+        <button type="button" data-bact="up" ${index === 0 ? "disabled" : ""}>↑</button>
+        <button type="button" data-bact="down" ${index === blocks.length - 1 ? "disabled" : ""}>↓</button>
+        ${block.type === "text" ? `<button type="button" data-bact="delete" title="删除段落">✕</button>` : ""}
+      </div>`;
+    if (block.type === "text") {
+      row.innerHTML = `<textarea class="editor-block-text" rows="2" placeholder="段落文字">${escapeHtml(block.text || "")}</textarea>${buttons}`;
+      row.querySelector(".editor-block-text").addEventListener("input", (event) => {
+        block.text = event.target.value;
+      });
+    } else {
+      const media = mediaByFile[block.file];
+      row.innerHTML = `<div class="editor-block-photo"><img src="${escapeHtml(media?.thumb || media?.src || "")}" alt="" /><span>${escapeHtml(block.file)}</span></div>${buttons}`;
+    }
+    row.querySelectorAll("[data-bact]").forEach((btn) => {
+      btn.addEventListener("click", () => onBlockAction(btn.dataset.bact, index));
+    });
+    wrap.appendChild(row);
+  });
+}
+
+function onBlockAction(action, index) {
+  const blocks = editor.blocksDraft || [];
+  if (action === "up" && index > 0) {
+    blocks.splice(index - 1, 0, blocks.splice(index, 1)[0]);
+    renderContentFlow();
+  } else if (action === "down" && index < blocks.length - 1) {
+    blocks.splice(index + 1, 0, blocks.splice(index, 1)[0]);
+    renderContentFlow();
+  } else if (action === "delete") {
+    blocks.splice(index, 1);
+    renderContentFlow();
+  }
+}
+
+function collectBlocksForSave() {
+  return (editor.blocksDraft || [])
+    .map((b) => (b.type === "text" ? { type: "text", text: b.text || "" } : { type: "photo", file: b.file }))
+    .filter((b) => b.type !== "text" || b.text.trim());
+}
+
+function storyFromBlocks() {
+  return (editor.blocksDraft || [])
+    .filter((b) => b.type === "text" && b.text.trim())
+    .map((b) => b.text.trim())
+    .join("\n");
 }
 
 // Make the units draft length match the chosen count (1-5). Blank/"unknown"
@@ -2464,7 +2594,6 @@ function openEditor(id) {
   });
   // Smart-default placeholders (what the public site falls back to when blank).
   editor.fields.title.placeholder = "默认则空白";
-  editor.fields.story.placeholder = "默认则空白";
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
   editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "unknown";
   editor.fields.umbrellaType.placeholder = raw.category || "unknown";
@@ -2499,6 +2628,8 @@ function openEditor(id) {
     src: media.src || "",
   }));
   renderEditorMedia();
+  buildBlocksDraft(raw);
+  renderContentFlow();
   updateCoordReadout(raw);
   editor.root.classList.add("is-open");
 }
@@ -2541,6 +2672,8 @@ async function saveEditor() {
   payload.umbrellaUnits = collectUnitsForSave();
   payload.umbrellaStatus = collectStatusForSave();
   payload.umbrellaStatusOther = editor.statusOther.value;
+  payload.blocks = collectBlocksForSave();
+  payload.story = storyFromBlocks();
   payload.media = (editor.mediaDraft || []).map((media) => ({
     file: media.file,
     id: media.id,

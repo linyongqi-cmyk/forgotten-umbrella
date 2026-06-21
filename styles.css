@@ -1841,3 +1841,98 @@ body:not(.edit-mode) .editor-add {
   font: inherit;
   box-sizing: border-box;
 }
+
+/* Content flow editor (paragraphs + photos) */
+.editor-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editor-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid rgba(31, 45, 45, 0.16);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.editor-block-text {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.editor-block-photo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #4d5a56;
+}
+
+.editor-block-photo img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.editor-block-buttons {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.editor-block-buttons button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  background: #f4f3ed;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.editor-block-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.editor-add-para {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(31, 45, 45, 0.4);
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Detail-page article photos (in the scrollable focus panel) */
+.focus-photo {
+  margin: 12px 0 0;
+}
+
+.focus-photo img {
+  width: 100%;
+  max-height: none;
+  cursor: default;
+  transform: none;
+  border-radius: 8px;
+}
+
+.focus-photo figcaption {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.7;
+}

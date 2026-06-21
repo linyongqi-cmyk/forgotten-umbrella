@@ -101,6 +101,7 @@ function buildUmbrellaItem(recordPath, record) {
           : [],
       umbrellaStatusOther: record.umbrellaStatusOther || "",
       story: record.story || "",
+      blocks: Array.isArray(record.blocks) ? record.blocks : [],
       categoryGroup,
       category,
       thumb: primary.legacyThumb || "",

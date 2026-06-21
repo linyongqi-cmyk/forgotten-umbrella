@@ -56,6 +56,22 @@ function sanitizeStatus(value) {
   return value.filter((item) => STATUS_VALUES.has(item) && !seen.has(item) && seen.add(item));
 }
 
+// Detail-page content blocks: ordered text paragraphs and photo references.
+function sanitizeBlocks(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const blocks = [];
+  for (const block of value) {
+    if (block?.type === "text" && typeof block.text === "string" && block.text.trim()) {
+      blocks.push({ type: "text", text: block.text });
+    } else if (block?.type === "photo" && typeof block.file === "string" && block.file) {
+      blocks.push({ type: "photo", file: path.basename(block.file) });
+    }
+  }
+  return blocks;
+}
+
 class ApiError extends Error {
   constructor(statusCode, message) {
     super(message);
@@ -156,6 +172,9 @@ export async function saveRecord(payload) {
   }
   if (Object.prototype.hasOwnProperty.call(payload, "umbrellaStatusOther")) {
     record.umbrellaStatusOther = String(payload.umbrellaStatusOther ?? "");
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "blocks")) {
+    record.blocks = sanitizeBlocks(payload.blocks);
   }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
