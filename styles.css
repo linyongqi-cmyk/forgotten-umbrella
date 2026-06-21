@@ -1765,3 +1765,79 @@ body:not(.edit-mode) .editor-add {
   font: inherit;
   cursor: pointer;
 }
+
+.editor-row select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  color: #1f2d2d;
+  box-sizing: border-box;
+}
+
+.editor-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #8a948f;
+}
+
+.editor-units {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editor-unit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.editor-unit .unit-color,
+.editor-unit .unit-kind {
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  background: #fff;
+}
+
+.editor-unit .unit-detail {
+  grid-column: 1 / -1;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.editor-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.editor-status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #4d5a56;
+}
+
+.editor-status-item input[type="checkbox"]:disabled + span {
+  opacity: 0.4;
+}
+
+.editor-status-other {
+  margin-top: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 8px;
+  font: inherit;
+  box-sizing: border-box;
+}

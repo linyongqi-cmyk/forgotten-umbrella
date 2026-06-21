@@ -25,15 +25,36 @@ const recordsRoot = path.join(rootDir, "filebox", "records");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 
 // Plain text fields the editor is allowed to overwrite.
-const TEXT_FIELDS = [
-  "locationText",
-  "time",
-  "title",
-  "umbrellaType",
-  "umbrellaColor",
-  "umbrellaStatus",
-  "story",
-];
+const TEXT_FIELDS = ["locationText", "time", "title", "umbrellaType", "story"];
+
+const COUNT_VALUES = new Set(["1", "2", "3", "4", "5", "unknown", ""]);
+const COLOR_VALUES = new Set(["transparent", "translucent", "colored", "patterned", "other", "unknown", ""]);
+const KIND_VALUES = new Set(["folding", "long umbrella", ""]);
+const STATUS_VALUES = new Set(["fastened", "unfastened", "broken", "worn", "deteriorated", "unknown", "other"]);
+
+function sanitizeCount(value) {
+  const text = String(value ?? "");
+  return COUNT_VALUES.has(text) ? text : "";
+}
+
+function sanitizeUnits(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.slice(0, 5).map((unit) => ({
+    color: COLOR_VALUES.has(unit?.color) ? unit.color : "",
+    colorDetail: typeof unit?.colorDetail === "string" ? unit.colorDetail : "",
+    kind: KIND_VALUES.has(unit?.kind) ? unit.kind : "",
+  }));
+}
+
+function sanitizeStatus(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const seen = new Set();
+  return value.filter((item) => STATUS_VALUES.has(item) && !seen.has(item) && seen.add(item));
+}
 
 class ApiError extends Error {
   constructor(statusCode, message) {
@@ -122,6 +143,19 @@ export async function saveRecord(payload) {
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationLevels")) {
     record.locationLevels = sanitizeLevels(payload.locationLevels);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaCount")) {
+    record.umbrellaCount = sanitizeCount(payload.umbrellaCount);
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaUnits")) {
+    record.umbrellaUnits = sanitizeUnits(payload.umbrellaUnits);
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaStatus")) {
+    record.umbrellaStatus = sanitizeStatus(payload.umbrellaStatus);
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaStatusOther")) {
+    record.umbrellaStatusOther = String(payload.umbrellaStatusOther ?? "");
   }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {

@@ -92,7 +92,14 @@ function buildUmbrellaItem(recordPath, record) {
       title: record.title || "",
       umbrellaType: record.umbrellaType || "",
       umbrellaColor: record.umbrellaColor || "",
-      umbrellaStatus: record.umbrellaStatus || "",
+      umbrellaCount: record.umbrellaCount || "",
+      umbrellaUnits: Array.isArray(record.umbrellaUnits) ? record.umbrellaUnits : [],
+      umbrellaStatus: Array.isArray(record.umbrellaStatus)
+        ? record.umbrellaStatus
+        : record.umbrellaStatus
+          ? [record.umbrellaStatus]
+          : [],
+      umbrellaStatusOther: record.umbrellaStatusOther || "",
       story: record.story || "",
       categoryGroup,
       category,

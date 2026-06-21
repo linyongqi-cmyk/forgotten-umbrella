@@ -25,10 +25,16 @@
   "title": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
-  // 伞的颜色。没有就保持空字符串。
+  // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
   "umbrellaColor": "",
-  // 伞的状态，例如 broken、left-behind。没有就保持空字符串。
-  "umbrellaStatus": "",
+  // 伞的数量。可填 "1"~"5" 或 "unknown"，空白表示未填。
+  "umbrellaCount": "",
+  // 每把伞的颜色与种类列表。{ color, colorDetail, kind }。
+  "umbrellaUnits": [],
+  // 伞的状态。多选数组，例如 ["broken","worn"]。
+  "umbrellaStatus": [],
+  // 当状态包含 other 时的自定义文字。
+  "umbrellaStatusOther": "",
   // 这个标点整体的文字说明。
   "story": "",
   // 这个标点下的媒体列表。第一项通常是主图。
@@ -40,6 +46,8 @@
       "file": "IMG_8591.jpeg",
       // 角色。建议使用 primary、detail、illustration。
       "role": "primary",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "2026-04-23T19:49:52+09:00",
       // 这张媒体自己的说明文字。

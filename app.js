@@ -51,6 +51,34 @@ const FOCUS_MAP_ZOOM = 18;
 const RESET_ZOOM_ANIMATION_MS = 760;
 const GEOLOCATION_TIMEOUT_MS = 2500;
 
+// Shared umbrella-attribute option sets (used by both the editor and the public
+// display so the wording always matches). Labels are bilingual to help picking.
+const UMBRELLA_COUNT_OPTIONS = ["1", "2", "3", "4", "5", "unknown"];
+const COUNT_WORDS = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five" };
+const UMBRELLA_COLOR_OPTIONS = [
+  { value: "transparent", label: "transparent 透明" },
+  { value: "translucent", label: "translucent 半透明" },
+  { value: "colored", label: "colored 彩色" },
+  { value: "patterned", label: "patterned 花纹" },
+  { value: "other", label: "other 其他" },
+  { value: "unknown", label: "unknown 未知" },
+];
+const UMBRELLA_KIND_OPTIONS = [
+  { value: "folding", label: "folding 折叠伞" },
+  { value: "long umbrella", label: "long umbrella 长柄伞" },
+];
+const UMBRELLA_STATUS_OPTIONS = [
+  { value: "fastened", label: "fastened 收拢" },
+  { value: "unfastened", label: "unfastened 张开" },
+  { value: "broken", label: "broken 损坏" },
+  { value: "worn", label: "worn 磨损" },
+  { value: "deteriorated", label: "deteriorated 老化" },
+  { value: "unknown", label: "unknown 未知" },
+  { value: "other", label: "other 其他" },
+];
+// Colors whose displayed word comes from the free-text detail box.
+const COLOR_NEEDS_DETAIL = new Set(["colored", "patterned", "other"]);
+
 const els = {
   welcome: document.querySelector("#welcome-screen"),
   enterSite: document.querySelector("#enter-site"),
@@ -143,7 +171,17 @@ function normalizeUmbrellaData(items) {
       const umbrellaColor = item.umbrellaColor || "";
       const categoryType = formatCategoryType(item);
       const locationLevels = normalizeLocationLevels(item.locationLevels);
-      const locationText = item.locationText || formatLocationLevels(locationLevels);
+      const locationText = item.locationText || formatLocationLevels(locationLevels) || "unknown";
+      const umbrellaCount = item.umbrellaCount || "";
+      const umbrellaUnits = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
+      const umbrellaStatus = Array.isArray(item.umbrellaStatus)
+        ? item.umbrellaStatus
+        : item.umbrellaStatus
+          ? [item.umbrellaStatus]
+          : [];
+      const umbrellaStatusOther = item.umbrellaStatusOther || "";
+      const objectText = buildObjectText(umbrellaCount, umbrellaUnits);
+      const statusText = buildStatusText(umbrellaStatus, umbrellaStatusOther);
       const coordinates = item.locationCoordinates || item.photoCoordinates;
       const time = item.time || item.photoTime || "";
       const prefecture = locationLevels[0] || "Unknown";
@@ -163,13 +201,18 @@ function normalizeUmbrellaData(items) {
         photoCoordinates: item.photoCoordinates || null,
         umbrellaType,
         umbrellaColor,
-        umbrellaStatus: item.umbrellaStatus || "",
+        umbrellaCount,
+        umbrellaUnits,
+        umbrellaStatus,
+        umbrellaStatusOther,
+        statusText,
+        objectText,
         story: item.story || "",
         media: normalizeMedia(item),
         type: categoryType || "uncategorized",
         prefecture,
         adminArea,
-        material: [umbrellaColor, umbrellaType].filter(Boolean).join(" "),
+        material: objectText,
       };
     })
     .filter((item) => item.id && item.image);
@@ -991,11 +1034,10 @@ function renderFocusImage() {
 
 function renderFocusCaption(item, media) {
   const focusTitle = item.title ? `${item.id}(${item.title})` : item.id;
-  const objectLine = [item.umbrellaColor, item.umbrellaType].filter(Boolean).join(" ");
   const infoLines = [
     { label: "type", value: formatInformationType(item) },
-    { label: "object", value: objectLine },
-    { label: "state", value: item.umbrellaStatus },
+    { label: "object", value: item.objectText },
+    { label: "state", value: item.statusText },
   ].filter((entry) => entry.value);
   const mediaNoteLines = item.media.length > 1
     ? [
@@ -1181,7 +1223,7 @@ function renderItemText(item, context) {
     item.title,
     locationLine || formatDateTime(item.time),
     item.material,
-    item.umbrellaStatus,
+    item.statusText,
     item.story,
   ].filter(Boolean);
   const title = item.id;
@@ -1217,6 +1259,9 @@ function formatCategoryType(item) {
 }
 
 function formatInformationType(item) {
+  if (item.umbrellaType) {
+    return item.umbrellaType;
+  }
   const categoryLabels = {
     transit: "public transit",
   };
@@ -1236,6 +1281,65 @@ function normalizeLocationLevels(levels) {
 
 function formatLocationLevels(levels) {
   return normalizeLocationLevels(levels).join(", ");
+}
+
+// Expand the per-umbrella units to match the count, applying the rule
+// "if only row 1 is filled, the other rows copy row 1".
+function applyUnitInheritance(count, units) {
+  const n = Number(count);
+  if (!Number.isInteger(n) || n < 1) {
+    return [];
+  }
+  const base = Array.isArray(units) ? units : [];
+  const first = base[0] || { color: "", colorDetail: "", kind: "" };
+  const result = [];
+  for (let i = 0; i < n; i += 1) {
+    const unit = base[i] || {};
+    const isEmpty = !unit.color && !unit.kind;
+    result.push(
+      isEmpty && i > 0
+        ? { color: first.color || "", colorDetail: first.colorDetail || "", kind: first.kind || "" }
+        : { color: unit.color || "", colorDetail: unit.colorDetail || "", kind: unit.kind || "" },
+    );
+  }
+  return result;
+}
+
+// One umbrella's wording, e.g. "blue long umbrella".
+function describeUnit(unit) {
+  let colorWord = "";
+  if (COLOR_NEEDS_DETAIL.has(unit.color)) {
+    colorWord = String(unit.colorDetail || "").trim() || unit.color;
+  } else if (unit.color === "transparent" || unit.color === "translucent") {
+    colorWord = unit.color;
+  }
+  return [colorWord, unit.kind || ""].filter(Boolean).join(" ").trim();
+}
+
+// The final "object" text combining count + units, e.g. "two blue long umbrella".
+function buildObjectText(count, units) {
+  if (count === "unknown") {
+    return "";
+  }
+  const list = applyUnitInheritance(count, units);
+  if (!list.length) {
+    return "";
+  }
+  const words = list.map(describeUnit);
+  const allSame = words.every((word) => word === words[0]);
+  if (allSame) {
+    const num = COUNT_WORDS[Number(count)] || "";
+    return [num, words[0]].filter(Boolean).join(" ").trim();
+  }
+  return words.map((word) => ["one", word].filter(Boolean).join(" ")).join(", ");
+}
+
+function buildStatusText(status, other) {
+  const list = Array.isArray(status) ? status : status ? [status] : [];
+  return list
+    .map((value) => (value === "other" ? String(other || "").trim() || "other" : value))
+    .filter(Boolean)
+    .join(", ");
 }
 
 function getTimeValue(item) {
@@ -1771,7 +1875,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=48", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=49", { updateViaCache: "none" });
   }
 }
 
@@ -1783,17 +1887,17 @@ function registerServiceWorker() {
  * saves back to filebox/records via the local /api/save-record endpoint.
  * ------------------------------------------------------------------------- */
 
-const EDITOR_TEXT_FIELDS = [
-  { key: "title", label: "标题 Title", type: "input" },
-  { key: "locationText", label: "显示地址 Location", type: "input" },
-  { key: "umbrellaType", label: "伞的类型 Type", type: "input" },
-  { key: "umbrellaColor", label: "伞的颜色 Color", type: "input" },
-  { key: "umbrellaStatus", label: "状态 Status", type: "input" },
-  { key: "time", label: "拍摄时间(覆盖) Time", type: "input" },
-  { key: "story", label: "故事/说明 Story", type: "textarea" },
-];
+// Plain single-line/textarea fields keyed by record field name.
+const PLAIN_FIELD_KEYS = ["title", "time", "locationText", "umbrellaType", "story"];
 
-const editor = { root: null, fields: {}, levels: [], coordReadout: null, draftCoords: null };
+const editor = {
+  root: null,
+  fields: {},
+  levels: [],
+  coordReadout: null,
+  draftCoords: null,
+  unitsDraft: [],
+};
 
 function setupEditor() {
   const toggle = document.createElement("button");
@@ -1824,20 +1928,35 @@ function setupEditor() {
 
   const body = drawer.querySelector(".editor-body");
 
-  EDITOR_TEXT_FIELDS.forEach((field) => {
+  const addField = (key, label, { textarea = false } = {}) => {
     const row = document.createElement("label");
     row.className = "editor-row";
-    const control = field.type === "textarea" ? document.createElement("textarea") : document.createElement("input");
-    if (field.type === "textarea") {
+    const control = textarea ? document.createElement("textarea") : document.createElement("input");
+    if (textarea) {
       control.rows = 3;
     }
-    row.innerHTML = `<span>${field.label}</span>`;
+    row.innerHTML = `<span>${label}</span>`;
     row.appendChild(control);
     body.appendChild(row);
-    editor.fields[field.key] = control;
-  });
+    editor.fields[key] = control;
+    return control;
+  };
 
-  // Three location levels (large → small).
+  // 1. ID (read-only — it is the record's folder name = primary image name).
+  const idRow = document.createElement("label");
+  idRow.className = "editor-row";
+  idRow.innerHTML = `<span>ID（自动＝主图文件名）</span>`;
+  editor.idEl = document.createElement("input");
+  editor.idEl.readOnly = true;
+  idRow.appendChild(editor.idEl);
+  body.appendChild(idRow);
+
+  // 2 title, 3 time, 4 location.
+  addField("title", "标题 Title");
+  addField("time", "拍摄时间(覆盖) Time");
+  addField("locationText", "显示地址 Location");
+
+  // 5. Location levels (large → small).
   const levelsRow = document.createElement("div");
   levelsRow.className = "editor-row";
   levelsRow.innerHTML = "<span>地址层级 Levels（大→小）</span>";
@@ -1851,6 +1970,51 @@ function setupEditor() {
   }
   levelsRow.appendChild(levelsWrap);
   body.appendChild(levelsRow);
+
+  // 6. Type.
+  addField("umbrellaType", "伞的类型 Type");
+
+  // 7. Count.
+  const countRow = document.createElement("label");
+  countRow.className = "editor-row";
+  countRow.innerHTML = `<span>伞的数量 Count</span>`;
+  editor.count = document.createElement("select");
+  editor.count.innerHTML =
+    `<option value="">（未填）</option>` +
+    UMBRELLA_COUNT_OPTIONS.map((value) => `<option value="${value}">${value}</option>`).join("");
+  editor.count.addEventListener("change", () => {
+    syncUnitsToCount();
+    renderEditorUnits();
+  });
+  countRow.appendChild(editor.count);
+  body.appendChild(countRow);
+
+  // 8. Color & kind units (one row per umbrella, driven by the count).
+  const unitsRow = document.createElement("div");
+  unitsRow.className = "editor-row";
+  unitsRow.innerHTML = `<span>伞的颜色和种类 Color & kind</span><div class="editor-units"></div>`;
+  editor.unitsWrap = unitsRow.querySelector(".editor-units");
+  body.appendChild(unitsRow);
+
+  // 9. Status (multi-select; "other" is exclusive + free text).
+  const statusRow = document.createElement("div");
+  statusRow.className = "editor-row";
+  statusRow.innerHTML = `<span>状态 Status（可多选）</span>
+    <div class="editor-status"></div>
+    <input class="editor-status-other" placeholder="other 的说明" hidden />`;
+  editor.statusWrap = statusRow.querySelector(".editor-status");
+  editor.statusOther = statusRow.querySelector(".editor-status-other");
+  UMBRELLA_STATUS_OPTIONS.forEach((option) => {
+    const label = document.createElement("label");
+    label.className = "editor-status-item";
+    label.innerHTML = `<input type="checkbox" value="${option.value}" /><span>${option.label}</span>`;
+    editor.statusWrap.appendChild(label);
+  });
+  editor.statusWrap.addEventListener("change", onStatusChange);
+  body.appendChild(statusRow);
+
+  // 10. Story.
+  addField("story", "故事/说明 Story", { textarea: true });
 
   // Coordinate readout + reset.
   const coordRow = document.createElement("div");
@@ -2010,6 +2174,108 @@ function onMediaAction(action, index) {
   }
 }
 
+// Make the units draft length match the chosen count (1-5). Blank/"unknown"
+// leaves it untouched (rendering handles the disabled state).
+function syncUnitsToCount() {
+  const n = Number(editor.count.value);
+  if (!Number.isInteger(n) || n < 1) {
+    return;
+  }
+  const draft = editor.unitsDraft;
+  while (draft.length < n) {
+    draft.push({ color: "", colorDetail: "", kind: "" });
+  }
+  draft.length = n;
+}
+
+function renderEditorUnits() {
+  const wrap = editor.unitsWrap;
+  if (!wrap) {
+    return;
+  }
+  wrap.innerHTML = "";
+  const value = editor.count.value;
+  if (value === "") {
+    wrap.innerHTML = `<p class="editor-hint">先选择数量</p>`;
+    return;
+  }
+  if (value === "unknown") {
+    wrap.innerHTML = `<p class="editor-hint">数量未知，暂不可填写颜色/种类</p>`;
+    return;
+  }
+  editor.unitsDraft.forEach((unit) => {
+    const row = document.createElement("div");
+    row.className = "editor-unit";
+    const needDetail = COLOR_NEEDS_DETAIL.has(unit.color);
+    row.innerHTML = `
+      <select class="unit-color">
+        <option value="">颜色（未填）</option>
+        ${UMBRELLA_COLOR_OPTIONS.map((o) => `<option value="${o.value}" ${unit.color === o.value ? "selected" : ""}>${o.label}</option>`).join("")}
+      </select>
+      <select class="unit-kind">
+        <option value="">种类（未填）</option>
+        ${UMBRELLA_KIND_OPTIONS.map((o) => `<option value="${o.value}" ${unit.kind === o.value ? "selected" : ""}>${o.label}</option>`).join("")}
+      </select>
+      <input class="unit-detail" placeholder="颜色说明（如 blue）" value="${escapeHtml(unit.colorDetail || "")}" ${needDetail ? "" : "hidden"} />`;
+    row.querySelector(".unit-color").addEventListener("change", (event) => {
+      unit.color = event.target.value;
+      renderEditorUnits();
+    });
+    row.querySelector(".unit-kind").addEventListener("change", (event) => {
+      unit.kind = event.target.value;
+    });
+    row.querySelector(".unit-detail").addEventListener("input", (event) => {
+      unit.colorDetail = event.target.value;
+    });
+    wrap.appendChild(row);
+  });
+}
+
+function collectUnitsForSave() {
+  const n = Number(editor.count.value);
+  if (!Number.isInteger(n) || n < 1) {
+    return [];
+  }
+  return editor.unitsDraft.slice(0, n).map((unit) => ({
+    color: unit.color || "",
+    colorDetail: unit.colorDetail || "",
+    kind: unit.kind || "",
+  }));
+}
+
+function collectStatusForSave() {
+  return Array.from(editor.statusWrap.querySelectorAll('input[type="checkbox"]:checked')).map((box) => box.value);
+}
+
+// "other" status is exclusive; selecting it clears the rest and vice versa.
+function onStatusChange(event) {
+  const box = event.target;
+  if (box?.value === "other" && box.checked) {
+    editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((other) => {
+      if (other.value !== "other") {
+        other.checked = false;
+      }
+    });
+  } else if (box?.checked && box.value !== "other") {
+    const otherBox = editor.statusWrap.querySelector('input[value="other"]');
+    if (otherBox) {
+      otherBox.checked = false;
+    }
+  }
+  syncStatusUI();
+}
+
+function syncStatusUI() {
+  const otherBox = editor.statusWrap.querySelector('input[value="other"]');
+  const otherOn = !!otherBox?.checked;
+  editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+    if (box.value !== "other") {
+      box.disabled = otherOn;
+    }
+  });
+  editor.statusOther.hidden = !otherOn;
+}
+
 function toggleEditMode() {
   state.editMode = !state.editMode;
   document.body.classList.toggle("edit-mode", state.editMode);
@@ -2035,13 +2301,39 @@ function openEditor(id) {
   if (editor.titleEl) {
     editor.titleEl.textContent = `编辑：${id}`;
   }
-  EDITOR_TEXT_FIELDS.forEach((field) => {
-    editor.fields[field.key].value = raw[field.key] || "";
+  editor.idEl.value = id;
+  PLAIN_FIELD_KEYS.forEach((key) => {
+    editor.fields[key].value = raw[key] || "";
   });
+  // Smart-default placeholders (what the public site falls back to when blank).
+  editor.fields.title.placeholder = "默认则空白";
+  editor.fields.story.placeholder = "默认则空白";
+  editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
+  editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "unknown";
+  editor.fields.umbrellaType.placeholder = raw.category || "unknown";
+
   const levels = Array.isArray(raw.locationLevels) ? raw.locationLevels : [];
   editor.levels.forEach((input, index) => {
     input.value = levels[index] || "";
   });
+
+  // Count + per-umbrella color/kind units.
+  editor.count.value = raw.umbrellaCount || "";
+  editor.unitsDraft = (Array.isArray(raw.umbrellaUnits) ? raw.umbrellaUnits : []).map((unit) => ({
+    color: unit.color || "",
+    colorDetail: unit.colorDetail || "",
+    kind: unit.kind || "",
+  }));
+  syncUnitsToCount();
+  renderEditorUnits();
+
+  // Status multi-select.
+  const statusValues = new Set(Array.isArray(raw.umbrellaStatus) ? raw.umbrellaStatus : []);
+  editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+    box.checked = statusValues.has(box.value);
+  });
+  editor.statusOther.value = raw.umbrellaStatusOther || "";
+  syncStatusUI();
   // Working copy of the media list (order + roles + per-photo text).
   editor.mediaDraft = (Array.isArray(raw.media) ? raw.media : []).map((media) => ({
     file: media.file || (media.src || "").split("/").pop() || "",
@@ -2087,10 +2379,14 @@ async function saveEditor() {
     return;
   }
   const payload = { id, locationCoordinates: editor.draftCoords };
-  EDITOR_TEXT_FIELDS.forEach((field) => {
-    payload[field.key] = editor.fields[field.key].value;
+  PLAIN_FIELD_KEYS.forEach((key) => {
+    payload[key] = editor.fields[key].value;
   });
   payload.locationLevels = editor.levels.map((input) => input.value.trim()).filter(Boolean);
+  payload.umbrellaCount = editor.count.value;
+  payload.umbrellaUnits = collectUnitsForSave();
+  payload.umbrellaStatus = collectStatusForSave();
+  payload.umbrellaStatusOther = editor.statusOther.value;
   payload.media = (editor.mediaDraft || []).map((media) => ({
     file: media.file,
     id: media.id,
