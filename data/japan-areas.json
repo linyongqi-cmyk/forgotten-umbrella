@@ -1,0 +1,10986 @@
+{
+ "prefectures": [
+  {
+   "jp": "北海道",
+   "en": "Hokkaido",
+   "cities": [
+    {
+     "jp": "札幌市",
+     "en": "Sapporo Shi",
+     "wards": [
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "白石区",
+       "en": "Shiroishi Ku"
+      },
+      {
+       "jp": "豊平区",
+       "en": "Toyohira Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "厚別区",
+       "en": "Atsubetsu Ku"
+      },
+      {
+       "jp": "手稲区",
+       "en": "Teine Ku"
+      },
+      {
+       "jp": "清田区",
+       "en": "Kiyota Ku"
+      }
+     ]
+    },
+    {
+     "jp": "函館市",
+     "en": "Hakodate Shi",
+     "wards": []
+    },
+    {
+     "jp": "小樽市",
+     "en": "Otaru Shi",
+     "wards": []
+    },
+    {
+     "jp": "旭川市",
+     "en": "Asahikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "室蘭市",
+     "en": "Muroran Shi",
+     "wards": []
+    },
+    {
+     "jp": "釧路市",
+     "en": "Kushiro Shi",
+     "wards": []
+    },
+    {
+     "jp": "帯広市",
+     "en": "Obihiro Shi",
+     "wards": []
+    },
+    {
+     "jp": "北見市",
+     "en": "Kitami Shi",
+     "wards": []
+    },
+    {
+     "jp": "夕張市",
+     "en": "Yubari Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩見沢市",
+     "en": "Iwamizawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "網走市",
+     "en": "Abashiri Shi",
+     "wards": []
+    },
+    {
+     "jp": "留萌市",
+     "en": "Rumoi Shi",
+     "wards": []
+    },
+    {
+     "jp": "苫小牧市",
+     "en": "Tomakomai Shi",
+     "wards": []
+    },
+    {
+     "jp": "稚内市",
+     "en": "Wakkanai Shi",
+     "wards": []
+    },
+    {
+     "jp": "美唄市",
+     "en": "Bibai Shi",
+     "wards": []
+    },
+    {
+     "jp": "芦別市",
+     "en": "Ashibetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "江別市",
+     "en": "Ebetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "赤平市",
+     "en": "Akabira Shi",
+     "wards": []
+    },
+    {
+     "jp": "紋別市",
+     "en": "Mombetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "士別市",
+     "en": "Shibetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "名寄市",
+     "en": "Nayoro Shi",
+     "wards": []
+    },
+    {
+     "jp": "三笠市",
+     "en": "Mikasa Shi",
+     "wards": []
+    },
+    {
+     "jp": "根室市",
+     "en": "Nemuro Shi",
+     "wards": []
+    },
+    {
+     "jp": "千歳市",
+     "en": "Chitose Shi",
+     "wards": []
+    },
+    {
+     "jp": "滝川市",
+     "en": "Takikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "砂川市",
+     "en": "Sunagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "歌志内市",
+     "en": "Utashinai Shi",
+     "wards": []
+    },
+    {
+     "jp": "深川市",
+     "en": "Fukagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "富良野市",
+     "en": "Furano Shi",
+     "wards": []
+    },
+    {
+     "jp": "登別市",
+     "en": "Noboribetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "恵庭市",
+     "en": "Eniwa Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊達市",
+     "en": "Date Shi",
+     "wards": []
+    },
+    {
+     "jp": "北広島市",
+     "en": "Kitahiroshima Shi",
+     "wards": []
+    },
+    {
+     "jp": "石狩市",
+     "en": "Ishikari Shi",
+     "wards": []
+    },
+    {
+     "jp": "北斗市",
+     "en": "Hokuto Shi",
+     "wards": []
+    },
+    {
+     "jp": "石狩郡",
+     "en": "Ishikari Gun",
+     "wards": [
+      {
+       "jp": "当別町",
+       "en": "Tobetsu Cho"
+      },
+      {
+       "jp": "新篠津村",
+       "en": "Shinshinotsu Mura"
+      }
+     ]
+    },
+    {
+     "jp": "松前郡",
+     "en": "Matsumae Gun",
+     "wards": [
+      {
+       "jp": "松前町",
+       "en": "Matsumae Cho"
+      },
+      {
+       "jp": "福島町",
+       "en": "Fukushima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "上磯郡",
+     "en": "Kamiiso Gun",
+     "wards": [
+      {
+       "jp": "知内町",
+       "en": "Shiriuchi Cho"
+      },
+      {
+       "jp": "木古内町",
+       "en": "Kikonai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "亀田郡",
+     "en": "Kameda Gun",
+     "wards": [
+      {
+       "jp": "七飯町",
+       "en": "Nanae Cho"
+      }
+     ]
+    },
+    {
+     "jp": "茅部郡",
+     "en": "Kayabe Gun",
+     "wards": [
+      {
+       "jp": "鹿部町",
+       "en": "Shikabe Cho"
+      },
+      {
+       "jp": "森町",
+       "en": "Mori Machi"
+      }
+     ]
+    },
+    {
+     "jp": "二海郡",
+     "en": "Futami Gun",
+     "wards": [
+      {
+       "jp": "八雲町",
+       "en": "Yakumo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "山越郡",
+     "en": "Yamakoshi Gun",
+     "wards": [
+      {
+       "jp": "長万部町",
+       "en": "Oshamambe Cho"
+      }
+     ]
+    },
+    {
+     "jp": "檜山郡",
+     "en": "Hiyama Gun",
+     "wards": [
+      {
+       "jp": "江差町",
+       "en": "Esashi Cho"
+      },
+      {
+       "jp": "上ノ国町",
+       "en": "Kaminokuni Cho"
+      },
+      {
+       "jp": "厚沢部町",
+       "en": "Assabu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "爾志郡",
+     "en": "Nishi Gun",
+     "wards": [
+      {
+       "jp": "乙部町",
+       "en": "Otobe Cho"
+      }
+     ]
+    },
+    {
+     "jp": "奥尻郡",
+     "en": "Okushiri Gun",
+     "wards": [
+      {
+       "jp": "奥尻町",
+       "en": "Okushiri Cho"
+      }
+     ]
+    },
+    {
+     "jp": "瀬棚郡",
+     "en": "Setana Gun",
+     "wards": [
+      {
+       "jp": "今金町",
+       "en": "Imakane Cho"
+      }
+     ]
+    },
+    {
+     "jp": "久遠郡",
+     "en": "Kudo Gun",
+     "wards": [
+      {
+       "jp": "せたな町",
+       "en": "Setana Cho"
+      }
+     ]
+    },
+    {
+     "jp": "島牧郡",
+     "en": "Shimamaki Gun",
+     "wards": [
+      {
+       "jp": "島牧村",
+       "en": "Shimamaki Mura"
+      }
+     ]
+    },
+    {
+     "jp": "寿都郡",
+     "en": "Suttsu Gun",
+     "wards": [
+      {
+       "jp": "寿都町",
+       "en": "Suttsu Cho"
+      },
+      {
+       "jp": "黒松内町",
+       "en": "Kuromatsunai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "磯谷郡",
+     "en": "Isoya Gun",
+     "wards": [
+      {
+       "jp": "蘭越町",
+       "en": "Rankoshi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "虻田郡",
+     "en": "Abuta Gun",
+     "wards": [
+      {
+       "jp": "ニセコ町",
+       "en": "Niseko Cho"
+      },
+      {
+       "jp": "真狩村",
+       "en": "Makkari Mura"
+      },
+      {
+       "jp": "留寿都村",
+       "en": "Rusutsu Mura"
+      },
+      {
+       "jp": "喜茂別町",
+       "en": "Kimobetsu Cho"
+      },
+      {
+       "jp": "京極町",
+       "en": "Kyogoku Cho"
+      },
+      {
+       "jp": "倶知安町",
+       "en": "Kutchan Cho"
+      },
+      {
+       "jp": "豊浦町",
+       "en": "Toyora Cho"
+      },
+      {
+       "jp": "洞爺湖町",
+       "en": "Toyako Cho"
+      }
+     ]
+    },
+    {
+     "jp": "岩内郡",
+     "en": "Iwanai Gun",
+     "wards": [
+      {
+       "jp": "共和町",
+       "en": "Kyowa Cho"
+      },
+      {
+       "jp": "岩内町",
+       "en": "Iwanai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "古宇郡",
+     "en": "Furu Gun",
+     "wards": [
+      {
+       "jp": "泊村",
+       "en": "Tomari Mura"
+      },
+      {
+       "jp": "神恵内村",
+       "en": "Kamoenai Mura"
+      }
+     ]
+    },
+    {
+     "jp": "積丹郡",
+     "en": "Shakotan Gun",
+     "wards": [
+      {
+       "jp": "積丹町",
+       "en": "Shakotan Cho"
+      }
+     ]
+    },
+    {
+     "jp": "古平郡",
+     "en": "Furubira Gun",
+     "wards": [
+      {
+       "jp": "古平町",
+       "en": "Furubira Cho"
+      }
+     ]
+    },
+    {
+     "jp": "余市郡",
+     "en": "Yoichi Gun",
+     "wards": [
+      {
+       "jp": "仁木町",
+       "en": "Niki Cho"
+      },
+      {
+       "jp": "余市町",
+       "en": "Yoichi Cho"
+      },
+      {
+       "jp": "赤井川村",
+       "en": "Akaigawa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "空知郡",
+     "en": "Sorachi Gun",
+     "wards": [
+      {
+       "jp": "南幌町",
+       "en": "Namporo Cho"
+      },
+      {
+       "jp": "奈井江町",
+       "en": "Naie Cho"
+      },
+      {
+       "jp": "上砂川町",
+       "en": "Kamisunagawa Cho"
+      },
+      {
+       "jp": "上富良野町",
+       "en": "Kamifurano Cho"
+      },
+      {
+       "jp": "中富良野町",
+       "en": "Nakafurano Cho"
+      },
+      {
+       "jp": "南富良野町",
+       "en": "Minamifurano Cho"
+      }
+     ]
+    },
+    {
+     "jp": "夕張郡",
+     "en": "Yubari Gun",
+     "wards": [
+      {
+       "jp": "由仁町",
+       "en": "Yuni Cho"
+      },
+      {
+       "jp": "長沼町",
+       "en": "Naganuma Cho"
+      },
+      {
+       "jp": "栗山町",
+       "en": "Kuriyama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "樺戸郡",
+     "en": "Kabato Gun",
+     "wards": [
+      {
+       "jp": "月形町",
+       "en": "Tsukigata Cho"
+      },
+      {
+       "jp": "浦臼町",
+       "en": "Urausu Cho"
+      },
+      {
+       "jp": "新十津川町",
+       "en": "Shintotsukawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "雨竜郡",
+     "en": "Uryu Gun",
+     "wards": [
+      {
+       "jp": "妹背牛町",
+       "en": "Moseushi Cho"
+      },
+      {
+       "jp": "秩父別町",
+       "en": "Chippubetsu Cho"
+      },
+      {
+       "jp": "雨竜町",
+       "en": "Uryu Cho"
+      },
+      {
+       "jp": "北竜町",
+       "en": "Hokuryu Cho"
+      },
+      {
+       "jp": "沼田町",
+       "en": "Numata Cho"
+      },
+      {
+       "jp": "幌加内町",
+       "en": "Horokanai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "上川郡",
+     "en": "Kamikawa Gun",
+     "wards": [
+      {
+       "jp": "鷹栖町",
+       "en": "Takasu Cho"
+      },
+      {
+       "jp": "東神楽町",
+       "en": "Higashikagura Cho"
+      },
+      {
+       "jp": "当麻町",
+       "en": "Toma Cho"
+      },
+      {
+       "jp": "比布町",
+       "en": "Pippu Cho"
+      },
+      {
+       "jp": "愛別町",
+       "en": "Aibetsu Cho"
+      },
+      {
+       "jp": "上川町",
+       "en": "Kamikawa Cho"
+      },
+      {
+       "jp": "東川町",
+       "en": "Higashikawa Cho"
+      },
+      {
+       "jp": "美瑛町",
+       "en": "Biei Cho"
+      },
+      {
+       "jp": "和寒町",
+       "en": "Wassamu Cho"
+      },
+      {
+       "jp": "剣淵町",
+       "en": "Kembuchi Cho"
+      },
+      {
+       "jp": "下川町",
+       "en": "Shimokawa Cho"
+      },
+      {
+       "jp": "新得町",
+       "en": "Shintoku Cho"
+      },
+      {
+       "jp": "清水町",
+       "en": "Shimizu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "勇払郡",
+     "en": "Yufutsu Gun",
+     "wards": [
+      {
+       "jp": "占冠村",
+       "en": "Shimukappu Mura"
+      },
+      {
+       "jp": "厚真町",
+       "en": "Atsuma Cho"
+      },
+      {
+       "jp": "安平町",
+       "en": "Abira Cho"
+      },
+      {
+       "jp": "むかわ町",
+       "en": "Mukawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "中川郡",
+     "en": "Nakagawa Gun",
+     "wards": [
+      {
+       "jp": "美深町",
+       "en": "Bifuka Cho"
+      },
+      {
+       "jp": "音威子府村",
+       "en": "Otoineppu Mura"
+      },
+      {
+       "jp": "中川町",
+       "en": "Nakagawa Cho"
+      },
+      {
+       "jp": "幕別町",
+       "en": "Makubetsu Cho"
+      },
+      {
+       "jp": "池田町",
+       "en": "Ikeda Cho"
+      },
+      {
+       "jp": "豊頃町",
+       "en": "Toyokoro Cho"
+      },
+      {
+       "jp": "本別町",
+       "en": "Hombetsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "増毛郡",
+     "en": "Mashike Gun",
+     "wards": [
+      {
+       "jp": "増毛町",
+       "en": "Mashike Cho"
+      }
+     ]
+    },
+    {
+     "jp": "留萌郡",
+     "en": "Rumoi Gun",
+     "wards": [
+      {
+       "jp": "小平町",
+       "en": "Obira Cho"
+      }
+     ]
+    },
+    {
+     "jp": "苫前郡",
+     "en": "Tomamae Gun",
+     "wards": [
+      {
+       "jp": "苫前町",
+       "en": "Tomamae Cho"
+      },
+      {
+       "jp": "羽幌町",
+       "en": "Haboro Cho"
+      },
+      {
+       "jp": "初山別村",
+       "en": "Shosambetsu Mura"
+      }
+     ]
+    },
+    {
+     "jp": "天塩郡",
+     "en": "Teshio Gun",
+     "wards": [
+      {
+       "jp": "遠別町",
+       "en": "Embetsu Cho"
+      },
+      {
+       "jp": "天塩町",
+       "en": "Teshio Cho"
+      },
+      {
+       "jp": "豊富町",
+       "en": "Toyotomi Cho"
+      },
+      {
+       "jp": "幌延町",
+       "en": "Horonobe Cho"
+      }
+     ]
+    },
+    {
+     "jp": "宗谷郡",
+     "en": "Soya Gun",
+     "wards": [
+      {
+       "jp": "猿払村",
+       "en": "Sarufutsu Mura"
+      }
+     ]
+    },
+    {
+     "jp": "枝幸郡",
+     "en": "Esashi Gun",
+     "wards": [
+      {
+       "jp": "浜頓別町",
+       "en": "Hamatombetsu Cho"
+      },
+      {
+       "jp": "中頓別町",
+       "en": "Nakatombetsu Cho"
+      },
+      {
+       "jp": "枝幸町",
+       "en": "Esashi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "礼文郡",
+     "en": "Rebun Gun",
+     "wards": [
+      {
+       "jp": "礼文町",
+       "en": "Rebun Cho"
+      }
+     ]
+    },
+    {
+     "jp": "利尻郡",
+     "en": "Rishiri Gun",
+     "wards": [
+      {
+       "jp": "利尻町",
+       "en": "Rishiri Cho"
+      },
+      {
+       "jp": "利尻富士町",
+       "en": "Rishirifuji Cho"
+      }
+     ]
+    },
+    {
+     "jp": "網走郡",
+     "en": "Abashiri Gun",
+     "wards": [
+      {
+       "jp": "美幌町",
+       "en": "Bihoro Cho"
+      },
+      {
+       "jp": "津別町",
+       "en": "Tsubetsu Cho"
+      },
+      {
+       "jp": "大空町",
+       "en": "Ozora Cho"
+      }
+     ]
+    },
+    {
+     "jp": "斜里郡",
+     "en": "Shari Gun",
+     "wards": [
+      {
+       "jp": "斜里町",
+       "en": "Shari Cho"
+      },
+      {
+       "jp": "清里町",
+       "en": "Kiyosato Cho"
+      },
+      {
+       "jp": "小清水町",
+       "en": "Koshimizu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "常呂郡",
+     "en": "Tokoro Gun",
+     "wards": [
+      {
+       "jp": "訓子府町",
+       "en": "Kunneppu Cho"
+      },
+      {
+       "jp": "置戸町",
+       "en": "Oketo Cho"
+      },
+      {
+       "jp": "佐呂間町",
+       "en": "Saroma Cho"
+      }
+     ]
+    },
+    {
+     "jp": "紋別郡",
+     "en": "Mombetsu Gun",
+     "wards": [
+      {
+       "jp": "遠軽町",
+       "en": "Engaru Cho"
+      },
+      {
+       "jp": "湧別町",
+       "en": "Yubetsu Cho"
+      },
+      {
+       "jp": "滝上町",
+       "en": "Takinoe Cho"
+      },
+      {
+       "jp": "興部町",
+       "en": "Okoppe Cho"
+      },
+      {
+       "jp": "西興部村",
+       "en": "Nishiokoppe Mura"
+      },
+      {
+       "jp": "雄武町",
+       "en": "Omu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "有珠郡",
+     "en": "Usu Gun",
+     "wards": [
+      {
+       "jp": "壮瞥町",
+       "en": "Sobetsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "白老郡",
+     "en": "Shiraoi Gun",
+     "wards": [
+      {
+       "jp": "白老町",
+       "en": "Shiraoi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "沙流郡",
+     "en": "Saru Gun",
+     "wards": [
+      {
+       "jp": "日高町",
+       "en": "Hidaka Cho"
+      },
+      {
+       "jp": "平取町",
+       "en": "Biratori Cho"
+      }
+     ]
+    },
+    {
+     "jp": "新冠郡",
+     "en": "Niikappu Gun",
+     "wards": [
+      {
+       "jp": "新冠町",
+       "en": "Niikappu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "浦河郡",
+     "en": "Urakawa Gun",
+     "wards": [
+      {
+       "jp": "浦河町",
+       "en": "Urakawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "様似郡",
+     "en": "Samani Gun",
+     "wards": [
+      {
+       "jp": "様似町",
+       "en": "Samani Cho"
+      }
+     ]
+    },
+    {
+     "jp": "幌泉郡",
+     "en": "Horoizumi Gun",
+     "wards": [
+      {
+       "jp": "えりも町",
+       "en": "Erimo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "日高郡",
+     "en": "Hidaka Gun",
+     "wards": [
+      {
+       "jp": "新ひだか町",
+       "en": "Shinhidaka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "河東郡",
+     "en": "Kato Gun",
+     "wards": [
+      {
+       "jp": "音更町",
+       "en": "Otofuke Cho"
+      },
+      {
+       "jp": "士幌町",
+       "en": "Shihoro Cho"
+      },
+      {
+       "jp": "上士幌町",
+       "en": "Kamishihoro Cho"
+      },
+      {
+       "jp": "鹿追町",
+       "en": "Shikaoi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "河西郡",
+     "en": "Kasai Gun",
+     "wards": [
+      {
+       "jp": "芽室町",
+       "en": "Memuro Cho"
+      },
+      {
+       "jp": "中札内村",
+       "en": "Nakasatsunai Mura"
+      },
+      {
+       "jp": "更別村",
+       "en": "Sarabetsu Mura"
+      }
+     ]
+    },
+    {
+     "jp": "広尾郡",
+     "en": "Hiro Gun",
+     "wards": [
+      {
+       "jp": "大樹町",
+       "en": "Taiki Cho"
+      },
+      {
+       "jp": "広尾町",
+       "en": "Hiro Cho"
+      }
+     ]
+    },
+    {
+     "jp": "足寄郡",
+     "en": "Ashoro Gun",
+     "wards": [
+      {
+       "jp": "足寄町",
+       "en": "Ashoro Cho"
+      },
+      {
+       "jp": "陸別町",
+       "en": "Rikubetsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "十勝郡",
+     "en": "Tokachi Gun",
+     "wards": [
+      {
+       "jp": "浦幌町",
+       "en": "Urahoro Cho"
+      }
+     ]
+    },
+    {
+     "jp": "釧路郡",
+     "en": "Kushiro Gun",
+     "wards": [
+      {
+       "jp": "釧路町",
+       "en": "Kushiro Cho"
+      }
+     ]
+    },
+    {
+     "jp": "厚岸郡",
+     "en": "Akkeshi Gun",
+     "wards": [
+      {
+       "jp": "厚岸町",
+       "en": "Akkeshi Cho"
+      },
+      {
+       "jp": "浜中町",
+       "en": "Hamanaka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "川上郡",
+     "en": "Kawakami Gun",
+     "wards": [
+      {
+       "jp": "標茶町",
+       "en": "Shibecha Cho"
+      },
+      {
+       "jp": "弟子屈町",
+       "en": "Teshikaga Cho"
+      }
+     ]
+    },
+    {
+     "jp": "阿寒郡",
+     "en": "Akan Gun",
+     "wards": [
+      {
+       "jp": "鶴居村",
+       "en": "Tsurui Mura"
+      }
+     ]
+    },
+    {
+     "jp": "白糠郡",
+     "en": "Shiranuka Gun",
+     "wards": [
+      {
+       "jp": "白糠町",
+       "en": "Shiranuka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "野付郡",
+     "en": "Notsuke Gun",
+     "wards": [
+      {
+       "jp": "別海町",
+       "en": "Betsukai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "標津郡",
+     "en": "Shibetsu Gun",
+     "wards": [
+      {
+       "jp": "中標津町",
+       "en": "Nakashibetsu Cho"
+      },
+      {
+       "jp": "標津町",
+       "en": "Shibetsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "目梨郡",
+     "en": "Menashi Gun",
+     "wards": [
+      {
+       "jp": "羅臼町",
+       "en": "Rausu Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "青森県",
+   "en": "Aomori Ken",
+   "cities": [
+    {
+     "jp": "青森市",
+     "en": "Aomori Shi",
+     "wards": []
+    },
+    {
+     "jp": "弘前市",
+     "en": "Hirosaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "八戸市",
+     "en": "Hachinohe Shi",
+     "wards": []
+    },
+    {
+     "jp": "黒石市",
+     "en": "Kuroishi Shi",
+     "wards": []
+    },
+    {
+     "jp": "五所川原市",
+     "en": "Goshogawara Shi",
+     "wards": []
+    },
+    {
+     "jp": "十和田市",
+     "en": "Towada Shi",
+     "wards": []
+    },
+    {
+     "jp": "三沢市",
+     "en": "Misawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "むつ市",
+     "en": "Mutsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "つがる市",
+     "en": "Tsugaru Shi",
+     "wards": []
+    },
+    {
+     "jp": "平川市",
+     "en": "Hirakawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "東津軽郡",
+     "en": "Higashitsugaru Gun",
+     "wards": [
+      {
+       "jp": "平内町",
+       "en": "Hiranai Machi"
+      },
+      {
+       "jp": "今別町",
+       "en": "Imabetsu Machi"
+      },
+      {
+       "jp": "蓬田村",
+       "en": "Yomogita Mura"
+      },
+      {
+       "jp": "外ヶ浜町",
+       "en": "Sotogahama Machi"
+      }
+     ]
+    },
+    {
+     "jp": "西津軽郡",
+     "en": "Nishitsugaru Gun",
+     "wards": [
+      {
+       "jp": "鰺ヶ沢町",
+       "en": "Ajigasawa Machi"
+      },
+      {
+       "jp": "深浦町",
+       "en": "Fukaura Machi"
+      }
+     ]
+    },
+    {
+     "jp": "中津軽郡",
+     "en": "Nakatsugaru Gun",
+     "wards": [
+      {
+       "jp": "西目屋村",
+       "en": "Nishimeya Mura"
+      }
+     ]
+    },
+    {
+     "jp": "南津軽郡",
+     "en": "Minamitsugaru Gun",
+     "wards": [
+      {
+       "jp": "藤崎町",
+       "en": "Fujisaki Machi"
+      },
+      {
+       "jp": "大鰐町",
+       "en": "Owani Machi"
+      },
+      {
+       "jp": "田舎館村",
+       "en": "Inakadate Mura"
+      }
+     ]
+    },
+    {
+     "jp": "北津軽郡",
+     "en": "Kitatsugaru Gun",
+     "wards": [
+      {
+       "jp": "板柳町",
+       "en": "Itayanagi Machi"
+      },
+      {
+       "jp": "鶴田町",
+       "en": "Tsuruta Machi"
+      },
+      {
+       "jp": "中泊町",
+       "en": "Nakadomari Machi"
+      }
+     ]
+    },
+    {
+     "jp": "上北郡",
+     "en": "Kamikita Gun",
+     "wards": [
+      {
+       "jp": "野辺地町",
+       "en": "Noheji Machi"
+      },
+      {
+       "jp": "七戸町",
+       "en": "Shichinohe Machi"
+      },
+      {
+       "jp": "六戸町",
+       "en": "Rokunohe Machi"
+      },
+      {
+       "jp": "横浜町",
+       "en": "Yokohama Machi"
+      },
+      {
+       "jp": "東北町",
+       "en": "Tohoku Machi"
+      },
+      {
+       "jp": "六ヶ所村",
+       "en": "Rokkasho Mura"
+      },
+      {
+       "jp": "おいらせ町",
+       "en": "Oirase Cho"
+      }
+     ]
+    },
+    {
+     "jp": "下北郡",
+     "en": "Shimokita Gun",
+     "wards": [
+      {
+       "jp": "大間町",
+       "en": "Oma Machi"
+      },
+      {
+       "jp": "東通村",
+       "en": "Higashidori Mura"
+      },
+      {
+       "jp": "風間浦村",
+       "en": "Kazamaura Mura"
+      },
+      {
+       "jp": "佐井村",
+       "en": "Sai Mura"
+      }
+     ]
+    },
+    {
+     "jp": "三戸郡",
+     "en": "Sannohe Gun",
+     "wards": [
+      {
+       "jp": "三戸町",
+       "en": "Sannohe Machi"
+      },
+      {
+       "jp": "五戸町",
+       "en": "Gonohe Machi"
+      },
+      {
+       "jp": "田子町",
+       "en": "Takko Machi"
+      },
+      {
+       "jp": "南部町",
+       "en": "Nambu Cho"
+      },
+      {
+       "jp": "階上町",
+       "en": "Hashikami Cho"
+      },
+      {
+       "jp": "新郷村",
+       "en": "Shingo Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "岩手県",
+   "en": "Iwate Ken",
+   "cities": [
+    {
+     "jp": "盛岡市",
+     "en": "Morioka Shi",
+     "wards": []
+    },
+    {
+     "jp": "宮古市",
+     "en": "Miyako Shi",
+     "wards": []
+    },
+    {
+     "jp": "大船渡市",
+     "en": "Ofunato Shi",
+     "wards": []
+    },
+    {
+     "jp": "花巻市",
+     "en": "Hanamaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "北上市",
+     "en": "Kitakami Shi",
+     "wards": []
+    },
+    {
+     "jp": "久慈市",
+     "en": "Kuji Shi",
+     "wards": []
+    },
+    {
+     "jp": "遠野市",
+     "en": "Tono Shi",
+     "wards": []
+    },
+    {
+     "jp": "一関市",
+     "en": "Ichinoseki Shi",
+     "wards": []
+    },
+    {
+     "jp": "陸前高田市",
+     "en": "Rikuzentakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "釜石市",
+     "en": "Kamaishi Shi",
+     "wards": []
+    },
+    {
+     "jp": "二戸市",
+     "en": "Ninohe Shi",
+     "wards": []
+    },
+    {
+     "jp": "八幡平市",
+     "en": "Hachimantai Shi",
+     "wards": []
+    },
+    {
+     "jp": "奥州市",
+     "en": "Oshu Shi",
+     "wards": []
+    },
+    {
+     "jp": "滝沢市",
+     "en": "Takizawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩手郡",
+     "en": "Iwate Gun",
+     "wards": [
+      {
+       "jp": "雫石町",
+       "en": "Shizukuishi Cho"
+      },
+      {
+       "jp": "葛巻町",
+       "en": "Kuzumaki Machi"
+      },
+      {
+       "jp": "岩手町",
+       "en": "Iwate Machi"
+      }
+     ]
+    },
+    {
+     "jp": "紫波郡",
+     "en": "Shiwa Gun",
+     "wards": [
+      {
+       "jp": "紫波町",
+       "en": "Shiwa Cho"
+      },
+      {
+       "jp": "矢巾町",
+       "en": "Yahaba Cho"
+      }
+     ]
+    },
+    {
+     "jp": "和賀郡",
+     "en": "Waga Gun",
+     "wards": [
+      {
+       "jp": "西和賀町",
+       "en": "Nishiwaga Machi"
+      }
+     ]
+    },
+    {
+     "jp": "胆沢郡",
+     "en": "Isawa Gun",
+     "wards": [
+      {
+       "jp": "金ケ崎町",
+       "en": "Kanegasaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西磐井郡",
+     "en": "Nishiiwai Gun",
+     "wards": [
+      {
+       "jp": "平泉町",
+       "en": "Hiraizumi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "気仙郡",
+     "en": "Kesen Gun",
+     "wards": [
+      {
+       "jp": "住田町",
+       "en": "Sumita Cho"
+      }
+     ]
+    },
+    {
+     "jp": "上閉伊郡",
+     "en": "Kamihei Gun",
+     "wards": [
+      {
+       "jp": "大槌町",
+       "en": "Otsuchi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "下閉伊郡",
+     "en": "Shimohei Gun",
+     "wards": [
+      {
+       "jp": "山田町",
+       "en": "Yamada Machi"
+      },
+      {
+       "jp": "岩泉町",
+       "en": "Iwaizumi Cho"
+      },
+      {
+       "jp": "田野畑村",
+       "en": "Tanohata Mura"
+      },
+      {
+       "jp": "普代村",
+       "en": "Fudai Mura"
+      }
+     ]
+    },
+    {
+     "jp": "九戸郡",
+     "en": "Kunohe Gun",
+     "wards": [
+      {
+       "jp": "軽米町",
+       "en": "Karumai Machi"
+      },
+      {
+       "jp": "野田村",
+       "en": "Noda Mura"
+      },
+      {
+       "jp": "九戸村",
+       "en": "Kunohe Mura"
+      },
+      {
+       "jp": "洋野町",
+       "en": "Hirono Cho"
+      }
+     ]
+    },
+    {
+     "jp": "二戸郡",
+     "en": "Ninohe Gun",
+     "wards": [
+      {
+       "jp": "一戸町",
+       "en": "Ichinohe Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "宮城県",
+   "en": "Miyagi Ken",
+   "cities": [
+    {
+     "jp": "仙台市",
+     "en": "Sendai Shi",
+     "wards": [
+      {
+       "jp": "青葉区",
+       "en": "Aoba Ku"
+      },
+      {
+       "jp": "宮城野区",
+       "en": "Miyagino Ku"
+      },
+      {
+       "jp": "若林区",
+       "en": "Wakabayashi Ku"
+      },
+      {
+       "jp": "太白区",
+       "en": "Taihaku Ku"
+      },
+      {
+       "jp": "泉区",
+       "en": "Izumi Ku"
+      }
+     ]
+    },
+    {
+     "jp": "石巻市",
+     "en": "Ishinomaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "塩竈市",
+     "en": "Shiogama Shi",
+     "wards": []
+    },
+    {
+     "jp": "気仙沼市",
+     "en": "Kesennuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "白石市",
+     "en": "Shiroishi Shi",
+     "wards": []
+    },
+    {
+     "jp": "名取市",
+     "en": "Natori Shi",
+     "wards": []
+    },
+    {
+     "jp": "角田市",
+     "en": "Kakuda Shi",
+     "wards": []
+    },
+    {
+     "jp": "多賀城市",
+     "en": "Tagajo Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩沼市",
+     "en": "Iwanuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "登米市",
+     "en": "Tome Shi",
+     "wards": []
+    },
+    {
+     "jp": "栗原市",
+     "en": "Kurihara Shi",
+     "wards": []
+    },
+    {
+     "jp": "東松島市",
+     "en": "Higashimatsushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "大崎市",
+     "en": "Osaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "富谷市",
+     "en": "Tomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "刈田郡",
+     "en": "Katta Gun",
+     "wards": [
+      {
+       "jp": "蔵王町",
+       "en": "Zao Machi"
+      },
+      {
+       "jp": "七ヶ宿町",
+       "en": "Shichikashuku Machi"
+      }
+     ]
+    },
+    {
+     "jp": "柴田郡",
+     "en": "Shibata Gun",
+     "wards": [
+      {
+       "jp": "大河原町",
+       "en": "Ogawara Machi"
+      },
+      {
+       "jp": "村田町",
+       "en": "Murata Machi"
+      },
+      {
+       "jp": "柴田町",
+       "en": "Shibata Machi"
+      },
+      {
+       "jp": "川崎町",
+       "en": "Kawasaki Machi"
+      }
+     ]
+    },
+    {
+     "jp": "伊具郡",
+     "en": "Igu Gun",
+     "wards": [
+      {
+       "jp": "丸森町",
+       "en": "Marumori Machi"
+      }
+     ]
+    },
+    {
+     "jp": "亘理郡",
+     "en": "Watari Gun",
+     "wards": [
+      {
+       "jp": "亘理町",
+       "en": "Watari Cho"
+      },
+      {
+       "jp": "山元町",
+       "en": "Yamamoto Cho"
+      }
+     ]
+    },
+    {
+     "jp": "宮城郡",
+     "en": "Miyagi Gun",
+     "wards": [
+      {
+       "jp": "松島町",
+       "en": "Matsushima Machi"
+      },
+      {
+       "jp": "七ヶ浜町",
+       "en": "Shichigahama Machi"
+      },
+      {
+       "jp": "利府町",
+       "en": "Rifu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "黒川郡",
+     "en": "Kurokawa Gun",
+     "wards": [
+      {
+       "jp": "大和町",
+       "en": "Taiwa Cho"
+      },
+      {
+       "jp": "大郷町",
+       "en": "Osato Cho"
+      },
+      {
+       "jp": "大衡村",
+       "en": "Ohira Mura"
+      }
+     ]
+    },
+    {
+     "jp": "加美郡",
+     "en": "Kami Gun",
+     "wards": [
+      {
+       "jp": "色麻町",
+       "en": "Shikama Cho"
+      },
+      {
+       "jp": "加美町",
+       "en": "Kami Machi"
+      }
+     ]
+    },
+    {
+     "jp": "遠田郡",
+     "en": "Toda Gun",
+     "wards": [
+      {
+       "jp": "涌谷町",
+       "en": "Wakuya Cho"
+      },
+      {
+       "jp": "美里町",
+       "en": "Misato Machi"
+      }
+     ]
+    },
+    {
+     "jp": "牡鹿郡",
+     "en": "Oshika Gun",
+     "wards": [
+      {
+       "jp": "女川町",
+       "en": "Onagawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "本吉郡",
+     "en": "Motoyoshi Gun",
+     "wards": [
+      {
+       "jp": "南三陸町",
+       "en": "Minamisanriku Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "秋田県",
+   "en": "Akita Ken",
+   "cities": [
+    {
+     "jp": "秋田市",
+     "en": "Akita Shi",
+     "wards": []
+    },
+    {
+     "jp": "能代市",
+     "en": "Noshiro Shi",
+     "wards": []
+    },
+    {
+     "jp": "横手市",
+     "en": "Yokote Shi",
+     "wards": []
+    },
+    {
+     "jp": "大館市",
+     "en": "Odate Shi",
+     "wards": []
+    },
+    {
+     "jp": "男鹿市",
+     "en": "Oga Shi",
+     "wards": []
+    },
+    {
+     "jp": "湯沢市",
+     "en": "Yuzawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿角市",
+     "en": "Kazuno Shi",
+     "wards": []
+    },
+    {
+     "jp": "由利本荘市",
+     "en": "Yurihonjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "潟上市",
+     "en": "Katagami Shi",
+     "wards": []
+    },
+    {
+     "jp": "大仙市",
+     "en": "Daisen Shi",
+     "wards": []
+    },
+    {
+     "jp": "北秋田市",
+     "en": "Kitaakita Shi",
+     "wards": []
+    },
+    {
+     "jp": "にかほ市",
+     "en": "Nikaho Shi",
+     "wards": []
+    },
+    {
+     "jp": "仙北市",
+     "en": "Semboku Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿角郡",
+     "en": "Kazuno Gun",
+     "wards": [
+      {
+       "jp": "小坂町",
+       "en": "Kosaka Machi"
+      }
+     ]
+    },
+    {
+     "jp": "北秋田郡",
+     "en": "Kitaakita Gun",
+     "wards": [
+      {
+       "jp": "上小阿仁村",
+       "en": "Kamikoani Mura"
+      }
+     ]
+    },
+    {
+     "jp": "山本郡",
+     "en": "Yamamoto Gun",
+     "wards": [
+      {
+       "jp": "藤里町",
+       "en": "Fujisato Machi"
+      },
+      {
+       "jp": "三種町",
+       "en": "Mitane Cho"
+      },
+      {
+       "jp": "八峰町",
+       "en": "Happo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南秋田郡",
+     "en": "Minamiakita Gun",
+     "wards": [
+      {
+       "jp": "五城目町",
+       "en": "Gojome Machi"
+      },
+      {
+       "jp": "八郎潟町",
+       "en": "Hachirogata Machi"
+      },
+      {
+       "jp": "井川町",
+       "en": "Ikawa Machi"
+      },
+      {
+       "jp": "大潟村",
+       "en": "Ogata Mura"
+      }
+     ]
+    },
+    {
+     "jp": "仙北郡",
+     "en": "Semboku Gun",
+     "wards": [
+      {
+       "jp": "美郷町",
+       "en": "Misato Cho"
+      }
+     ]
+    },
+    {
+     "jp": "雄勝郡",
+     "en": "Ogachi Gun",
+     "wards": [
+      {
+       "jp": "羽後町",
+       "en": "Ugo Machi"
+      },
+      {
+       "jp": "東成瀬村",
+       "en": "Higashinaruse Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "山形県",
+   "en": "Yamagata Ken",
+   "cities": [
+    {
+     "jp": "山形市",
+     "en": "Yamagata Shi",
+     "wards": []
+    },
+    {
+     "jp": "米沢市",
+     "en": "Yonezawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "鶴岡市",
+     "en": "Tsuruoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "酒田市",
+     "en": "Sakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "新庄市",
+     "en": "Shinjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "寒河江市",
+     "en": "Sagae Shi",
+     "wards": []
+    },
+    {
+     "jp": "上山市",
+     "en": "Kaminoyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "村山市",
+     "en": "Murayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "長井市",
+     "en": "Nagai Shi",
+     "wards": []
+    },
+    {
+     "jp": "天童市",
+     "en": "Tendo Shi",
+     "wards": []
+    },
+    {
+     "jp": "東根市",
+     "en": "Higashine Shi",
+     "wards": []
+    },
+    {
+     "jp": "尾花沢市",
+     "en": "Obanazawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "南陽市",
+     "en": "Nanyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "東村山郡",
+     "en": "Higashimurayama Gun",
+     "wards": [
+      {
+       "jp": "山辺町",
+       "en": "Yamanobe Machi"
+      },
+      {
+       "jp": "中山町",
+       "en": "Nakayama Machi"
+      }
+     ]
+    },
+    {
+     "jp": "西村山郡",
+     "en": "Nishimurayama Gun",
+     "wards": [
+      {
+       "jp": "河北町",
+       "en": "Kahoku Cho"
+      },
+      {
+       "jp": "西川町",
+       "en": "Nishikawa Machi"
+      },
+      {
+       "jp": "朝日町",
+       "en": "Asahi Machi"
+      },
+      {
+       "jp": "大江町",
+       "en": "Oe Machi"
+      }
+     ]
+    },
+    {
+     "jp": "北村山郡",
+     "en": "Kitamurayama Gun",
+     "wards": [
+      {
+       "jp": "大石田町",
+       "en": "Oishida Machi"
+      }
+     ]
+    },
+    {
+     "jp": "最上郡",
+     "en": "Mogami Gun",
+     "wards": [
+      {
+       "jp": "金山町",
+       "en": "Kaneyama Machi"
+      },
+      {
+       "jp": "最上町",
+       "en": "Mogami Machi"
+      },
+      {
+       "jp": "舟形町",
+       "en": "Funagata Machi"
+      },
+      {
+       "jp": "真室川町",
+       "en": "Mamurogawa Machi"
+      },
+      {
+       "jp": "大蔵村",
+       "en": "Okura Mura"
+      },
+      {
+       "jp": "鮭川村",
+       "en": "Sakegawa Mura"
+      },
+      {
+       "jp": "戸沢村",
+       "en": "Tozawa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "東置賜郡",
+     "en": "Higashiokitama Gun",
+     "wards": [
+      {
+       "jp": "高畠町",
+       "en": "Takahata Machi"
+      },
+      {
+       "jp": "川西町",
+       "en": "Kawanishi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "西置賜郡",
+     "en": "Nishiokitama Gun",
+     "wards": [
+      {
+       "jp": "小国町",
+       "en": "Oguni Machi"
+      },
+      {
+       "jp": "白鷹町",
+       "en": "Shirataka Machi"
+      },
+      {
+       "jp": "飯豊町",
+       "en": "Iide Machi"
+      }
+     ]
+    },
+    {
+     "jp": "東田川郡",
+     "en": "Higashitagawa Gun",
+     "wards": [
+      {
+       "jp": "三川町",
+       "en": "Mikawa Machi"
+      },
+      {
+       "jp": "庄内町",
+       "en": "Shonai Machi"
+      }
+     ]
+    },
+    {
+     "jp": "飽海郡",
+     "en": "Akumi Gun",
+     "wards": [
+      {
+       "jp": "遊佐町",
+       "en": "Yuza Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "福島県",
+   "en": "Fukushima Ken",
+   "cities": [
+    {
+     "jp": "福島市",
+     "en": "Fukushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "会津若松市",
+     "en": "Aizuwakamatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "郡山市",
+     "en": "Koriyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "いわき市",
+     "en": "Iwaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "白河市",
+     "en": "Shirakawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "須賀川市",
+     "en": "Sukagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "喜多方市",
+     "en": "Kitakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "相馬市",
+     "en": "Soma Shi",
+     "wards": []
+    },
+    {
+     "jp": "二本松市",
+     "en": "Nihommatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "田村市",
+     "en": "Tamura Shi",
+     "wards": []
+    },
+    {
+     "jp": "南相馬市",
+     "en": "Minamisoma Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊達市",
+     "en": "Date Shi",
+     "wards": []
+    },
+    {
+     "jp": "本宮市",
+     "en": "Motomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊達郡",
+     "en": "Date Gun",
+     "wards": [
+      {
+       "jp": "桑折町",
+       "en": "Kori Machi"
+      },
+      {
+       "jp": "国見町",
+       "en": "Kunimi Machi"
+      },
+      {
+       "jp": "川俣町",
+       "en": "Kawamata Machi"
+      }
+     ]
+    },
+    {
+     "jp": "安達郡",
+     "en": "Adachi Gun",
+     "wards": [
+      {
+       "jp": "大玉村",
+       "en": "Otama Mura"
+      }
+     ]
+    },
+    {
+     "jp": "岩瀬郡",
+     "en": "Iwase Gun",
+     "wards": [
+      {
+       "jp": "鏡石町",
+       "en": "Kagamiishi Machi"
+      },
+      {
+       "jp": "天栄村",
+       "en": "Tenei Mura"
+      }
+     ]
+    },
+    {
+     "jp": "南会津郡",
+     "en": "Minamiaizu Gun",
+     "wards": [
+      {
+       "jp": "下郷町",
+       "en": "Shimogo Machi"
+      },
+      {
+       "jp": "檜枝岐村",
+       "en": "Hinoemata Mura"
+      },
+      {
+       "jp": "只見町",
+       "en": "Tadami Machi"
+      },
+      {
+       "jp": "南会津町",
+       "en": "Minamiaizu Machi"
+      }
+     ]
+    },
+    {
+     "jp": "耶麻郡",
+     "en": "Yama Gun",
+     "wards": [
+      {
+       "jp": "北塩原村",
+       "en": "Kitashiobara Mura"
+      },
+      {
+       "jp": "西会津町",
+       "en": "Nishiaizu Machi"
+      },
+      {
+       "jp": "磐梯町",
+       "en": "Bandai Machi"
+      },
+      {
+       "jp": "猪苗代町",
+       "en": "Inawashiro Machi"
+      }
+     ]
+    },
+    {
+     "jp": "河沼郡",
+     "en": "Kawanuma Gun",
+     "wards": [
+      {
+       "jp": "会津坂下町",
+       "en": "Aizubange Machi"
+      },
+      {
+       "jp": "湯川村",
+       "en": "Yugawa Mura"
+      },
+      {
+       "jp": "柳津町",
+       "en": "Yanaizu Machi"
+      }
+     ]
+    },
+    {
+     "jp": "大沼郡",
+     "en": "Onuma Gun",
+     "wards": [
+      {
+       "jp": "三島町",
+       "en": "Mishima Machi"
+      },
+      {
+       "jp": "金山町",
+       "en": "Kaneyama Machi"
+      },
+      {
+       "jp": "昭和村",
+       "en": "Showa Mura"
+      },
+      {
+       "jp": "会津美里町",
+       "en": "Aizumisato Machi"
+      }
+     ]
+    },
+    {
+     "jp": "西白河郡",
+     "en": "Nishishirakawa Gun",
+     "wards": [
+      {
+       "jp": "西郷村",
+       "en": "Nishigo Mura"
+      },
+      {
+       "jp": "泉崎村",
+       "en": "Izumizaki Mura"
+      },
+      {
+       "jp": "中島村",
+       "en": "Nakajima Mura"
+      },
+      {
+       "jp": "矢吹町",
+       "en": "Yabuki Machi"
+      }
+     ]
+    },
+    {
+     "jp": "東白川郡",
+     "en": "Higashishirakawa Gun",
+     "wards": [
+      {
+       "jp": "棚倉町",
+       "en": "Tanagura Machi"
+      },
+      {
+       "jp": "矢祭町",
+       "en": "Yamatsuri Mach"
+      },
+      {
+       "jp": "塙町",
+       "en": "Hanawa Machi"
+      },
+      {
+       "jp": "鮫川村",
+       "en": "Samegawa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "石川郡",
+     "en": "Ishikawa Gun",
+     "wards": [
+      {
+       "jp": "石川町",
+       "en": "Ishikawa Machi"
+      },
+      {
+       "jp": "玉川村",
+       "en": "Tamakawa Mura"
+      },
+      {
+       "jp": "平田村",
+       "en": "Hirata Mura"
+      },
+      {
+       "jp": "浅川町",
+       "en": "Asakawa Machi"
+      },
+      {
+       "jp": "古殿町",
+       "en": "Furudono Machi"
+      }
+     ]
+    },
+    {
+     "jp": "田村郡",
+     "en": "Tamura Gun",
+     "wards": [
+      {
+       "jp": "三春町",
+       "en": "Miharu Machi"
+      },
+      {
+       "jp": "小野町",
+       "en": "Ono Machi"
+      }
+     ]
+    },
+    {
+     "jp": "双葉郡",
+     "en": "Futaba Gun",
+     "wards": [
+      {
+       "jp": "広野町",
+       "en": "Hirono Machi"
+      },
+      {
+       "jp": "楢葉町",
+       "en": "Naraha Machi"
+      },
+      {
+       "jp": "富岡町",
+       "en": "Tomioka Machi"
+      },
+      {
+       "jp": "川内村",
+       "en": "Kawauchi Mura"
+      },
+      {
+       "jp": "大熊町",
+       "en": "Okuma Machi"
+      },
+      {
+       "jp": "双葉町",
+       "en": "Futaba Machi"
+      },
+      {
+       "jp": "浪江町",
+       "en": "Namie Machi"
+      },
+      {
+       "jp": "葛尾村",
+       "en": "Katsurao Mura"
+      }
+     ]
+    },
+    {
+     "jp": "相馬郡",
+     "en": "Soma Gun",
+     "wards": [
+      {
+       "jp": "新地町",
+       "en": "Shinchi Machi"
+      },
+      {
+       "jp": "飯舘村",
+       "en": "Iitate Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "茨城県",
+   "en": "Ibaraki Ken",
+   "cities": [
+    {
+     "jp": "水戸市",
+     "en": "Mito Shi",
+     "wards": []
+    },
+    {
+     "jp": "日立市",
+     "en": "Hitachi Shi",
+     "wards": []
+    },
+    {
+     "jp": "土浦市",
+     "en": "Tsuchiura Shi",
+     "wards": []
+    },
+    {
+     "jp": "古河市",
+     "en": "Koga Shi",
+     "wards": []
+    },
+    {
+     "jp": "石岡市",
+     "en": "Ishioka Shi",
+     "wards": []
+    },
+    {
+     "jp": "結城市",
+     "en": "Yuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "龍ケ崎市",
+     "en": "Ryugasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "下妻市",
+     "en": "Shimotsuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "常総市",
+     "en": "Joso Shi",
+     "wards": []
+    },
+    {
+     "jp": "常陸太田市",
+     "en": "Hitachiota Shi",
+     "wards": []
+    },
+    {
+     "jp": "高萩市",
+     "en": "Takahagi Shi",
+     "wards": []
+    },
+    {
+     "jp": "北茨城市",
+     "en": "Kitaibaraki Shi",
+     "wards": []
+    },
+    {
+     "jp": "笠間市",
+     "en": "Kasama Shi",
+     "wards": []
+    },
+    {
+     "jp": "取手市",
+     "en": "Toride Shi",
+     "wards": []
+    },
+    {
+     "jp": "牛久市",
+     "en": "Ushiku Shi",
+     "wards": []
+    },
+    {
+     "jp": "つくば市",
+     "en": "Tsukuba Shi",
+     "wards": []
+    },
+    {
+     "jp": "ひたちなか市",
+     "en": "Hitachinaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿嶋市",
+     "en": "Kashima Shi",
+     "wards": []
+    },
+    {
+     "jp": "潮来市",
+     "en": "Itako Shi",
+     "wards": []
+    },
+    {
+     "jp": "守谷市",
+     "en": "Moriya Shi",
+     "wards": []
+    },
+    {
+     "jp": "常陸大宮市",
+     "en": "Hitachiomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "那珂市",
+     "en": "Naka Shi",
+     "wards": []
+    },
+    {
+     "jp": "筑西市",
+     "en": "Chikusei Shi",
+     "wards": []
+    },
+    {
+     "jp": "坂東市",
+     "en": "Bando Shi",
+     "wards": []
+    },
+    {
+     "jp": "稲敷市",
+     "en": "Inashiki Shi",
+     "wards": []
+    },
+    {
+     "jp": "かすみがうら市",
+     "en": "Kasumigaura Shi",
+     "wards": []
+    },
+    {
+     "jp": "桜川市",
+     "en": "Sakuragawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "神栖市",
+     "en": "Kamisu Shi",
+     "wards": []
+    },
+    {
+     "jp": "行方市",
+     "en": "Namegata Shi",
+     "wards": []
+    },
+    {
+     "jp": "鉾田市",
+     "en": "Hokota Shi",
+     "wards": []
+    },
+    {
+     "jp": "つくばみらい市",
+     "en": "Tsukubamirai Shi",
+     "wards": []
+    },
+    {
+     "jp": "小美玉市",
+     "en": "Omitama Shi",
+     "wards": []
+    },
+    {
+     "jp": "東茨城郡",
+     "en": "Higashiibaraki Gun",
+     "wards": [
+      {
+       "jp": "茨城町",
+       "en": "Ibaraki Machi"
+      },
+      {
+       "jp": "大洗町",
+       "en": "Oarai Machi"
+      },
+      {
+       "jp": "城里町",
+       "en": "Shirosato Machi"
+      }
+     ]
+    },
+    {
+     "jp": "那珂郡",
+     "en": "Naka Gun",
+     "wards": [
+      {
+       "jp": "東海村",
+       "en": "Tokai Mura"
+      }
+     ]
+    },
+    {
+     "jp": "久慈郡",
+     "en": "Kuji Gun",
+     "wards": [
+      {
+       "jp": "大子町",
+       "en": "Daigo Machi"
+      }
+     ]
+    },
+    {
+     "jp": "稲敷郡",
+     "en": "Inashiki Gun",
+     "wards": [
+      {
+       "jp": "美浦村",
+       "en": "Miho Mura"
+      },
+      {
+       "jp": "阿見町",
+       "en": "Ami Machi"
+      },
+      {
+       "jp": "河内町",
+       "en": "Kawachi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "結城郡",
+     "en": "Yuki Gun",
+     "wards": [
+      {
+       "jp": "八千代町",
+       "en": "Yachiyo Machi"
+      }
+     ]
+    },
+    {
+     "jp": "猿島郡",
+     "en": "Sashima Gun",
+     "wards": [
+      {
+       "jp": "五霞町",
+       "en": "Goka Machi"
+      },
+      {
+       "jp": "境町",
+       "en": "Sakai Machi"
+      }
+     ]
+    },
+    {
+     "jp": "北相馬郡",
+     "en": "Kitasoma Gun",
+     "wards": [
+      {
+       "jp": "利根町",
+       "en": "Tone Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "栃木県",
+   "en": "Tochigi Ken",
+   "cities": [
+    {
+     "jp": "宇都宮市",
+     "en": "Utsunomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "足利市",
+     "en": "Ashikaga Shi",
+     "wards": []
+    },
+    {
+     "jp": "栃木市",
+     "en": "Tochigi Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐野市",
+     "en": "Sano Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿沼市",
+     "en": "Kanuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "日光市",
+     "en": "Nikko Shi",
+     "wards": []
+    },
+    {
+     "jp": "小山市",
+     "en": "Oyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "真岡市",
+     "en": "Moka Shi",
+     "wards": []
+    },
+    {
+     "jp": "大田原市",
+     "en": "Otawara Shi",
+     "wards": []
+    },
+    {
+     "jp": "矢板市",
+     "en": "Yaita Shi",
+     "wards": []
+    },
+    {
+     "jp": "那須塩原市",
+     "en": "Nasushiobara Shi",
+     "wards": []
+    },
+    {
+     "jp": "さくら市",
+     "en": "Sakura Shi",
+     "wards": []
+    },
+    {
+     "jp": "那須烏山市",
+     "en": "Nasukarasuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "下野市",
+     "en": "Shimotsuke Shi",
+     "wards": []
+    },
+    {
+     "jp": "河内郡",
+     "en": "Kawachi Gun",
+     "wards": [
+      {
+       "jp": "上三川町",
+       "en": "Kaminokawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "芳賀郡",
+     "en": "Haga Gun",
+     "wards": [
+      {
+       "jp": "益子町",
+       "en": "Mashiko Machi"
+      },
+      {
+       "jp": "茂木町",
+       "en": "Motegi Machi"
+      },
+      {
+       "jp": "市貝町",
+       "en": "Ichikai Machi"
+      },
+      {
+       "jp": "芳賀町",
+       "en": "Haga Machi"
+      }
+     ]
+    },
+    {
+     "jp": "下都賀郡",
+     "en": "Shimotsuga Gun",
+     "wards": [
+      {
+       "jp": "壬生町",
+       "en": "Mibu Machi"
+      },
+      {
+       "jp": "野木町",
+       "en": "Nogi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "塩谷郡",
+     "en": "Shioya Gun",
+     "wards": [
+      {
+       "jp": "塩谷町",
+       "en": "Shioya Machi"
+      },
+      {
+       "jp": "高根沢町",
+       "en": "Takanezawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "那須郡",
+     "en": "Nasu Gun",
+     "wards": [
+      {
+       "jp": "那須町",
+       "en": "Nasu Machi"
+      },
+      {
+       "jp": "那珂川町",
+       "en": "Nakagawa Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "群馬県",
+   "en": "Gumma Ken",
+   "cities": [
+    {
+     "jp": "前橋市",
+     "en": "Maebashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "高崎市",
+     "en": "Takasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "桐生市",
+     "en": "Kiryu Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊勢崎市",
+     "en": "Isesaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "太田市",
+     "en": "Ota Shi",
+     "wards": []
+    },
+    {
+     "jp": "沼田市",
+     "en": "Numata Shi",
+     "wards": []
+    },
+    {
+     "jp": "館林市",
+     "en": "Tatebayashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "渋川市",
+     "en": "Shibukawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "藤岡市",
+     "en": "Fujioka Shi",
+     "wards": []
+    },
+    {
+     "jp": "富岡市",
+     "en": "Tomioka Shi",
+     "wards": []
+    },
+    {
+     "jp": "安中市",
+     "en": "Annaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "みどり市",
+     "en": "Midori Shi",
+     "wards": []
+    },
+    {
+     "jp": "北群馬郡",
+     "en": "Kitagumma Gun",
+     "wards": [
+      {
+       "jp": "榛東村",
+       "en": "Shinto Mura"
+      },
+      {
+       "jp": "吉岡町",
+       "en": "Yoshioka Machi"
+      }
+     ]
+    },
+    {
+     "jp": "多野郡",
+     "en": "Tano Gun",
+     "wards": [
+      {
+       "jp": "上野村",
+       "en": "Ueno Mura"
+      },
+      {
+       "jp": "神流町",
+       "en": "Kanna Machi"
+      }
+     ]
+    },
+    {
+     "jp": "甘楽郡",
+     "en": "Kanra Gun",
+     "wards": [
+      {
+       "jp": "下仁田町",
+       "en": "Shimonita Machi"
+      },
+      {
+       "jp": "南牧村",
+       "en": "Nammoku Mura"
+      },
+      {
+       "jp": "甘楽町",
+       "en": "Kanra Machi"
+      }
+     ]
+    },
+    {
+     "jp": "吾妻郡",
+     "en": "Agatsuma Gun",
+     "wards": [
+      {
+       "jp": "中之条町",
+       "en": "Nakanojo Machi"
+      },
+      {
+       "jp": "長野原町",
+       "en": "Naganohara Machi"
+      },
+      {
+       "jp": "嬬恋村",
+       "en": "Tsumagoi Mura"
+      },
+      {
+       "jp": "草津町",
+       "en": "Kusatsu Machi"
+      },
+      {
+       "jp": "高山村",
+       "en": "Takayama Mura"
+      },
+      {
+       "jp": "東吾妻町",
+       "en": "Higashiagatsuma Machi"
+      }
+     ]
+    },
+    {
+     "jp": "利根郡",
+     "en": "Tone Gun",
+     "wards": [
+      {
+       "jp": "片品村",
+       "en": "Katashina Mura"
+      },
+      {
+       "jp": "川場村",
+       "en": "Kawaba Mura"
+      },
+      {
+       "jp": "昭和村",
+       "en": "Showa Mura"
+      },
+      {
+       "jp": "みなかみ町",
+       "en": "Minakami Machi"
+      }
+     ]
+    },
+    {
+     "jp": "佐波郡",
+     "en": "Sawa Gun",
+     "wards": [
+      {
+       "jp": "玉村町",
+       "en": "Tamamura Machi"
+      }
+     ]
+    },
+    {
+     "jp": "邑楽郡",
+     "en": "Ora Gun",
+     "wards": [
+      {
+       "jp": "板倉町",
+       "en": "Itakura Machi"
+      },
+      {
+       "jp": "明和町",
+       "en": "Meiwa Machi"
+      },
+      {
+       "jp": "千代田町",
+       "en": "Chiyoda Machi"
+      },
+      {
+       "jp": "大泉町",
+       "en": "Oizumi Machi"
+      },
+      {
+       "jp": "邑楽町",
+       "en": "Ora Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "埼玉県",
+   "en": "Saitama Ken",
+   "cities": [
+    {
+     "jp": "さいたま市",
+     "en": "Saitama Shi",
+     "wards": [
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "大宮区",
+       "en": "Omiya Ku"
+      },
+      {
+       "jp": "見沼区",
+       "en": "Minuma Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "桜区",
+       "en": "Sakura Ku"
+      },
+      {
+       "jp": "浦和区",
+       "en": "Urawa Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "緑区",
+       "en": "Midori Ku"
+      },
+      {
+       "jp": "岩槻区",
+       "en": "Iwatsuki Ku"
+      }
+     ]
+    },
+    {
+     "jp": "川越市",
+     "en": "Kawagoe Shi",
+     "wards": []
+    },
+    {
+     "jp": "熊谷市",
+     "en": "Kumagaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "川口市",
+     "en": "Kawaguchi Shi",
+     "wards": []
+    },
+    {
+     "jp": "行田市",
+     "en": "Gyoda Shi",
+     "wards": []
+    },
+    {
+     "jp": "秩父市",
+     "en": "Chichibu Shi",
+     "wards": []
+    },
+    {
+     "jp": "所沢市",
+     "en": "Tokorozawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "飯能市",
+     "en": "Hanno Shi",
+     "wards": []
+    },
+    {
+     "jp": "加須市",
+     "en": "Kazo Shi",
+     "wards": []
+    },
+    {
+     "jp": "本庄市",
+     "en": "Honjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "東松山市",
+     "en": "Higashimatsuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "春日部市",
+     "en": "Kasukabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "狭山市",
+     "en": "Sayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽生市",
+     "en": "Hanyu Shi",
+     "wards": []
+    },
+    {
+     "jp": "鴻巣市",
+     "en": "Konosu Shi",
+     "wards": []
+    },
+    {
+     "jp": "深谷市",
+     "en": "Fukaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "上尾市",
+     "en": "Ageo Shi",
+     "wards": []
+    },
+    {
+     "jp": "草加市",
+     "en": "Soka Shi",
+     "wards": []
+    },
+    {
+     "jp": "越谷市",
+     "en": "Koshigaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "蕨市",
+     "en": "Warabi Shi",
+     "wards": []
+    },
+    {
+     "jp": "戸田市",
+     "en": "Toda Shi",
+     "wards": []
+    },
+    {
+     "jp": "入間市",
+     "en": "Iruma Shi",
+     "wards": []
+    },
+    {
+     "jp": "朝霞市",
+     "en": "Asaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "志木市",
+     "en": "Shiki Shi",
+     "wards": []
+    },
+    {
+     "jp": "和光市",
+     "en": "Wako Shi",
+     "wards": []
+    },
+    {
+     "jp": "新座市",
+     "en": "Niiza Shi",
+     "wards": []
+    },
+    {
+     "jp": "桶川市",
+     "en": "Okegawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "久喜市",
+     "en": "Kuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "北本市",
+     "en": "Kitamoto Shi",
+     "wards": []
+    },
+    {
+     "jp": "八潮市",
+     "en": "Yashio Shi",
+     "wards": []
+    },
+    {
+     "jp": "富士見市",
+     "en": "Fujimi Shi",
+     "wards": []
+    },
+    {
+     "jp": "三郷市",
+     "en": "Misato Shi",
+     "wards": []
+    },
+    {
+     "jp": "蓮田市",
+     "en": "Hasuda Shi",
+     "wards": []
+    },
+    {
+     "jp": "坂戸市",
+     "en": "Sakado Shi",
+     "wards": []
+    },
+    {
+     "jp": "幸手市",
+     "en": "Satte Shi",
+     "wards": []
+    },
+    {
+     "jp": "鶴ヶ島市",
+     "en": "Tsurugashima Shi",
+     "wards": []
+    },
+    {
+     "jp": "日高市",
+     "en": "Hidaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "吉川市",
+     "en": "Yoshikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "ふじみ野市",
+     "en": "Fujimino Shi",
+     "wards": []
+    },
+    {
+     "jp": "白岡市",
+     "en": "Shiraoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "北足立郡",
+     "en": "Kitaadachi Gun",
+     "wards": [
+      {
+       "jp": "伊奈町",
+       "en": "Ina Machi"
+      }
+     ]
+    },
+    {
+     "jp": "入間郡",
+     "en": "Iruma Gun",
+     "wards": [
+      {
+       "jp": "三芳町",
+       "en": "Miyoshi Machi"
+      },
+      {
+       "jp": "毛呂山町",
+       "en": "Moroyama Machi"
+      },
+      {
+       "jp": "越生町",
+       "en": "Ogose Machi"
+      }
+     ]
+    },
+    {
+     "jp": "比企郡",
+     "en": "Hiki Gun",
+     "wards": [
+      {
+       "jp": "滑川町",
+       "en": "Namegawa Machi"
+      },
+      {
+       "jp": "嵐山町",
+       "en": "Ranzan Machi"
+      },
+      {
+       "jp": "小川町",
+       "en": "Ogawa Machi"
+      },
+      {
+       "jp": "川島町",
+       "en": "Kawajima Machi"
+      },
+      {
+       "jp": "吉見町",
+       "en": "Yoshimi Machi"
+      },
+      {
+       "jp": "鳩山町",
+       "en": "Hatoyama Machi"
+      },
+      {
+       "jp": "ときがわ町",
+       "en": "Tokigawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "秩父郡",
+     "en": "Chichibu Gun",
+     "wards": [
+      {
+       "jp": "横瀬町",
+       "en": "Yokoze Machi"
+      },
+      {
+       "jp": "皆野町",
+       "en": "Minano Machi"
+      },
+      {
+       "jp": "長瀞町",
+       "en": "Nagatoro Machi"
+      },
+      {
+       "jp": "小鹿野町",
+       "en": "Ogano Machi"
+      },
+      {
+       "jp": "東秩父村",
+       "en": "Higashichichibu Mura"
+      }
+     ]
+    },
+    {
+     "jp": "児玉郡",
+     "en": "Kodama Gun",
+     "wards": [
+      {
+       "jp": "美里町",
+       "en": "Misato Machi"
+      },
+      {
+       "jp": "神川町",
+       "en": "Kamikawa Machi"
+      },
+      {
+       "jp": "上里町",
+       "en": "Kamisato Machi"
+      }
+     ]
+    },
+    {
+     "jp": "大里郡",
+     "en": "Osato Gun",
+     "wards": [
+      {
+       "jp": "寄居町",
+       "en": "Yorii Machi"
+      }
+     ]
+    },
+    {
+     "jp": "南埼玉郡",
+     "en": "Minamisaitama Gun",
+     "wards": [
+      {
+       "jp": "宮代町",
+       "en": "Miyashiro Machi"
+      }
+     ]
+    },
+    {
+     "jp": "北葛飾郡",
+     "en": "Kitakatsushika Gun",
+     "wards": [
+      {
+       "jp": "杉戸町",
+       "en": "Sugito Machi"
+      },
+      {
+       "jp": "松伏町",
+       "en": "Matsubushi Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "千葉県",
+   "en": "Chiba Ken",
+   "cities": [
+    {
+     "jp": "千葉市",
+     "en": "Chiba Shi",
+     "wards": [
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "花見川区",
+       "en": "Hanamigawa Ku"
+      },
+      {
+       "jp": "稲毛区",
+       "en": "Inage Ku"
+      },
+      {
+       "jp": "若葉区",
+       "en": "Wakaba Ku"
+      },
+      {
+       "jp": "緑区",
+       "en": "Midori Ku"
+      },
+      {
+       "jp": "美浜区",
+       "en": "Mihama Ku"
+      }
+     ]
+    },
+    {
+     "jp": "銚子市",
+     "en": "Choshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "市川市",
+     "en": "Ichikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "船橋市",
+     "en": "Funabashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "館山市",
+     "en": "Tateyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "木更津市",
+     "en": "Kisarazu Shi",
+     "wards": []
+    },
+    {
+     "jp": "松戸市",
+     "en": "Matsudo Shi",
+     "wards": []
+    },
+    {
+     "jp": "野田市",
+     "en": "Noda Shi",
+     "wards": []
+    },
+    {
+     "jp": "茂原市",
+     "en": "Mobara Shi",
+     "wards": []
+    },
+    {
+     "jp": "成田市",
+     "en": "Narita Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐倉市",
+     "en": "Sakura Shi",
+     "wards": []
+    },
+    {
+     "jp": "東金市",
+     "en": "Togane Shi",
+     "wards": []
+    },
+    {
+     "jp": "旭市",
+     "en": "Asahi Shi",
+     "wards": []
+    },
+    {
+     "jp": "習志野市",
+     "en": "Narashino Shi",
+     "wards": []
+    },
+    {
+     "jp": "柏市",
+     "en": "Kashiwa Shi",
+     "wards": []
+    },
+    {
+     "jp": "勝浦市",
+     "en": "Katsura Shi",
+     "wards": []
+    },
+    {
+     "jp": "市原市",
+     "en": "Ichihara Shi",
+     "wards": []
+    },
+    {
+     "jp": "流山市",
+     "en": "Nagareyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "八千代市",
+     "en": "Yachiyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "我孫子市",
+     "en": "Abiko Shi",
+     "wards": []
+    },
+    {
+     "jp": "鴨川市",
+     "en": "Kamogawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "鎌ケ谷市",
+     "en": "Kamagaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "君津市",
+     "en": "Kimitsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "富津市",
+     "en": "Futtsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "浦安市",
+     "en": "Urayasu Shi",
+     "wards": []
+    },
+    {
+     "jp": "四街道市",
+     "en": "Yotsukaido Shi",
+     "wards": []
+    },
+    {
+     "jp": "袖ケ浦市",
+     "en": "Sodegaura Shi",
+     "wards": []
+    },
+    {
+     "jp": "八街市",
+     "en": "Yachimata Shi",
+     "wards": []
+    },
+    {
+     "jp": "印西市",
+     "en": "Inzai Shi",
+     "wards": []
+    },
+    {
+     "jp": "白井市",
+     "en": "Shiroi Shi",
+     "wards": []
+    },
+    {
+     "jp": "富里市",
+     "en": "Tomisato Shi",
+     "wards": []
+    },
+    {
+     "jp": "南房総市",
+     "en": "Minamiboso Shi",
+     "wards": []
+    },
+    {
+     "jp": "匝瑳市",
+     "en": "Sosa Shi",
+     "wards": []
+    },
+    {
+     "jp": "香取市",
+     "en": "Katori Shi",
+     "wards": []
+    },
+    {
+     "jp": "山武市",
+     "en": "Sammu Shi",
+     "wards": []
+    },
+    {
+     "jp": "いすみ市",
+     "en": "Isumi Shi",
+     "wards": []
+    },
+    {
+     "jp": "大網白里市",
+     "en": "Oamishirasato Shi",
+     "wards": []
+    },
+    {
+     "jp": "印旛郡",
+     "en": "Imba Gun",
+     "wards": [
+      {
+       "jp": "酒々井町",
+       "en": "Shisui Machi"
+      },
+      {
+       "jp": "栄町",
+       "en": "Sakae Machi"
+      }
+     ]
+    },
+    {
+     "jp": "香取郡",
+     "en": "Katori Gun",
+     "wards": [
+      {
+       "jp": "神崎町",
+       "en": "Kozaki Machi"
+      },
+      {
+       "jp": "多古町",
+       "en": "Tako Machi"
+      },
+      {
+       "jp": "東庄町",
+       "en": "Tonosho Machi"
+      }
+     ]
+    },
+    {
+     "jp": "山武郡",
+     "en": "Sambu Gun",
+     "wards": [
+      {
+       "jp": "九十九里町",
+       "en": "Kujukuri Machi"
+      },
+      {
+       "jp": "芝山町",
+       "en": "Shibayama Machi"
+      },
+      {
+       "jp": "横芝光町",
+       "en": "Yokoshibahikari Machi"
+      }
+     ]
+    },
+    {
+     "jp": "長生郡",
+     "en": "Chosei Gun",
+     "wards": [
+      {
+       "jp": "一宮町",
+       "en": "Ichinomiya Machi"
+      },
+      {
+       "jp": "睦沢町",
+       "en": "Mutsuzawa Machi"
+      },
+      {
+       "jp": "長生村",
+       "en": "Chosei Mura"
+      },
+      {
+       "jp": "白子町",
+       "en": "Shirako Machi"
+      },
+      {
+       "jp": "長柄町",
+       "en": "Nagara Machi"
+      },
+      {
+       "jp": "長南町",
+       "en": "Chonan Machi"
+      }
+     ]
+    },
+    {
+     "jp": "夷隅郡",
+     "en": "Isumi Gun",
+     "wards": [
+      {
+       "jp": "大多喜町",
+       "en": "Otaki Machi"
+      },
+      {
+       "jp": "御宿町",
+       "en": "Onjuku Machi"
+      }
+     ]
+    },
+    {
+     "jp": "安房郡",
+     "en": "Awa Gun",
+     "wards": [
+      {
+       "jp": "鋸南町",
+       "en": "Kyonan Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "東京都",
+   "en": "Tokyo To",
+   "cities": [
+    {
+     "jp": "千代田区",
+     "en": "Chiyoda Ku",
+     "wards": []
+    },
+    {
+     "jp": "中央区",
+     "en": "Chuo Ku",
+     "wards": []
+    },
+    {
+     "jp": "港区",
+     "en": "Minato Ku",
+     "wards": []
+    },
+    {
+     "jp": "新宿区",
+     "en": "Shinjuku Ku",
+     "wards": []
+    },
+    {
+     "jp": "文京区",
+     "en": "Bunkyo Ku",
+     "wards": []
+    },
+    {
+     "jp": "台東区",
+     "en": "Taito Ku",
+     "wards": []
+    },
+    {
+     "jp": "墨田区",
+     "en": "Sumida Ku",
+     "wards": []
+    },
+    {
+     "jp": "江東区",
+     "en": "Koto Ku",
+     "wards": []
+    },
+    {
+     "jp": "品川区",
+     "en": "Shinagawa Ku",
+     "wards": []
+    },
+    {
+     "jp": "目黒区",
+     "en": "Meguro Ku",
+     "wards": []
+    },
+    {
+     "jp": "大田区",
+     "en": "Ota Ku",
+     "wards": []
+    },
+    {
+     "jp": "世田谷区",
+     "en": "Setagaya Ku",
+     "wards": []
+    },
+    {
+     "jp": "渋谷区",
+     "en": "Shibuya Ku",
+     "wards": []
+    },
+    {
+     "jp": "中野区",
+     "en": "Nakano Ku",
+     "wards": []
+    },
+    {
+     "jp": "杉並区",
+     "en": "Suginami Ku",
+     "wards": []
+    },
+    {
+     "jp": "豊島区",
+     "en": "Toshima Ku",
+     "wards": []
+    },
+    {
+     "jp": "北区",
+     "en": "Kita Ku",
+     "wards": []
+    },
+    {
+     "jp": "荒川区",
+     "en": "Arakawa Ku",
+     "wards": []
+    },
+    {
+     "jp": "板橋区",
+     "en": "Itabashi Ku",
+     "wards": []
+    },
+    {
+     "jp": "練馬区",
+     "en": "Nerima Ku",
+     "wards": []
+    },
+    {
+     "jp": "足立区",
+     "en": "Adachi Ku",
+     "wards": []
+    },
+    {
+     "jp": "葛飾区",
+     "en": "Katsushika Ku",
+     "wards": []
+    },
+    {
+     "jp": "江戸川区",
+     "en": "Edogawa Ku",
+     "wards": []
+    },
+    {
+     "jp": "八王子市",
+     "en": "Hachioji Shi",
+     "wards": []
+    },
+    {
+     "jp": "立川市",
+     "en": "Tachikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "武蔵野市",
+     "en": "Musashino Shi",
+     "wards": []
+    },
+    {
+     "jp": "三鷹市",
+     "en": "Mitaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "青梅市",
+     "en": "Ome Shi",
+     "wards": []
+    },
+    {
+     "jp": "府中市",
+     "en": "Fuchu Shi",
+     "wards": []
+    },
+    {
+     "jp": "昭島市",
+     "en": "Akishima Shi",
+     "wards": []
+    },
+    {
+     "jp": "調布市",
+     "en": "Chofu Shi",
+     "wards": []
+    },
+    {
+     "jp": "町田市",
+     "en": "Machida Shi",
+     "wards": []
+    },
+    {
+     "jp": "小金井市",
+     "en": "Koganei Shi",
+     "wards": []
+    },
+    {
+     "jp": "小平市",
+     "en": "Kodaira Shi",
+     "wards": []
+    },
+    {
+     "jp": "日野市",
+     "en": "Hino Shi",
+     "wards": []
+    },
+    {
+     "jp": "東村山市",
+     "en": "Higashimurayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "国分寺市",
+     "en": "Kokubunji Shi",
+     "wards": []
+    },
+    {
+     "jp": "国立市",
+     "en": "Kunitachi Shi",
+     "wards": []
+    },
+    {
+     "jp": "福生市",
+     "en": "Fussa Shi",
+     "wards": []
+    },
+    {
+     "jp": "狛江市",
+     "en": "Komae Shi",
+     "wards": []
+    },
+    {
+     "jp": "東大和市",
+     "en": "Higashiyamato Shi",
+     "wards": []
+    },
+    {
+     "jp": "清瀬市",
+     "en": "Kiyose Shi",
+     "wards": []
+    },
+    {
+     "jp": "東久留米市",
+     "en": "Higashikurume Shi",
+     "wards": []
+    },
+    {
+     "jp": "武蔵村山市",
+     "en": "Musashimurayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "多摩市",
+     "en": "Tama Shi",
+     "wards": []
+    },
+    {
+     "jp": "稲城市",
+     "en": "Inagi Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽村市",
+     "en": "Hamura Shi",
+     "wards": []
+    },
+    {
+     "jp": "あきる野市",
+     "en": "Akiruno Shi",
+     "wards": []
+    },
+    {
+     "jp": "西東京市",
+     "en": "Nishitokyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "西多摩郡",
+     "en": "Nishitama Gun",
+     "wards": [
+      {
+       "jp": "瑞穂町",
+       "en": "Mizuho Machi"
+      },
+      {
+       "jp": "日の出町",
+       "en": "Hinode Machi"
+      },
+      {
+       "jp": "檜原村",
+       "en": "Hinohara Mura"
+      },
+      {
+       "jp": "奥多摩町",
+       "en": "Okutama Machi"
+      }
+     ]
+    },
+    {
+     "jp": "大島町",
+     "en": "Oshima Machi",
+     "wards": []
+    },
+    {
+     "jp": "利島村",
+     "en": "Toshima Mura",
+     "wards": []
+    },
+    {
+     "jp": "新島村",
+     "en": "Niijima Mura",
+     "wards": []
+    },
+    {
+     "jp": "神津島村",
+     "en": "Kozushima Mura",
+     "wards": []
+    },
+    {
+     "jp": "三宅島",
+     "en": "Miyakejima Miyake Mura",
+     "wards": []
+    },
+    {
+     "jp": "御蔵島村",
+     "en": "Mikurajima Mura",
+     "wards": []
+    },
+    {
+     "jp": "八丈島",
+     "en": "Hachijojima Hachijo Machi",
+     "wards": []
+    },
+    {
+     "jp": "青ヶ島村",
+     "en": "Aogashima Mura",
+     "wards": []
+    },
+    {
+     "jp": "小笠原村",
+     "en": "Ogasawara Mura",
+     "wards": []
+    }
+   ]
+  },
+  {
+   "jp": "神奈川県",
+   "en": "Kanagawa Ken",
+   "cities": [
+    {
+     "jp": "横浜市",
+     "en": "Yokohama Shi",
+     "wards": [
+      {
+       "jp": "鶴見区",
+       "en": "Tsurumi Ku"
+      },
+      {
+       "jp": "神奈川区",
+       "en": "Kanagawa Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "中区",
+       "en": "Naka Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "保土ケ谷区",
+       "en": "Hodogaya Ku"
+      },
+      {
+       "jp": "磯子区",
+       "en": "Isogo Ku"
+      },
+      {
+       "jp": "金沢区",
+       "en": "Kanazawa Ku"
+      },
+      {
+       "jp": "港北区",
+       "en": "Kohoku Ku"
+      },
+      {
+       "jp": "戸塚区",
+       "en": "Totsuka Ku"
+      },
+      {
+       "jp": "港南区",
+       "en": "Konan Ku"
+      },
+      {
+       "jp": "旭区",
+       "en": "Asahi Ku"
+      },
+      {
+       "jp": "緑区",
+       "en": "Midori Ku"
+      },
+      {
+       "jp": "瀬谷区",
+       "en": "Seya Ku"
+      },
+      {
+       "jp": "栄区",
+       "en": "Sakae Ku"
+      },
+      {
+       "jp": "泉区",
+       "en": "Izumi Ku"
+      },
+      {
+       "jp": "青葉区",
+       "en": "Aoba Ku"
+      },
+      {
+       "jp": "都筑区",
+       "en": "Tsuzuki Ku"
+      }
+     ]
+    },
+    {
+     "jp": "川崎市",
+     "en": "Kawasaki Shi",
+     "wards": [
+      {
+       "jp": "川崎区",
+       "en": "Kawasaki Ku"
+      },
+      {
+       "jp": "幸区",
+       "en": "Saiwai Ku"
+      },
+      {
+       "jp": "中原区",
+       "en": "Nakahara Ku"
+      },
+      {
+       "jp": "高津区",
+       "en": "Takatsu Ku"
+      },
+      {
+       "jp": "多摩区",
+       "en": "Tama Ku"
+      },
+      {
+       "jp": "宮前区",
+       "en": "Miyamae Ku"
+      },
+      {
+       "jp": "麻生区",
+       "en": "Asao Ku"
+      }
+     ]
+    },
+    {
+     "jp": "相模原市",
+     "en": "Sagamihara Shi",
+     "wards": [
+      {
+       "jp": "緑区",
+       "en": "Midori Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      }
+     ]
+    },
+    {
+     "jp": "横須賀市",
+     "en": "Yokosuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "平塚市",
+     "en": "Hiratsuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "鎌倉市",
+     "en": "Kamakura Shi",
+     "wards": []
+    },
+    {
+     "jp": "藤沢市",
+     "en": "Fujisawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "小田原市",
+     "en": "Odawara Shi",
+     "wards": []
+    },
+    {
+     "jp": "茅ヶ崎市",
+     "en": "Chigasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "逗子市",
+     "en": "Zushi Shi",
+     "wards": []
+    },
+    {
+     "jp": "三浦市",
+     "en": "Miura Shi",
+     "wards": []
+    },
+    {
+     "jp": "秦野市",
+     "en": "Hadano Shi",
+     "wards": []
+    },
+    {
+     "jp": "厚木市",
+     "en": "Atsugi Shi",
+     "wards": []
+    },
+    {
+     "jp": "大和市",
+     "en": "Yamato Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊勢原市",
+     "en": "Isehara Shi",
+     "wards": []
+    },
+    {
+     "jp": "海老名市",
+     "en": "Ebina Shi",
+     "wards": []
+    },
+    {
+     "jp": "座間市",
+     "en": "Zama Shi",
+     "wards": []
+    },
+    {
+     "jp": "南足柄市",
+     "en": "Minamiashigara Shi",
+     "wards": []
+    },
+    {
+     "jp": "綾瀬市",
+     "en": "Ayase Shi",
+     "wards": []
+    },
+    {
+     "jp": "三浦郡",
+     "en": "Miura Gun",
+     "wards": [
+      {
+       "jp": "葉山町",
+       "en": "Hayama Machi"
+      }
+     ]
+    },
+    {
+     "jp": "高座郡",
+     "en": "Koza Gun",
+     "wards": [
+      {
+       "jp": "寒川町",
+       "en": "Samukawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "中郡",
+     "en": "Naka Gun",
+     "wards": [
+      {
+       "jp": "大磯町",
+       "en": "Oiso Machi"
+      },
+      {
+       "jp": "二宮町",
+       "en": "Ninomiya Machi"
+      }
+     ]
+    },
+    {
+     "jp": "足柄上郡",
+     "en": "Ashigarakami Gun",
+     "wards": [
+      {
+       "jp": "中井町",
+       "en": "Nakai Machi"
+      },
+      {
+       "jp": "大井町",
+       "en": "Oi Machi"
+      },
+      {
+       "jp": "松田町",
+       "en": "Matsuda Machi"
+      },
+      {
+       "jp": "山北町",
+       "en": "Yamakita Machi"
+      },
+      {
+       "jp": "開成町",
+       "en": "Kaisei Machi"
+      }
+     ]
+    },
+    {
+     "jp": "足柄下郡",
+     "en": "Ashigarashimo Gun",
+     "wards": [
+      {
+       "jp": "箱根町",
+       "en": "Hakone Machi"
+      },
+      {
+       "jp": "真鶴町",
+       "en": "Manazuru Machi"
+      },
+      {
+       "jp": "湯河原町",
+       "en": "Yugawara Machi"
+      }
+     ]
+    },
+    {
+     "jp": "愛甲郡",
+     "en": "Aiko Gun",
+     "wards": [
+      {
+       "jp": "愛川町",
+       "en": "Aikawa Machi"
+      },
+      {
+       "jp": "清川村",
+       "en": "Kiyokawa Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "新潟県",
+   "en": "Niigata Ken",
+   "cities": [
+    {
+     "jp": "新潟市",
+     "en": "Niigata Shi",
+     "wards": [
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "江南区",
+       "en": "Konan Ku"
+      },
+      {
+       "jp": "秋葉区",
+       "en": "Akiha Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "西蒲区",
+       "en": "Nishikan Ku"
+      }
+     ]
+    },
+    {
+     "jp": "長岡市",
+     "en": "Nagaoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "三条市",
+     "en": "Sanjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "柏崎市",
+     "en": "Kashiwazaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "新発田市",
+     "en": "Shibata Shi",
+     "wards": []
+    },
+    {
+     "jp": "小千谷市",
+     "en": "Ojiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "加茂市",
+     "en": "Kamo Shi",
+     "wards": []
+    },
+    {
+     "jp": "十日町市",
+     "en": "Tokamachi Shi",
+     "wards": []
+    },
+    {
+     "jp": "見附市",
+     "en": "Mitsuke Shi",
+     "wards": []
+    },
+    {
+     "jp": "村上市",
+     "en": "Murakami Shi",
+     "wards": []
+    },
+    {
+     "jp": "燕市",
+     "en": "Tsubame Shi",
+     "wards": []
+    },
+    {
+     "jp": "糸魚川市",
+     "en": "Itoigawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "妙高市",
+     "en": "Myoko Shi",
+     "wards": []
+    },
+    {
+     "jp": "五泉市",
+     "en": "Gosen Shi",
+     "wards": []
+    },
+    {
+     "jp": "上越市",
+     "en": "Joetsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "阿賀野市",
+     "en": "Agano Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐渡市",
+     "en": "Sado Shi",
+     "wards": []
+    },
+    {
+     "jp": "魚沼市",
+     "en": "Uonuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "南魚沼市",
+     "en": "Minamiuonuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "胎内市",
+     "en": "Tainai Shi",
+     "wards": []
+    },
+    {
+     "jp": "北蒲原郡",
+     "en": "Kitakambara Gun",
+     "wards": [
+      {
+       "jp": "聖籠町",
+       "en": "Seiro Machi"
+      }
+     ]
+    },
+    {
+     "jp": "西蒲原郡",
+     "en": "Nishikambara Gun",
+     "wards": [
+      {
+       "jp": "弥彦村",
+       "en": "Yahiko Mura"
+      }
+     ]
+    },
+    {
+     "jp": "南蒲原郡",
+     "en": "Minamikambara Gun",
+     "wards": [
+      {
+       "jp": "田上町",
+       "en": "Tagami Machi"
+      }
+     ]
+    },
+    {
+     "jp": "東蒲原郡",
+     "en": "Higashikambara Gun",
+     "wards": [
+      {
+       "jp": "阿賀町",
+       "en": "Aga Machi"
+      }
+     ]
+    },
+    {
+     "jp": "三島郡",
+     "en": "Santo Gun",
+     "wards": [
+      {
+       "jp": "出雲崎町",
+       "en": "Izumozaki Machi"
+      }
+     ]
+    },
+    {
+     "jp": "南魚沼郡",
+     "en": "Minamiuonuma Gun",
+     "wards": [
+      {
+       "jp": "湯沢町",
+       "en": "Yuzawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "中魚沼郡",
+     "en": "Nakauonuma Gun",
+     "wards": [
+      {
+       "jp": "津南町",
+       "en": "Tsunan Machi"
+      }
+     ]
+    },
+    {
+     "jp": "刈羽郡",
+     "en": "Kariwa Gun",
+     "wards": [
+      {
+       "jp": "刈羽村",
+       "en": "Kariwa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "岩船郡",
+     "en": "Iwafune Gun",
+     "wards": [
+      {
+       "jp": "関川村",
+       "en": "Sekikawa Mura"
+      },
+      {
+       "jp": "粟島浦村",
+       "en": "Awashimaura Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "富山県",
+   "en": "Toyama Ken",
+   "cities": [
+    {
+     "jp": "富山市",
+     "en": "Toyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "高岡市",
+     "en": "Takaoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "魚津市",
+     "en": "Uozu Shi",
+     "wards": []
+    },
+    {
+     "jp": "氷見市",
+     "en": "Himi Shi",
+     "wards": []
+    },
+    {
+     "jp": "滑川市",
+     "en": "Namerikawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "黒部市",
+     "en": "Kurobe Shi",
+     "wards": []
+    },
+    {
+     "jp": "砺波市",
+     "en": "Tonami Shi",
+     "wards": []
+    },
+    {
+     "jp": "小矢部市",
+     "en": "Oyabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "南砺市",
+     "en": "Nanto Shi",
+     "wards": []
+    },
+    {
+     "jp": "射水市",
+     "en": "Imizu Shi",
+     "wards": []
+    },
+    {
+     "jp": "中新川郡",
+     "en": "Nakaniikawa Gun",
+     "wards": [
+      {
+       "jp": "舟橋村",
+       "en": "Funahashi Mura"
+      },
+      {
+       "jp": "上市町",
+       "en": "Kamiichi Machi"
+      },
+      {
+       "jp": "立山町",
+       "en": "Tateyama Machi"
+      }
+     ]
+    },
+    {
+     "jp": "下新川郡",
+     "en": "Shimoniikawa Gun",
+     "wards": [
+      {
+       "jp": "入善町",
+       "en": "Nyuzen Machi"
+      },
+      {
+       "jp": "朝日町",
+       "en": "Asahi Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "石川県",
+   "en": "Ishikawa Ken",
+   "cities": [
+    {
+     "jp": "金沢市",
+     "en": "Kanazawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "七尾市",
+     "en": "Nanao Shi",
+     "wards": []
+    },
+    {
+     "jp": "小松市",
+     "en": "Komatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "輪島市",
+     "en": "Wajima Shi",
+     "wards": []
+    },
+    {
+     "jp": "珠洲市",
+     "en": "Suzu Shi",
+     "wards": []
+    },
+    {
+     "jp": "加賀市",
+     "en": "Kaga Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽咋市",
+     "en": "Hakui Shi",
+     "wards": []
+    },
+    {
+     "jp": "かほく市",
+     "en": "Kahoku Shi",
+     "wards": []
+    },
+    {
+     "jp": "白山市",
+     "en": "Hakusan Shi",
+     "wards": []
+    },
+    {
+     "jp": "能美市",
+     "en": "Nomi Shi",
+     "wards": []
+    },
+    {
+     "jp": "野々市市",
+     "en": "Nonoichi Shi",
+     "wards": []
+    },
+    {
+     "jp": "能美郡",
+     "en": "Nomi Gun",
+     "wards": [
+      {
+       "jp": "川北町",
+       "en": "Kawakita Machi"
+      }
+     ]
+    },
+    {
+     "jp": "河北郡",
+     "en": "Kahoku Gun",
+     "wards": [
+      {
+       "jp": "津幡町",
+       "en": "Tsubata Machi"
+      },
+      {
+       "jp": "内灘町",
+       "en": "Uchinada Machi"
+      }
+     ]
+    },
+    {
+     "jp": "羽咋郡",
+     "en": "Hakui Gun",
+     "wards": [
+      {
+       "jp": "志賀町",
+       "en": "Shika Machi"
+      },
+      {
+       "jp": "宝達志水町",
+       "en": "Hodatsushimizu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "鹿島郡",
+     "en": "Kashima Gun",
+     "wards": [
+      {
+       "jp": "中能登町",
+       "en": "Nakanoto Machi"
+      }
+     ]
+    },
+    {
+     "jp": "鳳珠郡",
+     "en": "Hosu Gun",
+     "wards": [
+      {
+       "jp": "穴水町",
+       "en": "Anamizu Machi"
+      },
+      {
+       "jp": "能登町",
+       "en": "Noto Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "福井県",
+   "en": "Fukui Ken",
+   "cities": [
+    {
+     "jp": "福井市",
+     "en": "Fukui Shi",
+     "wards": []
+    },
+    {
+     "jp": "敦賀市",
+     "en": "Tsuruga Shi",
+     "wards": []
+    },
+    {
+     "jp": "小浜市",
+     "en": "Obama Shi",
+     "wards": []
+    },
+    {
+     "jp": "大野市",
+     "en": "Ono Shi",
+     "wards": []
+    },
+    {
+     "jp": "勝山市",
+     "en": "Katsuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "鯖江市",
+     "en": "Sabae Shi",
+     "wards": []
+    },
+    {
+     "jp": "あわら市",
+     "en": "Awara Shi",
+     "wards": []
+    },
+    {
+     "jp": "越前市",
+     "en": "Echizen Shi",
+     "wards": []
+    },
+    {
+     "jp": "坂井市",
+     "en": "Sakai Shi",
+     "wards": []
+    },
+    {
+     "jp": "吉田郡",
+     "en": "Yoshida Gun",
+     "wards": [
+      {
+       "jp": "永平寺町",
+       "en": "Eiheiji Cho"
+      }
+     ]
+    },
+    {
+     "jp": "今立郡",
+     "en": "Imadate Gun",
+     "wards": [
+      {
+       "jp": "池田町",
+       "en": "Ikeda Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南条郡",
+     "en": "Nanjo Gun",
+     "wards": [
+      {
+       "jp": "南越前町",
+       "en": "Minamiechizen Cho"
+      }
+     ]
+    },
+    {
+     "jp": "丹生郡",
+     "en": "Nyu Gun",
+     "wards": [
+      {
+       "jp": "越前町",
+       "en": "Echizen Cho"
+      }
+     ]
+    },
+    {
+     "jp": "三方郡",
+     "en": "Mikata Gun",
+     "wards": [
+      {
+       "jp": "美浜町",
+       "en": "Mihama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "大飯郡",
+     "en": "Oi Gun",
+     "wards": [
+      {
+       "jp": "高浜町",
+       "en": "Takahama Cho"
+      },
+      {
+       "jp": "おおい町",
+       "en": "Oi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "三方上中郡",
+     "en": "Mikatakaminaka Gun",
+     "wards": [
+      {
+       "jp": "若狭町",
+       "en": "Wakasa Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "山梨県",
+   "en": "Yamanashi Ken",
+   "cities": [
+    {
+     "jp": "甲府市",
+     "en": "Kofu Shi",
+     "wards": []
+    },
+    {
+     "jp": "富士吉田市",
+     "en": "Fujiyoshida Shi",
+     "wards": []
+    },
+    {
+     "jp": "都留市",
+     "en": "Tsuru Shi",
+     "wards": []
+    },
+    {
+     "jp": "山梨市",
+     "en": "Yamanashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "大月市",
+     "en": "Otsuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "韮崎市",
+     "en": "Nirasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "南アルプス市",
+     "en": "Minamiarupusu Shi",
+     "wards": []
+    },
+    {
+     "jp": "北杜市",
+     "en": "Hokuto Shi",
+     "wards": []
+    },
+    {
+     "jp": "甲斐市",
+     "en": "Kai Shi",
+     "wards": []
+    },
+    {
+     "jp": "笛吹市",
+     "en": "Fuefuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "上野原市",
+     "en": "Uenohara Shi",
+     "wards": []
+    },
+    {
+     "jp": "甲州市",
+     "en": "Koshu Shi",
+     "wards": []
+    },
+    {
+     "jp": "中央市",
+     "en": "Chuo Shi",
+     "wards": []
+    },
+    {
+     "jp": "西八代郡",
+     "en": "Nishiyatsushiro Gun",
+     "wards": [
+      {
+       "jp": "市川三郷町",
+       "en": "Ichikawamisato"
+      }
+     ]
+    },
+    {
+     "jp": "南巨摩郡",
+     "en": "Minamikoma Gun",
+     "wards": [
+      {
+       "jp": "早川町",
+       "en": "Hayakawa Cho"
+      },
+      {
+       "jp": "身延町",
+       "en": "Minobu Cho"
+      },
+      {
+       "jp": "南部町",
+       "en": "Nambu Cho"
+      },
+      {
+       "jp": "富士川町",
+       "en": "Fujikawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "中巨摩郡",
+     "en": "Nakakoma Gun",
+     "wards": [
+      {
+       "jp": "昭和町",
+       "en": "Showa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南都留郡",
+     "en": "Minamitsuru Gun",
+     "wards": [
+      {
+       "jp": "道志村",
+       "en": "Doshi Mura"
+      },
+      {
+       "jp": "西桂町",
+       "en": "Nishikatsura Cho"
+      },
+      {
+       "jp": "忍野村",
+       "en": "Oshino Mura"
+      },
+      {
+       "jp": "山中湖村",
+       "en": "Yamanakako Mura"
+      },
+      {
+       "jp": "鳴沢村",
+       "en": "Narusawa Mura"
+      },
+      {
+       "jp": "富士河口湖町",
+       "en": "Fujikawaguchiko Mac"
+      }
+     ]
+    },
+    {
+     "jp": "北都留郡",
+     "en": "Kitatsuru Gun",
+     "wards": [
+      {
+       "jp": "小菅村",
+       "en": "Kosuge Mura"
+      },
+      {
+       "jp": "丹波山村",
+       "en": "Tabayama Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "長野県",
+   "en": "Nagano Ken",
+   "cities": [
+    {
+     "jp": "長野市",
+     "en": "Nagano Shi",
+     "wards": []
+    },
+    {
+     "jp": "松本市",
+     "en": "Matsumoto Shi",
+     "wards": []
+    },
+    {
+     "jp": "上田市",
+     "en": "Ueda Shi",
+     "wards": []
+    },
+    {
+     "jp": "岡谷市",
+     "en": "Okaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "飯田市",
+     "en": "Iida Shi",
+     "wards": []
+    },
+    {
+     "jp": "諏訪市",
+     "en": "Suwa Shi",
+     "wards": []
+    },
+    {
+     "jp": "須坂市",
+     "en": "Suzaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "小諸市",
+     "en": "Komoro Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊那市",
+     "en": "Ina Shi",
+     "wards": []
+    },
+    {
+     "jp": "駒ヶ根市",
+     "en": "Komagane Shi",
+     "wards": []
+    },
+    {
+     "jp": "中野市",
+     "en": "Nakano Shi",
+     "wards": []
+    },
+    {
+     "jp": "大町市",
+     "en": "Omachi Shi",
+     "wards": []
+    },
+    {
+     "jp": "飯山市",
+     "en": "Iiyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "茅野市",
+     "en": "Chino Shi",
+     "wards": []
+    },
+    {
+     "jp": "塩尻市",
+     "en": "Shiojiri Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐久市",
+     "en": "Saku Shi",
+     "wards": []
+    },
+    {
+     "jp": "千曲市",
+     "en": "Chikuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "東御市",
+     "en": "Tomi Shi",
+     "wards": []
+    },
+    {
+     "jp": "安曇野市",
+     "en": "Azumino Shi",
+     "wards": []
+    },
+    {
+     "jp": "南佐久郡",
+     "en": "Minamisaku Gun",
+     "wards": [
+      {
+       "jp": "小海町",
+       "en": "Komi Machi"
+      },
+      {
+       "jp": "川上村",
+       "en": "Kawakami Mura"
+      },
+      {
+       "jp": "南牧村",
+       "en": "Minamimaki Mura"
+      },
+      {
+       "jp": "南相木村",
+       "en": "Minamiaiki Mura"
+      },
+      {
+       "jp": "北相木村",
+       "en": "Kitaaiki Mura"
+      },
+      {
+       "jp": "佐久穂町",
+       "en": "Sakuho Machi"
+      }
+     ]
+    },
+    {
+     "jp": "北佐久郡",
+     "en": "Kitasaku Gun",
+     "wards": [
+      {
+       "jp": "軽井沢町",
+       "en": "Karuizawa Machi"
+      },
+      {
+       "jp": "御代田町",
+       "en": "Miyota Machi"
+      },
+      {
+       "jp": "立科町",
+       "en": "Tateshina Machi"
+      }
+     ]
+    },
+    {
+     "jp": "小県郡",
+     "en": "Chiisagata Gun",
+     "wards": [
+      {
+       "jp": "青木村",
+       "en": "Aoki Mura"
+      },
+      {
+       "jp": "長和町",
+       "en": "Nagawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "諏訪郡",
+     "en": "Suwa Gun",
+     "wards": [
+      {
+       "jp": "下諏訪町",
+       "en": "Shimosuwa Machi"
+      },
+      {
+       "jp": "富士見町",
+       "en": "Fujimi Machi"
+      },
+      {
+       "jp": "原村",
+       "en": "Hara Mura"
+      }
+     ]
+    },
+    {
+     "jp": "上伊那郡",
+     "en": "Kamiina Gun",
+     "wards": [
+      {
+       "jp": "辰野町",
+       "en": "Tatsuno Machi"
+      },
+      {
+       "jp": "箕輪町",
+       "en": "Minowa Machi"
+      },
+      {
+       "jp": "飯島町",
+       "en": "Iijima Machi"
+      },
+      {
+       "jp": "南箕輪村",
+       "en": "Minamiminowa Mura"
+      },
+      {
+       "jp": "中川村",
+       "en": "Nakagawa Mura"
+      },
+      {
+       "jp": "宮田村",
+       "en": "Miyada Mura"
+      }
+     ]
+    },
+    {
+     "jp": "下伊那郡",
+     "en": "Shimoina Gun",
+     "wards": [
+      {
+       "jp": "松川町",
+       "en": "Matsukawa Machi"
+      },
+      {
+       "jp": "高森町",
+       "en": "Takamori Machi"
+      },
+      {
+       "jp": "阿南町",
+       "en": "Anan Cho"
+      },
+      {
+       "jp": "阿智村",
+       "en": "Achi Mura"
+      },
+      {
+       "jp": "平谷村",
+       "en": "Hiraya Mura"
+      },
+      {
+       "jp": "根羽村",
+       "en": "Neba Mura"
+      },
+      {
+       "jp": "下條村",
+       "en": "Shimojo Mura"
+      },
+      {
+       "jp": "売木村",
+       "en": "Urugi Mura"
+      },
+      {
+       "jp": "天龍村",
+       "en": "Tenryu Mura"
+      },
+      {
+       "jp": "泰阜村",
+       "en": "Yasuoka Mura"
+      },
+      {
+       "jp": "喬木村",
+       "en": "Takagi Mura"
+      },
+      {
+       "jp": "豊丘村",
+       "en": "Toyoka Mura"
+      },
+      {
+       "jp": "大鹿村",
+       "en": "Oshika Mura"
+      }
+     ]
+    },
+    {
+     "jp": "木曽郡",
+     "en": "Kiso Gun",
+     "wards": [
+      {
+       "jp": "上松町",
+       "en": "Agematsu Machi"
+      },
+      {
+       "jp": "南木曽町",
+       "en": "Nagiso Machi"
+      },
+      {
+       "jp": "木祖村",
+       "en": "Kiso Mura"
+      },
+      {
+       "jp": "王滝村",
+       "en": "Otaki Mura"
+      },
+      {
+       "jp": "大桑村",
+       "en": "Okuwa Mura"
+      },
+      {
+       "jp": "木曽町",
+       "en": "Kiso Machi"
+      }
+     ]
+    },
+    {
+     "jp": "東筑摩郡",
+     "en": "Higashichikuma Gun",
+     "wards": [
+      {
+       "jp": "麻績村",
+       "en": "Omi Mura"
+      },
+      {
+       "jp": "生坂村",
+       "en": "Ikusaka Mura"
+      },
+      {
+       "jp": "山形村",
+       "en": "Yamagata Mura"
+      },
+      {
+       "jp": "朝日村",
+       "en": "Asahi Mura"
+      },
+      {
+       "jp": "筑北村",
+       "en": "Chikuhoku Mura"
+      }
+     ]
+    },
+    {
+     "jp": "北安曇郡",
+     "en": "Kitaazumi Gun",
+     "wards": [
+      {
+       "jp": "池田町",
+       "en": "Ikeda Machi"
+      },
+      {
+       "jp": "松川村",
+       "en": "Matsukawa Mura"
+      },
+      {
+       "jp": "白馬村",
+       "en": "Hakuba Mura"
+      },
+      {
+       "jp": "小谷村",
+       "en": "Otari Mura"
+      }
+     ]
+    },
+    {
+     "jp": "埴科郡",
+     "en": "Hanishina Gun",
+     "wards": [
+      {
+       "jp": "坂城町",
+       "en": "Sakaki Machi"
+      }
+     ]
+    },
+    {
+     "jp": "上高井郡",
+     "en": "Kamitakai Gun",
+     "wards": [
+      {
+       "jp": "小布施町",
+       "en": "Obuse Machi"
+      },
+      {
+       "jp": "高山村",
+       "en": "Takayama Mura"
+      }
+     ]
+    },
+    {
+     "jp": "下高井郡",
+     "en": "Shimotakai Gun",
+     "wards": [
+      {
+       "jp": "山ノ内町",
+       "en": "Yamanochi Machi"
+      },
+      {
+       "jp": "木島平村",
+       "en": "Kijimadaira Mura"
+      },
+      {
+       "jp": "野沢温泉村",
+       "en": "Nozawaonsen Mura"
+      }
+     ]
+    },
+    {
+     "jp": "上水内郡",
+     "en": "Kamiminochi Gun",
+     "wards": [
+      {
+       "jp": "信濃町",
+       "en": "Shinano Machi"
+      },
+      {
+       "jp": "小川村",
+       "en": "Ogawa Mura"
+      },
+      {
+       "jp": "飯綱町",
+       "en": "Iizuna Machi"
+      }
+     ]
+    },
+    {
+     "jp": "下水内郡",
+     "en": "Shimominochi Gun",
+     "wards": [
+      {
+       "jp": "栄村",
+       "en": "Sakae Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "岐阜県",
+   "en": "Gifu Ken",
+   "cities": [
+    {
+     "jp": "岐阜市",
+     "en": "Gifu Shi",
+     "wards": []
+    },
+    {
+     "jp": "大垣市",
+     "en": "Ogaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "高山市",
+     "en": "Takayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "多治見市",
+     "en": "Tajimi Shi",
+     "wards": []
+    },
+    {
+     "jp": "関市",
+     "en": "Seki Shi",
+     "wards": []
+    },
+    {
+     "jp": "中津川市",
+     "en": "Nakatsugawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "美濃市",
+     "en": "Mino Shi",
+     "wards": []
+    },
+    {
+     "jp": "瑞浪市",
+     "en": "Mizunami Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽島市",
+     "en": "Hashima Shi",
+     "wards": []
+    },
+    {
+     "jp": "恵那市",
+     "en": "Ena Shi",
+     "wards": []
+    },
+    {
+     "jp": "美濃加茂市",
+     "en": "Minokamo Shi",
+     "wards": []
+    },
+    {
+     "jp": "土岐市",
+     "en": "Toki Shi",
+     "wards": []
+    },
+    {
+     "jp": "各務原市",
+     "en": "Kakamigahara Shi",
+     "wards": []
+    },
+    {
+     "jp": "可児市",
+     "en": "Kani Shi",
+     "wards": []
+    },
+    {
+     "jp": "山県市",
+     "en": "Yamagata Shi",
+     "wards": []
+    },
+    {
+     "jp": "瑞穂市",
+     "en": "Mizuho Shi",
+     "wards": []
+    },
+    {
+     "jp": "飛騨市",
+     "en": "Hida Shi",
+     "wards": []
+    },
+    {
+     "jp": "本巣市",
+     "en": "Motosu Shi",
+     "wards": []
+    },
+    {
+     "jp": "郡上市",
+     "en": "Gujo Shi",
+     "wards": []
+    },
+    {
+     "jp": "下呂市",
+     "en": "Gero Shi",
+     "wards": []
+    },
+    {
+     "jp": "海津市",
+     "en": "Kaizu Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽島郡",
+     "en": "Hashima Gun",
+     "wards": [
+      {
+       "jp": "岐南町",
+       "en": "Ginan Cho"
+      },
+      {
+       "jp": "笠松町",
+       "en": "Kasamatsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "養老郡",
+     "en": "Yoro Gun",
+     "wards": [
+      {
+       "jp": "養老町",
+       "en": "Yoro Cho"
+      }
+     ]
+    },
+    {
+     "jp": "不破郡",
+     "en": "Fuwa Gun",
+     "wards": [
+      {
+       "jp": "垂井町",
+       "en": "Tarui Cho"
+      },
+      {
+       "jp": "関ケ原町",
+       "en": "Sekigahara Cho"
+      }
+     ]
+    },
+    {
+     "jp": "安八郡",
+     "en": "Ampachi Gun",
+     "wards": [
+      {
+       "jp": "神戸町",
+       "en": "Godo Cho"
+      },
+      {
+       "jp": "輪之内町",
+       "en": "Wanochi Cho"
+      },
+      {
+       "jp": "安八町",
+       "en": "Ampachi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "揖斐郡",
+     "en": "Ibi Gun",
+     "wards": [
+      {
+       "jp": "揖斐川町",
+       "en": "Ibigawa Cho"
+      },
+      {
+       "jp": "大野町",
+       "en": "Ono Cho"
+      },
+      {
+       "jp": "池田町",
+       "en": "Ikeda Cho"
+      }
+     ]
+    },
+    {
+     "jp": "本巣郡",
+     "en": "Motosu Gun",
+     "wards": [
+      {
+       "jp": "北方町",
+       "en": "Kitagata Cho"
+      }
+     ]
+    },
+    {
+     "jp": "加茂郡",
+     "en": "Kamo Gun",
+     "wards": [
+      {
+       "jp": "坂祝町",
+       "en": "Sakahogi Cho"
+      },
+      {
+       "jp": "富加町",
+       "en": "Tomika Cho"
+      },
+      {
+       "jp": "川辺町",
+       "en": "Kawabe Cho"
+      },
+      {
+       "jp": "七宗町",
+       "en": "Hichiso Cho"
+      },
+      {
+       "jp": "八百津町",
+       "en": "Yaotsu Cho"
+      },
+      {
+       "jp": "白川町",
+       "en": "Shirakawa Cho"
+      },
+      {
+       "jp": "東白川村",
+       "en": "Higashishirakawa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "可児郡",
+     "en": "Kani Gun",
+     "wards": [
+      {
+       "jp": "御嵩町",
+       "en": "Mitake Cho"
+      }
+     ]
+    },
+    {
+     "jp": "大野郡",
+     "en": "Ono Gun",
+     "wards": [
+      {
+       "jp": "白川村",
+       "en": "Shirakawa Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "静岡県",
+   "en": "Shizuoka Ken",
+   "cities": [
+    {
+     "jp": "静岡市",
+     "en": "Shizuoka Shi",
+     "wards": [
+      {
+       "jp": "葵区",
+       "en": "Aoi Ku"
+      },
+      {
+       "jp": "駿河区",
+       "en": "Suruga Ku"
+      },
+      {
+       "jp": "清水区",
+       "en": "Shimizu Ku"
+      }
+     ]
+    },
+    {
+     "jp": "浜松市",
+     "en": "Hamamatsu Shi",
+     "wards": [
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "浜名区",
+       "en": "Hamana Ku"
+      },
+      {
+       "jp": "天竜区",
+       "en": "Tenryu Ku"
+      }
+     ]
+    },
+    {
+     "jp": "沼津市",
+     "en": "Numazu Shi",
+     "wards": []
+    },
+    {
+     "jp": "熱海市",
+     "en": "Atami Shi",
+     "wards": []
+    },
+    {
+     "jp": "三島市",
+     "en": "Mishima Shi",
+     "wards": []
+    },
+    {
+     "jp": "富士宮市",
+     "en": "Fujinomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊東市",
+     "en": "Ito Shi",
+     "wards": []
+    },
+    {
+     "jp": "島田市",
+     "en": "Shimada Shi",
+     "wards": []
+    },
+    {
+     "jp": "富士市",
+     "en": "Fuji Shi",
+     "wards": []
+    },
+    {
+     "jp": "磐田市",
+     "en": "Iwata Shi",
+     "wards": []
+    },
+    {
+     "jp": "焼津市",
+     "en": "Yaizu Shi",
+     "wards": []
+    },
+    {
+     "jp": "掛川市",
+     "en": "Kakegawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "藤枝市",
+     "en": "Fujieda Shi",
+     "wards": []
+    },
+    {
+     "jp": "御殿場市",
+     "en": "Gotemba Shi",
+     "wards": []
+    },
+    {
+     "jp": "袋井市",
+     "en": "Fukuroi Shi",
+     "wards": []
+    },
+    {
+     "jp": "下田市",
+     "en": "Shimoda Shi",
+     "wards": []
+    },
+    {
+     "jp": "裾野市",
+     "en": "Susono Shi",
+     "wards": []
+    },
+    {
+     "jp": "湖西市",
+     "en": "Kosai Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊豆市",
+     "en": "Izu Shi",
+     "wards": []
+    },
+    {
+     "jp": "御前崎市",
+     "en": "Omaezaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "菊川市",
+     "en": "Kikugawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊豆の国市",
+     "en": "Izunokuni Shi",
+     "wards": []
+    },
+    {
+     "jp": "牧之原市",
+     "en": "Makinohara Shi",
+     "wards": []
+    },
+    {
+     "jp": "賀茂郡",
+     "en": "Kamo Gun",
+     "wards": [
+      {
+       "jp": "東伊豆町",
+       "en": "Higashiizu Cho"
+      },
+      {
+       "jp": "河津町",
+       "en": "Kawazu Cho"
+      },
+      {
+       "jp": "南伊豆町",
+       "en": "Minamiizu Cho"
+      },
+      {
+       "jp": "松崎町",
+       "en": "Matsuzaki Cho"
+      },
+      {
+       "jp": "西伊豆町",
+       "en": "Nishiizu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "田方郡",
+     "en": "Tagata Gun",
+     "wards": [
+      {
+       "jp": "函南町",
+       "en": "Kannami Cho"
+      }
+     ]
+    },
+    {
+     "jp": "駿東郡",
+     "en": "Sunto Gun",
+     "wards": [
+      {
+       "jp": "清水町",
+       "en": "Shimizu Cho"
+      },
+      {
+       "jp": "長泉町",
+       "en": "Nagaizumi Cho"
+      },
+      {
+       "jp": "小山町",
+       "en": "Oyama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "榛原郡",
+     "en": "Haibara Gun",
+     "wards": [
+      {
+       "jp": "吉田町",
+       "en": "Yoshida Cho"
+      },
+      {
+       "jp": "川根本町",
+       "en": "Kawanehon Cho"
+      }
+     ]
+    },
+    {
+     "jp": "周智郡",
+     "en": "Shuchi Gun",
+     "wards": [
+      {
+       "jp": "森町",
+       "en": "Mori Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "愛知県",
+   "en": "Aichi Ken",
+   "cities": [
+    {
+     "jp": "名古屋市",
+     "en": "Nagoya Shi",
+     "wards": [
+      {
+       "jp": "千種区",
+       "en": "Chikusa Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "中村区",
+       "en": "Nakamura Ku"
+      },
+      {
+       "jp": "中区",
+       "en": "Naka Ku"
+      },
+      {
+       "jp": "昭和区",
+       "en": "Showa Ku"
+      },
+      {
+       "jp": "瑞穂区",
+       "en": "Mizuho Ku"
+      },
+      {
+       "jp": "熱田区",
+       "en": "Atsuta Ku"
+      },
+      {
+       "jp": "中川区",
+       "en": "Nakagawa Ku"
+      },
+      {
+       "jp": "港区",
+       "en": "Minato Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "守山区",
+       "en": "Moriyama Ku"
+      },
+      {
+       "jp": "緑区",
+       "en": "Midori Ku"
+      },
+      {
+       "jp": "名東区",
+       "en": "Meito Ku"
+      },
+      {
+       "jp": "天白区",
+       "en": "Tempaku Ku"
+      }
+     ]
+    },
+    {
+     "jp": "豊橋市",
+     "en": "Toyohashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "岡崎市",
+     "en": "Okazaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "一宮市",
+     "en": "Ichinomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "瀬戸市",
+     "en": "Seto Shi",
+     "wards": []
+    },
+    {
+     "jp": "半田市",
+     "en": "Handa Shi",
+     "wards": []
+    },
+    {
+     "jp": "春日井市",
+     "en": "Kasugai Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊川市",
+     "en": "Toyokawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "津島市",
+     "en": "Tsushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "碧南市",
+     "en": "Hekinan Shi",
+     "wards": []
+    },
+    {
+     "jp": "刈谷市",
+     "en": "Kariya Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊田市",
+     "en": "Toyota Shi",
+     "wards": []
+    },
+    {
+     "jp": "安城市",
+     "en": "Anjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "西尾市",
+     "en": "Nishio Shi",
+     "wards": []
+    },
+    {
+     "jp": "蒲郡市",
+     "en": "Gamagori Shi",
+     "wards": []
+    },
+    {
+     "jp": "犬山市",
+     "en": "Inuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "常滑市",
+     "en": "Tokoname Shi",
+     "wards": []
+    },
+    {
+     "jp": "江南市",
+     "en": "Konan Shi",
+     "wards": []
+    },
+    {
+     "jp": "小牧市",
+     "en": "Komaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "稲沢市",
+     "en": "Inazawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "新城市",
+     "en": "Shinshiro Shi",
+     "wards": []
+    },
+    {
+     "jp": "東海市",
+     "en": "Tokai Shi",
+     "wards": []
+    },
+    {
+     "jp": "大府市",
+     "en": "Obu Shi",
+     "wards": []
+    },
+    {
+     "jp": "知多市",
+     "en": "Chita Shi",
+     "wards": []
+    },
+    {
+     "jp": "知立市",
+     "en": "Chiryu Shi",
+     "wards": []
+    },
+    {
+     "jp": "尾張旭市",
+     "en": "Owariasahi Shi",
+     "wards": []
+    },
+    {
+     "jp": "高浜市",
+     "en": "Takahama Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩倉市",
+     "en": "Iwakura Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊明市",
+     "en": "Toyoake Shi",
+     "wards": []
+    },
+    {
+     "jp": "日進市",
+     "en": "Nisshin Shi",
+     "wards": []
+    },
+    {
+     "jp": "田原市",
+     "en": "Tahara Shi",
+     "wards": []
+    },
+    {
+     "jp": "愛西市",
+     "en": "Aisai Shi",
+     "wards": []
+    },
+    {
+     "jp": "清須市",
+     "en": "Kiyosu Shi",
+     "wards": []
+    },
+    {
+     "jp": "北名古屋市",
+     "en": "Kitanagoya Shi",
+     "wards": []
+    },
+    {
+     "jp": "弥富市",
+     "en": "Yatomi Shi",
+     "wards": []
+    },
+    {
+     "jp": "みよし市",
+     "en": "Miyoshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "あま市",
+     "en": "Ama Shi",
+     "wards": []
+    },
+    {
+     "jp": "長久手市",
+     "en": "Nagakute Shi",
+     "wards": []
+    },
+    {
+     "jp": "愛知郡",
+     "en": "Aichi Gun",
+     "wards": [
+      {
+       "jp": "東郷町",
+       "en": "Togo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西春日井郡",
+     "en": "Nishikasugai Gun",
+     "wards": [
+      {
+       "jp": "豊山町",
+       "en": "Toyoyama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "丹羽郡",
+     "en": "Niwa Gun",
+     "wards": [
+      {
+       "jp": "大口町",
+       "en": "Oguchi Cho"
+      },
+      {
+       "jp": "扶桑町",
+       "en": "Fuso Cho"
+      }
+     ]
+    },
+    {
+     "jp": "海部郡",
+     "en": "Ama Gun",
+     "wards": [
+      {
+       "jp": "大治町",
+       "en": "Oharu Cho"
+      },
+      {
+       "jp": "蟹江町",
+       "en": "Kanie Cho"
+      },
+      {
+       "jp": "飛島村",
+       "en": "Tobishima Mura"
+      }
+     ]
+    },
+    {
+     "jp": "知多郡",
+     "en": "Chita Gun",
+     "wards": [
+      {
+       "jp": "阿久比町",
+       "en": "Agui Cho"
+      },
+      {
+       "jp": "東浦町",
+       "en": "Higashiura Cho"
+      },
+      {
+       "jp": "南知多町",
+       "en": "Minamichita Cho"
+      },
+      {
+       "jp": "美浜町",
+       "en": "Mihama Cho"
+      },
+      {
+       "jp": "武豊町",
+       "en": "Taketoyo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "額田郡",
+     "en": "Nukata Gun",
+     "wards": [
+      {
+       "jp": "幸田町",
+       "en": "Kota Cho"
+      }
+     ]
+    },
+    {
+     "jp": "北設楽郡",
+     "en": "Kitashitara Gun",
+     "wards": [
+      {
+       "jp": "設楽町",
+       "en": "Shitara Cho"
+      },
+      {
+       "jp": "東栄町",
+       "en": "Toei Cho"
+      },
+      {
+       "jp": "豊根村",
+       "en": "Toyone Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "三重県",
+   "en": "Mie Ken",
+   "cities": [
+    {
+     "jp": "津市",
+     "en": "Tsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "四日市市",
+     "en": "Yokkaichi Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊勢市",
+     "en": "Ise Shi",
+     "wards": []
+    },
+    {
+     "jp": "松阪市",
+     "en": "Matsusaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "桑名市",
+     "en": "Kuwana Shi",
+     "wards": []
+    },
+    {
+     "jp": "鈴鹿市",
+     "en": "Suzuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "名張市",
+     "en": "Nabari Shi",
+     "wards": []
+    },
+    {
+     "jp": "尾鷲市",
+     "en": "Owase Shi",
+     "wards": []
+    },
+    {
+     "jp": "亀山市",
+     "en": "Kameyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "鳥羽市",
+     "en": "Toba Shi",
+     "wards": []
+    },
+    {
+     "jp": "熊野市",
+     "en": "Kumano Shi",
+     "wards": []
+    },
+    {
+     "jp": "いなべ市",
+     "en": "Inabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "志摩市",
+     "en": "Shima Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊賀市",
+     "en": "Iga Shi",
+     "wards": []
+    },
+    {
+     "jp": "桑名郡",
+     "en": "Kuwana Gun",
+     "wards": [
+      {
+       "jp": "木曽岬町",
+       "en": "Kisosaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "員弁郡",
+     "en": "Inabe Gun",
+     "wards": [
+      {
+       "jp": "東員町",
+       "en": "Toin Cho"
+      }
+     ]
+    },
+    {
+     "jp": "三重郡",
+     "en": "Mie Gun",
+     "wards": [
+      {
+       "jp": "菰野町",
+       "en": "Komono Cho"
+      },
+      {
+       "jp": "朝日町",
+       "en": "Asahi Cho"
+      },
+      {
+       "jp": "川越町",
+       "en": "Kawagoe Cho"
+      }
+     ]
+    },
+    {
+     "jp": "多気郡",
+     "en": "Taki Gun",
+     "wards": [
+      {
+       "jp": "多気町",
+       "en": "Taki Cho"
+      },
+      {
+       "jp": "明和町",
+       "en": "Meiwa Cho"
+      },
+      {
+       "jp": "大台町",
+       "en": "Odai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "度会郡",
+     "en": "Watarai Gun",
+     "wards": [
+      {
+       "jp": "玉城町",
+       "en": "Tamaki Cho"
+      },
+      {
+       "jp": "度会町",
+       "en": "Watarai Cho"
+      },
+      {
+       "jp": "大紀町",
+       "en": "Taiki Cho"
+      },
+      {
+       "jp": "南伊勢町",
+       "en": "Minamiise Cho"
+      }
+     ]
+    },
+    {
+     "jp": "北牟婁郡",
+     "en": "Kitamuro Gun",
+     "wards": [
+      {
+       "jp": "紀北町",
+       "en": "Kihoku Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南牟婁郡",
+     "en": "Minamimuro Gun",
+     "wards": [
+      {
+       "jp": "御浜町",
+       "en": "Mihama Cho"
+      },
+      {
+       "jp": "紀宝町",
+       "en": "Kiho Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "滋賀県",
+   "en": "Shiga Ken",
+   "cities": [
+    {
+     "jp": "大津市",
+     "en": "Otsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "彦根市",
+     "en": "Hikone Shi",
+     "wards": []
+    },
+    {
+     "jp": "長浜市",
+     "en": "Nagahama Shi",
+     "wards": []
+    },
+    {
+     "jp": "近江八幡市",
+     "en": "Omihachiman Shi",
+     "wards": []
+    },
+    {
+     "jp": "草津市",
+     "en": "Kusatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "守山市",
+     "en": "Moriyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "栗東市",
+     "en": "Ritto Shi",
+     "wards": []
+    },
+    {
+     "jp": "甲賀市",
+     "en": "Koka Shi",
+     "wards": []
+    },
+    {
+     "jp": "野洲市",
+     "en": "Yasu Shi",
+     "wards": []
+    },
+    {
+     "jp": "湖南市",
+     "en": "Konan Shi",
+     "wards": []
+    },
+    {
+     "jp": "高島市",
+     "en": "Takashima Shi",
+     "wards": []
+    },
+    {
+     "jp": "東近江市",
+     "en": "Higashiomi Shi",
+     "wards": []
+    },
+    {
+     "jp": "米原市",
+     "en": "Maibara Shi",
+     "wards": []
+    },
+    {
+     "jp": "蒲生郡",
+     "en": "Gamo Gun",
+     "wards": [
+      {
+       "jp": "日野町",
+       "en": "Hino Cho"
+      },
+      {
+       "jp": "竜王町",
+       "en": "Ryuo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "愛知郡",
+     "en": "Echi Gun",
+     "wards": [
+      {
+       "jp": "愛荘町",
+       "en": "Aisho Cho"
+      }
+     ]
+    },
+    {
+     "jp": "犬上郡",
+     "en": "Inukami Gun",
+     "wards": [
+      {
+       "jp": "豊郷町",
+       "en": "Toyosato Cho"
+      },
+      {
+       "jp": "甲良町",
+       "en": "Kora Cho"
+      },
+      {
+       "jp": "多賀町",
+       "en": "Taga Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "京都府",
+   "en": "Kyoto Fu",
+   "cities": [
+    {
+     "jp": "京都市",
+     "en": "Kyoto Shi",
+     "wards": [
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "上京区",
+       "en": "Kamigyo Ku"
+      },
+      {
+       "jp": "左京区",
+       "en": "Sakyo Ku"
+      },
+      {
+       "jp": "中京区",
+       "en": "Nakagyo Ku"
+      },
+      {
+       "jp": "東山区",
+       "en": "Higashiyama Ku"
+      },
+      {
+       "jp": "下京区",
+       "en": "Shimogyo Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "右京区",
+       "en": "Ukyo Ku"
+      },
+      {
+       "jp": "伏見区",
+       "en": "Fushimi Ku"
+      },
+      {
+       "jp": "山科区",
+       "en": "Yamashina Ku"
+      },
+      {
+       "jp": "西京区",
+       "en": "Nishikyo Ku"
+      }
+     ]
+    },
+    {
+     "jp": "福知山市",
+     "en": "Fukuchiyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "舞鶴市",
+     "en": "Maizuru Shi",
+     "wards": []
+    },
+    {
+     "jp": "綾部市",
+     "en": "Ayabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇治市",
+     "en": "Uji Shi",
+     "wards": []
+    },
+    {
+     "jp": "宮津市",
+     "en": "Miyazu Shi",
+     "wards": []
+    },
+    {
+     "jp": "亀岡市",
+     "en": "Kameoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "城陽市",
+     "en": "Joyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "向日市",
+     "en": "Muko Shi",
+     "wards": []
+    },
+    {
+     "jp": "長岡京市",
+     "en": "Nagaokakyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "八幡市",
+     "en": "Yawata Shi",
+     "wards": []
+    },
+    {
+     "jp": "京田辺市",
+     "en": "Kyotanabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "京丹後市",
+     "en": "Kyotango Shi",
+     "wards": []
+    },
+    {
+     "jp": "南丹市",
+     "en": "Nantan Shi",
+     "wards": []
+    },
+    {
+     "jp": "木津川市",
+     "en": "Kizugawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "乙訓郡",
+     "en": "Otokuni Gun",
+     "wards": [
+      {
+       "jp": "大山崎町",
+       "en": "Oyamazaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "久世郡",
+     "en": "Kuse Gun",
+     "wards": [
+      {
+       "jp": "久御山町",
+       "en": "Kumiyama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "綴喜郡",
+     "en": "Tsuzuki Gun",
+     "wards": [
+      {
+       "jp": "井手町",
+       "en": "Ide Cho"
+      },
+      {
+       "jp": "宇治田原町",
+       "en": "Ujitawara Cho"
+      }
+     ]
+    },
+    {
+     "jp": "相楽郡",
+     "en": "Soraku Gun",
+     "wards": [
+      {
+       "jp": "笠置町",
+       "en": "Kasagi Cho"
+      },
+      {
+       "jp": "和束町",
+       "en": "Wazuka Cho"
+      },
+      {
+       "jp": "精華町",
+       "en": "Seika Cho"
+      },
+      {
+       "jp": "南山城村",
+       "en": "Minamiyamashiro Mura"
+      }
+     ]
+    },
+    {
+     "jp": "船井郡",
+     "en": "Funai Gun",
+     "wards": [
+      {
+       "jp": "京丹波町",
+       "en": "Kyotamba Cho"
+      }
+     ]
+    },
+    {
+     "jp": "与謝郡",
+     "en": "Yosa Gun",
+     "wards": [
+      {
+       "jp": "伊根町",
+       "en": "Ine Cho"
+      },
+      {
+       "jp": "与謝野町",
+       "en": "Yosano Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "大阪府",
+   "en": "Osaka Fu",
+   "cities": [
+    {
+     "jp": "大阪市",
+     "en": "Osaka Shi",
+     "wards": [
+      {
+       "jp": "都島区",
+       "en": "Miyakojima Ku"
+      },
+      {
+       "jp": "福島区",
+       "en": "Fukushima Ku"
+      },
+      {
+       "jp": "此花区",
+       "en": "Konohana Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "港区",
+       "en": "Minato Ku"
+      },
+      {
+       "jp": "大正区",
+       "en": "Taisho Ku"
+      },
+      {
+       "jp": "天王寺区",
+       "en": "Tennoji Ku"
+      },
+      {
+       "jp": "浪速区",
+       "en": "Naniwa Ku"
+      },
+      {
+       "jp": "西淀川区",
+       "en": "Nishiyodogawa Ku"
+      },
+      {
+       "jp": "東淀川区",
+       "en": "Higashiyodogawa Ku"
+      },
+      {
+       "jp": "東成区",
+       "en": "Higashinari Ku"
+      },
+      {
+       "jp": "生野区",
+       "en": "Ikuno Ku"
+      },
+      {
+       "jp": "旭区",
+       "en": "Asahi Ku"
+      },
+      {
+       "jp": "城東区",
+       "en": "Joto Ku"
+      },
+      {
+       "jp": "阿倍野区",
+       "en": "Abeno Ku"
+      },
+      {
+       "jp": "住吉区",
+       "en": "Sumiyoshi Ku"
+      },
+      {
+       "jp": "東住吉区",
+       "en": "Higashisumiyoshi Ku"
+      },
+      {
+       "jp": "西成区",
+       "en": "Nishinari Ku"
+      },
+      {
+       "jp": "淀川区",
+       "en": "Yodogawa Ku"
+      },
+      {
+       "jp": "鶴見区",
+       "en": "Tsurumi Ku"
+      },
+      {
+       "jp": "住之江区",
+       "en": "Suminoe Ku"
+      },
+      {
+       "jp": "平野区",
+       "en": "Hirano Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      }
+     ]
+    },
+    {
+     "jp": "堺市",
+     "en": "Sakai Shi",
+     "wards": [
+      {
+       "jp": "堺区",
+       "en": "Sakai Ku"
+      },
+      {
+       "jp": "中区",
+       "en": "Naka Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "美原区",
+       "en": "Mihara Ku"
+      }
+     ]
+    },
+    {
+     "jp": "岸和田市",
+     "en": "Kishiwada Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊中市",
+     "en": "Toyonaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "池田市",
+     "en": "Ikeda Shi",
+     "wards": []
+    },
+    {
+     "jp": "吹田市",
+     "en": "Suita Shi",
+     "wards": []
+    },
+    {
+     "jp": "泉大津市",
+     "en": "Izumiotsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "高槻市",
+     "en": "Takatsuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "貝塚市",
+     "en": "Kaizuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "守口市",
+     "en": "Moriguchi Shi",
+     "wards": []
+    },
+    {
+     "jp": "枚方市",
+     "en": "Hirakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "茨木市",
+     "en": "Ibaraki Shi",
+     "wards": []
+    },
+    {
+     "jp": "八尾市",
+     "en": "Yao Shi",
+     "wards": []
+    },
+    {
+     "jp": "泉佐野市",
+     "en": "Izumisano Shi",
+     "wards": []
+    },
+    {
+     "jp": "富田林市",
+     "en": "Tondabayashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "寝屋川市",
+     "en": "Neyagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "河内長野市",
+     "en": "Kawachinagano Shi",
+     "wards": []
+    },
+    {
+     "jp": "松原市",
+     "en": "Matsubara Shi",
+     "wards": []
+    },
+    {
+     "jp": "大東市",
+     "en": "Daito Shi",
+     "wards": []
+    },
+    {
+     "jp": "和泉市",
+     "en": "Izumi Shi",
+     "wards": []
+    },
+    {
+     "jp": "箕面市",
+     "en": "Mino Shi",
+     "wards": []
+    },
+    {
+     "jp": "柏原市",
+     "en": "Kashiwara Shi",
+     "wards": []
+    },
+    {
+     "jp": "羽曳野市",
+     "en": "Habikino Shi",
+     "wards": []
+    },
+    {
+     "jp": "門真市",
+     "en": "Kadoma Shi",
+     "wards": []
+    },
+    {
+     "jp": "摂津市",
+     "en": "Settsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "高石市",
+     "en": "Takaishi Shi",
+     "wards": []
+    },
+    {
+     "jp": "藤井寺市",
+     "en": "Fujiidera Shi",
+     "wards": []
+    },
+    {
+     "jp": "東大阪市",
+     "en": "Higashiosaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "泉南市",
+     "en": "Sennan Shi",
+     "wards": []
+    },
+    {
+     "jp": "四條畷市",
+     "en": "Shijonawate Shi",
+     "wards": []
+    },
+    {
+     "jp": "交野市",
+     "en": "Katano Shi",
+     "wards": []
+    },
+    {
+     "jp": "大阪狭山市",
+     "en": "Osakasayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "阪南市",
+     "en": "Hannan Shi",
+     "wards": []
+    },
+    {
+     "jp": "三島郡",
+     "en": "Mishima Gun",
+     "wards": [
+      {
+       "jp": "島本町",
+       "en": "Shimamoto Cho"
+      }
+     ]
+    },
+    {
+     "jp": "豊能郡",
+     "en": "Toyono Gun",
+     "wards": [
+      {
+       "jp": "豊能町",
+       "en": "Toyono Cho"
+      },
+      {
+       "jp": "能勢町",
+       "en": "Nose Cho"
+      }
+     ]
+    },
+    {
+     "jp": "泉北郡",
+     "en": "Semboku Gun",
+     "wards": [
+      {
+       "jp": "忠岡町",
+       "en": "Tadaoka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "泉南郡",
+     "en": "Sennan Gun",
+     "wards": [
+      {
+       "jp": "熊取町",
+       "en": "Kumatori Cho"
+      },
+      {
+       "jp": "田尻町",
+       "en": "Tajiri Cho"
+      },
+      {
+       "jp": "岬町",
+       "en": "Misaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南河内郡",
+     "en": "Minamikawachi Gun",
+     "wards": [
+      {
+       "jp": "太子町",
+       "en": "Taishi Cho"
+      },
+      {
+       "jp": "河南町",
+       "en": "Kanan Cho"
+      },
+      {
+       "jp": "千早赤阪村",
+       "en": "Chihayaakasaka Mu"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "兵庫県",
+   "en": "Hyogo Ken",
+   "cities": [
+    {
+     "jp": "神戸市",
+     "en": "Kobe Shi",
+     "wards": [
+      {
+       "jp": "東灘区",
+       "en": "Higashinada Ku"
+      },
+      {
+       "jp": "灘区",
+       "en": "Nada Ku"
+      },
+      {
+       "jp": "兵庫区",
+       "en": "Hyogo Ku"
+      },
+      {
+       "jp": "長田区",
+       "en": "Nagata Ku"
+      },
+      {
+       "jp": "須磨区",
+       "en": "Suma Ku"
+      },
+      {
+       "jp": "垂水区",
+       "en": "Tarumi Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      }
+     ]
+    },
+    {
+     "jp": "姫路市",
+     "en": "Himeji Shi",
+     "wards": []
+    },
+    {
+     "jp": "尼崎市",
+     "en": "Amagasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "明石市",
+     "en": "Akashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "西宮市",
+     "en": "Nishinomiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "洲本市",
+     "en": "Sumoto Shi",
+     "wards": []
+    },
+    {
+     "jp": "芦屋市",
+     "en": "Ashiya Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊丹市",
+     "en": "Itami Shi",
+     "wards": []
+    },
+    {
+     "jp": "相生市",
+     "en": "Aioi Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊岡市",
+     "en": "Toyoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "加古川市",
+     "en": "Kakogawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "赤穂市",
+     "en": "Ako Shi",
+     "wards": []
+    },
+    {
+     "jp": "西脇市",
+     "en": "Nishiwaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "宝塚市",
+     "en": "Takarazuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "三木市",
+     "en": "Miki Shi",
+     "wards": []
+    },
+    {
+     "jp": "高砂市",
+     "en": "Takasago Shi",
+     "wards": []
+    },
+    {
+     "jp": "川西市",
+     "en": "Kawanishi Shi",
+     "wards": []
+    },
+    {
+     "jp": "小野市",
+     "en": "Ono Shi",
+     "wards": []
+    },
+    {
+     "jp": "三田市",
+     "en": "Sanda Shi",
+     "wards": []
+    },
+    {
+     "jp": "加西市",
+     "en": "Kasai Shi",
+     "wards": []
+    },
+    {
+     "jp": "丹波篠山市",
+     "en": "Tambasasayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "養父市",
+     "en": "Yabu Shi",
+     "wards": []
+    },
+    {
+     "jp": "丹波市",
+     "en": "Tamba Shi",
+     "wards": []
+    },
+    {
+     "jp": "南あわじ市",
+     "en": "Minamiawaji Shi",
+     "wards": []
+    },
+    {
+     "jp": "朝来市",
+     "en": "Asago Shi",
+     "wards": []
+    },
+    {
+     "jp": "淡路市",
+     "en": "Awaji Shi",
+     "wards": []
+    },
+    {
+     "jp": "宍粟市",
+     "en": "Shiso Shi",
+     "wards": []
+    },
+    {
+     "jp": "加東市",
+     "en": "Kato Shi",
+     "wards": []
+    },
+    {
+     "jp": "たつの市",
+     "en": "Tatsuno Shi",
+     "wards": []
+    },
+    {
+     "jp": "川辺郡",
+     "en": "Kawabe Gun",
+     "wards": [
+      {
+       "jp": "猪名川町",
+       "en": "Inagawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "多可郡",
+     "en": "Taka Gun",
+     "wards": [
+      {
+       "jp": "多可町",
+       "en": "Taka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "加古郡",
+     "en": "Kako Gun",
+     "wards": [
+      {
+       "jp": "稲美町",
+       "en": "Inami Cho"
+      },
+      {
+       "jp": "播磨町",
+       "en": "Harima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "神崎郡",
+     "en": "Kanzaki Gun",
+     "wards": [
+      {
+       "jp": "市川町",
+       "en": "Ichikawa Cho"
+      },
+      {
+       "jp": "福崎町",
+       "en": "Fukusaki Cho"
+      },
+      {
+       "jp": "神河町",
+       "en": "Kamikawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "揖保郡",
+     "en": "Ibo Gun",
+     "wards": [
+      {
+       "jp": "太子町",
+       "en": "Taishi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "赤穂郡",
+     "en": "Ako Gun",
+     "wards": [
+      {
+       "jp": "上郡町",
+       "en": "Kamigori Cho"
+      }
+     ]
+    },
+    {
+     "jp": "佐用郡",
+     "en": "Sayo Gun",
+     "wards": [
+      {
+       "jp": "佐用町",
+       "en": "Sayo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "美方郡",
+     "en": "Mikata Gun",
+     "wards": [
+      {
+       "jp": "香美町",
+       "en": "Kami Cho"
+      },
+      {
+       "jp": "新温泉町",
+       "en": "Shinonsen Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "奈良県",
+   "en": "Nara Ken",
+   "cities": [
+    {
+     "jp": "奈良市",
+     "en": "Nara Shi",
+     "wards": []
+    },
+    {
+     "jp": "大和高田市",
+     "en": "Yamatotakada Shi",
+     "wards": []
+    },
+    {
+     "jp": "大和郡山市",
+     "en": "Yamatokoriyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "天理市",
+     "en": "Tenri Shi",
+     "wards": []
+    },
+    {
+     "jp": "橿原市",
+     "en": "Kashihara Shi",
+     "wards": []
+    },
+    {
+     "jp": "桜井市",
+     "en": "Sakurai Shi",
+     "wards": []
+    },
+    {
+     "jp": "五條市",
+     "en": "Gojo Shi",
+     "wards": []
+    },
+    {
+     "jp": "御所市",
+     "en": "Gose Shi",
+     "wards": []
+    },
+    {
+     "jp": "生駒市",
+     "en": "Ikoma Shi",
+     "wards": []
+    },
+    {
+     "jp": "香芝市",
+     "en": "Kashiba Shi",
+     "wards": []
+    },
+    {
+     "jp": "葛城市",
+     "en": "Katsuragi Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇陀市",
+     "en": "Uda Shi",
+     "wards": []
+    },
+    {
+     "jp": "山辺郡",
+     "en": "Yamabe Gun",
+     "wards": [
+      {
+       "jp": "山添村",
+       "en": "Yamazoe Mura"
+      }
+     ]
+    },
+    {
+     "jp": "生駒郡",
+     "en": "Ikoma Gun",
+     "wards": [
+      {
+       "jp": "平群町",
+       "en": "Heguri Cho"
+      },
+      {
+       "jp": "三郷町",
+       "en": "Sango Cho"
+      },
+      {
+       "jp": "斑鳩町",
+       "en": "Ikaruga Cho"
+      },
+      {
+       "jp": "安堵町",
+       "en": "Ando Cho"
+      }
+     ]
+    },
+    {
+     "jp": "磯城郡",
+     "en": "Shiki Gun",
+     "wards": [
+      {
+       "jp": "川西町",
+       "en": "Kawanishi Cho"
+      },
+      {
+       "jp": "三宅町",
+       "en": "Miyake Cho"
+      },
+      {
+       "jp": "田原本町",
+       "en": "Tawaramoto Cho"
+      }
+     ]
+    },
+    {
+     "jp": "宇陀郡",
+     "en": "Uda Gun",
+     "wards": [
+      {
+       "jp": "曽爾村",
+       "en": "Soni Mura"
+      },
+      {
+       "jp": "御杖村",
+       "en": "Mitsue Mura"
+      }
+     ]
+    },
+    {
+     "jp": "高市郡",
+     "en": "Takaichi Gun",
+     "wards": [
+      {
+       "jp": "高取町",
+       "en": "Takatori Cho"
+      },
+      {
+       "jp": "明日香村",
+       "en": "Asuka Mura"
+      }
+     ]
+    },
+    {
+     "jp": "北葛城郡",
+     "en": "Kitakatsuragi Gun",
+     "wards": [
+      {
+       "jp": "上牧町",
+       "en": "Kammaki Cho"
+      },
+      {
+       "jp": "王寺町",
+       "en": "Oji Cho"
+      },
+      {
+       "jp": "広陵町",
+       "en": "Koryo Cho"
+      },
+      {
+       "jp": "河合町",
+       "en": "Kawai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "吉野郡",
+     "en": "Yoshino Gun",
+     "wards": [
+      {
+       "jp": "吉野町",
+       "en": "Yoshino Cho"
+      },
+      {
+       "jp": "大淀町",
+       "en": "Oyodo Cho"
+      },
+      {
+       "jp": "下市町",
+       "en": "Shimoichi Cho"
+      },
+      {
+       "jp": "黒滝村",
+       "en": "Kurotaki Mura"
+      },
+      {
+       "jp": "天川村",
+       "en": "Tenkawa Mura"
+      },
+      {
+       "jp": "野迫川村",
+       "en": "Nosegawa Mura"
+      },
+      {
+       "jp": "十津川村",
+       "en": "Totsukawa Mura"
+      },
+      {
+       "jp": "下北山村",
+       "en": "Shimokitayama Mura"
+      },
+      {
+       "jp": "上北山村",
+       "en": "Kamikitayama Mura"
+      },
+      {
+       "jp": "川上村",
+       "en": "Kawakami Mura"
+      },
+      {
+       "jp": "東吉野村",
+       "en": "Higashiyoshino Mura"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "和歌山県",
+   "en": "Wakayama Ken",
+   "cities": [
+    {
+     "jp": "和歌山市",
+     "en": "Wakayama Shi",
+     "wards": []
+    },
+    {
+     "jp": "海南市",
+     "en": "Kainan Shi",
+     "wards": []
+    },
+    {
+     "jp": "橋本市",
+     "en": "Hashimoto Shi",
+     "wards": []
+    },
+    {
+     "jp": "有田市",
+     "en": "Arida Shi",
+     "wards": []
+    },
+    {
+     "jp": "御坊市",
+     "en": "Gobo Shi",
+     "wards": []
+    },
+    {
+     "jp": "田辺市",
+     "en": "Tanabe Shi",
+     "wards": []
+    },
+    {
+     "jp": "新宮市",
+     "en": "Shingu Shi",
+     "wards": []
+    },
+    {
+     "jp": "紀の川市",
+     "en": "Kinokawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩出市",
+     "en": "Iwade Shi",
+     "wards": []
+    },
+    {
+     "jp": "海草郡",
+     "en": "Kaiso Gun",
+     "wards": [
+      {
+       "jp": "紀美野町",
+       "en": "Kimino Cho"
+      }
+     ]
+    },
+    {
+     "jp": "伊都郡",
+     "en": "Ito Gun",
+     "wards": [
+      {
+       "jp": "かつらぎ町",
+       "en": "Katsuragi Cho"
+      },
+      {
+       "jp": "九度山町",
+       "en": "Kudoyama Cho"
+      },
+      {
+       "jp": "高野町",
+       "en": "Koya Cho"
+      }
+     ]
+    },
+    {
+     "jp": "有田郡",
+     "en": "Arida Gun",
+     "wards": [
+      {
+       "jp": "湯浅町",
+       "en": "Yuasa Cho"
+      },
+      {
+       "jp": "広川町",
+       "en": "Hirogawa Cho"
+      },
+      {
+       "jp": "有田川町",
+       "en": "Aridagawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "日高郡",
+     "en": "Hidaka Gun",
+     "wards": [
+      {
+       "jp": "美浜町",
+       "en": "Mihama Cho"
+      },
+      {
+       "jp": "日高町",
+       "en": "Hidaka Cho"
+      },
+      {
+       "jp": "由良町",
+       "en": "Yura Cho"
+      },
+      {
+       "jp": "印南町",
+       "en": "Inami Cho"
+      },
+      {
+       "jp": "みなべ町",
+       "en": "Minabe Cho"
+      },
+      {
+       "jp": "日高川町",
+       "en": "Hidakagawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西牟婁郡",
+     "en": "Nishimuro Gun",
+     "wards": [
+      {
+       "jp": "白浜町",
+       "en": "Shirahama Cho"
+      },
+      {
+       "jp": "上富田町",
+       "en": "Kamitonda Cho"
+      },
+      {
+       "jp": "すさみ町",
+       "en": "Susami Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東牟婁郡",
+     "en": "Higashimuro Gun",
+     "wards": [
+      {
+       "jp": "那智勝浦町",
+       "en": "Nachikatsura Cho"
+      },
+      {
+       "jp": "太地町",
+       "en": "Taiji Cho"
+      },
+      {
+       "jp": "古座川町",
+       "en": "Kozagawa Cho"
+      },
+      {
+       "jp": "北山村",
+       "en": "Kitayama Mura"
+      },
+      {
+       "jp": "串本町",
+       "en": "Kushimoto Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "鳥取県",
+   "en": "Tottori Ken",
+   "cities": [
+    {
+     "jp": "鳥取市",
+     "en": "Tottori Shi",
+     "wards": []
+    },
+    {
+     "jp": "米子市",
+     "en": "Yonago Shi",
+     "wards": []
+    },
+    {
+     "jp": "倉吉市",
+     "en": "Kurayoshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "境港市",
+     "en": "Sakaiminato Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩美郡",
+     "en": "Iwami Gun",
+     "wards": [
+      {
+       "jp": "岩美町",
+       "en": "Iwami Cho"
+      }
+     ]
+    },
+    {
+     "jp": "八頭郡",
+     "en": "Yazu Gun",
+     "wards": [
+      {
+       "jp": "若桜町",
+       "en": "Wakasa Cho"
+      },
+      {
+       "jp": "智頭町",
+       "en": "Chizu Cho"
+      },
+      {
+       "jp": "八頭町",
+       "en": "Yazu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東伯郡",
+     "en": "Tohaku Gun",
+     "wards": [
+      {
+       "jp": "三朝町",
+       "en": "Misasa Cho"
+      },
+      {
+       "jp": "湯梨浜町",
+       "en": "Yurihama Cho"
+      },
+      {
+       "jp": "琴浦町",
+       "en": "Kotora Cho"
+      },
+      {
+       "jp": "北栄町",
+       "en": "Hokuei Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西伯郡",
+     "en": "Saihaku Gun",
+     "wards": [
+      {
+       "jp": "日吉津村",
+       "en": "Hiezu Son"
+      },
+      {
+       "jp": "大山町",
+       "en": "Daisen Cho"
+      },
+      {
+       "jp": "南部町",
+       "en": "Nambu Cho"
+      },
+      {
+       "jp": "伯耆町",
+       "en": "Hoki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "日野郡",
+     "en": "Hino Gun",
+     "wards": [
+      {
+       "jp": "日南町",
+       "en": "Nichinan Cho"
+      },
+      {
+       "jp": "日野町",
+       "en": "Hino Cho"
+      },
+      {
+       "jp": "江府町",
+       "en": "Kofu Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "島根県",
+   "en": "Shimane Ken",
+   "cities": [
+    {
+     "jp": "松江市",
+     "en": "Matsue Shi",
+     "wards": []
+    },
+    {
+     "jp": "浜田市",
+     "en": "Hamada Shi",
+     "wards": []
+    },
+    {
+     "jp": "出雲市",
+     "en": "Izumo Shi",
+     "wards": []
+    },
+    {
+     "jp": "益田市",
+     "en": "Masuda Shi",
+     "wards": []
+    },
+    {
+     "jp": "大田市",
+     "en": "Oda Shi",
+     "wards": []
+    },
+    {
+     "jp": "安来市",
+     "en": "Yasugi Shi",
+     "wards": []
+    },
+    {
+     "jp": "江津市",
+     "en": "Gotsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "雲南市",
+     "en": "Unnan Shi",
+     "wards": []
+    },
+    {
+     "jp": "仁多郡",
+     "en": "Nita Gun",
+     "wards": [
+      {
+       "jp": "奥出雲町",
+       "en": "Okuizumo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "飯石郡",
+     "en": "Iishi Gun",
+     "wards": [
+      {
+       "jp": "飯南町",
+       "en": "Iinan Cho"
+      }
+     ]
+    },
+    {
+     "jp": "邑智郡",
+     "en": "Ochi Gun",
+     "wards": [
+      {
+       "jp": "川本町",
+       "en": "Kawamoto Machi"
+      },
+      {
+       "jp": "美郷町",
+       "en": "Misato Cho"
+      },
+      {
+       "jp": "邑南町",
+       "en": "Onan Cho"
+      }
+     ]
+    },
+    {
+     "jp": "鹿足郡",
+     "en": "Kanoashi Gun",
+     "wards": [
+      {
+       "jp": "津和野町",
+       "en": "Tsuwano Cho"
+      },
+      {
+       "jp": "吉賀町",
+       "en": "Yoshika Cho"
+      }
+     ]
+    },
+    {
+     "jp": "隠岐郡",
+     "en": "Oki Gun",
+     "wards": [
+      {
+       "jp": "海士町",
+       "en": "Ama Cho"
+      },
+      {
+       "jp": "西ノ島町",
+       "en": "Nishinoshima Cho"
+      },
+      {
+       "jp": "知夫村",
+       "en": "Chibu Mura"
+      },
+      {
+       "jp": "隠岐の島町",
+       "en": "Okinoshima Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "岡山県",
+   "en": "Okayama Ken",
+   "cities": [
+    {
+     "jp": "岡山市",
+     "en": "Okayama Shi",
+     "wards": [
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      },
+      {
+       "jp": "中区",
+       "en": "Naka Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      }
+     ]
+    },
+    {
+     "jp": "倉敷市",
+     "en": "Kurashiki Shi",
+     "wards": []
+    },
+    {
+     "jp": "津山市",
+     "en": "Tsuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "玉野市",
+     "en": "Tamano Shi",
+     "wards": []
+    },
+    {
+     "jp": "笠岡市",
+     "en": "Kasaoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "井原市",
+     "en": "Ibara Shi",
+     "wards": []
+    },
+    {
+     "jp": "総社市",
+     "en": "Soja Shi",
+     "wards": []
+    },
+    {
+     "jp": "高梁市",
+     "en": "Takahashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "新見市",
+     "en": "Niimi Shi",
+     "wards": []
+    },
+    {
+     "jp": "備前市",
+     "en": "Bizen Shi",
+     "wards": []
+    },
+    {
+     "jp": "瀬戸内市",
+     "en": "Setochi Shi",
+     "wards": []
+    },
+    {
+     "jp": "赤磐市",
+     "en": "Akaiwa Shi",
+     "wards": []
+    },
+    {
+     "jp": "真庭市",
+     "en": "Maniwa Shi",
+     "wards": []
+    },
+    {
+     "jp": "美作市",
+     "en": "Mimasaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "浅口市",
+     "en": "Asakuchi Shi",
+     "wards": []
+    },
+    {
+     "jp": "和気郡",
+     "en": "Wake Gun",
+     "wards": [
+      {
+       "jp": "和気町",
+       "en": "Wake Cho"
+      }
+     ]
+    },
+    {
+     "jp": "都窪郡",
+     "en": "Tsukubo Gun",
+     "wards": [
+      {
+       "jp": "早島町",
+       "en": "Hayashima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "浅口郡",
+     "en": "Asakuchi Gun",
+     "wards": [
+      {
+       "jp": "里庄町",
+       "en": "Satosho Cho"
+      }
+     ]
+    },
+    {
+     "jp": "小田郡",
+     "en": "Oda Gun",
+     "wards": [
+      {
+       "jp": "矢掛町",
+       "en": "Yakage Cho"
+      }
+     ]
+    },
+    {
+     "jp": "真庭郡",
+     "en": "Maniwa Gun",
+     "wards": [
+      {
+       "jp": "新庄村",
+       "en": "Shinjo Son"
+      }
+     ]
+    },
+    {
+     "jp": "苫田郡",
+     "en": "Tomata Gun",
+     "wards": [
+      {
+       "jp": "鏡野町",
+       "en": "Kagamino Cho"
+      }
+     ]
+    },
+    {
+     "jp": "勝田郡",
+     "en": "Katsuta Gun",
+     "wards": [
+      {
+       "jp": "勝央町",
+       "en": "Shoo Cho"
+      },
+      {
+       "jp": "奈義町",
+       "en": "Nagi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "英田郡",
+     "en": "Aida Gun",
+     "wards": [
+      {
+       "jp": "西粟倉村",
+       "en": "Nishiawakura Son"
+      }
+     ]
+    },
+    {
+     "jp": "久米郡",
+     "en": "Kume Gun",
+     "wards": [
+      {
+       "jp": "久米南町",
+       "en": "Kumenan Cho"
+      },
+      {
+       "jp": "美咲町",
+       "en": "Misaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "加賀郡",
+     "en": "Kaga Gun",
+     "wards": [
+      {
+       "jp": "吉備中央町",
+       "en": "Kibichuo Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "広島県",
+   "en": "Hiroshima Ken",
+   "cities": [
+    {
+     "jp": "広島市",
+     "en": "Hiroshima Shi",
+     "wards": [
+      {
+       "jp": "中区",
+       "en": "Naka Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "安佐南区",
+       "en": "Asaminami Ku"
+      },
+      {
+       "jp": "安佐北区",
+       "en": "Asakita Ku"
+      },
+      {
+       "jp": "安芸区",
+       "en": "Aki Ku"
+      },
+      {
+       "jp": "佐伯区",
+       "en": "Saeki Ku"
+      }
+     ]
+    },
+    {
+     "jp": "呉市",
+     "en": "Kure Shi",
+     "wards": []
+    },
+    {
+     "jp": "竹原市",
+     "en": "Takehara Shi",
+     "wards": []
+    },
+    {
+     "jp": "三原市",
+     "en": "Mihara Shi",
+     "wards": []
+    },
+    {
+     "jp": "尾道市",
+     "en": "Onomichi Shi",
+     "wards": []
+    },
+    {
+     "jp": "福山市",
+     "en": "Fukuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "府中市",
+     "en": "Fuchu Shi",
+     "wards": []
+    },
+    {
+     "jp": "三次市",
+     "en": "Miyoshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "庄原市",
+     "en": "Shobara Shi",
+     "wards": []
+    },
+    {
+     "jp": "大竹市",
+     "en": "Otake Shi",
+     "wards": []
+    },
+    {
+     "jp": "東広島市",
+     "en": "Higashihiroshima Shi",
+     "wards": []
+    },
+    {
+     "jp": "廿日市市",
+     "en": "Hatsukaichi Shi",
+     "wards": []
+    },
+    {
+     "jp": "安芸高田市",
+     "en": "Akitakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "江田島市",
+     "en": "Etajima Shi",
+     "wards": []
+    },
+    {
+     "jp": "安芸郡",
+     "en": "Aki Gun",
+     "wards": [
+      {
+       "jp": "府中町",
+       "en": "Fuchu Cho"
+      },
+      {
+       "jp": "海田町",
+       "en": "Kaita Cho"
+      },
+      {
+       "jp": "熊野町",
+       "en": "Kumano Cho"
+      },
+      {
+       "jp": "坂町",
+       "en": "Saka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "山県郡",
+     "en": "Yamagata Gun",
+     "wards": [
+      {
+       "jp": "安芸太田町",
+       "en": "Akiota Cho"
+      },
+      {
+       "jp": "北広島町",
+       "en": "Kitahiroshima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "豊田郡",
+     "en": "Toyota Gun",
+     "wards": [
+      {
+       "jp": "大崎上島町",
+       "en": "Osakikamijima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "世羅郡",
+     "en": "Sera Gun",
+     "wards": [
+      {
+       "jp": "世羅町",
+       "en": "Sera Cho"
+      }
+     ]
+    },
+    {
+     "jp": "神石郡",
+     "en": "Jinseki Gun",
+     "wards": [
+      {
+       "jp": "神石高原町",
+       "en": "Jinsekikogen Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "山口県",
+   "en": "Yamaguchi Ken",
+   "cities": [
+    {
+     "jp": "下関市",
+     "en": "Shimonoseki Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇部市",
+     "en": "Ube Shi",
+     "wards": []
+    },
+    {
+     "jp": "山口市",
+     "en": "Yamaguchi Shi",
+     "wards": []
+    },
+    {
+     "jp": "萩市",
+     "en": "Hagi Shi",
+     "wards": []
+    },
+    {
+     "jp": "防府市",
+     "en": "Hofu Shi",
+     "wards": []
+    },
+    {
+     "jp": "下松市",
+     "en": "Kudamatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "岩国市",
+     "en": "Iwakuni Shi",
+     "wards": []
+    },
+    {
+     "jp": "光市",
+     "en": "Hikari Shi",
+     "wards": []
+    },
+    {
+     "jp": "長門市",
+     "en": "Nagato Shi",
+     "wards": []
+    },
+    {
+     "jp": "柳井市",
+     "en": "Yanai Shi",
+     "wards": []
+    },
+    {
+     "jp": "美祢市",
+     "en": "Mine Shi",
+     "wards": []
+    },
+    {
+     "jp": "周南市",
+     "en": "Shunan Shi",
+     "wards": []
+    },
+    {
+     "jp": "山陽小野田市",
+     "en": "Sanyoonoda Shi",
+     "wards": []
+    },
+    {
+     "jp": "大島郡",
+     "en": "Oshima Gun",
+     "wards": [
+      {
+       "jp": "周防大島町",
+       "en": "Suooshima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "玖珂郡",
+     "en": "Kuga Gun",
+     "wards": [
+      {
+       "jp": "和木町",
+       "en": "Waki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "熊毛郡",
+     "en": "Kumage Gun",
+     "wards": [
+      {
+       "jp": "上関町",
+       "en": "Kaminoseki Cho"
+      },
+      {
+       "jp": "田布施町",
+       "en": "Tabuse Cho"
+      },
+      {
+       "jp": "平生町",
+       "en": "Hirao Cho"
+      }
+     ]
+    },
+    {
+     "jp": "阿武郡",
+     "en": "Abu Gun",
+     "wards": [
+      {
+       "jp": "阿武町",
+       "en": "Abu Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "徳島県",
+   "en": "Tokushima Ken",
+   "cities": [
+    {
+     "jp": "徳島市",
+     "en": "Tokushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "鳴門市",
+     "en": "Naruto Shi",
+     "wards": []
+    },
+    {
+     "jp": "小松島市",
+     "en": "Komatsushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "阿南市",
+     "en": "Anan Shi",
+     "wards": []
+    },
+    {
+     "jp": "吉野川市",
+     "en": "Yoshinogawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "阿波市",
+     "en": "Awa Shi",
+     "wards": []
+    },
+    {
+     "jp": "美馬市",
+     "en": "Mima Shi",
+     "wards": []
+    },
+    {
+     "jp": "三好市",
+     "en": "Miyoshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "勝浦郡",
+     "en": "Katsura Gun",
+     "wards": [
+      {
+       "jp": "勝浦町",
+       "en": "Katsura Cho"
+      },
+      {
+       "jp": "上勝町",
+       "en": "Kamikatsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "名東郡",
+     "en": "Myodo Gun",
+     "wards": [
+      {
+       "jp": "佐那河内村",
+       "en": "Sanagochi Son"
+      }
+     ]
+    },
+    {
+     "jp": "名西郡",
+     "en": "Myozai Gun",
+     "wards": [
+      {
+       "jp": "石井町",
+       "en": "Ishii Cho"
+      },
+      {
+       "jp": "神山町",
+       "en": "Kamiyama Cho"
+      }
+     ]
+    },
+    {
+     "jp": "那賀郡",
+     "en": "Naka Gun",
+     "wards": [
+      {
+       "jp": "那賀町",
+       "en": "Naka Cho"
+      }
+     ]
+    },
+    {
+     "jp": "海部郡",
+     "en": "Kaifu Gun",
+     "wards": [
+      {
+       "jp": "牟岐町",
+       "en": "Mugi Cho"
+      },
+      {
+       "jp": "美波町",
+       "en": "Minami Cho"
+      },
+      {
+       "jp": "海陽町",
+       "en": "Kaiyo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "板野郡",
+     "en": "Itano Gun",
+     "wards": [
+      {
+       "jp": "松茂町",
+       "en": "Matsushige Cho"
+      },
+      {
+       "jp": "北島町",
+       "en": "Kitajima Cho"
+      },
+      {
+       "jp": "藍住町",
+       "en": "Aizumi Cho"
+      },
+      {
+       "jp": "板野町",
+       "en": "Itano Cho"
+      },
+      {
+       "jp": "上板町",
+       "en": "Kamiita Cho"
+      }
+     ]
+    },
+    {
+     "jp": "美馬郡",
+     "en": "Mima Gun",
+     "wards": [
+      {
+       "jp": "つるぎ町",
+       "en": "Tsurugi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "三好郡",
+     "en": "Miyoshi Gun",
+     "wards": [
+      {
+       "jp": "東みよし町",
+       "en": "Higashimiyoshi Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "香川県",
+   "en": "Kagawa Ken",
+   "cities": [
+    {
+     "jp": "高松市",
+     "en": "Takamatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "丸亀市",
+     "en": "Marugame Shi",
+     "wards": []
+    },
+    {
+     "jp": "坂出市",
+     "en": "Sakaide Shi",
+     "wards": []
+    },
+    {
+     "jp": "善通寺市",
+     "en": "Zentsuji Shi",
+     "wards": []
+    },
+    {
+     "jp": "観音寺市",
+     "en": "Kanonji Shi",
+     "wards": []
+    },
+    {
+     "jp": "さぬき市",
+     "en": "Sanuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "東かがわ市",
+     "en": "Higashikagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "三豊市",
+     "en": "Mitoyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "小豆郡",
+     "en": "Shozu Gun",
+     "wards": [
+      {
+       "jp": "土庄町",
+       "en": "Tonosho Cho"
+      },
+      {
+       "jp": "小豆島町",
+       "en": "Shodoshima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "木田郡",
+     "en": "Kita Gun",
+     "wards": [
+      {
+       "jp": "三木町",
+       "en": "Miki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "香川郡",
+     "en": "Kagawa Gun",
+     "wards": [
+      {
+       "jp": "直島町",
+       "en": "Naoshima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "綾歌郡",
+     "en": "Ayauta Gun",
+     "wards": [
+      {
+       "jp": "宇多津町",
+       "en": "Utazu Cho"
+      },
+      {
+       "jp": "綾川町",
+       "en": "Ayagawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "仲多度郡",
+     "en": "Nakatado Gun",
+     "wards": [
+      {
+       "jp": "琴平町",
+       "en": "Kotohira Cho"
+      },
+      {
+       "jp": "多度津町",
+       "en": "Tadotsu Cho"
+      },
+      {
+       "jp": "まんのう町",
+       "en": "Manno Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "愛媛県",
+   "en": "Ehime Ken",
+   "cities": [
+    {
+     "jp": "松山市",
+     "en": "Matsuyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "今治市",
+     "en": "Imabari Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇和島市",
+     "en": "Uwajima Shi",
+     "wards": []
+    },
+    {
+     "jp": "八幡浜市",
+     "en": "Yawatahama Shi",
+     "wards": []
+    },
+    {
+     "jp": "新居浜市",
+     "en": "Niihama Shi",
+     "wards": []
+    },
+    {
+     "jp": "西条市",
+     "en": "Saijo Shi",
+     "wards": []
+    },
+    {
+     "jp": "大洲市",
+     "en": "Ozu Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊予市",
+     "en": "Iyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "四国中央市",
+     "en": "Shikokuchuo Shi",
+     "wards": []
+    },
+    {
+     "jp": "西予市",
+     "en": "Seiyo Shi",
+     "wards": []
+    },
+    {
+     "jp": "東温市",
+     "en": "Toon Shi",
+     "wards": []
+    },
+    {
+     "jp": "越智郡",
+     "en": "Ochi Gun",
+     "wards": [
+      {
+       "jp": "上島町",
+       "en": "Kamijima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "上浮穴郡",
+     "en": "Kamiukena Gun",
+     "wards": [
+      {
+       "jp": "久万高原町",
+       "en": "Kumakogen Cho"
+      }
+     ]
+    },
+    {
+     "jp": "伊予郡",
+     "en": "Iyo Gun",
+     "wards": [
+      {
+       "jp": "松前町",
+       "en": "Masaki Cho"
+      },
+      {
+       "jp": "砥部町",
+       "en": "Tobe Cho"
+      }
+     ]
+    },
+    {
+     "jp": "喜多郡",
+     "en": "Kita Gun",
+     "wards": [
+      {
+       "jp": "内子町",
+       "en": "Uchiko Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西宇和郡",
+     "en": "Nishiuwa Gun",
+     "wards": [
+      {
+       "jp": "伊方町",
+       "en": "Ikata Cho"
+      }
+     ]
+    },
+    {
+     "jp": "北宇和郡",
+     "en": "Kitauwa Gun",
+     "wards": [
+      {
+       "jp": "松野町",
+       "en": "Matsuno Cho"
+      },
+      {
+       "jp": "鬼北町",
+       "en": "Kihoku Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南宇和郡",
+     "en": "Minamiuwa Gun",
+     "wards": [
+      {
+       "jp": "愛南町",
+       "en": "Ainan Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "高知県",
+   "en": "Kochi Ken",
+   "cities": [
+    {
+     "jp": "高知市",
+     "en": "Kochi Shi",
+     "wards": []
+    },
+    {
+     "jp": "室戸市",
+     "en": "Muroto Shi",
+     "wards": []
+    },
+    {
+     "jp": "安芸市",
+     "en": "Aki Shi",
+     "wards": []
+    },
+    {
+     "jp": "南国市",
+     "en": "Nankoku Shi",
+     "wards": []
+    },
+    {
+     "jp": "土佐市",
+     "en": "Tosa Shi",
+     "wards": []
+    },
+    {
+     "jp": "須崎市",
+     "en": "Susaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "宿毛市",
+     "en": "Sukumo Shi",
+     "wards": []
+    },
+    {
+     "jp": "土佐清水市",
+     "en": "Tosashimizu Shi",
+     "wards": []
+    },
+    {
+     "jp": "四万十市",
+     "en": "Shimanto Shi",
+     "wards": []
+    },
+    {
+     "jp": "香南市",
+     "en": "Konan Shi",
+     "wards": []
+    },
+    {
+     "jp": "香美市",
+     "en": "Kami Shi",
+     "wards": []
+    },
+    {
+     "jp": "安芸郡",
+     "en": "Aki Gun",
+     "wards": [
+      {
+       "jp": "東洋町",
+       "en": "Toyo Cho"
+      },
+      {
+       "jp": "奈半利町",
+       "en": "Nahari Cho"
+      },
+      {
+       "jp": "田野町",
+       "en": "Tano Cho"
+      },
+      {
+       "jp": "安田町",
+       "en": "Yasuda Cho"
+      },
+      {
+       "jp": "北川村",
+       "en": "Kitagawa Mura"
+      },
+      {
+       "jp": "馬路村",
+       "en": "Umaji Mura"
+      },
+      {
+       "jp": "芸西村",
+       "en": "Geisei Mura"
+      }
+     ]
+    },
+    {
+     "jp": "長岡郡",
+     "en": "Nagaoka Gun",
+     "wards": [
+      {
+       "jp": "本山町",
+       "en": "Motoyama Cho"
+      },
+      {
+       "jp": "大豊町",
+       "en": "Otoyo Cho"
+      }
+     ]
+    },
+    {
+     "jp": "土佐郡",
+     "en": "Tosa Gun",
+     "wards": [
+      {
+       "jp": "土佐町",
+       "en": "Tosa Cho"
+      },
+      {
+       "jp": "大川村",
+       "en": "Okawa Mura"
+      }
+     ]
+    },
+    {
+     "jp": "吾川郡",
+     "en": "Agawa Gun",
+     "wards": [
+      {
+       "jp": "いの町",
+       "en": "Ino Cho"
+      },
+      {
+       "jp": "仁淀川町",
+       "en": "Niyodogawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "高岡郡",
+     "en": "Takaoka Gun",
+     "wards": [
+      {
+       "jp": "中土佐町",
+       "en": "Nakatosa Cho"
+      },
+      {
+       "jp": "佐川町",
+       "en": "Sakawa Cho"
+      },
+      {
+       "jp": "越知町",
+       "en": "Ochi Cho"
+      },
+      {
+       "jp": "檮原町",
+       "en": "Yusuhara Cho"
+      },
+      {
+       "jp": "日高村",
+       "en": "Hidaka Mura"
+      },
+      {
+       "jp": "津野町",
+       "en": "Tsuno Cho"
+      },
+      {
+       "jp": "四万十町",
+       "en": "Shimanto Cho"
+      }
+     ]
+    },
+    {
+     "jp": "幡多郡",
+     "en": "Hata Gun",
+     "wards": [
+      {
+       "jp": "大月町",
+       "en": "Otsuki Cho"
+      },
+      {
+       "jp": "三原村",
+       "en": "Mihara Mura"
+      },
+      {
+       "jp": "黒潮町",
+       "en": "Kuroshio Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "福岡県",
+   "en": "Fukuoka Ken",
+   "cities": [
+    {
+     "jp": "北九州市",
+     "en": "Kitakyushu Shi",
+     "wards": [
+      {
+       "jp": "門司区",
+       "en": "Moji Ku"
+      },
+      {
+       "jp": "若松区",
+       "en": "Wakamatsu Ku"
+      },
+      {
+       "jp": "戸畑区",
+       "en": "Tobata Ku"
+      },
+      {
+       "jp": "小倉北区",
+       "en": "Kokurakita Ku"
+      },
+      {
+       "jp": "小倉南区",
+       "en": "Kokuraminami Ku"
+      },
+      {
+       "jp": "八幡東区",
+       "en": "Yahatahigashi Ku"
+      },
+      {
+       "jp": "八幡西区",
+       "en": "Yahatanishi Ku"
+      }
+     ]
+    },
+    {
+     "jp": "福岡市",
+     "en": "Fukuoka Shi",
+     "wards": [
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "博多区",
+       "en": "Hakata Ku"
+      },
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "城南区",
+       "en": "Jonan Ku"
+      },
+      {
+       "jp": "早良区",
+       "en": "Sawara Ku"
+      }
+     ]
+    },
+    {
+     "jp": "大牟田市",
+     "en": "Omuta Shi",
+     "wards": []
+    },
+    {
+     "jp": "久留米市",
+     "en": "Kurume Shi",
+     "wards": []
+    },
+    {
+     "jp": "直方市",
+     "en": "Nogata Shi",
+     "wards": []
+    },
+    {
+     "jp": "飯塚市",
+     "en": "Iizuka Shi",
+     "wards": []
+    },
+    {
+     "jp": "田川市",
+     "en": "Tagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "柳川市",
+     "en": "Yanagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "八女市",
+     "en": "Yame Shi",
+     "wards": []
+    },
+    {
+     "jp": "筑後市",
+     "en": "Chikugo Shi",
+     "wards": []
+    },
+    {
+     "jp": "大川市",
+     "en": "Okawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "行橋市",
+     "en": "Yukuhashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊前市",
+     "en": "Buzen Shi",
+     "wards": []
+    },
+    {
+     "jp": "中間市",
+     "en": "Nakama Shi",
+     "wards": []
+    },
+    {
+     "jp": "小郡市",
+     "en": "Ogori Shi",
+     "wards": []
+    },
+    {
+     "jp": "筑紫野市",
+     "en": "Chikushino Shi",
+     "wards": []
+    },
+    {
+     "jp": "春日市",
+     "en": "Kasuga Shi",
+     "wards": []
+    },
+    {
+     "jp": "大野城市",
+     "en": "Onojo Shi",
+     "wards": []
+    },
+    {
+     "jp": "宗像市",
+     "en": "Munakata Shi",
+     "wards": []
+    },
+    {
+     "jp": "太宰府市",
+     "en": "Dazaifu Shi",
+     "wards": []
+    },
+    {
+     "jp": "古賀市",
+     "en": "Koga Shi",
+     "wards": []
+    },
+    {
+     "jp": "福津市",
+     "en": "Fukutsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "うきは市",
+     "en": "Ukiha Shi",
+     "wards": []
+    },
+    {
+     "jp": "宮若市",
+     "en": "Miyawaka Shi",
+     "wards": []
+    },
+    {
+     "jp": "嘉麻市",
+     "en": "Kama Shi",
+     "wards": []
+    },
+    {
+     "jp": "朝倉市",
+     "en": "Asakura Shi",
+     "wards": []
+    },
+    {
+     "jp": "みやま市",
+     "en": "Miyama Shi",
+     "wards": []
+    },
+    {
+     "jp": "糸島市",
+     "en": "Itoshima Shi",
+     "wards": []
+    },
+    {
+     "jp": "那珂川市",
+     "en": "Nakagawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "糟屋郡",
+     "en": "Kasuya Gun",
+     "wards": [
+      {
+       "jp": "宇美町",
+       "en": "Umi Machi"
+      },
+      {
+       "jp": "篠栗町",
+       "en": "Sasaguri Machi"
+      },
+      {
+       "jp": "志免町",
+       "en": "Shime Machi"
+      },
+      {
+       "jp": "須惠町",
+       "en": "Sue Machi"
+      },
+      {
+       "jp": "新宮町",
+       "en": "Shingu Machi"
+      },
+      {
+       "jp": "久山町",
+       "en": "Hisayama Machi"
+      },
+      {
+       "jp": "粕屋町",
+       "en": "Kasuya Machi"
+      }
+     ]
+    },
+    {
+     "jp": "遠賀郡",
+     "en": "Onga Gun",
+     "wards": [
+      {
+       "jp": "芦屋町",
+       "en": "Ashiya Machi"
+      },
+      {
+       "jp": "水巻町",
+       "en": "Mizumaki Machi"
+      },
+      {
+       "jp": "岡垣町",
+       "en": "Okagaki Machi"
+      },
+      {
+       "jp": "遠賀町",
+       "en": "Onga Cho"
+      }
+     ]
+    },
+    {
+     "jp": "鞍手郡",
+     "en": "Kurate Gun",
+     "wards": [
+      {
+       "jp": "小竹町",
+       "en": "Kotake Machi"
+      },
+      {
+       "jp": "鞍手町",
+       "en": "Kurate Machi"
+      }
+     ]
+    },
+    {
+     "jp": "嘉穂郡",
+     "en": "Kaho Gun",
+     "wards": [
+      {
+       "jp": "桂川町",
+       "en": "Keisen Machi"
+      }
+     ]
+    },
+    {
+     "jp": "朝倉郡",
+     "en": "Asakura Gun",
+     "wards": [
+      {
+       "jp": "筑前町",
+       "en": "Chikuzen Machi"
+      },
+      {
+       "jp": "東峰村",
+       "en": "Toho Mura"
+      }
+     ]
+    },
+    {
+     "jp": "三井郡",
+     "en": "Mii Gun",
+     "wards": [
+      {
+       "jp": "大刀洗町",
+       "en": "Tachiarai Machi"
+      }
+     ]
+    },
+    {
+     "jp": "三潴郡",
+     "en": "Mizuma Gun",
+     "wards": [
+      {
+       "jp": "大木町",
+       "en": "Oki Machi"
+      }
+     ]
+    },
+    {
+     "jp": "八女郡",
+     "en": "Yame Gun",
+     "wards": [
+      {
+       "jp": "広川町",
+       "en": "Hirokawa Machi"
+      }
+     ]
+    },
+    {
+     "jp": "田川郡",
+     "en": "Tagawa Gun",
+     "wards": [
+      {
+       "jp": "香春町",
+       "en": "Kawara Machi"
+      },
+      {
+       "jp": "添田町",
+       "en": "Soeda Machi"
+      },
+      {
+       "jp": "糸田町",
+       "en": "Itoda Machi"
+      },
+      {
+       "jp": "川崎町",
+       "en": "Kawasaki Machi"
+      },
+      {
+       "jp": "大任町",
+       "en": "Oto Machi"
+      },
+      {
+       "jp": "赤村",
+       "en": "Aka Mura"
+      },
+      {
+       "jp": "福智町",
+       "en": "Fukuchi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "京都郡",
+     "en": "Miyako Gun",
+     "wards": [
+      {
+       "jp": "苅田町",
+       "en": "Kanda Machi"
+      },
+      {
+       "jp": "みやこ町",
+       "en": "Miyako Machi"
+      }
+     ]
+    },
+    {
+     "jp": "築上郡",
+     "en": "Chikujo Gun",
+     "wards": [
+      {
+       "jp": "吉富町",
+       "en": "Yoshitomi Machi"
+      },
+      {
+       "jp": "上毛町",
+       "en": "Koge Machi"
+      },
+      {
+       "jp": "築上町",
+       "en": "Chikujo Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "佐賀県",
+   "en": "Saga Ken",
+   "cities": [
+    {
+     "jp": "佐賀市",
+     "en": "Saga Shi",
+     "wards": []
+    },
+    {
+     "jp": "唐津市",
+     "en": "Karatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "鳥栖市",
+     "en": "Tosu Shi",
+     "wards": []
+    },
+    {
+     "jp": "多久市",
+     "en": "Taku Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊万里市",
+     "en": "Imari Shi",
+     "wards": []
+    },
+    {
+     "jp": "武雄市",
+     "en": "Takeo Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿島市",
+     "en": "Kashima Shi",
+     "wards": []
+    },
+    {
+     "jp": "小城市",
+     "en": "Ogi Shi",
+     "wards": []
+    },
+    {
+     "jp": "嬉野市",
+     "en": "Ureshino Shi",
+     "wards": []
+    },
+    {
+     "jp": "神埼市",
+     "en": "Kanzaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "神埼郡",
+     "en": "Kanzaki Gun",
+     "wards": [
+      {
+       "jp": "吉野ヶ里町",
+       "en": "Yoshinogari Cho"
+      }
+     ]
+    },
+    {
+     "jp": "三養基郡",
+     "en": "Miyaki Gun",
+     "wards": [
+      {
+       "jp": "基山町",
+       "en": "Kiyama Cho"
+      },
+      {
+       "jp": "上峰町",
+       "en": "Kamimine Cho"
+      },
+      {
+       "jp": "みやき町",
+       "en": "Miyaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東松浦郡",
+     "en": "Higashimatsura Gun",
+     "wards": [
+      {
+       "jp": "玄海町",
+       "en": "Genkai Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西松浦郡",
+     "en": "Nishimatsura Gun",
+     "wards": [
+      {
+       "jp": "有田町",
+       "en": "Arita Cho"
+      }
+     ]
+    },
+    {
+     "jp": "杵島郡",
+     "en": "Kishima Gun",
+     "wards": [
+      {
+       "jp": "大町町",
+       "en": "Omachi Cho"
+      },
+      {
+       "jp": "江北町",
+       "en": "Kohoku Machi"
+      },
+      {
+       "jp": "白石町",
+       "en": "Shiroishi Cho"
+      }
+     ]
+    },
+    {
+     "jp": "藤津郡",
+     "en": "Fujitsu Gun",
+     "wards": [
+      {
+       "jp": "太良町",
+       "en": "Tara Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "長崎県",
+   "en": "Nagasaki Ken",
+   "cities": [
+    {
+     "jp": "長崎市",
+     "en": "Nagasaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐世保市",
+     "en": "Sasebo Shi",
+     "wards": []
+    },
+    {
+     "jp": "島原市",
+     "en": "Shimabara Shi",
+     "wards": []
+    },
+    {
+     "jp": "諫早市",
+     "en": "Isahaya Shi",
+     "wards": []
+    },
+    {
+     "jp": "大村市",
+     "en": "Omura Shi",
+     "wards": []
+    },
+    {
+     "jp": "平戸市",
+     "en": "Hirado Shi",
+     "wards": []
+    },
+    {
+     "jp": "松浦市",
+     "en": "Matsura Shi",
+     "wards": []
+    },
+    {
+     "jp": "対馬市",
+     "en": "Tsushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "壱岐市",
+     "en": "Iki Shi",
+     "wards": []
+    },
+    {
+     "jp": "五島市",
+     "en": "Goto Shi",
+     "wards": []
+    },
+    {
+     "jp": "西海市",
+     "en": "Saikai Shi",
+     "wards": []
+    },
+    {
+     "jp": "雲仙市",
+     "en": "Unzen Shi",
+     "wards": []
+    },
+    {
+     "jp": "南島原市",
+     "en": "Minamishimabara Shi",
+     "wards": []
+    },
+    {
+     "jp": "西彼杵郡",
+     "en": "Nishisonogi Gun",
+     "wards": [
+      {
+       "jp": "長与町",
+       "en": "Nagayo Cho"
+      },
+      {
+       "jp": "時津町",
+       "en": "Togitsu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東彼杵郡",
+     "en": "Higashisonogi Gun",
+     "wards": [
+      {
+       "jp": "東彼杵町",
+       "en": "Higashisonogi Cho"
+      },
+      {
+       "jp": "川棚町",
+       "en": "Kawatana Cho"
+      },
+      {
+       "jp": "波佐見町",
+       "en": "Hasami Cho"
+      }
+     ]
+    },
+    {
+     "jp": "北松浦郡",
+     "en": "Kitamatsura Gun",
+     "wards": [
+      {
+       "jp": "小値賀町",
+       "en": "Ojika Cho"
+      },
+      {
+       "jp": "佐々町",
+       "en": "Saza Cho"
+      }
+     ]
+    },
+    {
+     "jp": "南松浦郡",
+     "en": "Minamimatsura Gun",
+     "wards": [
+      {
+       "jp": "新上五島町",
+       "en": "Shinkamigoto Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "熊本県",
+   "en": "Kumamoto Ken",
+   "cities": [
+    {
+     "jp": "熊本市",
+     "en": "Kumamoto Shi",
+     "wards": [
+      {
+       "jp": "中央区",
+       "en": "Chuo Ku"
+      },
+      {
+       "jp": "東区",
+       "en": "Higashi Ku"
+      },
+      {
+       "jp": "西区",
+       "en": "Nishi Ku"
+      },
+      {
+       "jp": "南区",
+       "en": "Minami Ku"
+      },
+      {
+       "jp": "北区",
+       "en": "Kita Ku"
+      }
+     ]
+    },
+    {
+     "jp": "八代市",
+     "en": "Yatsushiro Shi",
+     "wards": []
+    },
+    {
+     "jp": "人吉市",
+     "en": "Hitoyoshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "荒尾市",
+     "en": "Arao Shi",
+     "wards": []
+    },
+    {
+     "jp": "水俣市",
+     "en": "Minamata Shi",
+     "wards": []
+    },
+    {
+     "jp": "玉名市",
+     "en": "Tamana Shi",
+     "wards": []
+    },
+    {
+     "jp": "山鹿市",
+     "en": "Yamaga Shi",
+     "wards": []
+    },
+    {
+     "jp": "菊池市",
+     "en": "Kikuchi Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇土市",
+     "en": "Uto Shi",
+     "wards": []
+    },
+    {
+     "jp": "上天草市",
+     "en": "Kamiamakusa Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇城市",
+     "en": "Uki Shi",
+     "wards": []
+    },
+    {
+     "jp": "阿蘇市",
+     "en": "Aso Shi",
+     "wards": []
+    },
+    {
+     "jp": "天草市",
+     "en": "Amakusa Shi",
+     "wards": []
+    },
+    {
+     "jp": "合志市",
+     "en": "Koshi Shi",
+     "wards": []
+    },
+    {
+     "jp": "下益城郡",
+     "en": "Shimomashiki Gun",
+     "wards": [
+      {
+       "jp": "美里町",
+       "en": "Misato Machi"
+      }
+     ]
+    },
+    {
+     "jp": "玉名郡",
+     "en": "Tamana Gun",
+     "wards": [
+      {
+       "jp": "玉東町",
+       "en": "Gyokuto Machi"
+      },
+      {
+       "jp": "南関町",
+       "en": "Nankan Machi"
+      },
+      {
+       "jp": "長洲町",
+       "en": "Nagasu Machi"
+      },
+      {
+       "jp": "和水町",
+       "en": "Nagomi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "菊池郡",
+     "en": "Kikuchi Gun",
+     "wards": [
+      {
+       "jp": "大津町",
+       "en": "Ozu Machi"
+      },
+      {
+       "jp": "菊陽町",
+       "en": "Kikuyo Machi"
+      }
+     ]
+    },
+    {
+     "jp": "阿蘇郡",
+     "en": "Aso Gun",
+     "wards": [
+      {
+       "jp": "南小国町",
+       "en": "Minamioguni Machi"
+      },
+      {
+       "jp": "小国町",
+       "en": "Oguni Machi"
+      },
+      {
+       "jp": "産山村",
+       "en": "Ubuyama Mura"
+      },
+      {
+       "jp": "高森町",
+       "en": "Takamori Machi"
+      },
+      {
+       "jp": "西原村",
+       "en": "Nishihara Mura"
+      },
+      {
+       "jp": "南阿蘇村",
+       "en": "Minamiaso Mura"
+      }
+     ]
+    },
+    {
+     "jp": "上益城郡",
+     "en": "Kamimashiki Gun",
+     "wards": [
+      {
+       "jp": "御船町",
+       "en": "Mifune Machi"
+      },
+      {
+       "jp": "嘉島町",
+       "en": "Kashima Machi"
+      },
+      {
+       "jp": "益城町",
+       "en": "Mashiki Machi"
+      },
+      {
+       "jp": "甲佐町",
+       "en": "Kosa Machi"
+      },
+      {
+       "jp": "山都町",
+       "en": "Yamato Cho"
+      }
+     ]
+    },
+    {
+     "jp": "八代郡",
+     "en": "Yatsushiro Gun",
+     "wards": [
+      {
+       "jp": "氷川町",
+       "en": "Hikawa Cho"
+      }
+     ]
+    },
+    {
+     "jp": "葦北郡",
+     "en": "Ashikita Gun",
+     "wards": [
+      {
+       "jp": "芦北町",
+       "en": "Ashikita Machi"
+      },
+      {
+       "jp": "津奈木町",
+       "en": "Tsunagi Machi"
+      }
+     ]
+    },
+    {
+     "jp": "球磨郡",
+     "en": "Kuma Gun",
+     "wards": [
+      {
+       "jp": "錦町",
+       "en": "Nishiki Machi"
+      },
+      {
+       "jp": "多良木町",
+       "en": "Taragi Machi"
+      },
+      {
+       "jp": "湯前町",
+       "en": "Yunomae Machi"
+      },
+      {
+       "jp": "水上村",
+       "en": "Mizukami Mura"
+      },
+      {
+       "jp": "相良村",
+       "en": "Sagara Mura"
+      },
+      {
+       "jp": "五木村",
+       "en": "Itsuki Mura"
+      },
+      {
+       "jp": "山江村",
+       "en": "Yamae Mura"
+      },
+      {
+       "jp": "球磨村",
+       "en": "Kuma Mura"
+      },
+      {
+       "jp": "あさぎり町",
+       "en": "Asagiri Cho"
+      }
+     ]
+    },
+    {
+     "jp": "天草郡",
+     "en": "Amakusa Gun",
+     "wards": [
+      {
+       "jp": "苓北町",
+       "en": "Reihoku Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "大分県",
+   "en": "Oita Ken",
+   "cities": [
+    {
+     "jp": "大分市",
+     "en": "Oita Shi",
+     "wards": []
+    },
+    {
+     "jp": "別府市",
+     "en": "Beppu Shi",
+     "wards": []
+    },
+    {
+     "jp": "中津市",
+     "en": "Nakatsu Shi",
+     "wards": []
+    },
+    {
+     "jp": "日田市",
+     "en": "Hita Shi",
+     "wards": []
+    },
+    {
+     "jp": "佐伯市",
+     "en": "Saiki Shi",
+     "wards": []
+    },
+    {
+     "jp": "臼杵市",
+     "en": "Usuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "津久見市",
+     "en": "Tsukumi Shi",
+     "wards": []
+    },
+    {
+     "jp": "竹田市",
+     "en": "Taketa Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊後高田市",
+     "en": "Bungotakada Shi",
+     "wards": []
+    },
+    {
+     "jp": "杵築市",
+     "en": "Kitsuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "宇佐市",
+     "en": "Usa Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊後大野市",
+     "en": "Bungoono Shi",
+     "wards": []
+    },
+    {
+     "jp": "由布市",
+     "en": "Yufu Shi",
+     "wards": []
+    },
+    {
+     "jp": "国東市",
+     "en": "Kunisaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "東国東郡",
+     "en": "Higashikunisaki Gun",
+     "wards": [
+      {
+       "jp": "姫島村",
+       "en": "Himeshima Mura"
+      }
+     ]
+    },
+    {
+     "jp": "速見郡",
+     "en": "Hayami Gun",
+     "wards": [
+      {
+       "jp": "日出町",
+       "en": "Hiji Machi"
+      }
+     ]
+    },
+    {
+     "jp": "玖珠郡",
+     "en": "Kusu Gun",
+     "wards": [
+      {
+       "jp": "九重町",
+       "en": "Kokonoe Machi"
+      },
+      {
+       "jp": "玖珠町",
+       "en": "Kusu Machi"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "宮崎県",
+   "en": "Miyazaki Ken",
+   "cities": [
+    {
+     "jp": "宮崎市",
+     "en": "Miyazaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "都城市",
+     "en": "Miyakonojo Shi",
+     "wards": []
+    },
+    {
+     "jp": "延岡市",
+     "en": "Nobeoka Shi",
+     "wards": []
+    },
+    {
+     "jp": "日南市",
+     "en": "Nichinan Shi",
+     "wards": []
+    },
+    {
+     "jp": "小林市",
+     "en": "Kobayashi Shi",
+     "wards": []
+    },
+    {
+     "jp": "日向市",
+     "en": "Hyuga Shi",
+     "wards": []
+    },
+    {
+     "jp": "串間市",
+     "en": "Kushima Shi",
+     "wards": []
+    },
+    {
+     "jp": "西都市",
+     "en": "Saito Shi",
+     "wards": []
+    },
+    {
+     "jp": "えびの市",
+     "en": "Ebino Shi",
+     "wards": []
+    },
+    {
+     "jp": "北諸県郡",
+     "en": "Kitamorokata Gun",
+     "wards": [
+      {
+       "jp": "三股町",
+       "en": "Mimata Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西諸県郡",
+     "en": "Nishimorokata Gun",
+     "wards": [
+      {
+       "jp": "高原町",
+       "en": "Takaharu Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東諸県郡",
+     "en": "Higashimorokata Gun",
+     "wards": [
+      {
+       "jp": "国富町",
+       "en": "Kunitomi Cho"
+      },
+      {
+       "jp": "綾町",
+       "en": "Aya Cho"
+      }
+     ]
+    },
+    {
+     "jp": "児湯郡",
+     "en": "Koyu Gun",
+     "wards": [
+      {
+       "jp": "高鍋町",
+       "en": "Takanabe Cho"
+      },
+      {
+       "jp": "新富町",
+       "en": "Shintomi Cho"
+      },
+      {
+       "jp": "西米良村",
+       "en": "Nishimera Son"
+      },
+      {
+       "jp": "木城町",
+       "en": "Kijo Cho"
+      },
+      {
+       "jp": "川南町",
+       "en": "Kawaminami Cho"
+      },
+      {
+       "jp": "都農町",
+       "en": "Tsuno Cho"
+      }
+     ]
+    },
+    {
+     "jp": "東臼杵郡",
+     "en": "Higashiusuki Gun",
+     "wards": [
+      {
+       "jp": "門川町",
+       "en": "Kadogawa Cho"
+      },
+      {
+       "jp": "諸塚村",
+       "en": "Morotsuka Son"
+      },
+      {
+       "jp": "椎葉村",
+       "en": "Shiiba Son"
+      },
+      {
+       "jp": "美郷町",
+       "en": "Misato Cho"
+      }
+     ]
+    },
+    {
+     "jp": "西臼杵郡",
+     "en": "Nishiusuki Gun",
+     "wards": [
+      {
+       "jp": "高千穂町",
+       "en": "Takachiho Cho"
+      },
+      {
+       "jp": "日之影町",
+       "en": "Hinokage Cho"
+      },
+      {
+       "jp": "五ヶ瀬町",
+       "en": "Gokase Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "鹿児島県",
+   "en": "Kagoshima Ken",
+   "cities": [
+    {
+     "jp": "鹿児島市",
+     "en": "Kagoshima Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿屋市",
+     "en": "Kanoya Shi",
+     "wards": []
+    },
+    {
+     "jp": "枕崎市",
+     "en": "Makurazaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "阿久根市",
+     "en": "Akune Shi",
+     "wards": []
+    },
+    {
+     "jp": "出水市",
+     "en": "Izumi Shi",
+     "wards": []
+    },
+    {
+     "jp": "指宿市",
+     "en": "Ibusuki Shi",
+     "wards": []
+    },
+    {
+     "jp": "西之表市",
+     "en": "Nishinomote Shi",
+     "wards": []
+    },
+    {
+     "jp": "垂水市",
+     "en": "Tarumizu Shi",
+     "wards": []
+    },
+    {
+     "jp": "薩摩川内市",
+     "en": "Satsumasendai Shi",
+     "wards": []
+    },
+    {
+     "jp": "日置市",
+     "en": "Hioki Shi",
+     "wards": []
+    },
+    {
+     "jp": "曽於市",
+     "en": "So Shi",
+     "wards": []
+    },
+    {
+     "jp": "霧島市",
+     "en": "Kirishima Shi",
+     "wards": []
+    },
+    {
+     "jp": "いちき串木野市",
+     "en": "Ichikikushikino Shi",
+     "wards": []
+    },
+    {
+     "jp": "南さつま市",
+     "en": "Minamisatsuma Shi",
+     "wards": []
+    },
+    {
+     "jp": "志布志市",
+     "en": "Shibushi Shi",
+     "wards": []
+    },
+    {
+     "jp": "奄美市",
+     "en": "Amami Shi",
+     "wards": []
+    },
+    {
+     "jp": "南九州市",
+     "en": "Minamikyushu Shi",
+     "wards": []
+    },
+    {
+     "jp": "伊佐市",
+     "en": "Isa Shi",
+     "wards": []
+    },
+    {
+     "jp": "姶良市",
+     "en": "Aira Shi",
+     "wards": []
+    },
+    {
+     "jp": "鹿児島郡",
+     "en": "Kagoshima Gun",
+     "wards": [
+      {
+       "jp": "三島村",
+       "en": "Mishima Mura"
+      },
+      {
+       "jp": "十島村",
+       "en": "Toshima Mura"
+      }
+     ]
+    },
+    {
+     "jp": "薩摩郡",
+     "en": "Satsuma Gun",
+     "wards": [
+      {
+       "jp": "さつま町",
+       "en": "Satsuma Cho"
+      }
+     ]
+    },
+    {
+     "jp": "出水郡",
+     "en": "Izumi Gun",
+     "wards": [
+      {
+       "jp": "長島町",
+       "en": "Nagashima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "姶良郡",
+     "en": "Aira Gun",
+     "wards": [
+      {
+       "jp": "湧水町",
+       "en": "Yusui Cho"
+      }
+     ]
+    },
+    {
+     "jp": "曽於郡",
+     "en": "So Gun",
+     "wards": [
+      {
+       "jp": "大崎町",
+       "en": "Osaki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "肝属郡",
+     "en": "Kimotsuki Gun",
+     "wards": [
+      {
+       "jp": "東串良町",
+       "en": "Higashikushira Cho"
+      },
+      {
+       "jp": "錦江町",
+       "en": "Kinko Cho"
+      },
+      {
+       "jp": "南大隅町",
+       "en": "Minamiosumi Cho"
+      },
+      {
+       "jp": "肝付町",
+       "en": "Kimotsuki Cho"
+      }
+     ]
+    },
+    {
+     "jp": "熊毛郡",
+     "en": "Kumage Gun",
+     "wards": [
+      {
+       "jp": "中種子町",
+       "en": "Nakatane Cho"
+      },
+      {
+       "jp": "南種子町",
+       "en": "Minamitane Cho"
+      },
+      {
+       "jp": "屋久島町",
+       "en": "Yakushima Cho"
+      }
+     ]
+    },
+    {
+     "jp": "大島郡",
+     "en": "Oshima Gun",
+     "wards": [
+      {
+       "jp": "大和村",
+       "en": "Yamato Son"
+      },
+      {
+       "jp": "宇検村",
+       "en": "Uken Son"
+      },
+      {
+       "jp": "瀬戸内町",
+       "en": "Setochi Cho"
+      },
+      {
+       "jp": "龍郷町",
+       "en": "Tatsugo Cho"
+      },
+      {
+       "jp": "喜界町",
+       "en": "Kikai Cho"
+      },
+      {
+       "jp": "徳之島町",
+       "en": "Tokunoshima Cho"
+      },
+      {
+       "jp": "天城町",
+       "en": "Amagi Cho"
+      },
+      {
+       "jp": "伊仙町",
+       "en": "Isen Cho"
+      },
+      {
+       "jp": "和泊町",
+       "en": "Wadomari Cho"
+      },
+      {
+       "jp": "知名町",
+       "en": "China Cho"
+      },
+      {
+       "jp": "与論町",
+       "en": "Yoron Cho"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "jp": "沖縄県",
+   "en": "Okinawa Ken",
+   "cities": [
+    {
+     "jp": "那覇市",
+     "en": "Naha Shi",
+     "wards": []
+    },
+    {
+     "jp": "宜野湾市",
+     "en": "Ginowan Shi",
+     "wards": []
+    },
+    {
+     "jp": "石垣市",
+     "en": "Ishigaki Shi",
+     "wards": []
+    },
+    {
+     "jp": "浦添市",
+     "en": "Urasoe Shi",
+     "wards": []
+    },
+    {
+     "jp": "名護市",
+     "en": "Nago Shi",
+     "wards": []
+    },
+    {
+     "jp": "糸満市",
+     "en": "Itoman Shi",
+     "wards": []
+    },
+    {
+     "jp": "沖縄市",
+     "en": "Okinawa Shi",
+     "wards": []
+    },
+    {
+     "jp": "豊見城市",
+     "en": "Tomigusuku Shi",
+     "wards": []
+    },
+    {
+     "jp": "うるま市",
+     "en": "Uruma Shi",
+     "wards": []
+    },
+    {
+     "jp": "宮古島市",
+     "en": "Miyakojima Shi",
+     "wards": []
+    },
+    {
+     "jp": "南城市",
+     "en": "Nanjo Shi",
+     "wards": []
+    },
+    {
+     "jp": "国頭郡",
+     "en": "Kunigami Gun",
+     "wards": [
+      {
+       "jp": "国頭村",
+       "en": "Kunigami Son"
+      },
+      {
+       "jp": "大宜味村",
+       "en": "Ogimi Son"
+      },
+      {
+       "jp": "東村",
+       "en": "Higashi Son"
+      },
+      {
+       "jp": "今帰仁村",
+       "en": "Nakijin Son"
+      },
+      {
+       "jp": "本部町",
+       "en": "Motobu Cho"
+      },
+      {
+       "jp": "恩納村",
+       "en": "Onna Son"
+      },
+      {
+       "jp": "宜野座村",
+       "en": "Ginoza Son"
+      },
+      {
+       "jp": "金武町",
+       "en": "Kin Cho"
+      },
+      {
+       "jp": "伊江村",
+       "en": "Ie Son"
+      }
+     ]
+    },
+    {
+     "jp": "中頭郡",
+     "en": "Nakagami Gun",
+     "wards": [
+      {
+       "jp": "読谷村",
+       "en": "Yomitan Son"
+      },
+      {
+       "jp": "嘉手納町",
+       "en": "Kadena Cho"
+      },
+      {
+       "jp": "北谷町",
+       "en": "Chatan Cho"
+      },
+      {
+       "jp": "北中城村",
+       "en": "Kitanakagusuku Son"
+      },
+      {
+       "jp": "中城村",
+       "en": "Nakagusuku Son"
+      },
+      {
+       "jp": "西原町",
+       "en": "Nishihara Cho"
+      }
+     ]
+    },
+    {
+     "jp": "島尻郡",
+     "en": "Shimajiri Gun",
+     "wards": [
+      {
+       "jp": "与那原町",
+       "en": "Yonabaru Cho"
+      },
+      {
+       "jp": "南風原町",
+       "en": "Haebaru Cho"
+      },
+      {
+       "jp": "渡嘉敷村",
+       "en": "Tokashiki Son"
+      },
+      {
+       "jp": "座間味村",
+       "en": "Zamami Son"
+      },
+      {
+       "jp": "粟国村",
+       "en": "Aguni Son"
+      },
+      {
+       "jp": "渡名喜村",
+       "en": "Tonaki Son"
+      },
+      {
+       "jp": "南大東村",
+       "en": "Minamidaito Son"
+      },
+      {
+       "jp": "北大東村",
+       "en": "Kitadaito Son"
+      },
+      {
+       "jp": "伊平屋村",
+       "en": "Iheya Son"
+      },
+      {
+       "jp": "伊是名村",
+       "en": "Izena Son"
+      },
+      {
+       "jp": "久米島町",
+       "en": "Kumejima Cho"
+      },
+      {
+       "jp": "八重瀬町",
+       "en": "Yaese Cho"
+      }
+     ]
+    },
+    {
+     "jp": "宮古郡",
+     "en": "Miyako Gun",
+     "wards": [
+      {
+       "jp": "多良間村",
+       "en": "Tarama Son"
+      }
+     ]
+    },
+    {
+     "jp": "八重山郡",
+     "en": "Yaeyama Gun",
+     "wards": [
+      {
+       "jp": "竹富町",
+       "en": "Taketomi Cho"
+      },
+      {
+       "jp": "与那国町",
+       "en": "Yonaguni Cho"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

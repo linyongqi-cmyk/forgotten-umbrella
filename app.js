@@ -1875,7 +1875,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=49", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=50", { updateViaCache: "none" });
   }
 }
 
@@ -1956,20 +1956,38 @@ function setupEditor() {
   addField("time", "拍摄时间(覆盖) Time");
   addField("locationText", "显示地址 Location");
 
-  // 5. Location levels (large → small).
+  // 5. Location levels — cascading dropdowns built from data/japan-areas.json.
+  // Level 1 (japan/other/unknown) is not shown publicly; japan reveals the
+  // prefecture → city → ward selects (each filterable by typing a keyword).
   const levelsRow = document.createElement("div");
-  levelsRow.className = "editor-row";
-  levelsRow.innerHTML = "<span>地址层级 Levels（大→小）</span>";
-  const levelsWrap = document.createElement("div");
-  levelsWrap.className = "editor-levels";
-  for (let i = 0; i < 3; i += 1) {
-    const input = document.createElement("input");
-    input.placeholder = `层级 ${i + 1}`;
-    levelsWrap.appendChild(input);
-    editor.levels.push(input);
-  }
-  levelsRow.appendChild(levelsWrap);
+  levelsRow.className = "editor-row editor-levels-row";
+  levelsRow.innerHTML = `
+    <span>地址 Location（japan 默认不展示）</span>
+    <select class="lvl1">
+      <option value="japan">日本 Japan</option>
+      <option value="other">其他 Other（手填）</option>
+      <option value="unknown">未知 Unknown</option>
+    </select>
+    <input class="lvl-other" placeholder="手动填写地址" hidden />
+    <input class="lvl2" list="dl-lvl2" placeholder="都道府县 Prefecture（可输入筛选）" hidden />
+    <input class="lvl3" list="dl-lvl3" placeholder="市 / 区 City" hidden />
+    <input class="lvl4" list="dl-lvl4" placeholder="区 Ward" hidden />
+    <datalist id="dl-lvl2"></datalist>
+    <datalist id="dl-lvl3"></datalist>
+    <datalist id="dl-lvl4"></datalist>`;
   body.appendChild(levelsRow);
+  editor.lvl1 = levelsRow.querySelector(".lvl1");
+  editor.lvlOther = levelsRow.querySelector(".lvl-other");
+  editor.lvl2 = levelsRow.querySelector(".lvl2");
+  editor.lvl3 = levelsRow.querySelector(".lvl3");
+  editor.lvl4 = levelsRow.querySelector(".lvl4");
+  editor.dl2 = levelsRow.querySelector("#dl-lvl2");
+  editor.dl3 = levelsRow.querySelector("#dl-lvl3");
+  editor.dl4 = levelsRow.querySelector("#dl-lvl4");
+  editor.lvl1.addEventListener("change", onLevel1Change);
+  editor.lvl2.addEventListener("change", onLevel2Change);
+  editor.lvl3.addEventListener("change", onLevel3Change);
+  loadAreas();
 
   // 6. Type.
   addField("umbrellaType", "伞的类型 Type");
@@ -2276,6 +2294,145 @@ function syncStatusUI() {
   editor.statusOther.hidden = !otherOn;
 }
 
+// ---- Cascading Japan address levels ----------------------------------------
+
+function levelLabel(item) {
+  return `${item.jp} ${item.en}`;
+}
+
+function fillDatalist(datalist, items) {
+  datalist.innerHTML = items.map((item) => `<option value="${escapeHtml(levelLabel(item))}"></option>`).join("");
+}
+
+async function loadAreas() {
+  try {
+    const response = await fetch("data/japan-areas.json", { cache: "force-cache" });
+    const data = await response.json();
+    editor.areas = Array.isArray(data.prefectures) ? data.prefectures : [];
+    editor.prefByLabel = {};
+    editor.areas.forEach((pref) => {
+      editor.prefByLabel[levelLabel(pref)] = pref;
+    });
+    fillDatalist(editor.dl2, editor.areas);
+  } catch (error) {
+    console.error("加载日本地址数据失败", error);
+    editor.areas = [];
+    editor.prefByLabel = {};
+  }
+}
+
+function onLevel1Change() {
+  const mode = editor.lvl1.value;
+  editor.lvlOther.hidden = mode !== "other";
+  const japan = mode === "japan";
+  editor.lvl2.hidden = !japan;
+  if (!japan) {
+    editor.lvl3.hidden = true;
+    editor.lvl4.hidden = true;
+    return;
+  }
+  // Re-show child levels that already have a valid selection.
+  const pref = editor.prefByLabel?.[editor.lvl2.value];
+  editor.lvl3.hidden = !pref;
+  const city = editor.cityByLabel?.[editor.lvl3.value];
+  editor.lvl4.hidden = !(city && city.wards.length);
+}
+
+function onLevel2Change() {
+  const pref = editor.prefByLabel?.[editor.lvl2.value];
+  editor.lvl3.value = "";
+  editor.lvl4.value = "";
+  editor.cityByLabel = {};
+  editor.wardByLabel = {};
+  if (pref) {
+    pref.cities.forEach((city) => {
+      editor.cityByLabel[levelLabel(city)] = city;
+    });
+    fillDatalist(editor.dl3, pref.cities);
+    editor.lvl3.hidden = false;
+  } else {
+    editor.dl3.innerHTML = "";
+    editor.lvl3.hidden = true;
+  }
+  editor.dl4.innerHTML = "";
+  editor.lvl4.hidden = true;
+}
+
+function onLevel3Change() {
+  const city = editor.cityByLabel?.[editor.lvl3.value];
+  editor.lvl4.value = "";
+  editor.wardByLabel = {};
+  if (city && city.wards.length) {
+    city.wards.forEach((ward) => {
+      editor.wardByLabel[levelLabel(ward)] = ward;
+    });
+    fillDatalist(editor.dl4, city.wards);
+    editor.lvl4.hidden = false;
+  } else {
+    editor.dl4.innerHTML = "";
+    editor.lvl4.hidden = true;
+  }
+}
+
+// Populate the level controls from a record's stored locationLevels (romaji).
+function hydrateLevels(raw) {
+  const levels = Array.isArray(raw.locationLevels) ? raw.locationLevels : [];
+  editor.lvl2.value = "";
+  editor.lvl3.value = "";
+  editor.lvl4.value = "";
+  editor.lvlOther.value = "";
+
+  const pref = (editor.areas || []).find((p) => p.en === levels[0]);
+  if (levels.length === 1 && String(levels[0]).toLowerCase() === "unknown") {
+    editor.lvl1.value = "unknown";
+  } else if (pref) {
+    editor.lvl1.value = "japan";
+    editor.lvl2.value = levelLabel(pref);
+    onLevel2Change();
+    const city = pref.cities.find((c) => c.en === levels[1]);
+    if (city) {
+      editor.lvl3.value = levelLabel(city);
+      onLevel3Change();
+      const ward = city.wards.find((w) => w.en === levels[2]);
+      if (ward) {
+        editor.lvl4.value = levelLabel(ward);
+      }
+    }
+  } else if (levels.length) {
+    // Old / unmatched data → keep it as free "other" text.
+    editor.lvl1.value = "other";
+    editor.lvlOther.value = levels.join(", ");
+  } else {
+    editor.lvl1.value = "japan";
+  }
+  onLevel1Change();
+}
+
+function collectLevelsForSave() {
+  const mode = editor.lvl1.value;
+  if (mode === "unknown") {
+    return ["unknown"];
+  }
+  if (mode === "other") {
+    const text = editor.lvlOther.value.trim();
+    return text ? [text] : [];
+  }
+  const out = [];
+  const pref = editor.prefByLabel?.[editor.lvl2.value];
+  if (pref) {
+    out.push(pref.en);
+    const city = editor.cityByLabel?.[editor.lvl3.value];
+    if (city) {
+      out.push(city.en);
+      const ward = editor.wardByLabel?.[editor.lvl4.value];
+      if (ward) {
+        out.push(ward.en);
+      }
+    }
+  }
+  return out;
+}
+
 function toggleEditMode() {
   state.editMode = !state.editMode;
   document.body.classList.toggle("edit-mode", state.editMode);
@@ -2312,10 +2469,7 @@ function openEditor(id) {
   editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "unknown";
   editor.fields.umbrellaType.placeholder = raw.category || "unknown";
 
-  const levels = Array.isArray(raw.locationLevels) ? raw.locationLevels : [];
-  editor.levels.forEach((input, index) => {
-    input.value = levels[index] || "";
-  });
+  hydrateLevels(raw);
 
   // Count + per-umbrella color/kind units.
   editor.count.value = raw.umbrellaCount || "";
@@ -2382,7 +2536,7 @@ async function saveEditor() {
   PLAIN_FIELD_KEYS.forEach((key) => {
     payload[key] = editor.fields[key].value;
   });
-  payload.locationLevels = editor.levels.map((input) => input.value.trim()).filter(Boolean);
+  payload.locationLevels = collectLevelsForSave();
   payload.umbrellaCount = editor.count.value;
   payload.umbrellaUnits = collectUnitsForSave();
   payload.umbrellaStatus = collectStatusForSave();
