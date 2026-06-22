@@ -73,22 +73,20 @@ record.json
 These `record.json` files now support inline Chinese comments for manual editing. The build script strips comments before parsing, so you can keep the notes in place.
 Additional image files placed inside a record folder can be synced into the `media` array automatically.
 
+## Local editor
+
+When the site is opened on `127.0.0.1` (your own machine) it shows a local-only admin editor (top-right "编辑模式"); it is never rendered on the published site. It edits records visually — fields, cascading Japan address dropdowns, per-umbrella attributes, images, content layout, categories, drag-to-set coordinates — and saves straight back to `record.json` via the local server, auto-rebuilding `data/umbrellas.json`. See `CLAUDE.md` for the full architecture.
+
 ## Data model
 
-Photo EXIF values provide the map position and capture time. Displayed place names are manually curated and never translated at runtime.
+Photo EXIF values provide the map position and capture time. Displayed place names are manually curated and never translated at runtime. **`CLAUDE.md` holds the authoritative, up-to-date field reference** — the highlights:
 
-Important fields:
-
-- `id`: stable record ID, normally the primary photo filename.
-- `image` and `thumb`: original and thumbnail paths.
-- `photoCoordinates`: coordinates read from photo EXIF.
-- `locationCoordinates`: optional manual coordinate override.
-- `photoTime`: capture time read from photo EXIF.
-- `time`: optional manual capture-time override.
-- `locationText`: manually written display address.
-- `locationLevels`: up to three manually written levels used for place sorting.
-- `category` and `categoryGroup`: values derived from the photo folder.
-- `title`, `umbrellaType`, `umbrellaColor`, `umbrellaStatus`, and `story`: optional editorial fields.
+- `id`, `media[]` (each `{id, file, role, title, photoTime, story}`; role ∈ primary/supplement/detail/illustration).
+- `photoCoordinates` / `locationCoordinates`, `photoTime` / `time`.
+- `locationText` + `locationLevels` (romaji, from the cascading address dropdowns; `data/japan-areas.json`).
+- `umbrellaCount` and `umbrellaUnits[]` — one object per umbrella `{color, colorDetail, kind, status[], statusOther}` (built for future statistics).
+- `blocks[]` — the detail-page content order (text paragraphs interleaved with photos); `story` is derived from it.
+- `editFlag` — edit-only marker colour. `category`/`categoryGroup` — from the folder name.
 
 Empty optional fields are not rendered.
 

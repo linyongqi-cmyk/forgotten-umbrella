@@ -35,6 +35,8 @@ const state = {
   languageMenuOpen: false,
   editMode: false,
   editingId: null,
+  pendingCoords: {},
+  suppressMarkerClickUntil: 0,
 };
 
 const FOCUS_ANIMATION_MS = 900;
@@ -64,8 +66,9 @@ const UMBRELLA_COLOR_OPTIONS = [
   { value: "unknown", label: "unknown 未知" },
 ];
 const UMBRELLA_KIND_OPTIONS = [
-  { value: "folding", label: "folding 折叠伞" },
   { value: "long umbrella", label: "long umbrella 长柄伞" },
+  { value: "folding", label: "folding 折叠伞" },
+  { value: "unknown", label: "unknown 未知" },
 ];
 const UMBRELLA_STATUS_OPTIONS = [
   { value: "fastened", label: "fastened 收拢" },
@@ -105,6 +108,7 @@ const els = {
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusCaption: document.querySelector("#focus-caption"),
+  focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
   archiveContent: document.querySelector("#archive-content"),
   resultCount: document.querySelector("#result-count"),
@@ -174,14 +178,10 @@ function normalizeUmbrellaData(items) {
       const locationText = item.locationText || formatLocationLevels(locationLevels);
       const umbrellaCount = item.umbrellaCount || "";
       const umbrellaUnits = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
-      const umbrellaStatus = Array.isArray(item.umbrellaStatus)
-        ? item.umbrellaStatus
-        : item.umbrellaStatus
-          ? [item.umbrellaStatus]
-          : [];
-      const umbrellaStatusOther = item.umbrellaStatusOther || "";
       const objectText = buildObjectText(umbrellaCount, umbrellaUnits);
-      const statusText = buildStatusText(umbrellaStatus, umbrellaStatusOther);
+      const objectLines = buildObjectGroups(umbrellaCount, umbrellaUnits);
+      const statusText = statusTextFromUnits(umbrellaUnits);
+      const statusLines = statusLinesFromUnits(umbrellaUnits);
       const coordinates = item.locationCoordinates || item.photoCoordinates;
       const time = item.time || item.photoTime || "";
       const prefecture = locationLevels[0] || "Unknown";
@@ -203,12 +203,13 @@ function normalizeUmbrellaData(items) {
         umbrellaColor,
         umbrellaCount,
         umbrellaUnits,
-        umbrellaStatus,
-        umbrellaStatusOther,
         statusText,
+        statusLines,
         objectText,
+        objectLines,
         story: item.story || "",
         blocks: Array.isArray(item.blocks) ? item.blocks : [],
+        editFlag: item.editFlag || "",
         media: normalizeMedia(item),
         type: categoryType || "uncategorized",
         prefecture,
@@ -254,13 +255,10 @@ function normalizeMedia(item) {
 }
 
 function initWelcomeTitleLayout() {
+  // Render every line as individual letter spans so both lines can be
+  // justified to the same width (left and right edges line up).
   els.titleLines.forEach((line) => {
     const text = line.dataset.text ?? "";
-    if (text === "FORGOTTEN") {
-      line.textContent = text;
-      return;
-    }
-
     line.innerHTML = text
       .split("")
       .map((character) => `<span>${character}</span>`)
@@ -873,7 +871,7 @@ function filteredUmbrellas() {
       item.time,
       item.type,
       item.material,
-      item.umbrellaStatus,
+      item.statusText,
       item.story,
     ]
       .join(" ")
@@ -978,12 +976,17 @@ function renderMapMarkers(items) {
       map: state.map,
       position: item.coordinates,
       title: item.id,
-      icon: markerIcon(item.id === state.focusMarkerId),
+      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item)),
       draggable: state.editMode,
     });
 
     marker.addListener("click", (event) => {
       event.domEvent?.stopPropagation?.();
+      // A drag often fires a trailing click — ignore it so it can't reopen the
+      // editor and wipe the just-dragged coordinates.
+      if (performance.now() < (state.suppressMarkerClickUntil || 0)) {
+        return;
+      }
       if (state.editMode) {
         openEditor(item.id);
         return;
@@ -992,6 +995,7 @@ function renderMapMarkers(items) {
       selectUmbrella(item.id, { focus: true });
     });
     marker.addListener("dragend", (event) => {
+      state.suppressMarkerClickUntil = performance.now() + 500;
       const lat = event.latLng?.lat();
       const lng = event.latLng?.lng();
       if (typeof lat === "number" && typeof lng === "number") {
@@ -999,10 +1003,10 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
-      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId));
+      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item)));
     });
     marker.addListener("mouseout", () => {
-      marker.setIcon(markerIcon(item.id === state.focusMarkerId));
+      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item)));
     });
     state.markers.set(item.id, marker);
   });
@@ -1023,6 +1027,9 @@ function renderFocusImage() {
   els.focusPanel?.classList.add("is-loading");
   els.focusImage.src = cover?.src || item.image;
   els.focusImage.alt = item.title || item.id;
+  if (els.focusHeader) {
+    els.focusHeader.innerHTML = renderFocusHeader(item);
+  }
   els.focusCaption.innerHTML = renderFocusArticle(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     els.focusPanel?.classList.remove("is-loading");
@@ -1051,13 +1058,28 @@ function effectiveBlocks(item) {
   return out;
 }
 
-function renderFocusArticle(item) {
+// Fixed header (stays put while the images/text scroll): id(title), place, time.
+function renderFocusHeader(item) {
   const focusTitle = item.title ? `${item.id}(${item.title})` : item.id;
-  const infoLines = [
-    { label: "type", value: formatInformationType(item) },
-    { label: "object", value: item.objectText },
-    { label: "state", value: item.statusText },
-  ].filter((entry) => entry.value);
+  return `
+    <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
+    ${item.location ? `<p class="focus-meta">${escapeHtml(item.location)}</p>` : ""}
+    ${formatDateTime(item.time) ? `<p class="focus-meta">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
+  `;
+}
+
+function renderFocusArticle(item) {
+  const infoRows = [];
+  const typeValue = formatInformationType(item);
+  if (typeValue) {
+    infoRows.push({ label: "type", lines: [typeValue] });
+  }
+  if (item.objectLines?.length) {
+    infoRows.push({ label: "object", lines: item.objectLines });
+  }
+  if (item.statusLines?.length) {
+    infoRows.push({ label: "state", lines: item.statusLines });
+  }
 
   const mediaByFile = {};
   (item.media || []).forEach((m) => {
@@ -1073,20 +1095,32 @@ function renderFocusArticle(item) {
       if (!media) {
         return "";
       }
+      // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
+      const caption = [media.title, media.id, formatDateTime(media.photoTime)].filter(Boolean).join(", ");
       return `<figure class="focus-photo">
           <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async" />
-          ${media.title ? `<figcaption>${escapeHtml(media.title)}</figcaption>` : ""}
+          ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
         </figure>`;
     })
     .join("");
 
+  const infoHtml = infoRows.length
+    ? `<h4 class="focus-info-heading">information</h4>
+      <div class="focus-info">
+        ${infoRows
+          .map(
+            (row) => `<div class="focus-info-row">
+              <span class="focus-info-label">${row.label}:</span>
+              <div class="focus-info-value">${row.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>
+            </div>`,
+          )
+          .join("")}
+      </div>`
+    : "";
+
   return `
     <div class="focus-caption-inner">
-      <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
-      ${item.location ? `<p class="item-detail">${escapeHtml(item.location)}</p>` : ""}
-      ${formatDateTime(item.time) ? `<p class="item-detail">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
-      ${infoLines.length ? '<h4 class="focus-info-heading">information</h4>' : ""}
-      ${infoLines.map((entry) => `<p class="item-detail">${escapeHtml(`${entry.label}: ${entry.value}`)}</p>`).join("")}
+      ${infoHtml}
       ${blocksHtml}
     </div>
   `;
@@ -1277,10 +1311,8 @@ function formatInformationType(item) {
   if (item.umbrellaType) {
     return item.umbrellaType;
   }
-  const categoryLabels = {
-    transit: "public transit",
-  };
-  const category = categoryLabels[item.category] || item.category || "";
+  // Show the actual folder name, e.g. "transit(place)".
+  const category = item.category || "";
   if (category && item.categoryGroup) {
     return `${category}(${item.categoryGroup})`;
   }
@@ -1336,29 +1368,65 @@ function buildObjectText(count, units) {
   if (count === "unknown") {
     return "";
   }
-  const list = applyUnitInheritance(count, units);
-  if (!list.length) {
-    return "";
-  }
-  const words = list.map(describeUnit);
-  // No colour/kind picked anywhere → don't show an object line at all.
-  if (words.every((word) => !word)) {
-    return "";
-  }
-  const allSame = words.every((word) => word === words[0]);
-  if (allSame) {
-    const num = COUNT_WORDS[Number(count)] || "";
-    return [num, words[0]].filter(Boolean).join(" ").trim();
-  }
-  return words.map((word) => ["one", word].filter(Boolean).join(" ")).join(", ");
+  return buildObjectGroups(count, units).join(", ");
 }
 
-function buildStatusText(status, other) {
-  const list = Array.isArray(status) ? status : status ? [status] : [];
-  return list
-    .map((value) => (value === "other" ? String(other || "").trim() || "other" : value))
-    .filter(Boolean)
-    .join(", ");
+// Each distinct umbrella description as its own line (for the detail page).
+// Identical ones are grouped with a count word (2+); "one" is never shown.
+function buildObjectGroups(count, units) {
+  if (count === "unknown") {
+    return [];
+  }
+  const list = applyUnitInheritance(count, units);
+  if (!list.length) {
+    return [];
+  }
+  const words = list.map(describeUnit).filter(Boolean);
+  if (!words.length) {
+    return [];
+  }
+  const groups = [];
+  words.forEach((word) => {
+    const existing = groups.find((group) => group.word === word);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      groups.push({ word, count: 1 });
+    }
+  });
+  return groups.map((group) => {
+    const num = group.count >= 2 ? COUNT_WORDS[group.count] || String(group.count) : "";
+    return [num, group.word].filter(Boolean).join(" ");
+  });
+}
+
+// One line per umbrella that has a status (its statuses joined). Identical
+// lines collapse into one (so "all the same" shows a single line).
+function statusLinesFromUnits(units) {
+  const lines = (Array.isArray(units) ? units : [])
+    .map((unit) => {
+      const list = Array.isArray(unit.status) ? unit.status : [];
+      return list
+        .map((value) => (value === "other" ? String(unit.statusOther || "").trim() || "other" : value))
+        .filter(Boolean)
+        .join(", ");
+    })
+    .filter(Boolean);
+  return [...new Set(lines)];
+}
+
+// Aggregate the distinct statuses across all umbrellas for the display line.
+function statusTextFromUnits(units) {
+  const all = [];
+  (Array.isArray(units) ? units : []).forEach((unit) => {
+    (Array.isArray(unit.status) ? unit.status : []).forEach((value) => {
+      const text = value === "other" ? String(unit.statusOther || "").trim() || "other" : value;
+      if (text && !all.includes(text)) {
+        all.push(text);
+      }
+    });
+  });
+  return all.join(", ");
 }
 
 function getTimeValue(item) {
@@ -1406,41 +1474,31 @@ function groupByMonth(items) {
   return Array.from(groups.values());
 }
 
+// Group by the address hierarchy: prefecture (level 0) → city (1) → ward (2),
+// nesting one level deeper only where records actually have that level.
 function groupByPlace(items) {
-  const prefectures = new Map();
-
-  items.forEach((item) => {
-    if (!prefectures.has(item.prefecture)) {
-      prefectures.set(item.prefecture, {
-        key: `prefecture-${item.prefecture}`,
-        label: item.prefecture,
-        items: [],
-        childrenMap: new Map(),
-      });
-    }
-
-    const prefecture = prefectures.get(item.prefecture);
-    prefecture.items.push(item);
-    if (!prefecture.childrenMap.has(item.adminArea)) {
-      prefecture.childrenMap.set(item.adminArea, {
-        key: `admin-${item.adminArea}`,
-        label: item.adminArea,
-        items: [],
-      });
-    }
-    prefecture.childrenMap.get(item.adminArea).items.push(item);
-  });
-
-  return Array.from(prefectures.values())
-    .sort((a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label))
-    .map((group) => ({
-      key: group.key,
-      label: group.label,
-      items: group.items,
-      children: Array.from(group.childrenMap.values()).sort(
-        (a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label),
-      ),
-    }));
+  function buildLevel(list, depth) {
+    const groups = new Map();
+    list.forEach((item) => {
+      const levels = Array.isArray(item.locationLevels) ? item.locationLevels : [];
+      const label = levels[depth] || (depth === 0 ? "Unknown" : "");
+      const key = `lvl${depth}-${label || "unknown"}`;
+      if (!groups.has(key)) {
+        groups.set(key, { key, label: label || "Unknown", items: [] });
+      }
+      groups.get(key).items.push(item);
+    });
+    const ordered = Array.from(groups.values()).sort(
+      (a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label),
+    );
+    return ordered.map((group) => {
+      const hasDeeper = group.items.some(
+        (item) => (Array.isArray(item.locationLevels) ? item.locationLevels.length : 0) > depth + 1,
+      );
+      return hasDeeper ? { ...group, children: buildLevel(group.items, depth + 1) } : group;
+    });
+  }
+  return buildLevel(items, 0);
 }
 
 function selectUmbrella(id, options = {}) {
@@ -1831,18 +1889,26 @@ function fitMapToItems(items) {
   state.map.fitBounds(bounds, 72);
 }
 
+// Edit-mode marker flags (a colour to help find points that need work).
+const FLAG_COLORS = { yellow: "#f2c200", black: "#1a1a1a", white: "#ffffff" };
+
+function flagColorFor(item) {
+  return state.editMode && item && FLAG_COLORS[item.editFlag] ? FLAG_COLORS[item.editFlag] : null;
+}
+
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
-    marker.setIcon(markerIcon(id === state.focusMarkerId));
+    const item = state.umbrellas.find((entry) => entry.id === id);
+    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item)));
   });
 }
 
-function markerIcon(isActive) {
+function markerIcon(isActive, flagColor) {
   return {
     path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
-    fillColor: isActive ? "#1f8bb8" : "#c54f35",
+    fillColor: flagColor || (isActive ? "#1f8bb8" : "#c54f35"),
     fillOpacity: 1,
-    strokeColor: "#ffffff",
+    strokeColor: flagColor === "#ffffff" ? "#1a1a1a" : "#ffffff",
     strokeOpacity: 1,
     strokeWeight: 2.1,
     scale: 1.55,
@@ -1850,9 +1916,9 @@ function markerIcon(isActive) {
   };
 }
 
-function hoverMarkerIcon(isActive) {
+function hoverMarkerIcon(isActive, flagColor) {
   return {
-    ...markerIcon(isActive),
+    ...markerIcon(isActive, flagColor),
     scale: 1.72,
   };
 }
@@ -1894,7 +1960,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=53", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=61", { updateViaCache: "none" });
   }
 }
 
@@ -1907,7 +1973,7 @@ function registerServiceWorker() {
  * ------------------------------------------------------------------------- */
 
 // Plain single-line/textarea fields keyed by record field name.
-const PLAIN_FIELD_KEYS = ["title", "time", "locationText", "umbrellaType"];
+const PLAIN_FIELD_KEYS = ["title", "time", "locationText"];
 
 const editor = {
   root: null,
@@ -1970,6 +2036,32 @@ function setupEditor() {
   idRow.appendChild(editor.idEl);
   body.appendChild(idRow);
 
+  // Category (the whole folder name, e.g. "hookable(affordance)") = the type tag.
+  const catRow = document.createElement("label");
+  catRow.className = "editor-row";
+  catRow.innerHTML = `<span>分类 Category（改这里会移动文件夹）</span>`;
+  editor.category = document.createElement("select");
+  catRow.appendChild(editor.category);
+  body.appendChild(catRow);
+  editor.category.addEventListener("change", onCategoryChange);
+
+  // Marker flag (a colour to find points that still need work; edit-mode only).
+  const flagRow = document.createElement("div");
+  flagRow.className = "editor-row";
+  flagRow.innerHTML = `
+    <span>标记颜色 Flag（仅编辑模式可见，用来标记待办；点一下立即生效）</span>
+    <div class="editor-flags">
+      <button type="button" class="editor-flag flag-yellow" data-flag="yellow">黄·改数量/状态</button>
+      <button type="button" class="editor-flag flag-black" data-flag="black">黑·加图片</button>
+      <button type="button" class="editor-flag flag-white" data-flag="white">白·加文字</button>
+      <button type="button" class="editor-flag flag-clear" data-flag="">清除</button>
+    </div>`;
+  body.appendChild(flagRow);
+  editor.flagRow = flagRow;
+  flagRow.querySelectorAll("[data-flag]").forEach((button) => {
+    button.addEventListener("click", () => onFlagButton(button.dataset.flag));
+  });
+
   // 2 title (kept before the address), 3 time.
   addField("title", "标题 Title");
   addField("time", "拍摄时间(覆盖) Time");
@@ -2019,12 +2111,23 @@ function setupEditor() {
   editor.lvl1.addEventListener("change", onLevel1Change);
   editor.lvl2.addEventListener("change", onLevel2Change);
   editor.lvl3.addEventListener("change", onLevel3Change);
+  // A datalist input filters its options by the current text, so a previous
+  // selection would hide every other option. Clear on focus to show the full
+  // list again, and restore the prior pick if nothing new is chosen.
+  [editor.lvl2, editor.lvl3, editor.lvl4].forEach((input) => {
+    input.addEventListener("focus", () => {
+      input.dataset.prev = input.value;
+      input.value = "";
+    });
+    input.addEventListener("blur", () => {
+      if (!input.value) {
+        input.value = input.dataset.prev || "";
+      }
+    });
+  });
   loadAreas();
 
-  // 6. Type.
-  addField("umbrellaType", "伞的类型 Type");
-
-  // 7. Count.
+  // 7. Count. (类型已由「分类 Category」承担，去掉手写的伞的类型框)
   const countRow = document.createElement("label");
   countRow.className = "editor-row";
   countRow.innerHTML = `<span>伞的数量 Count</span>`;
@@ -2035,6 +2138,7 @@ function setupEditor() {
   editor.count.addEventListener("change", () => {
     syncUnitsToCount();
     renderEditorUnits();
+    renderEditorStatuses();
   });
   countRow.appendChild(editor.count);
   body.appendChild(countRow);
@@ -2046,21 +2150,11 @@ function setupEditor() {
   editor.unitsWrap = unitsRow.querySelector(".editor-units");
   body.appendChild(unitsRow);
 
-  // 9. Status (multi-select; "other" is exclusive + free text).
+  // 9. Status — one multi-select group per umbrella, driven by the count.
   const statusRow = document.createElement("div");
   statusRow.className = "editor-row";
-  statusRow.innerHTML = `<span>状态 Status（可多选）</span>
-    <div class="editor-status"></div>
-    <input class="editor-status-other" placeholder="other 的说明" hidden />`;
-  editor.statusWrap = statusRow.querySelector(".editor-status");
-  editor.statusOther = statusRow.querySelector(".editor-status-other");
-  UMBRELLA_STATUS_OPTIONS.forEach((option) => {
-    const label = document.createElement("label");
-    label.className = "editor-status-item";
-    label.innerHTML = `<input type="checkbox" value="${option.value}" /><span>${option.label}</span>`;
-    editor.statusWrap.appendChild(label);
-  });
-  editor.statusWrap.addEventListener("change", onStatusChange);
+  statusRow.innerHTML = `<span>状态 Status（每把伞一组，可多选；随数量增加）</span><div class="editor-statuses"></div>`;
+  editor.statusesWrap = statusRow.querySelector(".editor-statuses");
   body.appendChild(statusRow);
 
   // 10. Content — ONE combined list of photos (cover + others) and text
@@ -2116,6 +2210,15 @@ function setupEditor() {
   document.body.appendChild(addInput);
   editor.addInput = addInput;
 
+  // Category picker for the next "new point" (sits under the add button).
+  const addCategory = document.createElement("select");
+  addCategory.className = "editor-add-category";
+  addCategory.title = "新增标点时使用的分类";
+  addCategory.addEventListener("change", onAddCategoryChange);
+  document.body.appendChild(addCategory);
+  editor.addCategory = addCategory;
+  populateCategorySelects();
+
   // Live detail-page preview shown on the left while editing.
   const preview = document.createElement("aside");
   preview.className = "editor-preview";
@@ -2135,6 +2238,7 @@ function renderEditorPreview(id) {
   }
   const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
   editor.previewInner.innerHTML = `
+    <header class="focus-header">${renderFocusHeader(item)}</header>
     <div class="editor-preview-cover"><img src="${escapeHtml(cover?.src || item.image)}" alt="" /></div>
     ${renderFocusArticle(item)}`;
 }
@@ -2316,9 +2420,18 @@ function syncUnitsToCount() {
   }
   const draft = editor.unitsDraft;
   while (draft.length < n) {
-    draft.push({ color: "", colorDetail: "", kind: "" });
+    // New umbrellas default to a transparent long umbrella (the common case).
+    draft.push({ color: "transparent", colorDetail: "", kind: "long umbrella", status: [], statusOther: "" });
   }
   draft.length = n;
+  draft.forEach((unit) => {
+    if (!Array.isArray(unit.status)) {
+      unit.status = [];
+    }
+    if (typeof unit.statusOther !== "string") {
+      unit.statusOther = "";
+    }
+  });
 }
 
 function renderEditorUnits() {
@@ -2373,40 +2486,76 @@ function collectUnitsForSave() {
     color: unit.color || "",
     colorDetail: unit.colorDetail || "",
     kind: unit.kind || "",
+    status: Array.isArray(unit.status) ? unit.status : [],
+    statusOther: unit.statusOther || "",
   }));
 }
 
-function collectStatusForSave() {
-  return Array.from(editor.statusWrap.querySelectorAll('input[type="checkbox"]:checked')).map((box) => box.value);
+// One status group per umbrella (driven by the count), each a multi-select
+// where "other" is exclusive + free text.
+function renderEditorStatuses() {
+  const wrap = editor.statusesWrap;
+  if (!wrap) {
+    return;
+  }
+  wrap.innerHTML = "";
+  const value = editor.count.value;
+  if (value === "") {
+    wrap.innerHTML = `<p class="editor-hint">先选择数量</p>`;
+    return;
+  }
+  if (value === "unknown") {
+    wrap.innerHTML = `<p class="editor-hint">数量未知，暂不可填写状态</p>`;
+    return;
+  }
+  editor.unitsDraft.forEach((unit, index) => {
+    if (!Array.isArray(unit.status)) {
+      unit.status = [];
+    }
+    const otherOn = unit.status.includes("other");
+    const group = document.createElement("div");
+    group.className = "editor-status-group";
+    group.innerHTML = `
+      <div class="editor-status-glabel">第 ${index + 1} 把</div>
+      <div class="editor-status">
+        ${UMBRELLA_STATUS_OPTIONS.map(
+          (o) =>
+            `<label class="editor-status-item"><input type="checkbox" value="${o.value}" ${unit.status.includes(o.value) ? "checked" : ""} ${otherOn && o.value !== "other" ? "disabled" : ""} /><span>${o.label}</span></label>`,
+        ).join("")}
+      </div>
+      <input class="editor-status-other" placeholder="other 的说明" value="${escapeHtml(unit.statusOther || "")}" ${otherOn ? "" : "hidden"} />`;
+    const statusWrap = group.querySelector(".editor-status");
+    const otherInput = group.querySelector(".editor-status-other");
+    statusWrap.addEventListener("change", (event) => onUnitStatusChange(unit, event, statusWrap, otherInput));
+    otherInput.addEventListener("input", (event) => {
+      unit.statusOther = event.target.value;
+    });
+    wrap.appendChild(group);
+  });
 }
 
-// "other" status is exclusive; selecting it clears the rest and vice versa.
-function onStatusChange(event) {
+function onUnitStatusChange(unit, event, statusWrap, otherInput) {
   const box = event.target;
   if (box?.value === "other" && box.checked) {
-    editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((other) => {
-      if (other.value !== "other") {
-        other.checked = false;
+    statusWrap.querySelectorAll('input[type="checkbox"]').forEach((b) => {
+      if (b.value !== "other") {
+        b.checked = false;
       }
     });
   } else if (box?.checked && box.value !== "other") {
-    const otherBox = editor.statusWrap.querySelector('input[value="other"]');
+    const otherBox = statusWrap.querySelector('input[value="other"]');
     if (otherBox) {
       otherBox.checked = false;
     }
   }
-  syncStatusUI();
-}
-
-function syncStatusUI() {
-  const otherBox = editor.statusWrap.querySelector('input[value="other"]');
-  const otherOn = !!otherBox?.checked;
-  editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-    if (box.value !== "other") {
-      box.disabled = otherOn;
+  const otherOn = !!statusWrap.querySelector('input[value="other"]')?.checked;
+  statusWrap.querySelectorAll('input[type="checkbox"]').forEach((b) => {
+    if (b.value !== "other") {
+      b.disabled = otherOn;
     }
   });
-  editor.statusOther.hidden = !otherOn;
+  otherInput.hidden = !otherOn;
+  unit.status = Array.from(statusWrap.querySelectorAll('input[type="checkbox"]:checked')).map((b) => b.value);
 }
 
 // ---- Cascading Japan address levels ----------------------------------------
@@ -2425,7 +2574,7 @@ async function loadAreas() {
     const data = await response.json();
     const all = Array.isArray(data.prefectures) ? data.prefectures : [];
     // Float the most-used prefectures to the top, keep the rest in order.
-    const priorityNames = ["Kyoto Fu", "Tokyo To", "Chiba Ken", "Osaka Fu"];
+    const priorityNames = ["Kyoto", "Tokyo", "Chiba", "Osaka"];
     const priority = priorityNames.map((en) => all.find((p) => p.en === en)).filter(Boolean);
     const rest = all.filter((p) => !priorityNames.includes(p.en));
     editor.areas = [...priority, ...rest];
@@ -2602,11 +2751,14 @@ function openEditor(id) {
     return;
   }
   state.editingId = id;
-  editor.draftCoords = raw.locationCoordinates || null;
+  editor.draftCoords = state.pendingCoords[id] || raw.locationCoordinates || null;
   if (editor.titleEl) {
     editor.titleEl.textContent = `编辑：${id}`;
   }
   editor.idEl.value = id;
+  populateCategorySelects();
+  editor.category.value = categoryFolderOf(raw);
+  syncFlagButtons(raw.editFlag || "");
   PLAIN_FIELD_KEYS.forEach((key) => {
     editor.fields[key].value = raw[key] || "";
   });
@@ -2614,27 +2766,21 @@ function openEditor(id) {
   editor.fields.title.placeholder = "默认则空白";
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
   editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "默认用下面的地址层级";
-  editor.fields.umbrellaType.placeholder = raw.category || "unknown";
 
   hydrateLevels(raw);
 
-  // Count + per-umbrella color/kind units (default 1 when not yet set).
+  // Count + per-umbrella units (colour/kind + status), default 1 when not set.
   editor.count.value = raw.umbrellaCount || "1";
   editor.unitsDraft = (Array.isArray(raw.umbrellaUnits) ? raw.umbrellaUnits : []).map((unit) => ({
     color: unit.color || "",
     colorDetail: unit.colorDetail || "",
     kind: unit.kind || "",
+    status: Array.isArray(unit.status) ? unit.status.slice() : [],
+    statusOther: unit.statusOther || "",
   }));
   syncUnitsToCount();
   renderEditorUnits();
-
-  // Status multi-select.
-  const statusValues = new Set(Array.isArray(raw.umbrellaStatus) ? raw.umbrellaStatus : []);
-  editor.statusWrap.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-    box.checked = statusValues.has(box.value);
-  });
-  editor.statusOther.value = raw.umbrellaStatusOther || "";
-  syncStatusUI();
+  renderEditorStatuses();
   buildFlow(raw);
   renderFlow();
   updateCoordReadout(raw);
@@ -2661,11 +2807,15 @@ function updateCoordReadout(raw) {
 }
 
 function onMarkerDragged(id, coords) {
-  editor.draftCoords = coords;
+  // Store the dragged position durably so any re-open of the editor (e.g. a
+  // trailing click) can't lose it. openEditor reads this back.
+  state.pendingCoords[id] = coords;
   if (state.editingId !== id) {
     openEditor(id);
   }
+  editor.draftCoords = coords;
   updateCoordReadout(getRawById(id));
+  showEditorToast(`坐标已更新（${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}），记得点保存`);
 }
 
 async function saveEditor() {
@@ -2680,8 +2830,6 @@ async function saveEditor() {
   payload.locationLevels = collectLevelsForSave();
   payload.umbrellaCount = editor.count.value;
   payload.umbrellaUnits = collectUnitsForSave();
-  payload.umbrellaStatus = collectStatusForSave();
-  payload.umbrellaStatusOther = editor.statusOther.value;
   const photos = (editor.flow || []).filter((i) => i.kind === "photo");
   payload.media = photos.map((p) => ({
     file: p.file,
@@ -2712,6 +2860,8 @@ async function saveEditor() {
     if (!response.ok || !result.ok) {
       throw new Error(result.error || `保存失败（${response.status}）`);
     }
+    // The dragged position is now persisted; drop the pending copy.
+    delete state.pendingCoords[id];
     // Reload the freshly-rebuilt database and re-render with edit mode intact.
     state.umbrellas = await loadUmbrellaData();
     render();
@@ -2792,7 +2942,8 @@ async function onCreateRecord(event) {
     const dataBase64 = await readFileAsDataUrl(file);
     const center = state.map?.getCenter?.();
     const coordinates = center ? { lat: center.lat(), lng: center.lng() } : null;
-    const result = await apiPost("/api/create-record", { filename: file.name, dataBase64, coordinates });
+    const category = editor.addCategory?.value || "unknown";
+    const result = await apiPost("/api/create-record", { filename: file.name, dataBase64, coordinates, category });
     state.umbrellas = await loadUmbrellaData();
     if (!state.editMode) {
       toggleEditMode();
@@ -2803,6 +2954,114 @@ async function onCreateRecord(event) {
     showEditorToast("已新增标点 ✓，请拖动标记到准确位置");
   } catch (error) {
     showEditorToast(`新增失败：${error.message}`, true);
+  }
+}
+
+// ---- Categories (the whole folder name = the type tag) ---------------------
+
+function categoryFolderOf(item) {
+  if (!item) {
+    return "unknown";
+  }
+  return item.categoryGroup ? `${item.category}(${item.categoryGroup})` : item.category || "unknown";
+}
+
+function listCategories() {
+  const set = new Set(["unknown"]);
+  (state.umbrellas || []).forEach((item) => set.add(categoryFolderOf(item)));
+  return [...set].sort();
+}
+
+function populateCategorySelects() {
+  const options =
+    listCategories()
+      .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+      .join("") + `<option value="__new__">＋ 新建分类…</option>`;
+  if (editor.category) {
+    editor.category.innerHTML = options;
+  }
+  if (editor.addCategory) {
+    const prev = editor.addCategory.value;
+    editor.addCategory.innerHTML = options;
+    if (prev && [...editor.addCategory.options].some((o) => o.value === prev)) {
+      editor.addCategory.value = prev;
+    }
+  }
+}
+
+function promptNewCategory() {
+  const value = window.prompt("输入新分类（整串作为一个类型），例如 hookable(affordance) 或 unknown：");
+  return value ? value.trim() : "";
+}
+
+function onAddCategoryChange(event) {
+  if (event.target.value !== "__new__") {
+    return;
+  }
+  const created = promptNewCategory();
+  if (created) {
+    const option = document.createElement("option");
+    option.value = created;
+    option.textContent = created;
+    event.target.insertBefore(option, event.target.lastElementChild);
+    event.target.value = created;
+  } else {
+    event.target.value = "unknown";
+  }
+}
+
+async function onCategoryChange(event) {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  let category = event.target.value;
+  if (category === "__new__") {
+    category = promptNewCategory();
+    if (!category) {
+      editor.category.value = categoryFolderOf(getRawById(id));
+      return;
+    }
+  }
+  try {
+    await apiPost("/api/move-record", { id, category });
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    openEditor(id);
+    showEditorToast("已移动分类 ✓");
+  } catch (error) {
+    showEditorToast(`移动失败：${error.message}`, true);
+    editor.category.value = categoryFolderOf(getRawById(id));
+  }
+}
+
+function syncFlagButtons(active) {
+  editor.flagRow?.querySelectorAll("[data-flag]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.flag === (active || ""));
+  });
+}
+
+// Marker flag saves immediately and recolours the map without a full reload.
+async function onFlagButton(color) {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  try {
+    await apiPost("/api/save-record", { id, editFlag: color });
+    const raw = getRawById(id);
+    if (raw) {
+      raw.editFlag = color;
+    }
+    const item = state.umbrellas.find((entry) => entry.id === id);
+    if (item) {
+      item.editFlag = color;
+    }
+    renderMapMarkers(filteredUmbrellas());
+    syncFlagButtons(color);
+    showEditorToast(color ? "已标记 ✓" : "已清除标记");
+  } catch (error) {
+    showEditorToast(`标记失败：${error.message}`, true);
   }
 }
 

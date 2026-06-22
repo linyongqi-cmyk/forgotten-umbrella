@@ -102,10 +102,10 @@ button {
   white-space: nowrap;
 }
 
-.welcome-title-line:first-child {
-  display: block;
-  letter-spacing: 0;
-  text-align: left;
+/* Tighter letter spacing on the welcome title (smaller natural width → the
+   justified lines pack closer together). */
+.welcome-title-line {
+  letter-spacing: -0.05em;
 }
 
 .welcome-title-line span {
@@ -1648,6 +1648,66 @@ body:not(.edit-mode) .editor-add {
   display: none;
 }
 
+.editor-add-category {
+  position: fixed;
+  right: 18px;
+  top: 158px;
+  z-index: 1400;
+  max-width: 200px;
+  padding: 6px 10px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 999px;
+  background: #f4f3ed;
+  color: #1f2d2d;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(31, 45, 45, 0.2);
+}
+
+body:not(.edit-mode) .editor-add-category {
+  display: none;
+}
+
+.editor-flags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.editor-flag {
+  padding: 5px 9px;
+  border: 1px solid rgba(31, 45, 45, 0.3);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.editor-flag.flag-yellow {
+  background: #f2c200;
+  color: #1a1a1a;
+}
+
+.editor-flag.flag-black {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.editor-flag.flag-white {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.editor-flag.flag-clear {
+  background: #f4f3ed;
+  color: #4d5a56;
+}
+
+.editor-flag.is-active {
+  outline: 2px solid #b4502f;
+  outline-offset: 1px;
+}
+
 .editor-media-list {
   display: flex;
   flex-direction: column;
@@ -1842,6 +1902,27 @@ body:not(.edit-mode) .editor-add {
   box-sizing: border-box;
 }
 
+.editor-statuses {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-status-group {
+  padding: 8px 0;
+  border-top: 1px solid rgba(31, 45, 45, 0.1);
+}
+
+.editor-status-group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.editor-status-glabel {
+  font-size: 11px;
+  color: #8a948f;
+  margin-bottom: 4px;
+}
+
 /* Content flow editor (paragraphs + photos) */
 .editor-blocks {
   display: flex;
@@ -1933,8 +2014,42 @@ body:not(.edit-mode) .editor-add {
 
 .focus-photo figcaption {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--detail-caption-size);
   opacity: 0.7;
+  text-align: right;
+}
+
+/* INFORMATION block: label on the left, value(s) left-aligned on the right */
+.focus-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.focus-info-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.focus-info-label {
+  flex: 0 0 auto;
+  min-width: 52px;
+  font-size: var(--detail-body-size);
+  line-height: var(--detail-body-line);
+  color: var(--ink);
+}
+
+.focus-info-value {
+  flex: 1;
+  min-width: 0;
+}
+
+.focus-info-value p {
+  margin: 0;
+  font-size: var(--detail-body-size);
+  line-height: var(--detail-body-line);
+  color: var(--ink);
 }
 
 /* Detail panel: cover + text scroll together as one, with no visible scrollbar */
@@ -2069,4 +2184,59 @@ body:not(.edit-mode) .editor-add {
   width: 100%;
   border-radius: 8px;
   display: block;
+}
+
+/* =====================================================================
+ * 详情页字体设置 —— 想调大小/行间距，只改下面这几个数字即可
+ * （title = id(标题)，meta = 地点/时间，body = 信息与正文段落）
+ * ===================================================================== */
+:root {
+  --detail-title-size: 20px;   /* 标题 id(title) 字号 */
+  --detail-title-line: 1.2;    /* 标题 行间距 */
+  --detail-meta-size: 12px;    /* 地点 / 时间 字号 */
+  --detail-meta-line: 1.25;    /* 地点 / 时间 行间距（想更紧就调小，如 1.1） */
+  --detail-body-size: 13px;    /* 信息与正文段落 字号 */
+  --detail-body-line: 1.45;    /* 信息与正文段落 行间距 */
+  --detail-caption-size: 11px; /* 图片下方小字（title, ID, time）字号 */
+}
+
+/* Detail panel: fixed header (title/place/time) + scrollable body below */
+.focus-image-panel {
+  overflow: hidden;
+}
+
+.focus-header {
+  flex-shrink: 0;
+  padding-bottom: 8px;
+}
+
+.focus-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.focus-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.focus-header .focus-title {
+  font-size: var(--detail-title-size);
+  line-height: var(--detail-title-line);
+  font-weight: 600;
+  margin: 0;
+}
+
+.focus-header .focus-meta {
+  font-size: var(--detail-meta-size);
+  line-height: var(--detail-meta-line);
+  margin: 2px 0 0;
+  color: var(--ink);
+}
+
+.focus-image-panel figcaption .item-detail,
+.focus-image-panel figcaption .item-story {
+  font-size: var(--detail-body-size);
+  line-height: var(--detail-body-line);
 }

@@ -8,17 +8,30 @@
       "lat": 35.66171389,
       "lng": 139.70294167
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.661701695876054,
+      "lng": 139.70238259797452
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6078.jpg",
@@ -34,7 +47,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Shibuya Ward"
+    ]
   },
   {
     "id": "IMG_6872",
@@ -45,7 +61,10 @@
       "lat": 35.63738889,
       "lng": 140.13203333
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.637277480454074,
+      "lng": 140.1318888380496
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
@@ -53,15 +72,23 @@
     "umbrellaCount": "1",
     "umbrellaUnits": [
       {
-        "color": "",
-        "colorDetail": "",
-        "kind": ""
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
       }
     ],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "pic_1.png"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6872.jpg",
@@ -87,7 +114,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_8302",
@@ -98,17 +129,30 @@
       "lat": 34.97349167,
       "lng": 135.76373333
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97350743931538,
+      "lng": 135.76360554619475
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "deteriorated"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8302.jpg",
@@ -124,7 +168,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8740",
@@ -139,10 +187,9 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8740.jpg",
@@ -169,17 +216,29 @@
       "lat": 35.63020833,
       "lng": 140.11685278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63016908850219,
+      "lng": 140.11689703644873
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6178.jpg",
@@ -195,7 +254,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6660",
@@ -206,17 +269,35 @@
       "lat": 35.63235556,
       "lng": 140.11965833
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63230214939128,
+      "lng": 140.11962748459632
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "pic_1.png"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6660.jpg",
@@ -242,7 +323,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6859",
@@ -253,17 +338,19 @@
       "lat": 35.63712222,
       "lng": 140.12597778
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.637068992045776,
+      "lng": 140.12602121239655
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
+    "umbrellaCount": "unknown",
     "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6859.jpg",
@@ -279,7 +366,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_6895",
@@ -290,17 +381,24 @@
       "lat": 35.63832222,
       "lng": 140.12928889
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.638296061659155,
+      "lng": 140.12932442926947
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
+    "umbrellaCount": "unknown",
     "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_6899.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6895.jpg",
@@ -326,7 +424,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_6931",
@@ -337,17 +439,29 @@
       "lat": 35.62298889,
       "lng": 140.10359167
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.622908764686684,
+      "lng": 140.10359166999996
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6931.jpg",
@@ -363,7 +477,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_7171",
@@ -374,17 +492,29 @@
       "lat": 35.62983611,
       "lng": 140.12312222
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62983611000001,
+      "lng": 140.12312222000003
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "deteriorated"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_7171.jpg",
@@ -400,7 +530,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8056",
@@ -411,17 +545,56 @@
       "lat": 35.63404444,
       "lng": 140.12127778
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63402912698194,
+      "lng": 140.12136256397278
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "4",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "colored",
+        "colorDetail": "dark red",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "patterned",
+        "colorDetail": "floral",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "unknown",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "white",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8056.jpg",
@@ -437,7 +610,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8317",
@@ -453,12 +630,30 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "2",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "",
+        "colorDetail": "",
+        "kind": "",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8317.jpg",
@@ -474,7 +669,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8476",
@@ -490,12 +689,30 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "2",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "",
+        "colorDetail": "",
+        "kind": "",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8476.jpg",
@@ -511,7 +728,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Nakagyo Ward"
+    ]
   },
   {
     "id": "IMG_8591",
@@ -522,17 +743,29 @@
       "lat": 34.97788611,
       "lng": 135.76413056
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97776807794902,
+      "lng": 135.76416057073024
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8591.jpg",
@@ -548,7 +781,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_6260",
@@ -559,17 +796,29 @@
       "lat": 35.61484167,
       "lng": 140.11793611
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.614792937503495,
+      "lng": 140.11795064218003
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6260.jpg",
@@ -585,7 +834,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6383",
@@ -596,17 +849,29 @@
       "lat": 35.62282222,
       "lng": 140.10365278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62271429586488,
+      "lng": 140.10369234258295
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6383.jpg",
@@ -622,7 +887,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6838",
@@ -633,17 +902,34 @@
       "lat": 35.62900278,
       "lng": 140.10444722
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62905574344275,
+      "lng": 140.104431805509
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "pic_1.png"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6838.jpg",
@@ -669,7 +955,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6867",
@@ -680,17 +970,34 @@
       "lat": 35.63700833,
       "lng": 140.1295
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6368670797717,
+      "lng": 140.1294430169703
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_6868.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6867.jpg",
@@ -716,7 +1023,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_6882",
@@ -727,17 +1038,30 @@
       "lat": 35.63786944,
       "lng": 140.13278333
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63782816958253,
+      "lng": 140.13279657718022
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6882.jpg",
@@ -753,7 +1077,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_6889",
@@ -764,17 +1092,30 @@
       "lat": 35.63893611,
       "lng": 140.13473611
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63891210826623,
+      "lng": 140.13475825985512
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6889.jpg",
@@ -790,7 +1131,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_6942",
@@ -801,17 +1146,29 @@
       "lat": 35.6231,
       "lng": 140.10610833
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62311635207217,
+      "lng": 140.10612509380636
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "blue",
+        "kind": "folding",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6942.jpg",
@@ -827,7 +1184,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_7038",
@@ -838,17 +1199,29 @@
       "lat": 35.62897778,
       "lng": 140.10455278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62903928594946,
+      "lng": 140.10452615497013
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7038.jpg",
@@ -864,7 +1237,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_7106",
@@ -875,17 +1252,38 @@
       "lat": 35.63171111,
       "lng": 140.11915556
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.631607134440664,
+      "lng": 140.11926489845663
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "blue",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_7108.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_7109.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7106.jpg",
@@ -921,7 +1319,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8015",
@@ -932,17 +1334,29 @@
       "lat": 35.63481944,
       "lng": 140.12103333
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63478510567114,
+      "lng": 140.12094012323675
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "folding",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8015.jpg",
@@ -958,7 +1372,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8114",
@@ -969,7 +1387,10 @@
       "lat": 34.97931667,
       "lng": 135.74598611
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97931612057695,
+      "lng": 135.74597538116393
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
@@ -979,15 +1400,16 @@
       {
         "color": "translucent",
         "colorDetail": "",
-        "kind": "long umbrella"
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
       }
     ],
-    "umbrellaStatus": [
-      "broken"
-    ],
-    "umbrellaStatusOther": "",
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8114.jpg",
@@ -1004,9 +1426,9 @@
       }
     ],
     "locationLevels": [
-      "Kyoto Fu",
-      "Kyoto Shi",
-      "Minami Ku"
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
     ]
   },
   {
@@ -1018,17 +1440,30 @@
       "lat": 34.94049167,
       "lng": 135.74505556
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.940572653518224,
+      "lng": 135.74497926605468
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "black",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8229.jpg",
@@ -1044,7 +1479,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Fushimi Ward"
+    ]
   },
   {
     "id": "IMG_8618",
@@ -1060,12 +1499,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8618.jpg",
@@ -1081,7 +1529,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Shimogyo Ward"
+    ]
   },
   {
     "id": "IMG_8647",
@@ -1092,17 +1544,30 @@
       "lat": 34.97923333,
       "lng": 135.75383056
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97923278057637,
+      "lng": 135.75379904404411
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8647.jpg",
@@ -1118,7 +1583,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8680",
@@ -1129,17 +1598,29 @@
       "lat": 34.98641944,
       "lng": 135.76373333
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.98643953144062,
+      "lng": 135.76375960470054
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8680.jpg",
@@ -1155,7 +1636,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Shimogyo Ward"
+    ]
   },
   {
     "id": "IMG_8682",
@@ -1174,24 +1659,23 @@
     "umbrellaCount": "1",
     "umbrellaUnits": [
       {
-        "color": "",
+        "color": "unknown",
         "colorDetail": "",
-        "kind": ""
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
       }
     ],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "123",
+    "story": "",
     "blocks": [
-      {
-        "type": "text",
-        "text": "123"
-      },
       {
         "type": "photo",
         "file": "IMG_8684.png"
       }
     ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8682.jpg",
@@ -1217,7 +1701,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Fushimi Ward"
+    ]
   },
   {
     "id": "IMG_8737",
@@ -1228,17 +1716,34 @@
       "lat": 34.97995833,
       "lng": 135.76431389
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97993360615248,
+      "lng": 135.76428572680538
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8745.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8737.jpg",
@@ -1258,13 +1763,17 @@
         "file": "IMG_8745.jpeg",
         "src": "filebox/records/drop(behavior)/IMG_8737/IMG_8745.jpeg",
         "thumb": "filebox/records/drop(behavior)/IMG_8737/IMG_8745.jpeg",
-        "role": "detail",
+        "role": "supplement",
         "title": "",
         "photoTime": "",
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_5956",
@@ -1275,17 +1784,34 @@
       "lat": 35.73579444,
       "lng": 139.70645278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.73576559210121,
+      "lng": 139.70633811556465
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "pic_1.png"
+      }
+    ],
+    "editFlag": "white",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5956.jpg",
@@ -1311,7 +1837,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_5958",
@@ -1327,12 +1856,22 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5958.jpg",
@@ -1348,7 +1887,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_5964",
@@ -1359,17 +1901,29 @@
       "lat": 35.73045833,
       "lng": 139.71250833
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.73042209896426,
+      "lng": 139.7126772447949
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5964.jpg",
@@ -1385,7 +1939,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_6080",
@@ -1401,12 +1958,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6080.jpg",
@@ -1422,7 +1988,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_6220",
@@ -1433,17 +2002,29 @@
       "lat": 35.61323056,
       "lng": 140.11435
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.61355141638898,
+      "lng": 140.1138907691369
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6220.jpg",
@@ -1459,7 +2040,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6341",
@@ -1470,17 +2055,29 @@
       "lat": 35.63015278,
       "lng": 140.11665278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62978630424775,
+      "lng": 140.11605848396712
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6341.jpg",
@@ -1496,7 +2093,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6393",
@@ -1512,12 +2113,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "deteriorated"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6393.jpg",
@@ -1533,7 +2143,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6774",
@@ -1544,17 +2158,34 @@
       "lat": 35.63324444,
       "lng": 140.12101667
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63323462999996,
+      "lng": 140.12096168471518
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "pic_1.png"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6774.jpg",
@@ -1580,7 +2211,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6781",
@@ -1591,17 +2226,29 @@
       "lat": 35.63431667,
       "lng": 140.1223
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63453809116378,
+      "lng": 140.12234725900257
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6781.jpg",
@@ -1617,7 +2264,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6791",
@@ -1628,17 +2279,29 @@
       "lat": 35.62766944,
       "lng": 140.109375
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62763099180057,
+      "lng": 140.10929260253906
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6791.jpg",
@@ -1654,7 +2317,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6848",
@@ -1665,17 +2332,29 @@
       "lat": 35.63265278,
       "lng": 140.1221
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63257974943025,
+      "lng": 140.1220886006117
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "black",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6848.jpg",
@@ -1691,7 +2370,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6888",
@@ -1702,17 +2385,29 @@
       "lat": 35.63821111,
       "lng": 140.13323889
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63818778334464,
+      "lng": 140.13329187872085
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6888.jpg",
@@ -1728,7 +2423,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_8622",
@@ -1741,59 +2440,66 @@
     },
     "locationCoordinates": null,
     "locationText": "",
-    "title": "",
+    "title": "異なる運命/Different Fates",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "2",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8245.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8538.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8586.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8621.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8657.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8685.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8703.jpeg"
+      }
+    ],
+    "editFlag": "black",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8622.jpg",
     "media": [
-      {
-        "id": "IMG_8245",
-        "file": "IMG_8245.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
-        "role": "detail",
-        "title": "",
-        "photoTime": "",
-        "story": ""
-      },
-      {
-        "id": "IMG_8538",
-        "file": "IMG_8538.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
-        "role": "detail",
-        "title": "",
-        "photoTime": "",
-        "story": ""
-      },
-      {
-        "id": "IMG_8586",
-        "file": "IMG_8586.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
-        "role": "detail",
-        "title": "",
-        "photoTime": "",
-        "story": ""
-      },
-      {
-        "id": "IMG_8621",
-        "file": "IMG_8621.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
-        "role": "detail",
-        "title": "",
-        "photoTime": "",
-        "story": ""
-      },
       {
         "id": "IMG_8622",
         "file": "IMG_8622.jpeg",
@@ -1805,11 +2511,51 @@
         "story": ""
       },
       {
+        "id": "IMG_8245",
+        "file": "IMG_8245.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8245.jpeg",
+        "role": "supplement",
+        "title": "DYA 1",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "IMG_8538",
+        "file": "IMG_8538.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "IMG_8586",
+        "file": "IMG_8586.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "IMG_8621",
+        "file": "IMG_8621.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
         "id": "IMG_8657",
         "file": "IMG_8657.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
-        "role": "detail",
+        "role": "supplement",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -1819,7 +2565,7 @@
         "file": "IMG_8685.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
-        "role": "detail",
+        "role": "supplement",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -1829,13 +2575,17 @@
         "file": "IMG_8703.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
-        "role": "detail",
+        "role": "supplement",
         "title": "",
         "photoTime": "",
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8632",
@@ -1846,17 +2596,29 @@
       "lat": 34.97606389,
       "lng": 135.76371667
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.9760004846058,
+      "lng": 135.7636979918191
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8632.jpg",
@@ -1872,44 +2634,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
-  },
-  {
-    "id": "IMG_8664",
-    "image": "filebox/records/hookable(affordance)/IMG_8664/IMG_8664.jpeg",
-    "photoTime": "2026-04-28T10:56:51+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.98029444,
-      "lng": 135.76711944
-    },
-    "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "",
-    "blocks": [],
-    "categoryGroup": "affordance",
-    "category": "hookable",
-    "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8664.jpg",
-    "media": [
-      {
-        "id": "IMG_8664",
-        "file": "IMG_8664.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8664/IMG_8664.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8664.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-04-28T10:56:51+09:00",
-        "story": ""
-      }
-    ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8665",
@@ -1925,12 +2654,26 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8664.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg",
@@ -1944,83 +2687,23 @@
         "title": "",
         "photoTime": "2026-04-28T10:57:23+09:00",
         "story": ""
-      }
-    ],
-    "locationLevels": []
-  },
-  {
-    "id": "IMG_8670",
-    "image": "filebox/records/hookable(affordance)/IMG_8670/IMG_8670.jpeg",
-    "photoTime": "2026-04-28T16:42:09+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.97891111,
-      "lng": 135.76400833
-    },
-    "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "",
-    "blocks": [],
-    "categoryGroup": "affordance",
-    "category": "hookable",
-    "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8670.jpg",
-    "media": [
+      },
       {
-        "id": "IMG_8670",
-        "file": "IMG_8670.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8670/IMG_8670.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8670.jpg",
-        "role": "primary",
+        "id": "IMG_8664",
+        "file": "IMG_8664.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8665/IMG_8664.jpeg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8665/IMG_8664.jpeg",
+        "role": "detail",
         "title": "",
-        "photoTime": "2026-04-28T16:42:09+09:00",
+        "photoTime": "",
         "story": ""
       }
     ],
-    "locationLevels": []
-  },
-  {
-    "id": "IMG_8678",
-    "image": "filebox/records/hookable(affordance)/IMG_8678/IMG_8678.jpeg",
-    "photoTime": "2026-05-01T17:15:35+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.98640556,
-      "lng": 135.76367222
-    },
-    "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "",
-    "blocks": [],
-    "categoryGroup": "affordance",
-    "category": "hookable",
-    "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8678.jpg",
-    "media": [
-      {
-        "id": "IMG_8678",
-        "file": "IMG_8678.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8678/IMG_8678.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8678.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-05-01T17:15:35+09:00",
-        "story": ""
-      }
-    ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8697",
@@ -2031,17 +2714,29 @@
       "lat": 34.97586944,
       "lng": 135.76481667
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.97576083869539,
+      "lng": 135.76507535970293
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8697_post.jpg",
@@ -2057,44 +2752,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
-  },
-  {
-    "id": "IMG_8704",
-    "image": "filebox/records/hookable(affordance)/IMG_8704/IMG_8704.jpeg",
-    "photoTime": "2026-05-01T00:53:28+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.97901944,
-      "lng": 135.76420556
-    },
-    "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "",
-    "blocks": [],
-    "categoryGroup": "affordance",
-    "category": "hookable",
-    "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8704.jpg",
-    "media": [
-      {
-        "id": "IMG_8704",
-        "file": "IMG_8704.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8704/IMG_8704.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8704.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-05-01T00:53:28+09:00",
-        "story": ""
-      }
-    ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8729",
@@ -2110,12 +2772,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "other"
+        ],
+        "statusOther": "in umbrella sleeve"
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8729.jpg",
@@ -2131,7 +2802,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Nakagyo Ward"
+    ]
   },
   {
     "id": "IMG_6529",
@@ -2147,12 +2822,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6529.jpg",
@@ -2168,7 +2852,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6617",
@@ -2184,12 +2872,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6617.jpg",
@@ -2205,7 +2902,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6637",
@@ -2216,17 +2917,29 @@
       "lat": 35.63112778,
       "lng": 140.11431944
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63119204542977,
+      "lng": 140.11431007665215
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "patterned",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unknown"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6637.jpg",
@@ -2242,7 +2955,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6761",
@@ -2253,17 +2970,30 @@
       "lat": 35.63018333,
       "lng": 140.11335833
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63014408848991,
+      "lng": 140.11339118706042
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "patterned",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6761.jpg",
@@ -2279,7 +3009,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6079",
@@ -2290,17 +3024,29 @@
       "lat": 35.73305,
       "lng": 139.70704722
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.73307867561078,
+      "lng": 139.70704721999996
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6079.jpg",
@@ -2316,7 +3062,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_6937",
@@ -2332,12 +3081,22 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6937.jpg",
@@ -2353,44 +3112,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
-  },
-  {
-    "id": "IMG_8465",
-    "image": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpeg",
-    "photoTime": "2026-04-10T16:33:32+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 35.01656389,
-      "lng": 135.77246111
-    },
-    "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
-    "story": "",
-    "blocks": [],
-    "categoryGroup": "behavior",
-    "category": "payment",
-    "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465.jpg",
-    "media": [
-      {
-        "id": "IMG_8465",
-        "file": "IMG_8465.jpeg",
-        "src": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-04-10T16:33:32+09:00",
-        "story": ""
-      }
-    ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_8465_post",
@@ -2401,17 +3127,29 @@
       "lat": 35.01656389,
       "lng": 135.77246111
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.01647843432355,
+      "lng": 135.77246952477338
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465_post.jpg",
@@ -2427,7 +3165,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Sakyo Ward"
+    ]
   },
   {
     "id": "IMG_8636",
@@ -2438,17 +3180,27 @@
       "lat": 34.97898889,
       "lng": 135.75959722
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.978968011837644,
+      "lng": 135.75958045619365
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "",
+        "colorDetail": "",
+        "kind": "",
+        "status": [],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "yellow",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8636.jpg",
@@ -2464,7 +3216,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_6225",
@@ -2475,17 +3231,29 @@
       "lat": 35.61304722,
       "lng": 140.11477778
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.61287477576295,
+      "lng": 140.1147909006148
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6225.jpg",
@@ -2501,7 +3269,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6530",
@@ -2512,17 +3284,29 @@
       "lat": 35.63639722,
       "lng": 140.11885
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63638632042985,
+      "lng": 140.11885938773156
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6530.jpg",
@@ -2538,7 +3322,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6643",
@@ -2549,17 +3337,30 @@
       "lat": 35.63643333,
       "lng": 140.11878889
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63641589069489,
+      "lng": 140.11883314644874
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6643.jpg",
@@ -2575,7 +3376,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6667",
@@ -2586,17 +3391,34 @@
       "lat": 35.63410278,
       "lng": 140.12152222
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63417679282526,
+      "lng": 140.1214562769101
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_6780.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6667.jpg",
@@ -2622,7 +3444,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8062",
@@ -2633,17 +3459,29 @@
       "lat": 35.64143056,
       "lng": 140.12938056
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.64141995430269,
+      "lng": 140.1292450378603
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "green",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8062.jpg",
@@ -2659,7 +3497,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_8251",
@@ -2670,17 +3512,29 @@
       "lat": 34.97888056,
       "lng": 135.75561389
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.978866824349296,
+      "lng": 135.7554851439673
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8251.jpg",
@@ -2696,7 +3550,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8508",
@@ -2707,17 +3565,36 @@
       "lat": 34.98399444,
       "lng": 135.76054444
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.98382566670517,
+      "lng": 135.7605576447213
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "2",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "",
+        "colorDetail": "",
+        "kind": "",
+        "status": [],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8508.jpg",
@@ -2733,7 +3610,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   },
   {
     "id": "IMG_8584",
@@ -2744,17 +3625,29 @@
       "lat": 34.98630556,
       "lng": 135.76280278
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.98630459999796,
+      "lng": 135.76300080575223
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "folding",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8584.jpg",
@@ -2770,7 +3663,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Shimogyo Ward"
+    ]
   },
   {
     "id": "IMG_8724",
@@ -2781,17 +3678,34 @@
       "lat": 35.00794167,
       "lng": 135.76924167
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.00798385092484,
+      "lng": 135.7691386731738
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8725.jpeg"
+      }
+    ],
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8724.jpg",
@@ -2817,7 +3731,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Nakagyo Ward"
+    ]
   },
   {
     "id": "IMG_5917",
@@ -2828,17 +3746,30 @@
       "lat": 35.73097222,
       "lng": 139.71018889
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.73095054345378,
+      "lng": 139.71029379417482
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "translucent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "white",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_5917.jpg",
@@ -2854,7 +3785,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "IMG_6651",
@@ -2865,17 +3799,29 @@
       "lat": 35.62285556,
       "lng": 140.10339444
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.62283920787449,
+      "lng": 140.10329452771418
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6651.jpg",
@@ -2891,7 +3837,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "IMG_6720",
@@ -2907,12 +3857,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6720.jpg",
@@ -2928,7 +3887,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_6753",
@@ -2944,12 +3907,21 @@
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6753.jpg",
@@ -2965,7 +3937,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Inage Ward"
+    ]
   },
   {
     "id": "IMG_8066",
@@ -2976,17 +3952,30 @@
       "lat": 35.63588056,
       "lng": 140.14918611
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.63601273236598,
+      "lng": 140.14907588532634
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
-    "umbrellaStatusOther": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "folding",
+        "status": [
+          "unfastened",
+          "worn"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_8066.jpg",
@@ -3002,7 +3991,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Wakaba Ward"
+    ]
   },
   {
     "id": "IMG_8208",
@@ -3013,19 +4006,38 @@
       "lat": 34.99006944,
       "lng": 135.73240556
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.99005224459528,
+      "lng": 135.73251950117594
+    },
     "locationText": "",
     "title": "",
-    "umbrellaType": "long umbrellas",
+    "umbrellaType": "",
     "umbrellaColor": "transparent",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [
-      "unfastened, fastened"
+    "umbrellaCount": "2",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
     ],
-    "umbrellaStatusOther": "",
     "story": "",
     "blocks": [],
+    "editFlag": "",
     "categoryGroup": "place",
     "category": "transit",
     "thumb": "filebox/thumbs/filebox__choice__transit(place)__IMG_8208.jpg",
@@ -3041,6 +4053,10 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Shimogyo Ward"
+    ]
   }
 ]

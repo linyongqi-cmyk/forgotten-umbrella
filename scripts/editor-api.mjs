@@ -29,7 +29,7 @@ const TEXT_FIELDS = ["locationText", "time", "title", "umbrellaType", "story"];
 
 const COUNT_VALUES = new Set(["1", "2", "3", "4", "5", "unknown", ""]);
 const COLOR_VALUES = new Set(["transparent", "translucent", "colored", "patterned", "other", "unknown", ""]);
-const KIND_VALUES = new Set(["folding", "long umbrella", ""]);
+const KIND_VALUES = new Set(["folding", "long umbrella", "unknown", ""]);
 const STATUS_VALUES = new Set(["fastened", "unfastened", "broken", "worn", "deteriorated", "unknown", "other"]);
 
 function sanitizeCount(value) {
@@ -45,6 +45,8 @@ function sanitizeUnits(value) {
     color: COLOR_VALUES.has(unit?.color) ? unit.color : "",
     colorDetail: typeof unit?.colorDetail === "string" ? unit.colorDetail : "",
     kind: KIND_VALUES.has(unit?.kind) ? unit.kind : "",
+    status: sanitizeStatus(unit?.status),
+    statusOther: typeof unit?.statusOther === "string" ? unit.statusOther : "",
   }));
 }
 
@@ -167,14 +169,11 @@ export async function saveRecord(payload) {
   if (Object.prototype.hasOwnProperty.call(payload, "umbrellaUnits")) {
     record.umbrellaUnits = sanitizeUnits(payload.umbrellaUnits);
   }
-  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaStatus")) {
-    record.umbrellaStatus = sanitizeStatus(payload.umbrellaStatus);
-  }
-  if (Object.prototype.hasOwnProperty.call(payload, "umbrellaStatusOther")) {
-    record.umbrellaStatusOther = String(payload.umbrellaStatusOther ?? "");
-  }
   if (Object.prototype.hasOwnProperty.call(payload, "blocks")) {
     record.blocks = sanitizeBlocks(payload.blocks);
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "editFlag")) {
+    record.editFlag = ["yellow", "black", "white"].includes(payload.editFlag) ? payload.editFlag : "";
   }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
@@ -229,6 +228,15 @@ function sanitizeFilename(name) {
     throw new ApiError(400, "Invalid filename.");
   }
   return base;
+}
+
+// A category is the whole folder name, e.g. "hookable(affordance)" or "unknown".
+function sanitizeCategory(name) {
+  const raw = String(name || "unknown").trim();
+  if (!/^[A-Za-z0-9 _()-]+$/.test(raw) || raw.includes("..")) {
+    return "unknown";
+  }
+  return raw;
 }
 
 function decodeImageData(dataBase64) {
@@ -305,7 +313,8 @@ async function nextSourceIndex() {
 export async function createRecord(payload) {
   const filename = sanitizeFilename(payload.filename);
   const id = path.parse(filename).name;
-  const recordDir = path.join(recordsRoot, "unknown", id);
+  const category = sanitizeCategory(payload.category);
+  const recordDir = path.join(recordsRoot, category, id);
   const recordPath = path.join(recordDir, "record.json");
   if (!path.resolve(recordDir).startsWith(recordsRoot)) {
     throw new ApiError(400, "Resolved path escaped the records folder.");
@@ -365,6 +374,31 @@ async function pathExists(target) {
   }
 }
 
+// Move a record into a different category folder (keeps the same id).
+export async function moveRecord(payload) {
+  const id = typeof payload?.id === "string" ? payload.id.trim() : "";
+  const recordPath = id ? await findRecordPathById(id) : null;
+  if (!recordPath) {
+    throw new ApiError(404, `No record found for id "${id}".`);
+  }
+  const category = sanitizeCategory(payload.category);
+  const currentDir = path.resolve(path.dirname(recordPath));
+  const targetDir = path.resolve(path.join(recordsRoot, category, id));
+  if (!targetDir.startsWith(recordsRoot)) {
+    throw new ApiError(400, "Resolved path escaped the records folder.");
+  }
+  if (targetDir === currentDir) {
+    return { ok: true, id, category };
+  }
+  if (await pathExists(targetDir)) {
+    throw new ApiError(409, `分类 "${category}" 下已存在同名记录 "${id}"。`);
+  }
+  await fs.mkdir(path.dirname(targetDir), { recursive: true });
+  await fs.rename(currentDir, targetDir);
+  await rebuildDatabase();
+  return { ok: true, id, category };
+}
+
 // Single entry point used by server.js. Returns a plain JSON-serializable object.
 export async function handleEditorApi(pathname, payload) {
   switch (pathname) {
@@ -378,6 +412,8 @@ export async function handleEditorApi(pathname, payload) {
       return createRecord(payload);
     case "/api/delete-record":
       return deleteRecord(payload);
+    case "/api/move-record":
+      return moveRecord(payload);
     default:
       throw new ApiError(404, `Unknown editor endpoint: ${pathname}`);
   }

@@ -23,12 +23,10 @@
   "umbrellaColor": "",
   // 伞的数量。可填 "1"~"5" 或 "unknown"，空白表示未填。
   "umbrellaCount": "",
-  // 每把伞的颜色与种类列表。{ color, colorDetail, kind }。
+  // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
-  // 伞的状态。多选数组，例如 ["broken","worn"]。
-  "umbrellaStatus": [],
-  // 当状态包含 other 时的自定义文字。
-  "umbrellaStatusOther": "",
+  // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
+  "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
   "story": "",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
