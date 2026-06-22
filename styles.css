@@ -1936,3 +1936,137 @@ body:not(.edit-mode) .editor-add {
   font-size: 12px;
   opacity: 0.7;
 }
+
+/* Detail panel: cover + text scroll together as one, with no visible scrollbar */
+.focus-image-panel {
+  scrollbar-width: none;
+}
+
+.focus-image-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.focus-image-panel figcaption {
+  overflow-y: visible;
+  max-height: none;
+}
+
+/* Tidy the status checkboxes into a clean two-column grid */
+.editor-status-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.editor-status-item span {
+  line-height: 1.25;
+}
+
+/* Unified content flow (photos + paragraphs) */
+.editor-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editor-flow-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.editor-flow-actions .editor-upload,
+.editor-flow-actions .editor-add-para {
+  margin-top: 0;
+}
+
+.editor-block.editor-block-photo > img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.editor-flow-role {
+  padding: 4px 6px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  background: #fff;
+}
+
+/* Live detail preview on the left while editing */
+.editor-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: min(360px, 92vw);
+  box-sizing: border-box;
+  padding: 16px;
+  background: #f4f3ed;
+  border-right: 1px solid rgba(31, 45, 45, 0.18);
+  box-shadow: 10px 0 30px rgba(31, 45, 45, 0.18);
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  z-index: 1290;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.editor-preview.is-open {
+  transform: translateX(0);
+}
+
+.editor-preview::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-preview-cover img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.editor-preview .focus-caption-inner {
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.editor-preview h3.focus-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.editor-preview .focus-info-heading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  margin: 4px 0 0;
+}
+
+.editor-preview .item-detail,
+.editor-preview .item-story {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1f2d2d;
+  margin: 0;
+}
+
+.editor-preview .focus-photo {
+  margin: 8px 0 0;
+}
+
+.editor-preview .focus-photo img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}

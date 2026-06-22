@@ -171,7 +171,7 @@ function normalizeUmbrellaData(items) {
       const umbrellaColor = item.umbrellaColor || "";
       const categoryType = formatCategoryType(item);
       const locationLevels = normalizeLocationLevels(item.locationLevels);
-      const locationText = item.locationText || formatLocationLevels(locationLevels) || "unknown";
+      const locationText = item.locationText || formatLocationLevels(locationLevels);
       const umbrellaCount = item.umbrellaCount || "";
       const umbrellaUnits = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
       const umbrellaStatus = Array.isArray(item.umbrellaStatus)
@@ -1341,6 +1341,10 @@ function buildObjectText(count, units) {
     return "";
   }
   const words = list.map(describeUnit);
+  // No colour/kind picked anywhere → don't show an object line at all.
+  if (words.every((word) => !word)) {
+    return "";
+  }
   const allSame = words.every((word) => word === words[0]);
   if (allSame) {
     const num = COUNT_WORDS[Number(count)] || "";
@@ -1890,7 +1894,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=51", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=53", { updateViaCache: "none" });
   }
 }
 
@@ -1966,18 +1970,31 @@ function setupEditor() {
   idRow.appendChild(editor.idEl);
   body.appendChild(idRow);
 
-  // 2 title, 3 time, 4 location.
+  // 2 title (kept before the address), 3 time.
   addField("title", "标题 Title");
   addField("time", "拍摄时间(覆盖) Time");
+
+  // 4. Coordinates — placed right before the display address.
+  const coordRow = document.createElement("div");
+  coordRow.className = "editor-row";
+  coordRow.innerHTML = `
+    <span>坐标 Coordinates（在地图上拖动标记可调整）</span>
+    <div class="editor-coord"><code class="editor-coord-readout">—</code>
+      <button type="button" class="editor-coord-reset">恢复用照片坐标</button>
+    </div>`;
+  body.appendChild(coordRow);
+  editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
+
+  // 5. Display address (manual; falls back to the levels below when blank).
   addField("locationText", "显示地址 Location");
 
-  // 5. Location levels — cascading dropdowns built from data/japan-areas.json.
+  // 6. Location levels — cascading dropdowns built from data/japan-areas.json.
   // Level 1 (japan/other/unknown) is not shown publicly; japan reveals the
   // prefecture → city → ward selects (each filterable by typing a keyword).
   const levelsRow = document.createElement("div");
   levelsRow.className = "editor-row editor-levels-row";
   levelsRow.innerHTML = `
-    <span>地址 Location（japan 默认不展示）</span>
+    <span>地址层级 Address levels（japan 默认不展示）</span>
     <select class="lvl1">
       <option value="japan">日本 Japan</option>
       <option value="other">其他 Other（手填）</option>
@@ -2012,9 +2029,9 @@ function setupEditor() {
   countRow.className = "editor-row";
   countRow.innerHTML = `<span>伞的数量 Count</span>`;
   editor.count = document.createElement("select");
-  editor.count.innerHTML =
-    `<option value="">（未填）</option>` +
-    UMBRELLA_COUNT_OPTIONS.map((value) => `<option value="${value}">${value}</option>`).join("");
+  editor.count.innerHTML = UMBRELLA_COUNT_OPTIONS.map(
+    (value) => `<option value="${value}">${value}</option>`,
+  ).join("");
   editor.count.addEventListener("change", () => {
     syncUnitsToCount();
     renderEditorUnits();
@@ -2046,45 +2063,25 @@ function setupEditor() {
   editor.statusWrap.addEventListener("change", onStatusChange);
   body.appendChild(statusRow);
 
-  // 10. Content flow — ordered paragraphs interleaved with the non-primary
-  // photos. This is what the detail page renders top to bottom.
+  // 10. Content — ONE combined list of photos (cover + others) and text
+  // paragraphs, all reorderable together. The detail page renders the
+  // non-cover items in this order.
   const contentRow = document.createElement("div");
   contentRow.className = "editor-row";
   contentRow.innerHTML = `
-    <span>正文编排 Content（段落与照片可一起排序，主图只当封面）</span>
-    <div class="editor-blocks"></div>
-    <button type="button" class="editor-add-para">＋ 加段落</button>`;
-  body.appendChild(contentRow);
-  editor.blocksList = contentRow.querySelector(".editor-blocks");
-  contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
-    editor.blocksDraft.push({ type: "text", text: "" });
-    renderContentFlow();
-  });
-
-  // Coordinate readout + reset.
-  const coordRow = document.createElement("div");
-  coordRow.className = "editor-row";
-  coordRow.innerHTML = `
-    <span>坐标 Coordinates（在地图上拖动标记可调整）</span>
-    <div class="editor-coord"><code class="editor-coord-readout">—</code>
-      <button type="button" class="editor-coord-reset">恢复用照片坐标</button>
+    <span>内容 Content（图片与段落一起排序，★ 设为封面）</span>
+    <div class="editor-flow"></div>
+    <div class="editor-flow-actions">
+      <button type="button" class="editor-add-para">＋ 加段落</button>
+      <label class="editor-upload"><span>＋ 上传图片</span><input type="file" accept="image/*" multiple hidden /></label>
     </div>`;
-  body.appendChild(coordRow);
-  editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
-
-  // Image management section.
-  const mediaRow = document.createElement("div");
-  mediaRow.className = "editor-row";
-  mediaRow.innerHTML = `
-    <span>图片 Images（拖按钮排序，可设主图）</span>
-    <div class="editor-media-list"></div>
-    <label class="editor-upload">
-      <span>＋ 上传图片</span>
-      <input type="file" accept="image/*" multiple hidden />
-    </label>`;
-  body.appendChild(mediaRow);
-  editor.mediaList = mediaRow.querySelector(".editor-media-list");
-  mediaRow.querySelector(".editor-upload input").addEventListener("change", onUploadImages);
+  body.appendChild(contentRow);
+  editor.flowList = contentRow.querySelector(".editor-flow");
+  contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
+    editor.flow.push({ kind: "text", text: "" });
+    renderFlow();
+  });
+  contentRow.querySelector(".editor-upload input").addEventListener("change", onUploadImages);
 
   // Danger zone: delete the whole record.
   const dangerRow = document.createElement("div");
@@ -2118,6 +2115,28 @@ function setupEditor() {
   addInput.addEventListener("change", onCreateRecord);
   document.body.appendChild(addInput);
   editor.addInput = addInput;
+
+  // Live detail-page preview shown on the left while editing.
+  const preview = document.createElement("aside");
+  preview.className = "editor-preview";
+  preview.setAttribute("aria-label", "detail preview");
+  preview.innerHTML = `<div class="editor-preview-inner"></div>`;
+  document.body.appendChild(preview);
+  editor.preview = preview;
+  editor.previewInner = preview.querySelector(".editor-preview-inner");
+}
+
+// Render the (last saved) detail page of the record being edited, as a
+// reference preview on the left.
+function renderEditorPreview(id) {
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  if (!item || !editor.previewInner) {
+    return;
+  }
+  const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
+  editor.previewInner.innerHTML = `
+    <div class="editor-preview-cover"><img src="${escapeHtml(cover?.src || item.image)}" alt="" /></div>
+    ${renderFocusArticle(item)}`;
 }
 
 const MEDIA_ROLE_LABELS = {
@@ -2135,191 +2154,157 @@ function readFileAsDataUrl(file) {
   });
 }
 
-function renderEditorMedia() {
-  if (!editor.mediaList) {
-    return;
-  }
-  const items = editor.mediaDraft || [];
-  editor.mediaList.innerHTML = "";
-  items.forEach((media, index) => {
-    const isPrimary = media.role === "primary";
-    const row = document.createElement("div");
-    row.className = "editor-media-item";
+// ---- Unified content flow: photos (cover + others) + text paragraphs --------
 
-    const roleControl = isPrimary
-      ? `<span class="editor-media-badge">主图</span>`
-      : `<select class="editor-media-role">
-          ${Object.entries(MEDIA_ROLE_LABELS)
-            .map(([value, label]) => `<option value="${value}" ${media.role === value ? "selected" : ""}>${label}</option>`)
-            .join("")}
-        </select>`;
-
-    // Field visibility by role: supplement → id+title+time, detail → id+title,
-    // illustration → title only, primary → id only.
-    const showId = isPrimary || media.role === "supplement" || media.role === "detail";
-    const showTitle = !isPrimary;
-    const showTime = media.role === "supplement";
-
-    row.innerHTML = `
-      <img src="${escapeHtml(media.thumb || media.src || "")}" alt="" loading="lazy" />
-      <div class="editor-media-controls">
-        <div class="editor-media-top">
-          ${roleControl}
-          <div class="editor-media-buttons">
-            ${isPrimary ? "" : `<button type="button" data-act="primary" title="设为主图">★</button>`}
-            <button type="button" data-act="up" title="上移" ${index === 0 ? "disabled" : ""}>↑</button>
-            <button type="button" data-act="down" title="下移" ${index === items.length - 1 ? "disabled" : ""}>↓</button>
-            <button type="button" data-act="delete" title="删除图片">✕</button>
-          </div>
-        </div>
-        ${showId ? `<label class="editor-media-field">ID<input data-field="id" value="${escapeHtml(media.id || "")}" readonly /></label>` : ""}
-        ${showTitle ? `<label class="editor-media-field">标题<input data-field="title" value="${escapeHtml(media.title || "")}" placeholder="默认则空白" /></label>` : ""}
-        ${showTime ? `<label class="editor-media-field">时间<input data-field="photoTime" value="${escapeHtml(media.photoTime || "")}" placeholder="默认用照片时间" /></label>` : ""}
-      </div>`;
-
-    row.querySelector(".editor-media-role")?.addEventListener("change", (event) => {
-      media.role = event.target.value;
-      renderEditorMedia();
-    });
-    row.querySelectorAll("[data-field]").forEach((input) => {
-      input.addEventListener("input", () => {
-        media[input.dataset.field] = input.value;
-      });
-    });
-    row.querySelectorAll("[data-act]").forEach((button) => {
-      button.addEventListener("click", () => onMediaAction(button.dataset.act, index));
-    });
-
-    editor.mediaList.appendChild(row);
-  });
+function photoItem(media) {
+  return {
+    kind: "photo",
+    file: media.file || (media.src || "").split("/").pop() || "",
+    id: media.id || "",
+    role: media.role || "detail",
+    title: media.title || "",
+    photoTime: media.photoTime || "",
+    thumb: media.thumb || media.src || "",
+    src: media.src || "",
+  };
 }
 
-function onMediaAction(action, index) {
-  const items = editor.mediaDraft || [];
-  const media = items[index];
-  if (!media) {
-    return;
+// Build the single ordered flow from a record's media + blocks: cover photo
+// first, then the saved block order (text + non-cover photos), then any photos
+// not yet placed.
+function buildFlow(raw) {
+  const media = Array.isArray(raw.media) ? raw.media : [];
+  const mediaByFile = {};
+  media.forEach((m) => {
+    mediaByFile[m.file] = m;
+  });
+  const flow = [];
+  const used = new Set();
+  const primary = media.find((m) => m.role === "primary");
+  if (primary) {
+    flow.push(photoItem(primary));
+    used.add(primary.file);
   }
-  if (action === "up" && index > 0) {
-    items.splice(index - 1, 0, items.splice(index, 1)[0]);
-    renderEditorMedia();
-  } else if (action === "down" && index < items.length - 1) {
-    items.splice(index + 1, 0, items.splice(index, 1)[0]);
-    renderEditorMedia();
-  } else if (action === "primary") {
-    items.forEach((entry) => {
-      if (entry.role === "primary") {
-        entry.role = "detail";
+  const blocks = Array.isArray(raw.blocks) ? raw.blocks : [];
+  if (blocks.length) {
+    blocks.forEach((b) => {
+      if (b.type === "text") {
+        flow.push({ kind: "text", text: b.text || "" });
+      } else if (b.type === "photo" && mediaByFile[b.file] && !used.has(b.file)) {
+        flow.push(photoItem(mediaByFile[b.file]));
+        used.add(b.file);
       }
     });
-    media.role = "primary";
-    renderEditorMedia();
-    reconcileBlocks();
-    renderContentFlow();
-  } else if (action === "delete") {
-    deleteMediaFile(media.file);
+  } else if (raw.story && raw.story.trim()) {
+    raw.story
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((text) => flow.push({ kind: "text", text }));
   }
-}
-
-// ---- Detail-page content flow (paragraphs + non-primary photos) ------------
-
-// Make the blocks draft consistent with the current non-primary photos:
-// drop photo blocks for images that are gone/now-primary, append new ones.
-function reconcileBlocks() {
-  const nonPrimary = (editor.mediaDraft || []).filter((m) => m.role !== "primary").map((m) => m.file);
-  const npSet = new Set(nonPrimary);
-  editor.blocksDraft = (editor.blocksDraft || []).filter((b) => b.type !== "photo" || npSet.has(b.file));
-  const present = new Set(editor.blocksDraft.filter((b) => b.type === "photo").map((b) => b.file));
-  nonPrimary.forEach((file) => {
-    if (!present.has(file)) {
-      editor.blocksDraft.push({ type: "photo", file });
+  media.forEach((m) => {
+    if (!used.has(m.file)) {
+      flow.push(photoItem(m));
+      used.add(m.file);
     }
   });
+  editor.flow = flow;
 }
 
-function buildBlocksDraft(raw) {
-  const stored = Array.isArray(raw.blocks) ? raw.blocks : [];
-  if (stored.length) {
-    editor.blocksDraft = stored.map((b) =>
-      b.type === "text" ? { type: "text", text: b.text || "" } : { type: "photo", file: b.file },
-    );
-  } else {
-    editor.blocksDraft = [];
-    if (raw.story && raw.story.trim()) {
-      raw.story
-        .split(/\n+/)
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .forEach((text) => editor.blocksDraft.push({ type: "text", text }));
-    }
-  }
-  reconcileBlocks();
-}
-
-function renderContentFlow() {
-  const wrap = editor.blocksList;
+function renderFlow() {
+  const wrap = editor.flowList;
   if (!wrap) {
     return;
   }
-  const blocks = editor.blocksDraft || [];
-  const mediaByFile = {};
-  (editor.mediaDraft || []).forEach((m) => {
-    mediaByFile[m.file] = m;
-  });
+  const flow = editor.flow || [];
   wrap.innerHTML = "";
-  if (!blocks.length) {
-    wrap.innerHTML = `<p class="editor-hint">还没有正文。点「＋ 加段落」或上传图片。</p>`;
+  if (!flow.length) {
+    wrap.innerHTML = `<p class="editor-hint">还没有内容。点「＋ 上传图片」或「＋ 加段落」。</p>`;
     return;
   }
-  blocks.forEach((block, index) => {
+  flow.forEach((item, index) => {
     const row = document.createElement("div");
-    row.className = `editor-block editor-block-${block.type}`;
-    const buttons = `<div class="editor-block-buttons">
-        <button type="button" data-bact="up" ${index === 0 ? "disabled" : ""}>↑</button>
-        <button type="button" data-bact="down" ${index === blocks.length - 1 ? "disabled" : ""}>↓</button>
-        ${block.type === "text" ? `<button type="button" data-bact="delete" title="删除段落">✕</button>` : ""}
-      </div>`;
-    if (block.type === "text") {
-      row.innerHTML = `<textarea class="editor-block-text" rows="2" placeholder="段落文字">${escapeHtml(block.text || "")}</textarea>${buttons}`;
+    row.className = `editor-block editor-block-${item.kind}`;
+    const moveButtons = `
+      <button type="button" data-fact="up" title="上移" ${index === 0 ? "disabled" : ""}>↑</button>
+      <button type="button" data-fact="down" title="下移" ${index === flow.length - 1 ? "disabled" : ""}>↓</button>`;
+
+    if (item.kind === "text") {
+      row.innerHTML = `<textarea class="editor-block-text" rows="2" placeholder="段落文字">${escapeHtml(item.text || "")}</textarea>
+        <div class="editor-block-buttons">${moveButtons}<button type="button" data-fact="del-text" title="删除段落">✕</button></div>`;
       row.querySelector(".editor-block-text").addEventListener("input", (event) => {
-        block.text = event.target.value;
+        item.text = event.target.value;
       });
     } else {
-      const media = mediaByFile[block.file];
-      row.innerHTML = `<div class="editor-block-photo"><img src="${escapeHtml(media?.thumb || media?.src || "")}" alt="" /><span>${escapeHtml(block.file)}</span></div>${buttons}`;
+      const isPrimary = item.role === "primary";
+      const showTitle = !isPrimary;
+      const showTime = item.role === "supplement";
+      const roleControl = isPrimary
+        ? `<span class="editor-media-badge">封面</span>`
+        : `<select class="editor-flow-role">
+            ${Object.entries(MEDIA_ROLE_LABELS)
+              .map(([value, label]) => `<option value="${value}" ${item.role === value ? "selected" : ""}>${label}</option>`)
+              .join("")}
+          </select>`;
+      row.innerHTML = `
+        <img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />
+        <div class="editor-media-controls">
+          <div class="editor-media-top">
+            ${roleControl}
+            <div class="editor-block-buttons">
+              ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
+              ${moveButtons}
+              <button type="button" data-fact="del-photo" title="删除图片">✕</button>
+            </div>
+          </div>
+          ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
+          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.photoTime || "")}" placeholder="默认用照片时间" /></label>` : ""}
+        </div>`;
+      row.querySelector(".editor-flow-role")?.addEventListener("change", (event) => {
+        item.role = event.target.value;
+        renderFlow();
+      });
+      row.querySelector(".editor-flow-title")?.addEventListener("input", (event) => {
+        item.title = event.target.value;
+      });
+      row.querySelector(".editor-flow-time")?.addEventListener("input", (event) => {
+        item.photoTime = event.target.value;
+      });
     }
-    row.querySelectorAll("[data-bact]").forEach((btn) => {
-      btn.addEventListener("click", () => onBlockAction(btn.dataset.bact, index));
+
+    row.querySelectorAll("[data-fact]").forEach((btn) => {
+      btn.addEventListener("click", () => onFlowAction(btn.dataset.fact, index));
     });
     wrap.appendChild(row);
   });
 }
 
-function onBlockAction(action, index) {
-  const blocks = editor.blocksDraft || [];
-  if (action === "up" && index > 0) {
-    blocks.splice(index - 1, 0, blocks.splice(index, 1)[0]);
-    renderContentFlow();
-  } else if (action === "down" && index < blocks.length - 1) {
-    blocks.splice(index + 1, 0, blocks.splice(index, 1)[0]);
-    renderContentFlow();
-  } else if (action === "delete") {
-    blocks.splice(index, 1);
-    renderContentFlow();
+function onFlowAction(action, index) {
+  const flow = editor.flow || [];
+  const item = flow[index];
+  if (!item) {
+    return;
   }
-}
-
-function collectBlocksForSave() {
-  return (editor.blocksDraft || [])
-    .map((b) => (b.type === "text" ? { type: "text", text: b.text || "" } : { type: "photo", file: b.file }))
-    .filter((b) => b.type !== "text" || b.text.trim());
-}
-
-function storyFromBlocks() {
-  return (editor.blocksDraft || [])
-    .filter((b) => b.type === "text" && b.text.trim())
-    .map((b) => b.text.trim())
-    .join("\n");
+  if (action === "up" && index > 0) {
+    flow.splice(index - 1, 0, flow.splice(index, 1)[0]);
+    renderFlow();
+  } else if (action === "down" && index < flow.length - 1) {
+    flow.splice(index + 1, 0, flow.splice(index, 1)[0]);
+    renderFlow();
+  } else if (action === "del-text") {
+    flow.splice(index, 1);
+    renderFlow();
+  } else if (action === "primary") {
+    flow.forEach((entry) => {
+      if (entry.kind === "photo" && entry.role === "primary") {
+        entry.role = "detail";
+      }
+    });
+    item.role = "primary";
+    renderFlow();
+  } else if (action === "del-photo") {
+    deleteMediaFile(item.file);
+  }
 }
 
 // Make the units draft length match the chosen count (1-5). Blank/"unknown"
@@ -2438,7 +2423,12 @@ async function loadAreas() {
   try {
     const response = await fetch("data/japan-areas.json", { cache: "force-cache" });
     const data = await response.json();
-    editor.areas = Array.isArray(data.prefectures) ? data.prefectures : [];
+    const all = Array.isArray(data.prefectures) ? data.prefectures : [];
+    // Float the most-used prefectures to the top, keep the rest in order.
+    const priorityNames = ["Kyoto Fu", "Tokyo To", "Chiba Ken", "Osaka Fu"];
+    const priority = priorityNames.map((en) => all.find((p) => p.en === en)).filter(Boolean);
+    const rest = all.filter((p) => !priorityNames.includes(p.en));
+    editor.areas = [...priority, ...rest];
     editor.prefByLabel = {};
     editor.areas.forEach((pref) => {
       editor.prefByLabel[levelLabel(pref)] = pref;
@@ -2468,12 +2458,8 @@ function onLevel1Change() {
   editor.lvl4.hidden = !(city && city.wards.length);
 }
 
-function onLevel2Change() {
-  const pref = editor.prefByLabel?.[editor.lvl2.value];
-  editor.lvl3.value = "";
-  editor.lvl4.value = "";
+function populateCities(pref) {
   editor.cityByLabel = {};
-  editor.wardByLabel = {};
   if (pref) {
     pref.cities.forEach((city) => {
       editor.cityByLabel[levelLabel(city)] = city;
@@ -2484,13 +2470,9 @@ function onLevel2Change() {
     editor.dl3.innerHTML = "";
     editor.lvl3.hidden = true;
   }
-  editor.dl4.innerHTML = "";
-  editor.lvl4.hidden = true;
 }
 
-function onLevel3Change() {
-  const city = editor.cityByLabel?.[editor.lvl3.value];
-  editor.lvl4.value = "";
+function populateWards(city) {
   editor.wardByLabel = {};
   if (city && city.wards.length) {
     city.wards.forEach((ward) => {
@@ -2501,6 +2483,34 @@ function onLevel3Change() {
   } else {
     editor.dl4.innerHTML = "";
     editor.lvl4.hidden = true;
+  }
+}
+
+// Picking a prefecture auto-selects the first city (and its first ward).
+function onLevel2Change() {
+  const pref = editor.prefByLabel?.[editor.lvl2.value];
+  editor.lvl3.value = "";
+  editor.lvl4.value = "";
+  populateCities(pref);
+  if (pref && pref.cities.length) {
+    const firstCity = pref.cities[0];
+    editor.lvl3.value = levelLabel(firstCity);
+    populateWards(firstCity);
+    if (firstCity.wards.length) {
+      editor.lvl4.value = levelLabel(firstCity.wards[0]);
+    }
+  } else {
+    populateWards(null);
+  }
+}
+
+// Picking a city auto-selects its first ward.
+function onLevel3Change() {
+  const city = editor.cityByLabel?.[editor.lvl3.value];
+  editor.lvl4.value = "";
+  populateWards(city);
+  if (city && city.wards.length) {
+    editor.lvl4.value = levelLabel(city.wards[0]);
   }
 }
 
@@ -2572,6 +2582,14 @@ function toggleEditMode() {
     closeEditor();
   }
   render();
+  // Entering edit mode while a point is open jumps straight into editing it.
+  if (state.editMode) {
+    const openId = state.selectedId || state.focusMarkerId;
+    if (openId) {
+      closeFocusMode();
+      openEditor(openId);
+    }
+  }
 }
 
 function getRawById(id) {
@@ -2595,13 +2613,13 @@ function openEditor(id) {
   // Smart-default placeholders (what the public site falls back to when blank).
   editor.fields.title.placeholder = "默认则空白";
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
-  editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "unknown";
+  editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "默认用下面的地址层级";
   editor.fields.umbrellaType.placeholder = raw.category || "unknown";
 
   hydrateLevels(raw);
 
-  // Count + per-umbrella color/kind units.
-  editor.count.value = raw.umbrellaCount || "";
+  // Count + per-umbrella color/kind units (default 1 when not yet set).
+  editor.count.value = raw.umbrellaCount || "1";
   editor.unitsDraft = (Array.isArray(raw.umbrellaUnits) ? raw.umbrellaUnits : []).map((unit) => ({
     color: unit.color || "",
     colorDetail: unit.colorDetail || "",
@@ -2617,26 +2635,18 @@ function openEditor(id) {
   });
   editor.statusOther.value = raw.umbrellaStatusOther || "";
   syncStatusUI();
-  // Working copy of the media list (order + roles + per-photo text).
-  editor.mediaDraft = (Array.isArray(raw.media) ? raw.media : []).map((media) => ({
-    file: media.file || (media.src || "").split("/").pop() || "",
-    id: media.id || "",
-    role: media.role || "detail",
-    title: media.title || "",
-    photoTime: media.photoTime || "",
-    thumb: media.thumb || media.src || "",
-    src: media.src || "",
-  }));
-  renderEditorMedia();
-  buildBlocksDraft(raw);
-  renderContentFlow();
+  buildFlow(raw);
+  renderFlow();
   updateCoordReadout(raw);
+  renderEditorPreview(id);
+  editor.preview?.classList.add("is-open");
   editor.root.classList.add("is-open");
 }
 
 function closeEditor() {
   state.editingId = null;
   editor.root?.classList.remove("is-open");
+  editor.preview?.classList.remove("is-open");
 }
 
 function updateCoordReadout(raw) {
@@ -2672,15 +2682,22 @@ async function saveEditor() {
   payload.umbrellaUnits = collectUnitsForSave();
   payload.umbrellaStatus = collectStatusForSave();
   payload.umbrellaStatusOther = editor.statusOther.value;
-  payload.blocks = collectBlocksForSave();
-  payload.story = storyFromBlocks();
-  payload.media = (editor.mediaDraft || []).map((media) => ({
-    file: media.file,
-    id: media.id,
-    role: media.role,
-    title: media.title,
-    photoTime: media.photoTime,
+  const photos = (editor.flow || []).filter((i) => i.kind === "photo");
+  payload.media = photos.map((p) => ({
+    file: p.file,
+    id: p.id,
+    role: p.role,
+    title: p.title,
+    photoTime: p.photoTime,
   }));
+  payload.blocks = (editor.flow || [])
+    .filter((i) => i.kind === "text" || (i.kind === "photo" && i.role !== "primary"))
+    .map((i) => (i.kind === "text" ? { type: "text", text: i.text || "" } : { type: "photo", file: i.file }))
+    .filter((b) => b.type !== "text" || b.text.trim());
+  payload.story = (editor.flow || [])
+    .filter((i) => i.kind === "text" && i.text.trim())
+    .map((i) => i.text.trim())
+    .join("\n");
 
   const saveButton = editor.root.querySelector(".editor-save");
   saveButton.disabled = true;

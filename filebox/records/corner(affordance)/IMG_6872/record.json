@@ -4,11 +4,9 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 1,
   // 手动填写的展示地址。
-  "locationText": "Chiba, Wakaba Ward",
+  "locationText": "",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [
-    "Chiba, Wakaba Ward"
-  ],
+  "locationLevels": [],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": {
     "lat": 35.63738889,
@@ -27,9 +25,15 @@
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
   "umbrellaColor": "",
   // 伞的数量。可填 "1"~"5" 或 "unknown"，空白表示未填。
-  "umbrellaCount": "",
+  "umbrellaCount": "1",
   // 每把伞的颜色与种类列表。{ color, colorDetail, kind }。
-  "umbrellaUnits": [],
+  "umbrellaUnits": [
+    {
+      "color": "",
+      "colorDetail": "",
+      "kind": ""
+    }
+  ],
   // 伞的状态。多选数组，例如 ["broken","worn"]。
   "umbrellaStatus": [],
   // 当状态包含 other 时的自定义文字。

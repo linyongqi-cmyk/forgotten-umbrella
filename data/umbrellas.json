@@ -9,7 +9,7 @@
       "lng": 139.70294167
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Shibuya",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -34,10 +34,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Shibuya"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6872",
@@ -49,12 +46,18 @@
       "lng": 140.13203333
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "",
+        "colorDetail": "",
+        "kind": ""
+      }
+    ],
     "umbrellaStatus": [],
     "umbrellaStatusOther": "",
     "story": "",
@@ -84,9 +87,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba, Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8302",
@@ -98,7 +99,7 @@
       "lng": 135.76373333
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -123,10 +124,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8740",
@@ -172,7 +170,7 @@
       "lng": 140.11685278
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -197,10 +195,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6660",
@@ -212,7 +207,7 @@
       "lng": 140.11965833
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -247,10 +242,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6859",
@@ -262,7 +254,7 @@
       "lng": 140.12597778
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -287,10 +279,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6895",
@@ -302,7 +291,7 @@
       "lng": 140.12928889
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -337,10 +326,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6931",
@@ -352,7 +338,7 @@
       "lng": 140.10359167
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -377,10 +363,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_7171",
@@ -392,7 +375,7 @@
       "lng": 140.12312222
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -417,10 +400,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8056",
@@ -432,7 +412,7 @@
       "lng": 140.12127778
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -457,10 +437,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8317",
@@ -472,7 +449,7 @@
       "lng": 135.76521389
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -497,10 +474,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8476",
@@ -512,7 +486,7 @@
       "lng": 135.76719722
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Nakagyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -537,10 +511,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Nakagyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8591",
@@ -552,7 +523,7 @@
       "lng": 135.76413056
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -577,10 +548,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6260",
@@ -592,7 +560,7 @@
       "lng": 140.11793611
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -617,10 +585,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6383",
@@ -632,7 +597,7 @@
       "lng": 140.10365278
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -657,10 +622,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6838",
@@ -672,7 +634,7 @@
       "lng": 140.10444722
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -707,10 +669,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6867",
@@ -722,7 +681,7 @@
       "lng": 140.1295
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -757,10 +716,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6882",
@@ -772,7 +728,7 @@
       "lng": 140.13278333
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -797,10 +753,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6889",
@@ -812,7 +765,7 @@
       "lng": 140.13473611
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -837,10 +790,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6942",
@@ -852,7 +802,7 @@
       "lng": 140.10610833
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -877,10 +827,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_7038",
@@ -892,7 +839,7 @@
       "lng": 140.10455278
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -917,10 +864,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_7106",
@@ -932,7 +876,7 @@
       "lng": 140.11915556
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -977,10 +921,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8015",
@@ -992,7 +933,7 @@
       "lng": 140.12103333
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1017,10 +958,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8114",
@@ -1032,13 +970,21 @@
       "lng": 135.74598611
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "umbrellaStatus": [],
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "translucent",
+        "colorDetail": "",
+        "kind": "long umbrella"
+      }
+    ],
+    "umbrellaStatus": [
+      "broken"
+    ],
     "umbrellaStatusOther": "",
     "story": "",
     "blocks": [],
@@ -1058,8 +1004,9 @@
       }
     ],
     "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
+      "Kyoto Fu",
+      "Kyoto Shi",
+      "Minami Ku"
     ]
   },
   {
@@ -1072,7 +1019,7 @@
       "lng": 135.74505556
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Fushimi Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1097,10 +1044,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Fushimi Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8618",
@@ -1112,7 +1056,7 @@
       "lng": 135.75891111
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Shimogyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1137,10 +1081,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Shimogyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8647",
@@ -1152,7 +1093,7 @@
       "lng": 135.75383056
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1177,10 +1118,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8680",
@@ -1192,7 +1130,7 @@
       "lng": 135.76373333
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Shimogyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1217,10 +1155,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Shimogyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8682",
@@ -1232,7 +1167,7 @@
       "lng": 135.75953611
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1249,12 +1184,12 @@
     "story": "123",
     "blocks": [
       {
-        "type": "photo",
-        "file": "IMG_8684.png"
-      },
-      {
         "type": "text",
         "text": "123"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8684.png"
       }
     ],
     "categoryGroup": "behavior",
@@ -1282,10 +1217,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Hokkaido",
-      "Hakodate Shi"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8737",
@@ -1297,7 +1229,7 @@
       "lng": 135.76431389
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1332,10 +1264,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_5956",
@@ -1347,7 +1276,7 @@
       "lng": 139.70645278
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City, Ikebukuro",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1382,11 +1311,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City",
-      "Ikebukuro"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_5958",
@@ -1398,7 +1323,7 @@
       "lng": 139.71284444
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1423,10 +1348,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_5964",
@@ -1438,7 +1360,7 @@
       "lng": 139.71250833
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City, Minamiikebukuro",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1463,11 +1385,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City",
-      "Minamiikebukuro"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6080",
@@ -1479,7 +1397,7 @@
       "lng": 139.70600833
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City, Ikebukuro",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1504,11 +1422,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City",
-      "Ikebukuro"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6220",
@@ -1520,7 +1434,7 @@
       "lng": 140.11435
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1545,10 +1459,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6341",
@@ -1560,7 +1471,7 @@
       "lng": 140.11665278
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1585,10 +1496,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6393",
@@ -1600,7 +1508,7 @@
       "lng": 140.10475278
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1625,10 +1533,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6774",
@@ -1640,7 +1545,7 @@
       "lng": 140.12101667
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1675,10 +1580,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6781",
@@ -1690,7 +1592,7 @@
       "lng": 140.1223
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1715,10 +1617,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6791",
@@ -1730,7 +1629,7 @@
       "lng": 140.109375
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1755,10 +1654,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6848",
@@ -1770,7 +1666,7 @@
       "lng": 140.1221
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1795,10 +1691,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6888",
@@ -1810,7 +1703,7 @@
       "lng": 140.13323889
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1835,10 +1728,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8622",
@@ -1850,7 +1740,7 @@
       "lng": 135.76419167
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1945,10 +1835,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8632",
@@ -1960,7 +1847,7 @@
       "lng": 135.76371667
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1985,10 +1872,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8664",
@@ -2000,7 +1884,7 @@
       "lng": 135.76711944
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2025,10 +1909,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8665",
@@ -2040,7 +1921,7 @@
       "lng": 135.76708889
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2065,10 +1946,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8670",
@@ -2080,7 +1958,7 @@
       "lng": 135.76400833
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2105,10 +1983,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8678",
@@ -2120,7 +1995,7 @@
       "lng": 135.76367222
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Shimogyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2145,10 +2020,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Shimogyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8697",
@@ -2160,7 +2032,7 @@
       "lng": 135.76481667
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2185,10 +2057,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8704",
@@ -2200,7 +2069,7 @@
       "lng": 135.76420556
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2225,10 +2094,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8729",
@@ -2240,7 +2106,7 @@
       "lng": 135.76930278
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Nakagyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2265,10 +2131,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Nakagyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6529",
@@ -2280,7 +2143,7 @@
       "lng": 140.11738611
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2305,10 +2168,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6617",
@@ -2320,7 +2180,7 @@
       "lng": 140.11715833
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2345,10 +2205,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6637",
@@ -2360,7 +2217,7 @@
       "lng": 140.11431944
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2385,10 +2242,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6761",
@@ -2400,7 +2254,7 @@
       "lng": 140.11335833
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2425,10 +2279,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6079",
@@ -2440,7 +2291,7 @@
       "lng": 139.70704722
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City, Ikebukuro",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2465,11 +2316,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City",
-      "Ikebukuro"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6937",
@@ -2481,7 +2328,7 @@
       "lng": 140.10345556
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2506,10 +2353,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8465",
@@ -2521,7 +2365,7 @@
       "lng": 135.77246111
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Sakyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2546,10 +2390,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Sakyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8465_post",
@@ -2561,7 +2402,7 @@
       "lng": 135.77246111
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Sakyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2586,10 +2427,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Sakyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8636",
@@ -2601,7 +2439,7 @@
       "lng": 135.75959722
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2626,10 +2464,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6225",
@@ -2641,7 +2476,7 @@
       "lng": 140.11477778
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2666,10 +2501,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6530",
@@ -2681,7 +2513,7 @@
       "lng": 140.11885
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2706,10 +2538,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6643",
@@ -2721,7 +2550,7 @@
       "lng": 140.11878889
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2746,10 +2575,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6667",
@@ -2761,7 +2587,7 @@
       "lng": 140.12152222
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2796,10 +2622,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8062",
@@ -2811,7 +2634,7 @@
       "lng": 140.12938056
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2836,10 +2659,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8251",
@@ -2851,7 +2671,7 @@
       "lng": 135.75561389
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2876,10 +2696,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8508",
@@ -2891,7 +2708,7 @@
       "lng": 135.76054444
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Minami Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2916,10 +2733,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Minami Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8584",
@@ -2931,7 +2745,7 @@
       "lng": 135.76280278
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Shimogyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2956,10 +2770,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Shimogyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8724",
@@ -2971,7 +2782,7 @@
       "lng": 135.76924167
     },
     "locationCoordinates": null,
-    "locationText": "Kyoto, Nakagyo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3006,10 +2817,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Nakagyo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_5917",
@@ -3021,7 +2829,7 @@
       "lng": 139.71018889
     },
     "locationCoordinates": null,
-    "locationText": "Tokyo, Toshima City, Nishiikebukuro",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3046,11 +2854,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Tokyo",
-      "Toshima City",
-      "Nishiikebukuro"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6651",
@@ -3062,7 +2866,7 @@
       "lng": 140.10339444
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Chuo Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3087,10 +2891,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Chuo Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6720",
@@ -3102,7 +2903,7 @@
       "lng": 140.10223333
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3127,10 +2928,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_6753",
@@ -3142,7 +2940,7 @@
       "lng": 140.11321944
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Inage Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3167,10 +2965,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Inage Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8066",
@@ -3182,7 +2977,7 @@
       "lng": 140.14918611
     },
     "locationCoordinates": null,
-    "locationText": "Chiba, Wakaba Ward",
+    "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3207,10 +3002,7 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Chiba",
-      "Wakaba Ward"
-    ]
+    "locationLevels": []
   },
   {
     "id": "IMG_8208",
@@ -3222,7 +3014,7 @@
       "lng": 135.73240556
     },
     "locationCoordinates": null,
-    "locationText": "Nishioji Shichijo bus stop, Shimogyo Ward, Kyoto",
+    "locationText": "",
     "title": "",
     "umbrellaType": "long umbrellas",
     "umbrellaColor": "transparent",
@@ -3249,9 +3041,6 @@
         "story": ""
       }
     ],
-    "locationLevels": [
-      "Kyoto",
-      "Shimogyo Ward"
-    ]
+    "locationLevels": []
   }
 ]

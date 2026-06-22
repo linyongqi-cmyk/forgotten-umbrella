@@ -4,12 +4,9 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 48,
   // 手动填写的展示地址。
-  "locationText": "Chiba, Inage Ward",
+  "locationText": "",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [
-    "Chiba",
-    "Inage Ward"
-  ],
+  "locationLevels": [],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": {
     "lat": 35.62766944,
