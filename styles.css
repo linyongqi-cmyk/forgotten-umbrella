@@ -1418,21 +1418,22 @@ body.editor-open .archive-view {
   opacity: 0.7;
 }
 
+/* Floats above the table (position:fixed, placed by JS) so a long menu never
+   stretches the scroll container or shifts the layout (item 3). Frosted glass so
+   the table text behind it can't bleed through (item 2). */
 .overview-filter-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 20;
-  margin-top: 2px;
-  min-width: 100%;
-  max-height: 240px;
+  position: fixed;
+  z-index: 1200;
+  min-width: 160px;
+  max-height: 260px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   background: var(--panel);
+  backdrop-filter: blur(16px) saturate(1.3);
   border: 1px solid var(--line);
   border-radius: 6px;
-  box-shadow: 0 8px 22px rgba(20, 26, 25, 0.18);
+  box-shadow: 0 10px 26px rgba(20, 26, 25, 0.22);
 }
 
 .overview-filter-option {
@@ -1554,15 +1555,27 @@ body.editor-open .archive-view {
     border-color 200ms ease;
 }
 
-/* Hover feedback so the whole card reads as clickable (#9, like the overview row
-   white→grey). The photo lifts + darkens slightly and the id gets a grey pill. */
+/* Hover feedback so the whole card reads as clickable (#9). The photo lifts and
+   gains a subtle vignette (darkened corners); the id below is left unchanged. */
 .photo-card:hover .card-photo {
   border-color: rgba(20, 26, 25, 0.25);
   box-shadow: 0 6px 18px rgba(20, 26, 25, 0.12);
 }
 
-.photo-card:hover img {
-  filter: brightness(0.93);
+/* Vignette overlay — fades in on hover (item 5). */
+.card-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  box-shadow: inset 0 0 38px 8px rgba(20, 26, 25, 0.4);
+}
+
+.photo-card:hover .card-photo::after {
+  opacity: 1;
 }
 
 .photo-card img {
@@ -1572,7 +1585,6 @@ body.editor-open .archive-view {
   object-fit: cover;
   /* Double-clicking the card jumps to the map; signal it on the photo too (#9). */
   cursor: pointer;
-  transition: filter 200ms ease;
 }
 
 /* id (+ optional title) under the photo — left-aligned, no box/background (#5). */
@@ -1589,14 +1601,6 @@ body.editor-open .archive-view {
   font-size: 14px;
   /* Double-clicking a card jumps to the map; signal it on the id (#9). */
   cursor: pointer;
-  padding: 1px 6px;
-  margin: -1px -6px;
-  border-radius: 6px;
-  transition: background 200ms ease;
-}
-
-.photo-card:hover .card-id {
-  background: rgba(20, 26, 25, 0.06);
 }
 
 .card-title {

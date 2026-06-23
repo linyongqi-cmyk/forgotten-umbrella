@@ -660,6 +660,10 @@ function bindEvents() {
     }
   });
 
+  // Keep the (fixed) overview dropdown glued to its button while scrolling/resizing.
+  window.addEventListener("scroll", () => state.overviewMenuOpen && positionOverviewMenu(), true);
+  window.addEventListener("resize", () => state.overviewMenuOpen && positionOverviewMenu());
+
   document.addEventListener(
     "click",
     (event) => {
@@ -1594,6 +1598,23 @@ function renderStats() {
     ${renderStatsPivot(buildStatsUnits())}
     ${renderStatsOverview()}
   `;
+  positionOverviewMenu();
+}
+
+// The open overview filter dropdown is position:fixed (item 3), so place it right
+// under its header button. Re-run on scroll/resize so it tracks the button.
+function positionOverviewMenu() {
+  const btn = els.archiveContent?.querySelector(".overview-filter-head.is-open .overview-filter-btn");
+  const menu = els.archiveContent?.querySelector(".overview-filter-head.is-open .overview-filter-menu");
+  if (!btn || !menu) {
+    return;
+  }
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = `${rect.bottom + 2}px`;
+  // Keep the menu inside the viewport's right edge (rightmost columns).
+  const viewportW = document.documentElement.clientWidth;
+  const menuW = menu.offsetWidth || 160;
+  menu.style.left = `${Math.max(8, Math.min(rect.left, viewportW - menuW - 8))}px`;
 }
 
 function renderStatsAxisSelect(axis, current) {
@@ -1788,9 +1809,13 @@ function renderStatsOverview() {
     })
     .join("");
 
+  // Show "(x/total)" while a filter is active, just "(total)" otherwise (item 4).
+  const isFiltered = filters.object !== "all" || filters.state !== "all";
+  const countLabel = isFiltered ? `${filtered.length}/${allRows.length}` : `${allRows.length}`;
+
   return `
     <section class="stats-block">
-      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${filtered.length})</h3>
+      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${countLabel})</h3>
       <div class="stats-table-wrap">
         <table class="stats-table stats-overview">
           <thead>
@@ -2993,7 +3018,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=78", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=79", { updateViaCache: "none" });
   }
 }
 
