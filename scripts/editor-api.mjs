@@ -18,6 +18,7 @@ import {
   readRecordFile,
   stringifyRecordWithComments,
 } from "./record-utils.mjs";
+import { parseExif } from "./exif.mjs";
 
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -324,17 +325,23 @@ export async function createRecord(payload) {
   }
 
   await fs.mkdir(recordDir, { recursive: true });
-  await fs.writeFile(path.join(recordDir, filename), decodeImageData(payload.dataBase64));
+  const imageBuffer = decodeImageData(payload.dataBase64);
+  await fs.writeFile(path.join(recordDir, filename), imageBuffer);
 
-  const coords = sanitizeCoordinates(payload.coordinates);
+  // Pull GPS + capture time straight out of the photo's EXIF. When the photo
+  // carries a real position, drop the point there; otherwise fall back to the
+  // coordinates the editor sent (the current map center).
+  const exif = parseExif(imageBuffer);
+  const sentCoords = sanitizeCoordinates(payload.coordinates);
+  const fallbackCoords = sentCoords && sentCoords !== undefined ? sentCoords : null;
   const record = {
     schemaVersion: 1,
     sourceIndex: await nextSourceIndex(),
     locationText: "",
     locationLevels: [],
-    photoCoordinates: null,
-    locationCoordinates: coords && coords !== undefined ? coords : null,
-    photoTime: "",
+    photoCoordinates: exif.coordinates || null,
+    locationCoordinates: exif.coordinates || fallbackCoords,
+    photoTime: exif.dateTime || "",
     time: "",
     title: "",
     umbrellaType: "",
@@ -346,7 +353,7 @@ export async function createRecord(payload) {
   const merged = await mergeRecordMediaWithFolder(recordPath, record);
   await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
   await rebuildDatabase();
-  return { ok: true, id };
+  return { ok: true, id, coordinates: record.locationCoordinates, fromExif: Boolean(exif.coordinates) };
 }
 
 // Delete an entire record folder (images + record.json).

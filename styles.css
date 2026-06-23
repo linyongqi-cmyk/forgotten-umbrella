@@ -527,6 +527,12 @@ body.is-entered .welcome-screen {
   background: var(--teal);
 }
 
+/* ↑ / ↓ marker appended to the 时间 sort button when it is active. */
+.sort-arrow:not(:empty) {
+  display: inline-block;
+  font-size: 0.92em;
+}
+
 .list-order-toggle {
   display: grid;
   place-items: center;
@@ -711,6 +717,29 @@ body.is-entered .welcome-screen {
   backdrop-filter: blur(14px);
   font-size: 12px;
   font-weight: 700;
+}
+
+/* Sits just above the base toggle; only visible while on satellite. */
+.map-labels-toggle {
+  position: fixed;
+  left: 24px;
+  bottom: 72px;
+  z-index: 5;
+  min-width: 78px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.map-labels-toggle[hidden] {
+  display: none;
 }
 
 .city-map {
@@ -1020,6 +1049,8 @@ body.is-entered .welcome-screen {
 
 .workspace.is-focus-mode .topbar,
 .workspace.is-focus-mode .map-toolbar,
+.workspace.is-focus-mode .map-type-toggle,
+.workspace.is-focus-mode .map-labels-toggle,
 .workspace.is-focus-mode .panel-toggle,
 .workspace.is-focus-mode .side-panel {
   pointer-events: none;
@@ -1135,6 +1166,7 @@ body.is-entered .welcome-screen {
 }
 
 .photo-card {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1147,31 +1179,79 @@ body.is-entered .welcome-screen {
   object-fit: cover;
 }
 
-.photo-card div {
-  padding: 14px;
+/* id (+ optional title) bar under the photo. */
+.card-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
 }
 
-.photo-card h3 {
-  margin: 0 0 6px;
-  font-size: 16px;
+.card-id {
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.photo-card p {
-  margin: 0;
+.card-title {
   color: var(--muted);
   font-size: 12px;
-  line-height: 1.5;
-}
-
-.photo-card .item-story {
-  margin-top: 6px;
-}
-
-.photo-card .item-story.is-compact {
-  display: -webkit-box;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Corner logos: 多图 / 插图. */
+.card-badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+.card-badge {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(17, 21, 20, 0.62);
+  color: #fff;
+}
+
+.card-badge svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Edit button (bottom-right) — only visible in local edit mode. */
+.card-edit {
+  position: absolute;
+  right: 8px;
+  bottom: 44px;
+  display: none;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(17, 21, 20, 0.62);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+body.edit-mode .card-edit {
+  display: grid;
+  place-items: center;
+}
+
+.card-edit:hover {
+  background: var(--teal);
 }
 
 .archive-group {
@@ -1562,7 +1642,8 @@ body.edit-mode .map-stage {
   color: #1f2d2d;
 }
 
-.editor-coord-reset {
+.editor-coord-reset,
+.editor-coord-place {
   border: 1px solid rgba(31, 45, 45, 0.25);
   border-radius: 8px;
   background: #fff;
@@ -1570,6 +1651,11 @@ body.edit-mode .map-stage {
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.editor-coord-place {
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .editor-actions {

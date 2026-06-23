@@ -21,7 +21,10 @@ const state = {
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
   searchOpen: false,
-  mapType: "satellite",
+  // Map view: a primary base (普通地图 roadmap ↔ 卫星 satellite) plus, when on
+  // satellite, an extra toggle for text labels (satellite ↔ hybrid).
+  mapBase: "satellite",
+  mapLabels: false,
   imageExpanded: false,
   focusMediaIndex: 0,
   imageZoom: 1,
@@ -37,6 +40,7 @@ const state = {
   editingId: null,
   pendingCoords: {},
   suppressMarkerClickUntil: 0,
+  entryZoomPlayed: false,
 };
 
 const FOCUS_ANIMATION_MS = 900;
@@ -47,11 +51,17 @@ const FOCUS_MARKER_SCREEN = {
   yMobile: 0.42,
 };
 const MARKER_VISUAL_CENTER_OFFSET_Y = 20;
-const DEFAULT_MAP_CENTER = { lat: 34.98585, lng: 135.75877 };
+// Fallback center when geolocation is denied / unavailable / outside Japan: Tokyo Station.
+const DEFAULT_MAP_CENTER = { lat: 35.681236, lng: 139.767125 };
+// Rough bounding box of Japan; geolocation only jumps to the user when inside it.
+const JAPAN_BOUNDS = { minLat: 24, maxLat: 46, minLng: 122, maxLng: 154 };
 const DEFAULT_MAP_ZOOM = 14;
 const FOCUS_MAP_ZOOM = 18;
 const RESET_ZOOM_ANIMATION_MS = 760;
 const GEOLOCATION_TIMEOUT_MS = 2500;
+// First entry into the map zooms in from a "whole main island" scale.
+const ENTRY_START_ZOOM = 5;
+const ENTRY_ZOOM_ANIMATION_MS = 1600;
 
 // Shared umbrella-attribute option sets (used by both the editor and the public
 // display so the wording always matches). Labels are bilingual to help picking.
@@ -114,6 +124,7 @@ const els = {
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
+  mapLabelsToggle: document.querySelector("#map-labels-toggle"),
   statCount: document.querySelector("#stat-count"),
   mapView: document.querySelector("#map-view"),
   toggleList: document.querySelector("#toggle-list"),
@@ -297,9 +308,15 @@ function bindEvents() {
 
   els.chips.forEach((chip) => {
     chip.addEventListener("click", () => {
-      state.listSort = chip.dataset.listSort;
-      state.listSubfilter = "all";
-      els.chips.forEach((item) => item.classList.toggle("is-active", item === chip));
+      const sort = chip.dataset.listSort;
+      // Clicking 时间 again while already sorting by time flips asc/desc.
+      if (sort === "time" && state.listSort === "time") {
+        state.listOrder = state.listOrder === "desc" ? "asc" : "desc";
+      } else {
+        state.listSort = sort;
+        state.listSubfilter = "all";
+      }
+      els.chips.forEach((item) => item.classList.toggle("is-active", item.dataset.listSort === state.listSort));
       syncListControls(filteredUmbrellas());
       render();
     });
@@ -369,12 +386,7 @@ function bindEvents() {
   });
 
   els.mapTypeToggle?.addEventListener("click", toggleMapType);
-
-  els.listOrderToggle?.addEventListener("click", () => {
-    state.listOrder = state.listOrder === "desc" ? "asc" : "desc";
-    syncListControls(filteredUmbrellas());
-    render();
-  });
+  els.mapLabelsToggle?.addEventListener("click", toggleMapLabels);
 
   els.listSecondary?.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-list-subfilter]");
@@ -388,17 +400,17 @@ function bindEvents() {
 
   els.archiveModeControls.forEach((button) => {
     button.addEventListener("click", () => {
-      state.archiveMode = button.dataset.archiveMode;
-      state.archiveSubfilter = "all";
+      const mode = button.dataset.archiveMode;
+      // Clicking 时间 again while already sorting by time flips asc/desc.
+      if (mode === "time" && state.archiveMode === "time") {
+        state.archiveOrder = state.archiveOrder === "desc" ? "asc" : "desc";
+      } else {
+        state.archiveMode = mode;
+        state.archiveSubfilter = "all";
+      }
       syncArchiveControls();
       renderArchive(filteredUmbrellas());
     });
-  });
-
-  els.archiveOrderToggle?.addEventListener("click", () => {
-    state.archiveOrder = state.archiveOrder === "desc" ? "asc" : "desc";
-    syncArchiveControls();
-    renderArchive(filteredUmbrellas());
   });
 
   els.archiveSecondary?.addEventListener("click", (event) => {
@@ -409,6 +421,27 @@ function bindEvents() {
 
     state.archiveSubfilter = button.dataset.archiveSubfilter;
     renderArchive(filteredUmbrellas());
+  });
+
+  // Archive card: the ✎ button opens the same editor drawer in place (no jump
+  // to the map); double-clicking a card jumps to its spot on the map.
+  els.archiveContent?.addEventListener("click", (event) => {
+    const editButton = event.target.closest?.("[data-card-edit]");
+    if (!editButton) {
+      return;
+    }
+    event.stopPropagation();
+    const card = editButton.closest(".photo-card");
+    if (card?.dataset.id && IS_LOCAL && typeof editor !== "undefined" && editor.root) {
+      openEditor(card.dataset.id);
+    }
+  });
+
+  els.archiveContent?.addEventListener("dblclick", (event) => {
+    const card = event.target.closest?.(".photo-card");
+    if (card?.dataset.id) {
+      jumpToMapLocation(card.dataset.id);
+    }
   });
 
   els.languageToggle?.addEventListener("click", () => {
@@ -460,8 +493,8 @@ function syncPanelToggleLabels() {
   updatePanelButton(
     els.toggleList,
     els.mapView.classList.contains("is-list-collapsed"),
-    "\u6536\u8d77\u5730\u70b9\u5217\u8868",
-    "\u5c55\u5f00\u5730\u70b9\u5217\u8868",
+    "\u30ea\u30b9\u30c8\u3092\u9589\u3058\u308b",
+    "\u30ea\u30b9\u30c8\u3092\u958b\u304f",
   );
 }
 
@@ -470,10 +503,16 @@ function syncArchiveControls() {
     button.classList.toggle("is-active", button.dataset.archiveMode === state.archiveMode);
   });
 
-  if (els.archiveOrderToggle) {
-    els.archiveOrderToggle.hidden = state.archiveMode !== "time";
-    els.archiveOrderToggle.classList.toggle("is-asc", state.archiveOrder === "asc");
-  }
+  // The 时间 button shows ↓ (newest first) / ↑ (oldest first) when active.
+  els.archiveModeControls.forEach((button) => {
+    if (button.dataset.archiveMode !== "time") {
+      return;
+    }
+    const arrow = button.querySelector(".sort-arrow");
+    if (arrow) {
+      arrow.textContent = state.archiveMode === "time" ? (state.archiveOrder === "asc" ? " ↑" : " ↓") : "";
+    }
+  });
 }
 
 function syncListControls(items) {
@@ -481,10 +520,16 @@ function syncListControls(items) {
     button.classList.toggle("is-active", button.dataset.listSort === state.listSort);
   });
 
-  if (els.listOrderToggle) {
-    els.listOrderToggle.hidden = state.listSort !== "time";
-    els.listOrderToggle.classList.toggle("is-asc", state.listOrder === "asc");
-  }
+  // The 时间 chip shows ↓ (newest first) / ↑ (oldest first) when active.
+  els.chips.forEach((chip) => {
+    if (chip.dataset.listSort !== "time") {
+      return;
+    }
+    const arrow = chip.querySelector(".sort-arrow");
+    if (arrow) {
+      arrow.textContent = state.listSort === "time" ? (state.listOrder === "asc" ? " ↑" : " ↓") : "";
+    }
+  });
 
   if (!els.listSecondary) {
     return;
@@ -653,14 +698,40 @@ function enterSite() {
   if (state.googleReady) {
     setTimeout(() => {
       google.maps.event.trigger(state.map, "resize");
+      playEntryZoom();
     }, 460);
   }
 }
 
+// On the first entry, sweep the camera from a whole-main-island scale down to
+// the default city view. Runs once per session.
+function playEntryZoom() {
+  if (state.entryZoomPlayed || !state.googleReady || !state.map) {
+    return;
+  }
+  state.entryZoomPlayed = true;
+
+  const targetCenter = state.map.getCenter();
+  const startTime = performance.now();
+  // The map already sits at ENTRY_START_ZOOM from init, so we animate straight
+  // up to the default city zoom without snapping (no flash of the default view).
+  const step = (now) => {
+    const t = Math.min((now - startTime) / ENTRY_ZOOM_ANIMATION_MS, 1);
+    const eased = easeInOutCubic(t);
+    setMapCamera(targetCenter, lerp(ENTRY_START_ZOOM, DEFAULT_MAP_ZOOM, eased));
+    if (t < 1) {
+      requestAnimationFrame(step);
+    } else {
+      setMapCamera(targetCenter, DEFAULT_MAP_ZOOM);
+    }
+  };
+  requestAnimationFrame(step);
+}
+
 function togglePanel() {
   const className = "is-list-collapsed";
-  const expandedLabel = "\u6536\u8d77\u5730\u70b9\u5217\u8868";
-  const collapsedLabel = "\u5c55\u5f00\u5730\u70b9\u5217\u8868";
+  const expandedLabel = "\u30ea\u30b9\u30c8\u3092\u9589\u3058\u308b";
+  const collapsedLabel = "\u30ea\u30b9\u30c8\u3092\u958b\u304f";
 
   els.mapView.classList.toggle(className);
   const isCollapsed = els.mapView.classList.contains(className);
@@ -676,8 +747,8 @@ function collapseListPanel() {
   updatePanelButton(
     els.toggleList,
     true,
-    "\u6536\u8d77\u5730\u70b9\u5217\u8868",
-    "\u5c55\u5f00\u5730\u70b9\u5217\u8868",
+    "\u30ea\u30b9\u30c8\u3092\u9589\u3058\u308b",
+    "\u30ea\u30b9\u30c8\u3092\u958b\u304f",
   );
   if (state.googleReady) {
     setTimeout(() => google.maps.event.trigger(state.map, "resize"), 280);
@@ -701,8 +772,8 @@ async function initGoogleMap() {
     const currentOrigin = window.location.origin;
     showMapMessage(
       state.googleMapsApiKey && state.googleMapsApiKey !== "YOUR_GOOGLE_MAPS_API_KEY"
-        ? `\u5730\u56fe\u52a0\u8f7d\u5931\u8d25\u3002\u8bf7\u4f18\u5148\u68c0\u67e5 Google Cloud \u4e2d\u7684 API key Website restrictions\uff0c\u786e\u8ba4\u5df2\u5141\u8bb8 ${currentOrigin}/*\u3002`
-        : "\u8bf7\u5148\u5728 config.js \u4e2d\u586b\u5165 Google Maps API Key\u3002",
+        ? `\u5730\u56f3\u306e\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f\u3002Google Cloud \u306e API \u30ad\u30fc\u306e Website restrictions \u3092\u78ba\u8a8d\u3057\u3001${currentOrigin}/* \u304c\u8a31\u53ef\u3055\u308c\u3066\u3044\u308b\u304b\u3054\u78ba\u8a8d\u304f\u3060\u3055\u3044\u3002`
+        : "\u307e\u305a config.js \u306b Google Maps API Key \u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002",
     );
     return;
   }
@@ -710,7 +781,7 @@ async function initGoogleMap() {
   state.map = new google.maps.Map(els.mapCanvas, {
     center: DEFAULT_MAP_CENTER,
     zoom: DEFAULT_MAP_ZOOM,
-    mapTypeId: state.mapType,
+    mapTypeId: effectiveMapTypeId(),
     isFractionalZoomEnabled: true,
     mapTypeControl: false,
     fullscreenControl: false,
@@ -734,7 +805,10 @@ async function initGoogleMap() {
 
   const initialCenter = await getInitialMapCenter();
   state.map.setCenter(initialCenter);
-  state.map.setZoom(DEFAULT_MAP_ZOOM);
+  // Pre-position at the whole-main-island scale so the very first frame the
+  // user sees (when they leave the welcome screen) is already the island view;
+  // playEntryZoom then zooms in. This avoids a flash of the default city view.
+  state.map.setZoom(ENTRY_START_ZOOM);
   syncMapTypeButton();
 
   state.googleReady = true;
@@ -742,6 +816,20 @@ async function initGoogleMap() {
   if (els.mapMessage) {
     els.mapMessage.hidden = true;
   }
+  // If the user already tapped "enter" before the map finished loading, run the
+  // zoom-in now instead of leaving them stranded at the island scale.
+  if (document.body.classList.contains("is-entered")) {
+    playEntryZoom();
+  }
+}
+
+function isInsideJapan(coords) {
+  return (
+    coords.lat >= JAPAN_BOUNDS.minLat &&
+    coords.lat <= JAPAN_BOUNDS.maxLat &&
+    coords.lng >= JAPAN_BOUNDS.minLng &&
+    coords.lng <= JAPAN_BOUNDS.maxLng
+  );
 }
 
 function getInitialMapCenter() {
@@ -764,10 +852,10 @@ function getInitialMapCenter() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         window.clearTimeout(timeoutId);
-        finish({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        const here = { lat: position.coords.latitude, lng: position.coords.longitude };
+        // Only jump to the user's real position when they are inside Japan;
+        // outside Japan we treat it like "no location" and fall back to Tokyo.
+        finish(isInsideJapan(here) ? here : DEFAULT_MAP_CENTER);
       },
       () => {
         window.clearTimeout(timeoutId);
@@ -787,23 +875,55 @@ function toggleMapType() {
     return;
   }
 
-  state.mapType = state.mapType === "roadmap" ? "satellite" : "roadmap";
-  state.map.setMapTypeId(state.mapType);
+  // Primary toggle: 普通地图(roadmap) ↔ 卫星(satellite).
+  state.mapBase = state.mapBase === "roadmap" ? "satellite" : "roadmap";
+  applyMapType();
   syncMapTypeButton();
 }
 
+// Secondary toggle (only meaningful on satellite): text labels on/off, which is
+// the difference between Google's "satellite" and "hybrid" map types.
+function toggleMapLabels() {
+  if (!state.googleReady) {
+    return;
+  }
+  state.mapLabels = !state.mapLabels;
+  applyMapType();
+  syncMapTypeButton();
+}
+
+// The actual Google map type id derived from the base + labels state.
+function effectiveMapTypeId() {
+  if (state.mapBase === "roadmap") {
+    return "roadmap";
+  }
+  return state.mapLabels ? "hybrid" : "satellite";
+}
+
+function applyMapType() {
+  if (state.googleReady) {
+    state.map.setMapTypeId(effectiveMapTypeId());
+  }
+}
+
 function syncMapTypeButton() {
+  const onSatellite = state.mapBase === "satellite";
   if (els.mapTypeToggle) {
-    const nextLabel = state.mapType === "roadmap" ? "Satellite" : "Map";
-    els.mapTypeToggle.textContent = nextLabel;
-    els.mapTypeToggle.setAttribute(
-      "aria-label",
-      state.mapType === "roadmap" ? "switch to satellite map" : "switch to map",
-    );
-    els.mapTypeToggle.setAttribute(
-      "title",
-      state.mapType === "roadmap" ? "switch to satellite map" : "switch to map",
-    );
+    // Button shows the base you'll switch TO.
+    const label = onSatellite ? "地図" : "衛星";
+    const hint = onSatellite ? "普通の地図に切り替え" : "衛星写真に切り替え";
+    els.mapTypeToggle.textContent = label;
+    els.mapTypeToggle.setAttribute("aria-label", hint);
+    els.mapTypeToggle.setAttribute("title", hint);
+  }
+  if (els.mapLabelsToggle) {
+    // The labels button only appears while on satellite.
+    els.mapLabelsToggle.hidden = !onSatellite;
+    const label = state.mapLabels ? "文字オフ" : "文字オン";
+    const hint = state.mapLabels ? "衛星写真の文字を非表示" : "衛星写真に文字を表示";
+    els.mapLabelsToggle.textContent = label;
+    els.mapLabelsToggle.setAttribute("aria-label", hint);
+    els.mapLabelsToggle.setAttribute("title", hint);
   }
 }
 
@@ -1254,12 +1374,37 @@ function renderArchiveGroup(group) {
   `;
 }
 
+// Small inline logos shown on the corner of an archive card.
+const CARD_ICON_MULTI =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><rect x="3" y="7" width="14" height="14" rx="2.5"/></svg>';
+const CARD_ICON_ILLUSTRATION =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>';
+
+// Archive card: just the photo + id(+title) and corner logos. No address/time/
+// status/colour text (that lives on the detail page now).
 function renderPhotoCard(item) {
+  const media = item.media || [];
+  const extraPhotos = media.filter((m) => m.role === "supplement" || m.role === "detail").length;
+  const hasIllustration = media.some((m) => m.role === "illustration");
+
+  const badges = [];
+  if (extraPhotos > 0) {
+    badges.push(`<span class="card-badge" title="多图">${CARD_ICON_MULTI}</span>`);
+  }
+  if (hasIllustration) {
+    badges.push(`<span class="card-badge" title="插图">${CARD_ICON_ILLUSTRATION}</span>`);
+  }
+
+  const titleHtml = item.title ? `<span class="card-title">${escapeHtml(item.title)}</span>` : "";
+
   return `
-    <article class="photo-card">
-      <img src="${item.thumb}" alt="${item.id}" loading="lazy" decoding="async" />
-      <div>
-        ${renderItemText(item, "card")}
+    <article class="photo-card" data-id="${escapeHtml(item.id)}">
+      <img src="${item.thumb}" alt="${escapeHtml(item.id)}" loading="lazy" decoding="async" />
+      ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
+      <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
+      <div class="card-bar">
+        <span class="card-id">${escapeHtml(item.id)}</span>
+        ${titleHtml}
       </div>
     </article>
   `;
@@ -1499,6 +1644,27 @@ function groupByPlace(items) {
     });
   }
   return buildLevel(items, 0);
+}
+
+// Switch the top tabs over to the map view (used when jumping from Archive).
+function switchToMapView() {
+  els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.view === "map"));
+  els.views.forEach((section) => section.classList.toggle("is-active", section.id === "map-view"));
+  if (state.googleReady) {
+    setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
+  }
+}
+
+// Jump from an Archive card to that point on the map and open its detail view.
+function jumpToMapLocation(id) {
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  if (!item) {
+    return;
+  }
+  switchToMapView();
+  if (hasCoordinates(item)) {
+    setTimeout(() => selectUmbrella(id, { focus: true }), 90);
+  }
 }
 
 function selectUmbrella(id, options = {}) {
@@ -1949,7 +2115,7 @@ function formatDateTime(value) {
   if (!Number.isFinite(date.getTime())) {
     return "";
   }
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -1960,7 +2126,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=61", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=63", { updateViaCache: "none" });
   }
 }
 
@@ -2072,10 +2238,12 @@ function setupEditor() {
   coordRow.innerHTML = `
     <span>坐标 Coordinates（在地图上拖动标记可调整）</span>
     <div class="editor-coord"><code class="editor-coord-readout">—</code>
+      <button type="button" class="editor-coord-place">放到地图上</button>
       <button type="button" class="editor-coord-reset">恢复用照片坐标</button>
     </div>`;
   body.appendChild(coordRow);
   editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
+  coordRow.querySelector(".editor-coord-place").addEventListener("click", placeOnMapCenter);
 
   // 5. Display address (manual; falls back to the levels below when blank).
   addField("locationText", "显示地址 Location");
@@ -2818,6 +2986,33 @@ function onMarkerDragged(id, coords) {
   showEditorToast(`坐标已更新（${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}），记得点保存`);
 }
 
+// Put a record that has no coordinates onto the map at the current map center,
+// so a draggable marker appears. The position is a draft until you click 保存.
+function placeOnMapCenter() {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  if (!state.googleReady || !state.map?.getCenter) {
+    showEditorToast("地图还没准备好，请稍候", true);
+    return;
+  }
+  switchToMapView();
+  const center = state.map.getCenter();
+  const coords = { lat: center.lat(), lng: center.lng() };
+  editor.draftCoords = coords;
+  state.pendingCoords[id] = coords;
+  // Reflect on the in-memory item right away so the marker shows up before save.
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  if (item) {
+    item.coordinates = coords;
+    item.locationCoordinates = coords;
+  }
+  updateCoordReadout(getRawById(id));
+  render();
+  showEditorToast("已放到地图中心，请拖动标记到准确位置后点保存");
+}
+
 async function saveEditor() {
   const id = state.editingId;
   if (!id) {
@@ -2951,7 +3146,17 @@ async function onCreateRecord(event) {
       render();
     }
     openEditor(result.id);
-    showEditorToast("已新增标点 ✓，请拖动标记到准确位置");
+    // If the photo carried GPS, the point landed at its real spot — fly there.
+    if (result.coordinates && state.googleReady && state.map) {
+      switchToMapView();
+      state.map.panTo(result.coordinates);
+      state.map.setZoom(Math.max(state.map.getZoom(), DEFAULT_MAP_ZOOM));
+    }
+    showEditorToast(
+      result.fromExif
+        ? "已新增标点 ✓ 照片自带定位，已落到真实位置"
+        : "已新增标点 ✓，请拖动标记到准确位置",
+    );
   } catch (error) {
     showEditorToast(`新增失败：${error.message}`, true);
   }

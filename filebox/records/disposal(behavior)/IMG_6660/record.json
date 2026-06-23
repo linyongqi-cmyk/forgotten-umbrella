@@ -81,7 +81,7 @@
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
       "file": "pic_1.png",
       // 角色。建议使用 primary、detail、illustration。
-      "role": "detail",
+      "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。
       "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。

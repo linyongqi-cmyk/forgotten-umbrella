@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1f2d2d" />
-    <title>&#34987;&#36951;&#24536;&#30340;&#20254; | &#22478;&#24066;&#35282;&#33853;&#22320;&#22270;</title>
+    <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=61" />
+    <link rel="stylesheet" href="styles.css?v=63" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -64,7 +64,6 @@
               Language
             </button>
             <div class="language-menu" id="language-menu" hidden>
-              <button type="button" data-lang="zh-CN">&#20013;&#25991;</button>
               <button type="button" data-lang="ja-JP">&#26085;&#26412;&#35486;</button>
               <button type="button" data-lang="en-US">English</button>
             </div>
@@ -111,13 +110,10 @@
             </label>
 
             <div class="filter-row" aria-label="map archive sorting">
-              <button class="chip is-active" data-list-sort="default" type="button">&#40664;&#35748;</button>
-              <button class="chip" data-list-sort="time" type="button">&#26102;&#38388;</button>
-              <button class="chip" data-list-sort="type" type="button">&#31867;&#22411;</button>
-              <button class="chip" data-list-sort="place" type="button">&#22320;&#28857;</button>
-              <button id="list-order-toggle" class="list-order-toggle" type="button" aria-label="toggle list time order" title="toggle list time order" hidden>
-                <span aria-hidden="true">&#8597;</span>
-              </button>
+              <button class="chip is-active" data-list-sort="default" type="button">デフォルト</button>
+              <button class="chip" data-list-sort="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
+              <button class="chip" data-list-sort="type" type="button">種類</button>
+              <button class="chip" data-list-sort="place" type="button">場所</button>
             </div>
 
             <div class="list-secondary-row" id="list-secondary-row" hidden></div>
@@ -135,6 +131,10 @@
 
           <button id="map-type-toggle" class="map-type-toggle" type="button" aria-label="switch to map" title="switch to map">
             Map
+          </button>
+
+          <button id="map-labels-toggle" class="map-labels-toggle" type="button" aria-label="toggle satellite labels" title="toggle satellite labels" hidden>
+            文字オン
           </button>
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
@@ -159,17 +159,14 @@
           </div>
 
           <div class="archive-toolbar" aria-label="archive controls">
-            <p>&#25490;&#24207;&#26041;&#24335;</p>
+            <p>並び替え</p>
             <div class="archive-primary-row">
               <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-                <button class="archive-control is-active" data-archive-mode="default" type="button">&#40664;&#35748;</button>
-                <button class="archive-control" data-archive-mode="time" type="button">&#26102;&#38388;</button>
-                <button class="archive-control" data-archive-mode="type" type="button">&#31867;&#22411;</button>
-                <button class="archive-control" data-archive-mode="place" type="button">&#22320;&#28857;</button>
+                <button class="archive-control is-active" data-archive-mode="default" type="button">デフォルト</button>
+                <button class="archive-control" data-archive-mode="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
+                <button class="archive-control" data-archive-mode="type" type="button">種類</button>
+                <button class="archive-control" data-archive-mode="place" type="button">場所</button>
               </div>
-              <button id="archive-order-toggle" class="archive-order-toggle" type="button" aria-label="toggle time order" title="toggle time order" hidden>
-                <span aria-hidden="true">&#8597;</span>
-              </button>
             </div>
             <div class="archive-secondary-row" id="archive-secondary-row" hidden></div>
           </div>
@@ -179,29 +176,29 @@
 
         <section class="about-view view" id="about-view" aria-label="about project">
           <div class="about-copy">
-            <h2>&#25226;&#30701;&#26242;&#20572;&#30041;&#21464;&#25104;&#21487;&#36820;&#22238;&#30340;&#22352;&#26631;</h2>
+            <h2>短い滞在を、戻れる座標に</h2>
             <span>
-              &#36825;&#20010;&#21407;&#22411;&#25226;&#34987;&#36951;&#24536;&#30340;&#20254;&#25286;&#25104;&#22320;&#28857;&#12289;&#26102;&#38388;&#12289;&#22825;&#27668;&#21644;&#26448;&#26009;&#22235;&#23618;&#32447;&#32034;&#12290;&#29616;&#22312;&#30340;&#22270;&#29255;&#20173;&#26377;&#21344;&#20301;&#20869;&#23481;&#65292;&#20294;&#22320;&#22270;&#12289;&#26723;&#26696;&#21644;&#31579;&#36873;&#36923;&#36753;&#37117;&#24050;&#32463;&#21487;&#20197;&#32487;&#32493;&#25193;&#23637;&#65292;&#21518;&#32493;&#21487;&#20197;&#30452;&#25509;&#25509;&#20837;&#30495;&#23454;&#29031;&#29255;&#12289;&#37319;&#35775;&#25991;&#23383;&#25110;&#22768;&#38899;&#35760;&#24405;&#12290;
+              このプロトタイプは、忘れられた傘を場所・時間・天気・素材の四つの手がかりに分解します。現在の画像にはまだ仮の内容が含まれていますが、地図・アーカイブ・絞り込みの仕組みはすでに拡張でき、今後は実際の写真・取材テキスト・音声記録を直接組み込めます。
             </span>
           </div>
           <dl class="about-stats">
             <div>
               <dt id="stat-count">0</dt>
-              <dd>&#24050;&#35760;&#24405;&#22320;&#28857;</dd>
+              <dd>記録された地点</dd>
             </div>
             <div>
               <dt>2026</dt>
-              <dd>&#39033;&#30446;&#21407;&#22411;</dd>
+              <dd>プロトタイプ</dd>
             </div>
             <div>
               <dt>PWA</dt>
-              <dd>&#21487;&#23433;&#35013;&#20026;&#24212;&#29992;</dd>
+              <dd>アプリとしてインストール可能</dd>
             </div>
           </dl>
         </section>
       </main>
     </div>
 
-    <script src="app.js?v=61" type="module"></script>
+    <script src="app.js?v=63" type="module"></script>
   </body>
 </html>

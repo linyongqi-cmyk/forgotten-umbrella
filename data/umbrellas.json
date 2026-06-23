@@ -178,15 +178,28 @@
     "id": "IMG_8740",
     "image": "filebox/records/corner(affordance)/IMG_8740/IMG_8740.jpg",
     "photoTime": "",
-    "time": "",
+    "time": "2026.05.02, 19:56",
     "photoCoordinates": null,
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.99392763574674,
+      "lng": 135.76918920943498
+    },
     "locationText": "",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
     "story": "",
     "blocks": [],
     "editFlag": "",
@@ -205,7 +218,11 @@
         "story": ""
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Higashiyama Ward"
+    ]
   },
   {
     "id": "IMG_6178",
@@ -317,7 +334,7 @@
         "file": "pic_1.png",
         "src": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
         "thumb": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
-        "role": "detail",
+        "role": "illustration",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -3119,59 +3136,6 @@
     ]
   },
   {
-    "id": "IMG_8465_post",
-    "image": "filebox/records/payment(behavior)/IMG_8465_post/IMG_8465_post.jpg",
-    "photoTime": "2026-04-19T17:02:07+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 35.01656389,
-      "lng": 135.77246111
-    },
-    "locationCoordinates": {
-      "lat": 35.01647843432355,
-      "lng": 135.77246952477338
-    },
-    "locationText": "",
-    "title": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "1",
-    "umbrellaUnits": [
-      {
-        "color": "transparent",
-        "colorDetail": "",
-        "kind": "long umbrella",
-        "status": [
-          "unfastened"
-        ],
-        "statusOther": ""
-      }
-    ],
-    "story": "",
-    "blocks": [],
-    "editFlag": "",
-    "categoryGroup": "behavior",
-    "category": "payment",
-    "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465_post.jpg",
-    "media": [
-      {
-        "id": "IMG_8465_post",
-        "file": "IMG_8465_post.jpg",
-        "src": "filebox/records/payment(behavior)/IMG_8465_post/IMG_8465_post.jpg",
-        "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8465_post.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-04-19T17:02:07+09:00",
-        "story": ""
-      }
-    ],
-    "locationLevels": [
-      "Kyoto",
-      "Kyoto City",
-      "Sakyo Ward"
-    ]
-  },
-  {
     "id": "IMG_8636",
     "image": "filebox/records/payment(behavior)/IMG_8636/IMG_8636.jpeg",
     "photoTime": "2026-04-25T17:13:48+09:00",
@@ -4057,6 +4021,59 @@
       "Kyoto",
       "Kyoto City",
       "Shimogyo Ward"
+    ]
+  },
+  {
+    "id": "IMG_8465",
+    "image": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpg",
+    "photoTime": "2026-04-10T16:33:32+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 35.01656388888889,
+      "lng": 135.7724611111111
+    },
+    "locationCoordinates": {
+      "lat": 35.01653999285751,
+      "lng": 135.77249126126796
+    },
+    "locationText": "",
+    "title": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "categoryGroup": "behavior",
+    "category": "payment",
+    "thumb": "",
+    "media": [
+      {
+        "id": "IMG_8465",
+        "file": "IMG_8465.jpg",
+        "src": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpg",
+        "thumb": "filebox/records/payment(behavior)/IMG_8465/IMG_8465.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Sakyo Ward"
     ]
   }
 ]
