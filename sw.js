@@ -1,4 +1,4 @@
-const CACHE_NAME = "forgotten-umbrella-v74";
+const CACHE_NAME = "forgotten-umbrella-v77";
 const ASSETS = [
   ".",
   "index.html",
@@ -6,6 +6,7 @@ const ASSETS = [
   "app.js",
   "config.js",
   "data/umbrellas.json",
+  "data/texts.json",
   "manifest.json",
   "assets/icons/icon.svg",
   "filebox/welcome-pic/2.png",

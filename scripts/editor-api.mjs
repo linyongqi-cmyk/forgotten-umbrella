@@ -24,6 +24,7 @@ const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const recordsRoot = path.join(rootDir, "filebox", "records");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
+const textsPath = path.join(rootDir, "data", "texts.json");
 
 // Plain text fields the editor is allowed to overwrite. (title is handled
 // separately because it is now bilingual { ja, en }.)
@@ -445,11 +446,44 @@ export async function moveRecord(payload) {
   return { ok: true, id, category };
 }
 
+// Save the editable UI copy (type descriptions + stats intro) to data/texts.json
+// (item 12). This is the canonical source the frontend fetches; no rebuild needed.
+function sanitizeParas(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.map((p) => String(p ?? "").trim()).filter(Boolean);
+}
+
+export async function saveTexts(payload) {
+  const statsIntro = {
+    ja: String(payload?.statsIntro?.ja ?? "").trim(),
+    en: String(payload?.statsIntro?.en ?? "").trim(),
+  };
+  const typeDescriptions = {};
+  const incoming = payload?.typeDescriptions;
+  if (incoming && typeof incoming === "object" && !Array.isArray(incoming)) {
+    for (const [key, value] of Object.entries(incoming)) {
+      // Keep folder-style type keys only (e.g. "hookable(affordance)"); reject
+      // anything with path characters so we never write surprising keys.
+      if (!/^[A-Za-z0-9 _()-]+$/.test(key)) {
+        continue;
+      }
+      typeDescriptions[key] = { ja: sanitizeParas(value?.ja), en: sanitizeParas(value?.en) };
+    }
+  }
+  const out = { statsIntro, typeDescriptions };
+  await fs.writeFile(textsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
+  return { ok: true };
+}
+
 // Single entry point used by server.js. Returns a plain JSON-serializable object.
 export async function handleEditorApi(pathname, payload) {
   switch (pathname) {
     case "/api/save-record":
       return saveRecord(payload);
+    case "/api/save-texts":
+      return saveTexts(payload);
     case "/api/upload-image":
       return uploadImage(payload);
     case "/api/delete-image":
