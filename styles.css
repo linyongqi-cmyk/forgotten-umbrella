@@ -244,7 +244,9 @@ body.is-entered .welcome-screen {
   top: 22px;
   right: clamp(18px, 4vw, 42px);
   left: clamp(18px, 4vw, 42px);
-  z-index: 20;
+  /* Above the detail blur (z 30) so the nav stays sharp + clickable while a
+     detail page is open (#4). */
+  z-index: 50;
   display: flex;
   justify-content: flex-end;
   pointer-events: none;
@@ -458,6 +460,45 @@ body.is-entered .welcome-screen {
 /* Archive icon stays upright whether the list is open or collapsed. */
 .workspace.is-list-collapsed .panel-toggle-left span {
   transform: none;
+}
+
+/* #4: the archive / Map / 文字 buttons sit in a top-left cluster, above the
+   detail blur, so they stay visible and clickable while a detail page is open. */
+.map-top-tools {
+  position: fixed;
+  top: 22px;
+  left: clamp(18px, 4vw, 42px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-top-tools .panel-toggle-left,
+.map-top-tools .map-type-toggle,
+.map-top-tools .map-labels-toggle {
+  position: static;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  transform: none;
+}
+
+/* Shrink the round archive button so it lines up with the pill buttons. */
+.map-top-tools .panel-toggle-left {
+  width: 40px;
+  height: 40px;
+}
+
+.map-top-tools .panel-toggle-left span svg {
+  width: 20px;
+  height: 20px;
+}
+
+.map-top-tools .map-type-toggle,
+.map-top-tools .map-labels-toggle {
+  min-height: 40px;
 }
 
 .panel-heading h2,
@@ -862,11 +903,13 @@ body.is-entered .welcome-screen {
   overflow-y: auto;
   max-height: 84vh;
   transform: translate(28px, -50%);
+  /* Only opacity/transform animate (both GPU-composited). Width/height are NOT
+     transitioned: animating them forces a layout on every frame, which was the
+     visible jank when expanding and when switching between differently-sized
+     photos. Size changes now apply instantly — crisp, no reflow churn (#1). */
   transition:
     opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 260ms ease,
-    height 260ms ease;
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .focus-close {
@@ -1073,7 +1116,6 @@ body.is-entered .welcome-screen {
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  transition: left 260ms ease;
   z-index: 80;
   display: flex;
   flex-direction: column;
@@ -1140,12 +1182,24 @@ body.is-entered .welcome-screen {
   transform: translate(-50%, -50%);
 }
 
-.workspace.is-focus-mode .topbar,
-.workspace.is-focus-mode .map-toolbar,
-.workspace.is-focus-mode .map-type-toggle,
-.workspace.is-focus-mode .map-labels-toggle,
-.workspace.is-focus-mode .panel-toggle,
+/* In detail (focus) mode only the "show all" reset stays disabled; the top nav
+   and the archive/Map/文字 cluster remain usable (#4). */
+.workspace.is-focus-mode .map-toolbar {
+  pointer-events: none;
+}
+
+/* Keep the archive drawer above the blur if it's opened while a detail is open. */
 .workspace.is-focus-mode .side-panel {
+  z-index: 50;
+}
+
+/* While an image is enlarged, all of this chrome is hidden + disabled (#4).
+   Targeted off <body> because the topbar lives outside .workspace. */
+body.is-image-expanded .topbar,
+body.is-image-expanded .view-tabs,
+body.is-image-expanded .map-top-tools,
+body.is-image-expanded .side-panel {
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -1263,6 +1317,15 @@ body.editor-open .archive-view {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 16px;
+}
+
+/* #6: explanatory text shown above the grid when a 種類 is selected. */
+.archive-type-desc {
+  margin: 0 0 20px;
+  max-width: 70ch;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--ink);
 }
 
 .photo-card {
