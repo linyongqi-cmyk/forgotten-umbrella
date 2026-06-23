@@ -1556,13 +1556,13 @@ function buildStatsUnits() {
   return units;
 }
 
-// `object` = colour + kind merged into one descriptor (#3): a folding umbrella is
-// "folding", otherwise the colour (transparent / colored / patterned / …).
+// `object` = colour + kind merged into one descriptor (#3). Colour and kind are
+// combined so a "transparent long" and a "transparent folding" are counted
+// separately (long vs folding always kept apart).
 function statsObjectValue(u) {
-  if (u.kind && u.kind !== "long umbrella") {
-    return u.kind; // e.g. "folding"
-  }
-  return u.color || "unknown";
+  const color = u.color || "unknown";
+  const kind = u.kind === "folding" ? "folding" : u.kind === "long umbrella" ? "long" : "unknown";
+  return `${color} ${kind}`;
 }
 
 function statsDimValues(unit, dim) {
@@ -1676,7 +1676,7 @@ function renderStatsOverview() {
   const sorted = [...state.umbrellas].sort((a, b) => String(a.id).localeCompare(String(b.id)));
   const rows = sorted
     .map((item) => {
-      const idCell = `<td class="overview-id" data-overview-id="${escapeHtml(item.id)}" title="ダブルクリックで地図へ">${escapeHtml(item.id)}</td>`;
+      const idCell = `<td class="overview-id" data-overview-id="${escapeHtml(item.id)}">${escapeHtml(item.id)}</td>`;
       const rest = [
         formatDateTime(item.time) || "",
         statsValueLabel("type", item.type || ""),
@@ -2880,7 +2880,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=74", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=75", { updateViaCache: "none" });
   }
 }
 

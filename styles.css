@@ -1205,13 +1205,13 @@ body.is-entered .welcome-screen {
 .view-tabs,
 .map-top-tools {
   transition:
-    opacity 260ms ease,
-    filter 260ms ease;
+    opacity 500ms ease,
+    filter 500ms ease;
 }
 
 /* While an image is enlarged, all of this chrome is hidden + disabled (#4).
    Targeted off <body> because the topbar lives outside .workspace. It blurs and
-   fades out over 260ms instead of disappearing instantly (#10). */
+   fades out over 500ms instead of disappearing instantly (#10). */
 body.is-image-expanded .topbar,
 body.is-image-expanded .view-tabs,
 body.is-image-expanded .map-top-tools,
@@ -1479,6 +1479,8 @@ body.editor-open .archive-view {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
+  /* Double-clicking the card jumps to the map; signal it on the photo too (#9). */
+  cursor: pointer;
 }
 
 /* id (+ optional title) under the photo — left-aligned, no box/background (#5). */
