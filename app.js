@@ -1536,9 +1536,11 @@ function renderPhotoCard(item) {
 
   return `
     <article class="photo-card" data-id="${escapeHtml(item.id)}">
-      <img src="${item.thumb}" alt="${escapeHtml(item.id)}" loading="lazy" decoding="async" />
-      ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
-      <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
+      <div class="card-photo">
+        <img src="${item.thumb}" alt="${escapeHtml(item.id)}" loading="lazy" decoding="async" />
+        ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
+        <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
+      </div>
       <div class="card-bar">
         <span class="card-id">${escapeHtml(item.id)}</span>
         ${titleHtml}
@@ -1995,11 +1997,22 @@ function positionFocusThumbs() {
     els.focusThumbs.style.left = "";
     return;
   }
-  const frame = els.focusPanel?.querySelector(".focus-image-frame");
-  if (!frame) {
-    return;
+  // The enlarged image is centered in the viewport, so its final right edge is
+  // halfway across plus half the target frame width. We use the *target* width
+  // (not the live rect) because the frame animates its width over 260ms when you
+  // switch between differently-sized photos — reading the mid-animation rect was
+  // what left the rail offset from the image (#1). The rail has a matching CSS
+  // `left` transition so it glides to the same spot.
+  let right;
+  if (state.imageFrameWidth > 0) {
+    right = window.innerWidth / 2 + state.imageFrameWidth / 2;
+  } else {
+    const frame = els.focusPanel?.querySelector(".focus-image-frame");
+    if (!frame) {
+      return;
+    }
+    right = frame.getBoundingClientRect().right;
   }
-  const right = frame.getBoundingClientRect().right;
   els.focusThumbs.style.left = `${Math.round(right + 14)}px`;
 }
 
@@ -2435,7 +2448,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=69", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=70", { updateViaCache: "none" });
   }
 }
 

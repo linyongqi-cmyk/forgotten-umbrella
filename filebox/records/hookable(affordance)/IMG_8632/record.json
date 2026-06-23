@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -46,11 +46,20 @@
     }
   ],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "",
+  "editFlag": "black",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
   "story": "",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "photo",
+      "file": "a2c63f6967ce88ca8199752a79785c48.png"
+    },
+    {
+      "type": "photo",
+      "file": "IMG_8465.jpg"
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -68,6 +77,38 @@
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8632.jpg"
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "a2c63f6967ce88ca8199752a79785c48",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "a2c63f6967ce88ca8199752a79785c48.png",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "detail",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": ""
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "IMG_8465",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "IMG_8465.jpg",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "detail",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "2026-04-10T16:33:32+09:00",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": ""
     }
   ]
 }

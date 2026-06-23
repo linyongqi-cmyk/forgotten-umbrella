@@ -1057,25 +1057,9 @@ body.is-entered .welcome-screen {
   display: none;
 }
 
-/* #3: id / title / time caption over the enlarged photo, bottom-right corner.
-   Same content + right-alignment as the detail-page photo caption, but in white
-   with a shadow so it stays legible on top of the photo. */
-.focus-expanded-caption {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  z-index: 3;
-  max-width: 82%;
-  text-align: right;
-  font-size: var(--detail-caption-size);
-  line-height: 1.4;
-  color: #fff;
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.78),
-    0 0 2px rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-}
-
+/* The enlarged-image caption (id/title/time) shares its look with the detail
+   photo caption — see the combined `.focus-photo figcaption, .focus-expanded-caption`
+   rule further down. Only its hidden toggle lives here. */
 .focus-expanded-caption[hidden] {
   display: none;
 }
@@ -1089,6 +1073,7 @@ body.is-entered .welcome-screen {
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
+  transition: left 260ms ease;
   z-index: 80;
   display: flex;
   flex-direction: column;
@@ -1282,6 +1267,11 @@ body.editor-open .archive-view {
 
 .photo-card {
   position: relative;
+}
+
+/* #5: only the photo gets the rounded box; the id sits below it, outside the box. */
+.card-photo {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1289,17 +1279,19 @@ body.editor-open .archive-view {
 }
 
 .photo-card img {
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
-/* id (+ optional title) bar under the photo. */
+/* id (+ optional title) under the photo — left-aligned, no box/background (#5). */
 .card-bar {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 2px 0;
+  text-align: left;
 }
 
 .card-id {
@@ -1315,11 +1307,11 @@ body.editor-open .archive-view {
   text-overflow: ellipsis;
 }
 
-/* Corner logos: 多图 / 插图. */
+/* Corner logos: 多图 / 插图 — bottom-right of the photo (#6). */
 .card-badges {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  bottom: 8px;
+  right: 8px;
   display: flex;
   gap: 6px;
 }
@@ -1344,11 +1336,11 @@ body.editor-open .archive-view {
   stroke-linecap: round;
 }
 
-/* Edit button (bottom-right) — only visible in local edit mode. */
+/* Edit button (top-right) — only visible in local edit mode. */
 .card-edit {
   position: absolute;
   right: 8px;
-  bottom: 44px;
+  top: 8px;
   display: none;
   width: 30px;
   height: 30px;
@@ -2234,10 +2226,12 @@ body:not(.edit-mode) .editor-add-category {
 
 /* Detail-page article photos (in the scrollable focus panel) */
 .focus-photo {
+  position: relative;
   margin: 12px 0 0;
 }
 
 .focus-photo img {
+  display: block;
   width: 100%;
   max-height: none;
   cursor: default;
@@ -2250,11 +2244,24 @@ body:not(.edit-mode) .editor-add-category {
   cursor: zoom-in;
 }
 
-.focus-photo figcaption {
-  margin-top: 4px;
-  font-size: var(--detail-caption-size);
-  opacity: 0.7;
+/* #2/#3: the photo caption (title, id, time) overlays the bottom-right corner of
+   the image — same look as the enlarged-image caption (.focus-expanded-caption). */
+.focus-photo figcaption,
+.focus-expanded-caption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  margin: 0;
+  max-width: 82%;
   text-align: right;
+  font-size: calc(var(--detail-caption-size) + 2pt);
+  line-height: 1.4;
+  color: #fff;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.78),
+    0 0 2px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
 }
 
 /* INFORMATION block: label on the left, value(s) left-aligned on the right */

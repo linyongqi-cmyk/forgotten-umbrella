@@ -2627,7 +2627,10 @@
       "lng": 135.7636979918191
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2643,8 +2646,17 @@
       }
     ],
     "story": "",
-    "blocks": [],
-    "editFlag": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "a2c63f6967ce88ca8199752a79785c48.png"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_8465.jpg"
+      }
+    ],
+    "editFlag": "black",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8632.jpg",
@@ -2657,6 +2669,26 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-25T16:53:03+09:00",
+        "story": ""
+      },
+      {
+        "id": "a2c63f6967ce88ca8199752a79785c48",
+        "file": "a2c63f6967ce88ca8199752a79785c48.png",
+        "src": "filebox/records/hookable(affordance)/IMG_8632/a2c63f6967ce88ca8199752a79785c48.png",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8632/a2c63f6967ce88ca8199752a79785c48.png",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "IMG_8465",
+        "file": "IMG_8465.jpg",
+        "src": "filebox/records/hookable(affordance)/IMG_8632/IMG_8465.jpg",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8632/IMG_8465.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-04-10T16:33:32+09:00",
         "story": ""
       }
     ],
