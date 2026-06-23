@@ -35,6 +35,8 @@ const state = {
   // currently shown in the expanded lightbox.
   focusMediaList: [],
   expandedIndex: 0,
+  // Set just before a photo switch so the box morphs (FLIP) to the new size (#1).
+  flipResize: false,
   imageZoom: 1,
   imagePanX: 0,
   imagePanY: 0,
@@ -2241,6 +2243,9 @@ function showExpandedImageAt(index) {
     return;
   }
   state.expandedIndex = ((index % list.length) + list.length) % list.length;
+  // Tell setExpandedImageFrame to smoothly morph the box to the new photo's size
+  // (FLIP) — this is a switch, not the initial expand or a window resize (#1).
+  state.flipResize = true;
   loadExpandedImage();
   setActiveThumb(state.expandedIndex);
 }
@@ -2406,9 +2411,15 @@ function closeExpandedImage() {
   state.imageFrameWidth = 0;
   state.imageFrameHeight = 0;
   state.imageDragStart = null;
+  state.flipResize = false;
   els.focusPanel?.classList.remove("is-expanded");
   els.mapView?.classList.remove("is-image-expanded");
   document.body.classList.remove("is-image-expanded");
+  // Drop any in-flight FLIP transform/transition so the panel returns cleanly.
+  if (els.focusPanel) {
+    els.focusPanel.style.transition = "";
+    els.focusPanel.style.transform = "";
+  }
   els.focusImage?.style.setProperty("--image-zoom", "1");
   els.focusImage?.style.setProperty("--image-pan-x", "0px");
   els.focusImage?.style.setProperty("--image-pan-y", "0px");
@@ -2493,6 +2504,12 @@ function setExpandedImageFrame() {
     height = width / ratio;
   }
 
+  // FLIP: remember the current (old) box, apply the new size, then animate the
+  // box back from old→new using transform scale — composited, so no reflow jank.
+  const animate = state.flipResize;
+  state.flipResize = false;
+  const first = animate ? els.focusPanel.getBoundingClientRect() : null;
+
   state.imageFrameWidth = Math.round(width);
   state.imageFrameHeight = Math.round(height);
   els.focusPanel.style.setProperty("--expanded-frame-width", `${state.imageFrameWidth}px`);
@@ -2500,6 +2517,35 @@ function setExpandedImageFrame() {
   positionFocusThumbs();
   els.focusImage.style.setProperty("--image-origin-x", "50%");
   els.focusImage.style.setProperty("--image-origin-y", "50%");
+
+  if (animate && first) {
+    flipExpandedPanel(first);
+  }
+}
+
+// The "play" half of the FLIP: invert to the old size, then transition to identity.
+function flipExpandedPanel(first) {
+  const panel = els.focusPanel;
+  const last = panel.getBoundingClientRect();
+  if (!last.width || !last.height) {
+    return;
+  }
+  const sx = first.width / last.width;
+  const sy = first.height / last.height;
+  if (Math.abs(sx - 1) < 0.01 && Math.abs(sy - 1) < 0.01) {
+    return; // same size — nothing to morph
+  }
+  panel.style.transition = "none";
+  panel.style.transform = `translate(-50%, -50%) scale(${sx}, ${sy})`;
+  panel.getBoundingClientRect(); // commit the inverted state
+  panel.style.transition = "transform 240ms cubic-bezier(0.22, 1, 0.36, 1)";
+  panel.style.transform = "translate(-50%, -50%) scale(1, 1)";
+  const clear = () => {
+    panel.style.transition = "";
+    panel.style.transform = "";
+    panel.removeEventListener("transitionend", clear);
+  };
+  panel.addEventListener("transitionend", clear);
 }
 
 function updateExpandedImageTransform() {
@@ -2810,7 +2856,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=72", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=73", { updateViaCache: "none" });
   }
 }
 
