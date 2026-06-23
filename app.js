@@ -20,6 +20,9 @@ const state = {
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
+  // 統計 cross-tab: which dimension on each axis (#5).
+  statsX: "type",
+  statsY: "color",
   searchOpen: false,
   // Map view: a primary base (普通地图 roadmap ↔ 卫星 satellite) plus, when on
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
@@ -32,9 +35,6 @@ const state = {
   // currently shown in the expanded lightbox.
   focusMediaList: [],
   expandedIndex: 0,
-  // Which photo the detail page's main image is currently showing. Closing the
-  // lightbox leaves the detail on the photo you were viewing, not the cover (#2).
-  detailImageIndex: 0,
   imageZoom: 1,
   imagePanX: 0,
   imagePanY: 0,
@@ -513,6 +513,20 @@ function bindEvents() {
     }
 
     state.archiveSubfilter = button.dataset.archiveSubfilter;
+    renderArchive(filteredUmbrellas());
+  });
+
+  // 統計 cross-tab: changing either axis dropdown re-renders the tables (#5).
+  els.archiveContent?.addEventListener("change", (event) => {
+    const select = event.target.closest?.("[data-stats-axis]");
+    if (!select) {
+      return;
+    }
+    if (select.dataset.statsAxis === "x") {
+      state.statsX = select.value;
+    } else {
+      state.statsY = select.value;
+    }
     renderArchive(filteredUmbrellas());
   });
 
@@ -1282,8 +1296,6 @@ function renderFocusImage() {
   const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
   // Everything except illustrations can be enlarged (cover + supplement + detail).
   state.focusMediaList = getExpandableMedia(item);
-  // A freshly-opened detail page starts on its cover photo.
-  state.detailImageIndex = Math.max(0, state.focusMediaList.findIndex((m) => m.role === "primary"));
 
   els.focusPanel?.classList.add("is-loading");
   els.focusImage.src = cover?.src || item.image;
@@ -1396,42 +1408,273 @@ function renderFocusArticle(item) {
 // type is selected (#6). Keyed by the `type` value, e.g. "hookable(affordance)".
 const TYPE_DESCRIPTIONS = {
   "hookable(affordance)": {
-    ja: "「引掛け型」は、空間のインターフェースがいかに「遺忘」を誘発するかを考察するタイプである。駅の手すり、フェンス、階段の欄杆、あるいは商店の陳列棚といった、水平なバーやエッジを持つ施設は、物理的な「アフォーダンス」を提供している。移動の合間にスマートフォンを操作したり、交通カードを探したりするために、持ち主は無意識にこれらの支点を利用して傘を「引掛ける」。傘の柄のカーブと手すりの直線的な構造が物理的に適合しすぎるがゆえに、その「ついで」の行為は、傘を「持ち物」から「環境の一部」へと変容させてしまう。次の動作シーケンスが起動した際、その引掛けられた状態があまりに自然で安定しているため、かえって随身品としての存在感が希薄になり、意識の切り替えと共に置き去りにされるのである。",
-    en: `The "Hookable" type explores how spatial interfaces actively induce "forgetfulness." Facilities with horizontal bars, edges, or protrusions—such as station handrails, fences, stair railings, or display racks—provide a physical "affordance". During transitions in movement, often to free hands for a phone, a transit card, or adjusting clothing, the owner subconsciously utilizes these ready-made fulcrums to hang their umbrella. The physical alignment between the curve of the handle and the linear structure of the rail is so seamless that this "convenient gesture" transforms the umbrella from a "personal belonging" into "part of the environment". When the next sequence of action begins—such as entering a gate, boarding, or stepping into a shop—the very stability and naturalness of this hooked state cause the object to lose its presence as a handheld item, leading to its detachment during the shift in consciousness. It is a silent record woven by urban interfaces and momentary behaviors, reflecting the subtle intervention of spatial functions on human memory.`,
+    "ja": [
+      "「引掛け型」は、空間のインターフェースがいかに「遺忘」を誘発するかを考察するタイプである。",
+      "駅の手すり、フェンス、階段の欄杆、あるいは商店の陳列棚といった、水平なバーやエッジを持つ施設は、物理的な「アフォーダンス」を提供している。移動の合間にスマートフォンを操作したり、交通カードを探したりするために、持ち主は無意識にこれらの支点を利用して傘を「引掛ける」。傘の柄のカーブと手すりの直線的な構造が物理的に適合しすぎるがゆえに、その「ついで」の行為は、傘を「持ち物」から「環境の一部」へと変容させてしまう。次の動作シーケンスが起動した際、その引掛けられた状態があまりに自然で安定しているため、かえって随身品としての存在感が希薄になり、意識の切り替えと共に置き去りにされるのである。"
+    ],
+    "en": [
+      "The \"Hookable\" type explores how spatial interfaces actively induce \"forgetfulness.\"",
+      "Facilities with horizontal bars, edges, or protrusions—such as station handrails, fences, stair railings, or display racks—provide a physical \"affordance\". During transitions in movement, often to free hands for a phone, a transit card, or adjusting clothing, the owner subconsciously utilizes these ready-made fulcrums to hang their umbrella. The physical alignment between the curve of the handle and the linear structure of the rail is so seamless that this \"convenient gesture\" transforms the umbrella from a \"personal belonging\" into \"part of the environment\". When the next sequence of action begins—such as entering a gate, boarding, or stepping into a shop—the very stability and naturalness of this hooked state cause the object to lose its presence as a handheld item, leading to its detachment during the shift in consciousness. It is a silent record woven by urban interfaces and momentary behaviors, reflecting the subtle intervention of spatial functions on human memory。"
+    ]
   },
   "drop(behavior)": {
-    ja: "「落下型」は、持ち主が全く無意識のうちに、物理的な要因によって身体や鞄、あるいは不安定な支点から傘が脱落したことで生じる遺留タイプである。「放置型」とは異なり、このタイプの傘は極めて混乱した、無秩序な姿を晒しているのが特徴だ。歩道の中央や車道の端、階段の下など、建築的な支えから完全に切り離された場所に横たわっていることが多い。この遺留は、例えば腕から滑り落ちたり、鞄の隙間から抜け落ちたりといった「失敗した動作」に起因する。落下という事象が、持ち主の注意を呼び戻すほどのフィードバックを伴わなかったため、持ち主は長時間その紛失に気づかない。これらは、都市のリズムの中で物理的慣性によって生じた「沈黙の断片」であり、身体感覚と持ち物の接続が瞬間的に失効した痕跡である。",
-    en: `The "Drop" type refers to umbrellas left behind when they unintentionally detach from the owner's body, bag, or an unstable support point due to purely physical factors, without the owner being aware of the event. Unlike the "Placement" type, umbrellas in this category usually exhibit a chaotic and disordered posture: they are often found lying flat in the middle of sidewalks, at the edges of roads, or at the bottom of stairs, completely detached from any architectural support. This form of abandonment typically stems from a "failed action"—such as a handle slipping from an arm or an umbrella sliding out of a backpack. Because the act of falling does not provide enough sensory feedback to recapture the owner's attention, the loss often goes unnoticed for a significant period. These are the "silent fragments" generated by physical inertia within the urban rhythm, recording a momentary expiration of the connection between bodily awareness and personal belongings.`,
+    "ja": [
+      "「落下型」は、持ち主が全く無意識のうちに、物理的な要因によって身体や鞄、あるいは不安定な支点から傘が脱落したことで生じる遺留タイプである。",
+      "「放置型」とは異なり、このタイプの傘は極めて混乱した、無秩序な姿を晒しているのが特徴だ。歩道の中央や車道の端、階段の下など、建築的な支えから完全に切り離された場所に横たわっていることが多い。この遺留は、例えば腕から滑り落ちたり、鞄の隙間から抜け落ちたりといった「失敗した動作」に起因する。落下という事象が、持ち主の注意を呼び戻すほどのフィードバックを伴わなかったため、持ち主は長時間その紛失に気づかない。これらは、都市のリズムの中で物理的慣性によって生じた「沈黙の断片」であり、身体感覚と持ち物の接続が瞬間的に失効した痕跡である。"
+    ],
+    "en": [
+      "The \"Drop\" type refers to umbrellas left behind when they unintentionally detach from the owner’s body, bag, or an unstable support point due to purely physical factors, without the owner being aware of the event.",
+      "Unlike the \"Placement\" type, umbrellas in this category usually exhibit a chaotic and disordered posture: they are often found lying flat in the middle of sidewalks, at the edges of roads, or at the bottom of stairs, completely detached from any architectural support. This form of abandonment typically stems from a \"failed action\"—such as a handle slipping from an arm or an umbrella sliding out of a backpack. Because the act of falling does not provide enough sensory feedback to recapture the owner's attention, the loss often goes unnoticed for a significant period. These are the \"silent fragments\" generated by physical inertia within the urban rhythm, recording a momentary expiration of the connection between bodily awareness and personal belongings."
+    ]
   },
   "placement(behavior)": {
-    ja: "「放置型」は、都市空間において「非偶発的な佇まい」を見せる傘のタイプとして定義される。重力に抗えず地面に倒れ伏す「落下型」とは対照的に、このタイプは空間に対する明確な意志を感じさせる。建築の境界に沿って直立したり、特定の支点に懸架されたり、あるいはベンチや植え込みの上といった地面より高い位置に留まったりと、その姿勢は安定している。これは、傘が意図せず脱落したのではなく、持ち主が一時的に周囲の環境に預けたことを示している。多くの場合、持ち主は目前の用件を処理するために能動的に傘の状態を変更したのである。次の動作へと意識が切り替わる際、この一時的な保管状態が記憶から切り離されることで遺忘が生じる。能動的な配置から失念へと至る、行動の転換がここに記録されている。",
-    en: `The "Placement Type" is defined by umbrellas that exhibit a non-accidental posture within urban spaces. In contrast to the "Drop Type," which yields to gravity and lies flat on the ground, this type demonstrates a clear spatial intent. Its posture remains stable—whether standing upright against architectural boundaries, hooked onto a support, or resting on elevated surfaces such as benches or hedges. This indicates that the umbrella was not lost through an unintentional slip, but was instead temporarily entrusted to the environment. Typically, the owner proactively altered the umbrella's state to attend to an immediate task. When their consciousness shifts to the next sequence of actions, this temporary state of storage is severed from their memory, resulting in its abandonment. Recorded here is the behavioral transition from intentional placement to complete oversight.`,
+    "ja": [
+      "「放置型」は、都市空間において「非偶発的な佇まい」を見せる傘のタイプとして定義される。",
+      "重力に抗えず地面に倒れ伏す「落下型」とは対照的に、このタイプは空間に対する明確な意志を感じさせる。建築の境界に沿って直立したり、特定の支点に懸架されたり、あるいはベンチや植え込みの上といった地面より高い位置に留まったりと、その姿勢は安定している。",
+      "これは、傘が意図せず脱落したのではなく、持ち主が一時的に周囲の環境に預けたことを示している。多くの場合、持ち主は目前の用件を処理するために能動的に傘の状態を変更したのである。次の動作へと意識が切り替わる際、この一時的な保管状態が記憶から切り離されることで遺忘が生じる。能動的な配置から失念へと至る、行動の転換がここに記録されている。"
+    ],
+    "en": [
+      "The \"Placement Type\" is defined by umbrellas that exhibit a non-accidental posture within urban spaces.",
+      "In contrast to the \"Drop Type,\" which yields to gravity and lies flat on the ground, this type demonstrates a clear spatial intent. Its posture remains stable—whether standing upright against architectural boundaries, hooked onto a support, or resting on elevated surfaces such as benches or hedges.",
+      "This indicates that the umbrella was not lost through an unintentional slip, but was instead temporarily entrusted to the environment. Typically, the owner proactively altered the umbrella's state to attend to an immediate task. When their consciousness shifts to the next sequence of actions, this temporary state of storage is severed from their memory, resulting in its abandonment. Recorded here is the behavioral transition from intentional placement to complete oversight."
+    ]
   },
   "disposal(behavior)": {
-    ja: "「廃棄型」は、持ち主が主観的な意志に基づき、物件との関係を終結させることを選択したタイプである。一時的な「放置型」や偶発的な「落下型」とは異なり、この行為は傘が「道具」から「廃棄物」へと完全にアイデンティティが切り替わったことを示している。多くの場合、傘が機能を喪失した際（骨組みの折れ、布の破れなど）、あるいは持ち主がこれ以上の携行価値がないと判断した際に発生する。物理的な状態において、「廃棄型」にはしばしば「処理された」痕跡が見受けられる。公共のゴミ箱の隙間に押し込まれていたり、雑然とした場所に投げ捨てられていたりするのが特徴だ。そこには「放置型」のように再取得を想定した安定した秩序はなく、むしろ関係の断絶がその佇まいに現れている。これは人と物件との機能的な契約が失効した終着点であり、都市における瞬間的な決断の記録である。",
-    en: `The "Disposal Type" refers to umbrellas left behind based on a conscious decision by the owner to terminate their relationship with the object. Unlike the temporary "Placement Type" or the accidental "Drop Type," this behavior marks a complete shift in the umbrella's identity from a "tool" to "waste." In most cases, this occurs when the umbrella has lost its functionality (e.g., broken ribs or torn fabric) or when the owner decides it no longer holds enough value to be carried. Physically, the "Disposal Type" often shows clear traces of being "processed": they might be shoved into the gaps of public trash bins or discarded in corners where miscellaneous debris accumulates. This posture lacks the stable order characteristic of the "Placement Type"—which is intended for later retrieval—and instead conveys a sense of finality. It records the severance of the functional contract between the person and the object, serving as the final point of a momentary decision within the urban environment.`,
+    "ja": [
+      "「廃棄型」は、持ち主が主観的な意志に基づき、物件との関係を終結させることを選択したタイプである。一時的な「放置型」や偶発的な「落下型」とは異なり、この行為は傘が「道具」から「廃棄物」へと完全にアイデンティティが切り替わったことを示している。",
+      "多くの場合、傘が機能を喪失した際（骨組みの折れ、布の破れなど）、あるいは持ち主がこれ以上の携行価値がないと判断した際に発生する。物理的な状態において、「廃棄型」にはしばしば「処理された」痕跡が見受けられる。公共のゴミ箱の隙間に押し込まれていたり、雑然とした場所に投げ捨てられていたりするのが特徴だ。そこには「放置型」のように再取得を想定した安定した秩序はなく、むしろ関係の断絶がその佇まいに現れている。これは人と物件との機能的な契約が失効した終着点であり、都市における瞬間的な決断の記録である。"
+    ],
+    "en": [
+      "The \"Disposal Type\" refers to umbrellas left behind based on a conscious decision by the owner to terminate their relationship with the object. Unlike the temporary \"Placement Type\" or the accidental \"Drop Type,\" this behavior marks a complete shift in the umbrella's identity from a \"tool\" to \"waste.\"",
+      "In most cases, this occurs when the umbrella has lost its functionality (e.g., broken ribs or torn fabric) or when the owner decides it no longer holds enough value to be carried. Physically, the \"Disposal Type\" often shows clear traces of being \"processed\": they might be shoved into the gaps of public trash bins or discarded in corners where miscellaneous debris accumulates. This posture lacks the stable order characteristic of the \"Placement Type\"—which is intended for later retrieval—and instead conveys a sense of finality. It records the severance of the functional contract between the person and the object, serving as the final point of a momentary decision within the urban environment."
+    ]
   },
   "payment(behavior)": {
-    ja: "「支払い型」は、精算機、券売機など、「支払い行為」に関わる場所で発見される傘である。これらの場面では、カードの取り出しや物探し、スキャンといった操作によって、手と注意が一時的に占有される。その過程で、傘は明確に「置かれる」というよりも、一連の動作の流れの中で自然に脇へと置かれ、台の端や機械の横、足元などに一時的に留まる。そして支払いが終わると、注意は次の行動へと移り、傘はそのまま忘れられることになる。このタイプは行動の中断と切り替えに由来する点に特徴がある。短時間でありながら高い集中を伴う支払い行為は、傘を手から離れさせ、無意識のうちにその場に留める。そこに残された傘は、都市生活における微細な注意の断絶を記録している。",
-    en: `The "payment" type refers to umbrellas found at settlement machines, ticket machines, or any location involving the act of payment. In these scenarios, operations such as retrieving cards, searching for items, or scanning barcodes occupy both one's hands and attention. Rather than being deliberately "placed," the umbrella is naturally set aside within the flow of movement—propped against the edge of a counter, beside a machine, or at one's feet. Once the payment is complete, attention shifts to the next objective, and the umbrella is left behind. This type is characterized by the interruption and switching of behavioral sequences. The act of payment, which demands high concentration within a short duration, detaches the umbrella from both hand and consciousness. These abandoned objects serve as records of the minute ruptures in attention that occur within urban life.`,
+    "ja": [
+      "「支払い型」は、精算機、券売機など、「支払い行為」に関わる場所で発見される傘である。",
+      "これらの場面では、カードの取り出しや物探し、スキャンといった操作によって、手と注意が一時的に占有される。その過程で、傘は明確に「置かれる」というよりも、一連の動作の流れの中で自然に脇へと置かれ、台の端や機械の横、足元などに一時的に留まる。そして支払いが終わると、注意は次の行動へと移り、傘はそのまま忘れられることになる。",
+      "このタイプは行動の中断と切り替えに由来する点に特徴がある。短時間でありながら高い集中を伴う支払い行為は、傘を手から離れさせ、無意識のうちにその場に留める。そこに残された傘は、都市生活における微細な注意の断絶を記録している。"
+    ],
+    "en": [
+      "The \"payment\" type refers to umbrellas found at settlement machines, ticket machines, or any location involving the act of payment.",
+      "In these scenarios, operations such as retrieving cards, searching for items, or scanning barcodes occupy both one’s hands and attention. Rather than being deliberately \"placed,\" the umbrella is naturally set aside within the flow of movement—propped against the edge of a counter, beside a machine, or at one’s feet. Once the payment is complete, attention shifts to the next objective, and the umbrella is left behind.",
+      "This type is characterized by the interruption and switching of behavioral sequences. The act of payment, which demands high concentration within a short duration, detaches the umbrella from both hand and consciousness. These abandoned objects serve as records of the minute ruptures in attention that occur within urban life."
+    ]
   },
   "restroom(place)": {
-    ja: "「トイレ型」は、トイレという極めて特殊な場所で発見される傘である。特に男子トイレの小便器の傍らに置き忘れた場合が多い。用を足す間、置き場所に困る長柄の傘は、一時的に手から離される。その後の洗面、退室という一連の無意識な流れの中で、傘の記憶だけが置き去りにされてしまうのである。そのため、ここに残された傘は破損もなく、ほぼ完全な状態で発見されることが多い。それは、機能的な空間が生んだ純粋な「忘却」の形であり、人間の意識の隙間を垣間見るような光景と言えるだろう。",
-    en: `The "Restroom" type refers to umbrellas found in the highly specific environment of the restroom. They are most frequently found abandoned beside urinals in men's facilities. During the act of relieving oneself, long handled umbrellas—which are awkward to manage in such cramped quarters—are temporarily set aside. In the subsequent, subconscious sequence of washing hands and exiting, the memory of the umbrella is the only thing left behind. As a result, these umbrellas are typically found in nearly pristine condition, free of damage. This represents a pure form of "forgetting" generated by a functional space—a scene that offers a glimpse into the subtle fissures of human consciousness.`,
+    "ja": [
+      "「トイレ型」は、トイレという極めて特殊な場所で発見される傘である。",
+      "特に男子トイレの小便器の傍らに置き忘れた場合が多い。用を足す間、置き場所に困る長柄の傘は、一時的に手から離される。その後の洗面、退室という一連の無意識な流れの中で、傘の記憶だけが置き去りにされてしまうのである。そのため、ここに残された傘は破損もなく、ほぼ完全な状態で発見されることが多い。それは、機能的な空間が生んだ純粋な「忘却」の形であり、人間の意識の隙間を垣間見るような光景と言えるだろう。"
+    ],
+    "en": [
+      "The \"Restroom\" type refers to umbrellas found in the highly specific environment of the restroom.",
+      "They are most frequently found abandoned beside urinals in men's facilities. During the act of relieving oneself, long handled umbrellas—which are awkward to manage in such cramped quarters—are temporarily set aside. In the subsequent, subconscious sequence of washing hands and exiting, the memory of the umbrella is the only thing left behind. As a result, these umbrellas are typically found in nearly pristine condition, free of damage. This represents a pure form of \"forgetting\" generated by a functional space—a scene that offers a glimpse into the subtle fissures of human consciousness."
+    ]
   },
   "corner(affordance)": {
-    ja: "「角部型」は、建物の外壁の角、塀と塀の接合部、路地の折れ曲がりといった、空間の“角”に位置する場所で発見される傘である。これらの場所は、視線や動線がぶつかり、わずかな滞留や躊躇が生じやすい「空間の節点」とも言える。そのため、傘は意図的に置かれたというよりも、身体の動きの流れの中で自然に手から離れ、そのまま角へと収束するように残される。多くの場合、壁に沿うように立てかけられたり、角に差し込まれるように寄りかかっており、完全に無秩序に投げ捨てられているわけではない点が特徴的である。ここでは、手すりのように単に引っ掛けるのではなく、わずかに角度や位置を調整しながら置かれるため、ごく微弱ながらも配置への意識が介在しているとも考えられる。角という場所は、中心でも通過点でもなく、空間の余白でありながら、同時に力が集まる場所でもある。そこに残された傘は、都市の中で見過ごされがちな微細な行動の痕跡を可視化し、無意識と意識のあいだにある曖昧な選択を示している。",
-    en: `The "Corner" type refers to umbrellas found at the "corners" of space, such as the exterior corners of buildings, junctions between walls, or the bends in alleys. These locations can be described as "spatial nodes," where lines of sight and movement converge, often causing brief moments of stagnation or hesitation. Consequently, rather than being deliberately placed, the umbrella naturally leaves the hand within the flow of physical movement, remaining as if it has converged into the corner. A characteristic feature is that they are typically propped along walls or leaned into corners as if inserted, rather than being discarded in total disorder. Unlike simply hooking an umbrella onto a handrail, these are set down with subtle adjustments to angle and position, suggesting that a faint sense of conscious arrangement is present. A corner is neither a center nor a mere transit point; it is a spatial margin where forces simultaneously gather. The umbrellas left in these spots visualize minute traces of behavior often overlooked in the city, illustrating the ambiguous choices made between the unconscious and the conscious.`,
+    "ja": [
+      "「角部型」は、建物の外壁の角、塀と塀の接合部、路地の折れ曲がりといった、空間の“角”に位置する場所で発見される傘である。",
+      "これらの場所は、視線や動線がぶつかり、わずかな滞留や躊躇が生じやすい「空間の節点」とも言える。そのため、傘は意図的に置かれたというよりも、身体の動きの流れの中で自然に手から離れ、そのまま角へと収束するように残される。多くの場合、壁に沿うように立てかけられたり、角に差し込まれるように寄りかかっており、完全に無秩序に投げ捨てられているわけではない点が特徴的である。ここでは、手すりのように単に引っ掛けるのではなく、わずかに角度や位置を調整しながら置かれるため、ごく微弱ながらも配置への意識が介在しているとも考えられる。角という場所は、中心でも通過点でもなく、空間の余白でありながら、同時に力が集まる場所でもある。そこに残された傘は、都市の中で見過ごされがちな微細な行動の痕跡を可視化し、無意識と意識のあいだにある曖昧な選択を示している。"
+    ],
+    "en": [
+      "The \"Corner\" type refers to umbrellas found at the \"corners\" of space, such as the exterior corners of buildings, junctions between walls, or the bends in alleys.",
+      "These locations can be described as \"spatial nodes,\" where lines of sight and movement converge, often causing brief moments of stagnation or hesitation. Consequently, rather than being deliberately placed, the umbrella naturally leaves the hand within the flow of physical movement, remaining as if it has converged into the corner. A characteristic feature is that they are typically propped along walls or leaned into corners as if inserted, rather than being discarded in total disorder. Unlike simply hooking an umbrella onto a handrail, these are set down with subtle adjustments to angle and position, suggesting that a faint sense of conscious arrangement is present. A corner is neither a center nor a mere transit point; it is a spatial margin where forces simultaneously gather. The umbrellas left in these spots visualize minute traces of behavior often overlooked in the city, illustrating the ambiguous choices made between the unconscious and the conscious."
+    ]
   },
   "transit(place)": {
-    ja: "「公共交通型」は、電車やバスといった公共交通機関の車内で発見される傘である。特に長傘の場合、折りたたみ傘のように容易に収納することができず、乗車中の身体の状態によって扱いが制約される。立っている場合には、傘の先端を床につけ、手元で支えることができるが、着席すると状況は大きく変わる。濡れた傘を手に持ち続けるには、持ち手を腰より高い位置で保持する必要があり、肩や腕に余分な負担がかかる。そのため、多くの場合、傘は手すりや座席の縁などに一時的に掛けられることになる。この「身体的な不快を回避するための一時的な解放」が、そのまま長時間維持されることで、傘は使用者の意識から切り離されていく。移動中という継続的な時間の中で、スマートフォンの操作や休息といった状態が重なると、再び傘を手に取る契機が失われ、そのまま忘却へと移行する。",
-    en: `The "Public Transit Type" refers to umbrellas discovered inside public transportation vehicles, such as trains and buses. Unlike foldable models, long-handled umbrellas cannot be easily stored, and their handling is heavily constrained by the passenger's physical posture during the journey. While standing, a passenger can rest the tip of the umbrella on the floor and support it by hand; however, the situation changes significantly upon taking a seat. To keep a grip on a wet umbrella while seated, the handle must be held above waist level, imposing a continuous physical burden on the shoulders and arms. Consequently, the umbrella is often temporarily hung on handrails or the edges of seats. This "temporary release," intended to alleviate physical discomfort, is often maintained for an extended period, gradually severing the object from the user's consciousness. During the continuous duration of the transit, if distractions such as smartphone use or resting overlap with this state, the prompt to retrieve the umbrella is lost, leading directly to its abandonment.`,
+    "ja": [
+      "「公共交通型」は、電車やバスといった公共交通機関の車内で発見される傘である。",
+      "特に長傘の場合、折りたたみ傘のように容易に収納することができず、乗車中の身体の状態によって扱いが制約される。立っている場合には、傘の先端を床につけ、手元で支えることができるが、着席すると状況は大きく変わる。濡れた傘を手に持ち続けるには、持ち手を腰より高い位置で保持する必要があり、肩や腕に余分な負担がかかる。そのため、多くの場合、傘は手すりや座席の縁などに一時的に掛けられることになる。この「身体的な不快を回避するための一時的な解放」が、そのまま長時間維持されることで、傘は使用者の意識から切り離されていく。移動中という継続的な時間の中で、スマートフォンの操作や休息といった状態が重なると、再び傘を手に取る契機が失われ、そのまま忘却へと移行する。"
+    ],
+    "en": [
+      "The \"Public Transit Type\" refers to umbrellas discovered inside public transportation vehicles, such as trains and buses.",
+      "Unlike foldable models, long-handled umbrellas cannot be easily stored, and their handling is heavily constrained by the passenger's physical posture during the journey. While standing, a passenger can rest the tip of the umbrella on the floor and support it by hand; however, the situation changes significantly upon taking a seat. To keep a grip on a wet umbrella while seated, the handle must be held above waist level, imposing a continuous physical burden on the shoulders and arms. Consequently, the umbrella is often temporarily hung on handrails or the edges of seats. This \"temporary release,\" intended to alleviate physical discomfort, is often maintained for an extended period, gradually severing the object from the user’s consciousness. During the continuous duration of the transit, if distractions such as smartphone use or resting overlap with this state, the prompt to retrieve the umbrella is lost, leading directly to its abandonment."
+    ]
   },
-  unknown: {
-    ja: "「未知型」は、周辺情報の不足や状態の曖昧さにより、既存のカテゴリーに分類することが困難なタイプを指す。複数の分類の境界に位置するものや、遺失の経緯が全く推測できないものがこれに該当する。観察の論理では捉えきれない例外として、システムにおける「余白」を象徴する存在である。",
-    en: `The "Unknown Type" refers to abandoned umbrellas that are difficult to classify within existing categories due to a lack of contextual information or an ambiguous physical state. These may sit at the intersection of multiple types or involve origins that leave no traceable evidence. They represent the "gray areas" within the research system—exceptions that cannot be fully captured by logic.`,
-  },
+  "unknown": {
+    "ja": [
+      "「未知型」は、周辺情報の不足や状態の曖昧さにより、既存のカテゴリーに分類することが困難なタイプを指す。複数の分類の境界に位置するものや、遺失の経緯が全く推測できないものがこれに該当する。観察の論理では捉えきれない例外として、システムにおける「余白」を象徴する存在である。"
+    ],
+    "en": [
+      "The \"Unknown Type\" refers to abandoned umbrellas that are difficult to classify within existing categories due to a lack of contextual information or an ambiguous physical state. These may sit at the intersection of multiple types or involve origins that leave no traceable evidence. They represent the \"gray areas\" within the research system—exceptions that cannot be fully captured by logic."
+    ]
+  }
 };
+
+// ---- 統計 (statistics) page (#5) -------------------------------------------
+
+// The dimensions you can put on either axis of the cross-tab.
+const STATS_DIMS = ["type", "color", "kind", "state", "month", "place"];
+const STATS_DIM_LABELS = {
+  type: { ja: "タイプ", en: "type" },
+  color: { ja: "色", en: "color" },
+  kind: { ja: "傘の種別", en: "kind" },
+  state: { ja: "状態", en: "state" },
+  month: { ja: "月", en: "month" },
+  place: { ja: "場所", en: "place" },
+};
+const STATS_TYPE_ORDER = [
+  "hookable(affordance)",
+  "drop(behavior)",
+  "disposal(behavior)",
+  "placement(behavior)",
+  "payment(behavior)",
+  "restroom(place)",
+  "corner(affordance)",
+  "transit(place)",
+  "unknown",
+];
+
+// One row per umbrella (umbrellaUnits entry). A record with no units counts once
+// so every photo is represented. `state` is multi-valued (a unit can have several
+// status flags), the rest are single-valued.
+function buildStatsUnits() {
+  const units = [];
+  state.umbrellas.forEach((item) => {
+    const month = item.time ? String(item.time).slice(0, 7) : "no-time";
+    const place = item.prefecture || "unknown";
+    const list = (item.umbrellaUnits || []).length ? item.umbrellaUnits : [{}];
+    list.forEach((u) => {
+      units.push({
+        type: item.type || "unknown",
+        color: u.color || "unknown",
+        kind: u.kind || "unknown",
+        state: u.status && u.status.length ? u.status.slice() : ["unknown"],
+        month,
+        place,
+      });
+    });
+  });
+  return units;
+}
+
+function statsDimValues(unit, dim) {
+  return dim === "state" ? unit.state : [unit[dim]];
+}
+
+// Short label for an axis value (a type drops its "(group)" suffix).
+function statsValueLabel(dim, value) {
+  return dim === "type" ? String(value).replace(/\(.*\)$/, "") : value;
+}
+
+function statsOrderValues(values, dim) {
+  if (dim === "type") {
+    return values.sort((a, b) => STATS_TYPE_ORDER.indexOf(a) - STATS_TYPE_ORDER.indexOf(b));
+  }
+  if (dim === "month") {
+    return values.sort();
+  }
+  const trailing = (v) => (v === "unknown" || v === "no-time" ? 1 : 0);
+  return values.sort((a, b) => trailing(a) - trailing(b) || String(a).localeCompare(String(b)));
+}
+
+function renderStats() {
+  els.archiveContent.innerHTML = `
+    ${renderStatsPivot(buildStatsUnits())}
+    ${renderStatsOverview()}
+  `;
+}
+
+function renderStatsAxisSelect(axis, current) {
+  const options = STATS_DIMS.map(
+    (dim) =>
+      `<option value="${dim}"${dim === current ? " selected" : ""}>${escapeHtml(localize(STATS_DIM_LABELS[dim]))}</option>`,
+  ).join("");
+  return `<select class="stats-axis" data-stats-axis="${axis}" aria-label="${axis} axis">${options}</select>`;
+}
+
+// The interactive cross-tab: pick a dimension for rows and one for columns; each
+// cell counts umbrellas, with totals along the bottom and right edge (#5).
+function renderStatsPivot(units) {
+  const xDim = state.statsX;
+  const yDim = state.statsY;
+  const matrix = new Map();
+  const xSet = new Set();
+  const ySet = new Set();
+  units.forEach((u) => {
+    const xs = statsDimValues(u, xDim);
+    const ys = statsDimValues(u, yDim);
+    xs.forEach((x) => xSet.add(x));
+    ys.forEach((y) => ySet.add(y));
+    ys.forEach((y) => {
+      if (!matrix.has(y)) {
+        matrix.set(y, new Map());
+      }
+      const row = matrix.get(y);
+      xs.forEach((x) => row.set(x, (row.get(x) || 0) + 1));
+    });
+  });
+  const xVals = statsOrderValues([...xSet], xDim);
+  const yVals = statsOrderValues([...ySet], yDim);
+
+  const colTotals = xVals.map(() => 0);
+  let grand = 0;
+  const bodyRows = yVals.map((y) => {
+    const row = matrix.get(y) || new Map();
+    let rowTotal = 0;
+    const cells = xVals.map((x, i) => {
+      const n = row.get(x) || 0;
+      rowTotal += n;
+      colTotals[i] += n;
+      return `<td>${n || ""}</td>`;
+    });
+    grand += rowTotal;
+    return `<tr><th scope="row">${escapeHtml(statsValueLabel(yDim, y))}</th>${cells.join("")}<td class="stats-total">${rowTotal}</td></tr>`;
+  });
+
+  const headCells = xVals.map((x) => `<th scope="col">${escapeHtml(statsValueLabel(xDim, x))}</th>`).join("");
+  const totalCells = colTotals.map((n) => `<td class="stats-total">${n}</td>`).join("");
+
+  return `
+    <section class="stats-block">
+      <div class="stats-axis-controls">
+        <label>${state.lang === "ja" ? "縦軸" : "rows"} ${renderStatsAxisSelect("y", yDim)}</label>
+        <label>${state.lang === "ja" ? "横軸" : "columns"} ${renderStatsAxisSelect("x", xDim)}</label>
+      </div>
+      <div class="stats-table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr><th class="stats-corner">${escapeHtml(localize(STATS_DIM_LABELS[yDim]))} \\ ${escapeHtml(localize(STATS_DIM_LABELS[xDim]))}</th>${headCells}<th class="stats-total">TOTAL</th></tr>
+          </thead>
+          <tbody>
+            ${bodyRows.join("")}
+            <tr class="stats-total-row"><th scope="row">TOTAL</th>${totalCells}<td class="stats-total">${grand}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+// Flat overview: one row per record (#5, screenshot 1).
+function renderStatsOverview() {
+  const rows = state.umbrellas
+    .map((item) => {
+      const cells = [
+        item.id,
+        item.location || "",
+        formatDateTime(item.time) || "",
+        statsValueLabel("type", item.type || ""),
+        item.objectText || "",
+        item.statusText || "",
+      ];
+      return `<tr>${cells.map((c) => `<td>${escapeHtml(c)}</td>`).join("")}</tr>`;
+    })
+    .join("");
+  return `
+    <section class="stats-block">
+      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${state.umbrellas.length})</h3>
+      <div class="stats-table-wrap">
+        <table class="stats-table stats-overview">
+          <thead>
+            <tr><th>IMG</th><th>area</th><th>date</th><th>type</th><th>object</th><th>state</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
 
 function renderArchive(items) {
   if (!els.archiveContent) {
@@ -1441,16 +1684,26 @@ function renderArchive(items) {
   syncArchiveControls();
   renderArchiveSecondary(items);
 
+  if (state.archiveMode === "stats") {
+    renderStats(items);
+    return;
+  }
+
   const visibleItems = filterArchiveItems(items);
   const sorted = sortArchiveItems(visibleItems);
 
   if (state.archiveMode === "default" || state.archiveMode === "type") {
-    // #6: when a specific type is selected, show its explanatory text above the grid.
+    // #6: when a specific type is selected, show its explanatory text above the
+    // grid — one <p> per source paragraph; Japanese is justified, English isn't.
     let typeDescHtml = "";
     if (state.archiveMode === "type" && state.archiveSubfilter !== "all") {
-      const descText = localize(TYPE_DESCRIPTIONS[state.archiveSubfilter]);
-      if (descText) {
-        typeDescHtml = `<p class="archive-type-desc">${escapeHtml(descText)}</p>`;
+      const desc = TYPE_DESCRIPTIONS[state.archiveSubfilter];
+      const paras = desc ? desc[state.lang] || desc.ja || desc.en || [] : [];
+      if (paras.length) {
+        const justifyClass = state.lang === "ja" ? " is-justify" : "";
+        typeDescHtml = `<div class="archive-type-desc${justifyClass}">${paras
+          .map((p) => `<p>${escapeHtml(p)}</p>`)
+          .join("")}</div>`;
       }
     }
     els.archiveContent.innerHTML = `
@@ -1945,8 +2198,9 @@ function getExpandableMedia(item) {
 
 // Entry point from clicking the cover image — expand at the cover's position.
 function openExpandedImage() {
-  // Open at whichever photo the detail page is currently showing (#2).
-  expandImageAt(state.detailImageIndex || 0);
+  const list = state.focusMediaList || [];
+  const coverIndex = Math.max(0, list.findIndex((m) => m.role === "primary"));
+  expandImageAt(coverIndex);
 }
 
 // Enlarge the n-th expandable image; bring the marker back to the clear circle
@@ -2005,8 +2259,6 @@ function loadExpandedImage() {
   state.imageZoom = 1;
   state.imagePanX = 0;
   state.imagePanY = 0;
-  // Closing the lightbox leaves the detail page on this photo (#2).
-  state.detailImageIndex = state.expandedIndex;
   els.focusImage.src = media.src;
   updateExpandedCaption(media);
   // If the image is already cached the "load" listener won't fire, so size now.
@@ -2145,6 +2397,8 @@ function recenterFocusedMarker() {
 }
 
 function closeExpandedImage() {
+  const wasExpanded = state.imageExpanded;
+  const viewedMedia = (state.focusMediaList || [])[state.expandedIndex];
   state.imageExpanded = false;
   state.imageZoom = 1;
   state.imagePanX = 0;
@@ -2171,9 +2425,42 @@ function closeExpandedImage() {
     els.focusExpandedCaption.hidden = true;
     els.focusExpandedCaption.textContent = "";
   }
-  // Note: we deliberately do NOT revert the detail page's main image to the cover
-  // here — it stays on whichever photo you were viewing in the lightbox (#2).
-  // renderFocusImage() resets it to the cover when a different record opens.
+  // Put the detail page's main image back to the cover (the lightbox swapped it).
+  const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
+  const cover = (item?.media || []).find((m) => m.role === "primary") || item?.media?.[0];
+  if (cover && els.focusImage && !els.focusImage.src.endsWith(cover.src)) {
+    els.focusImage.src = cover.src || item.image;
+  }
+  // ...then scroll the detail page to the photo you were just viewing, so you land
+  // where you left off rather than being yanked back to the top (#2).
+  if (wasExpanded && viewedMedia) {
+    scrollDetailToMedia(viewedMedia);
+  }
+}
+
+// Scroll the detail article to a given photo. The cover sits at the very top;
+// every other photo is a <figure> in the article keyed by its file name. We
+// compute the target offset and scroll the panel explicitly (scrollIntoView's
+// ancestor-walk proved unreliable right after the lightbox collapses).
+function scrollDetailToMedia(media) {
+  const scroll = document.querySelector("#focus-scroll");
+  if (!media || !scroll) {
+    return;
+  }
+  if (media.role === "primary") {
+    scroll.scrollTo({ top: 0 });
+    return;
+  }
+  const fig = els.focusCaption?.querySelector(`img[data-media-file="${media.file}"]`)?.closest(".focus-photo");
+  if (!fig) {
+    return;
+  }
+  const figRect = fig.getBoundingClientRect();
+  const scRect = scroll.getBoundingClientRect();
+  // Centre the figure in the visible part of the panel. Instant (not smooth) so
+  // it isn't cancelled by the cover image re-loading and reflowing the article.
+  const delta = figRect.top - scRect.top - (scroll.clientHeight - figRect.height) / 2;
+  scroll.scrollTo({ top: Math.max(0, scroll.scrollTop + delta) });
 }
 
 function handleExpandedImageWheel(event) {
@@ -2523,7 +2810,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=71", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=72", { updateViaCache: "none" });
   }
 }
 

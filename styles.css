@@ -1124,6 +1124,9 @@ body.is-entered .welcome-screen {
   padding: 6px;
   overflow-y: auto;
   scrollbar-width: thin;
+  /* The rail container is click-through: only the thumbnails themselves catch
+     clicks, so the gaps/padding around them still close the lightbox (#3). */
+  pointer-events: none;
 }
 
 .focus-thumbs[hidden] {
@@ -1131,6 +1134,7 @@ body.is-entered .welcome-screen {
 }
 
 .focus-thumb {
+  pointer-events: auto;
   width: 58px;
   height: 58px;
   padding: 0;
@@ -1319,13 +1323,110 @@ body.editor-open .archive-view {
   gap: 16px;
 }
 
-/* #6: explanatory text shown above the grid when a 種類 is selected. */
+/* #6: explanatory text shown above the grid when a 種類 is selected. One <p> per
+   source paragraph; Japanese paragraphs are justified (両端揃え), English isn't. */
 .archive-type-desc {
   margin: 0 0 20px;
   max-width: 70ch;
+}
+
+.archive-type-desc p {
+  margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.85;
   color: var(--ink);
+}
+
+.archive-type-desc p:last-child {
+  margin-bottom: 0;
+}
+
+.archive-type-desc.is-justify p {
+  text-align: justify;
+}
+
+/* 統計 (statistics) page (#5): an interactive cross-tab + a flat overview. */
+.stats-block {
+  margin: 0 0 40px;
+}
+
+.stats-heading {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stats-axis-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.stats-axis-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stats-axis {
+  font-size: 13px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.stats-table-wrap {
+  overflow-x: auto;
+}
+
+.stats-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+.stats-table th,
+.stats-table td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stats-table thead th {
+  background: rgba(20, 26, 25, 0.05);
+  font-weight: 600;
+}
+
+.stats-table tbody th[scope="row"] {
+  text-align: left;
+  font-weight: 500;
+}
+
+.stats-corner {
+  text-align: left !important;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.stats-total,
+.stats-total-row th,
+.stats-total-row td {
+  font-weight: 700;
+  background: rgba(20, 26, 25, 0.05);
+}
+
+.stats-overview td {
+  text-align: left;
+}
+
+.stats-overview td:first-child {
+  font-weight: 600;
 }
 
 .photo-card {
