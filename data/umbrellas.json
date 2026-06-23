@@ -924,7 +924,10 @@
       "lng": 140.104431805509
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -966,7 +969,7 @@
         "file": "pic_1.png",
         "src": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
         "thumb": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
-        "role": "detail",
+        "role": "illustration",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -2180,7 +2183,10 @@
       "lng": 140.12096168471518
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2222,7 +2228,7 @@
         "file": "pic_1.png",
         "src": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
         "thumb": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
-        "role": "detail",
+        "role": "illustration",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -3149,16 +3155,31 @@
       "lng": 135.75958045619365
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
-    "umbrellaCount": "1",
+    "umbrellaCount": "2",
     "umbrellaUnits": [
       {
-        "color": "",
+        "color": "transparent",
         "colorDetail": "",
-        "kind": "",
-        "status": [],
+        "kind": "long umbrella",
+        "status": [
+          "worn",
+          "deteriorated"
+        ],
+        "statusOther": ""
+      },
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
         "statusOther": ""
       }
     ],

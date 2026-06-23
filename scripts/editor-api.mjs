@@ -25,8 +25,17 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const recordsRoot = path.join(rootDir, "filebox", "records");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 
-// Plain text fields the editor is allowed to overwrite.
-const TEXT_FIELDS = ["locationText", "time", "title", "umbrellaType", "story"];
+// Plain text fields the editor is allowed to overwrite. (title is handled
+// separately because it is now bilingual { ja, en }.)
+const TEXT_FIELDS = ["locationText", "time", "umbrellaType", "story"];
+
+// A bilingual field: accepts { ja, en } or a legacy plain string (-> ja slot).
+function sanitizeBilingual(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return { ja: String(value.ja ?? "").trim(), en: String(value.en ?? "").trim() };
+  }
+  return { ja: String(value ?? "").trim(), en: "" };
+}
 
 const COUNT_VALUES = new Set(["1", "2", "3", "4", "5", "unknown", ""]);
 const COLOR_VALUES = new Set(["transparent", "translucent", "colored", "patterned", "other", "unknown", ""]);
@@ -66,8 +75,11 @@ function sanitizeBlocks(value) {
   }
   const blocks = [];
   for (const block of value) {
-    if (block?.type === "text" && typeof block.text === "string" && block.text.trim()) {
-      blocks.push({ type: "text", text: block.text });
+    if (block?.type === "text") {
+      const text = sanitizeBilingual(block.text);
+      if (text.ja || text.en) {
+        blocks.push({ type: "text", text });
+      }
     } else if (block?.type === "photo" && typeof block.file === "string" && block.file) {
       blocks.push({ type: "photo", file: path.basename(block.file) });
     }
@@ -158,6 +170,11 @@ export async function saveRecord(payload) {
     if (Object.prototype.hasOwnProperty.call(payload, field)) {
       record[field] = String(payload[field] ?? "");
     }
+  }
+
+  // Bilingual title { ja, en } (accepts a legacy string too).
+  if (Object.prototype.hasOwnProperty.call(payload, "title")) {
+    record.title = sanitizeBilingual(payload.title);
   }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationLevels")) {
@@ -271,6 +288,28 @@ export async function uploadImage(payload) {
   const filename = sanitizeFilename(payload.filename);
   const buffer = decodeImageData(payload.dataBase64);
   await fs.writeFile(path.join(path.dirname(recordPath), filename), buffer);
+
+  // Seed the new image's photoTime from its EXIF so supplement/detail photos
+  // show their capture time too (#4). Don't overwrite an existing value.
+  const exif = parseExif(buffer);
+  if (exif.dateTime) {
+    const record = await readRecordFile(recordPath);
+    const media = Array.isArray(record.media) ? record.media : [];
+    const existing = media.find((m) => m.file === filename);
+    if (existing) {
+      if (!existing.photoTime) {
+        existing.photoTime = exif.dateTime;
+      }
+    } else {
+      media.push({ id: path.parse(filename).name, file: filename, role: "detail", title: "", photoTime: exif.dateTime, story: "", legacyThumb: "" });
+    }
+    record.media = media;
+    const merged = await mergeRecordMediaWithFolder(recordPath, record);
+    await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
+    await rebuildDatabase();
+    return { ok: true, id, file: filename, media: merged.media };
+  }
+
   const merged = await rewriteAndRebuild(recordPath);
   return { ok: true, id, file: filename, media: merged.media };
 }
@@ -343,7 +382,7 @@ export async function createRecord(payload) {
     locationCoordinates: exif.coordinates || fallbackCoords,
     photoTime: exif.dateTime || "",
     time: "",
-    title: "",
+    title: { ja: "", en: "" },
     umbrellaType: "",
     umbrellaColor: "",
     umbrellaStatus: "",

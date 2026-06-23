@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=63" />
+    <link rel="stylesheet" href="styles.css?v=68" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -89,7 +89,13 @@
             aria-expanded="false"
             title="expand location list"
           >
-            <span aria-hidden="true">&#8249;</span>
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <rect x="3" y="4" width="18" height="4" rx="1" />
+                <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" />
+                <path d="M9.5 12h5" />
+              </svg>
+            </span>
           </button>
 
           <aside class="side-panel" id="list-panel" aria-label="location list">
@@ -110,8 +116,7 @@
             </label>
 
             <div class="filter-row" aria-label="map archive sorting">
-              <button class="chip is-active" data-list-sort="default" type="button">デフォルト</button>
-              <button class="chip" data-list-sort="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
+              <button class="chip is-active" data-list-sort="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
               <button class="chip" data-list-sort="type" type="button">種類</button>
               <button class="chip" data-list-sort="place" type="button">場所</button>
             </div>
@@ -151,6 +156,8 @@
               <figcaption id="focus-caption"></figcaption>
             </div>
           </figure>
+
+          <div class="focus-thumbs" id="focus-thumbs" aria-label="image thumbnails" hidden></div>
         </section>
 
         <section class="archive-view view" id="archive-view" aria-label="archive view">
@@ -162,8 +169,7 @@
             <p>並び替え</p>
             <div class="archive-primary-row">
               <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-                <button class="archive-control is-active" data-archive-mode="default" type="button">デフォルト</button>
-                <button class="archive-control" data-archive-mode="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
+                <button class="archive-control is-active" data-archive-mode="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
                 <button class="archive-control" data-archive-mode="type" type="button">種類</button>
                 <button class="archive-control" data-archive-mode="place" type="button">場所</button>
               </div>
@@ -199,6 +205,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=63" type="module"></script>
+    <script src="app.js?v=68" type="module"></script>
   </body>
 </html>

@@ -362,7 +362,7 @@ body.is-entered .welcome-screen {
   top: 96px;
   bottom: 24px;
   z-index: 12;
-  width: min(340px, calc(100vw - 64px));
+  width: min(400px, calc(100vw - 64px));
   overflow: auto;
   padding: 22px;
   border: 1px solid var(--line);
@@ -435,8 +435,18 @@ body.is-entered .welcome-screen {
   transform: none;
 }
 
+.panel-toggle-left span svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .panel-toggle-left {
-  left: 388px;
+  left: 448px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -445,8 +455,9 @@ body.is-entered .welcome-screen {
   left: 18px;
 }
 
+/* Archive icon stays upright whether the list is open or collapsed. */
 .workspace.is-list-collapsed .panel-toggle-left span {
-  transform: rotate(180deg);
+  transform: none;
 }
 
 .panel-heading h2,
@@ -617,14 +628,20 @@ body.is-entered .welcome-screen {
   display: block;
 }
 
-.location-button strong {
+/* ID + title share one line; the title is muted and truncates if long. */
+.location-idrow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   margin-bottom: 5px;
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  min-width: 0;
+}
+
+.location-button strong {
+  flex: 0 0 auto;
   font-size: 13px;
   line-height: 1.28;
+  white-space: nowrap;
 }
 
 .location-button span {
@@ -638,16 +655,31 @@ body.is-entered .welcome-screen {
   min-width: 0;
 }
 
+.location-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Place on line 1, time on line 2 — each kept to a single line. */
 .location-meta {
   display: block;
 }
 
-.location-title {
+.location-meta-place,
+.location-meta-time {
   display: block;
-  margin: -2px 0 4px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.35;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.location-meta-time {
+  margin-top: 2px;
+  opacity: 0.85;
 }
 
 .map-stage {
@@ -855,7 +887,10 @@ body.is-entered .welcome-screen {
   display: grid;
   place-items: center;
   width: 100%;
-  min-height: clamp(360px, 62vh, 620px);
+  /* Reserve height before the image loads so the centered panel doesn't grow
+     (and visibly re-center / jump) once the photo arrives. Kept moderate so the
+     gap to the title/text stays small. */
+  min-height: clamp(280px, 48vh, 460px);
   overflow: hidden;
   border-radius: 8px;
 }
@@ -863,11 +898,10 @@ body.is-entered .welcome-screen {
 .focus-image-panel img {
   display: block;
   width: 100%;
-  max-height: 62vh;
+  max-height: 70vh;
   object-fit: contain;
   border-radius: 8px;
   box-shadow: var(--shadow);
-  background: var(--panel-solid);
   cursor: zoom-in;
   transform: translate3d(var(--image-pan-x), var(--image-pan-y), 0) scale(var(--image-zoom));
   transform-origin: var(--image-origin-x) var(--image-origin-y);
@@ -1008,14 +1042,55 @@ body.is-entered .welcome-screen {
   cursor: grabbing;
 }
 
-.focus-image-panel.is-expanded figcaption {
-  position: absolute;
-  right: 0;
-  bottom: -34px;
-  margin: 0;
+/* #13: in the enlarged lightbox, drop all text + the close button so only the
+   photo (and the side thumbnail rail) remain. */
+.focus-image-panel.is-expanded .focus-header,
+.focus-image-panel.is-expanded #focus-caption,
+.focus-image-panel.is-expanded .focus-close {
+  display: none;
+}
+
+/* Vertical thumbnail rail shown on the right while an image is enlarged. */
+.focus-thumbs {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 86vh;
+  padding: 6px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.focus-thumbs[hidden] {
+  display: none;
+}
+
+.focus-thumb {
+  width: 58px;
+  height: 58px;
   padding: 0;
-  background: transparent;
-  backdrop-filter: none;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  overflow: hidden;
+  background: rgba(20, 26, 25, 0.5);
+  cursor: pointer;
+}
+
+.focus-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.focus-thumb.is-active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
 }
 
 .workspace.is-focus-mode .focus-blur {
@@ -1059,6 +1134,13 @@ body.is-entered .welcome-screen {
 .archive-view,
 .about-view {
   padding: 112px clamp(28px, 6vw, 70px) clamp(28px, 6vw, 70px);
+}
+
+/* #15: while editing from Archive, push the cards out from under the fixed
+   preview (left) and editor drawer (right) so every card stays clickable. */
+body.editor-open .archive-view {
+  padding-left: calc(min(360px, 92vw) + 36px);
+  padding-right: calc(min(380px, 92vw) + 36px);
 }
 
 .section-heading {
@@ -1531,7 +1613,7 @@ body.edit-mode .card-edit {
  * ------------------------------------------------------------------------- */
 .editor-toggle {
   position: fixed;
-  right: 18px;
+  left: 18px;
   top: 70px;
   z-index: 1400;
   padding: 10px 16px;
@@ -1717,7 +1799,7 @@ body.edit-mode .map-stage {
 
 .editor-add {
   position: fixed;
-  right: 18px;
+  left: 18px;
   top: 116px;
   z-index: 1400;
   padding: 8px 14px;
@@ -1736,7 +1818,7 @@ body:not(.edit-mode) .editor-add {
 
 .editor-add-category {
   position: fixed;
-  right: 18px;
+  left: 18px;
   top: 158px;
   z-index: 1400;
   max-width: 200px;
@@ -2037,6 +2119,31 @@ body:not(.edit-mode) .editor-add-category {
   resize: vertical;
 }
 
+/* Bilingual paragraph editor: 日本語 box above, English box below. */
+.editor-block-langs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editor-block-text-ja,
+.editor-block-text-en {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.editor-block-text-en {
+  border-style: dashed;
+}
+
 .editor-block-photo {
   flex: 1;
   display: flex;
@@ -2096,6 +2203,11 @@ body:not(.edit-mode) .editor-add-category {
   cursor: default;
   transform: none;
   border-radius: 8px;
+}
+
+/* Supplement/detail photos are clickable to enlarge (#12); illustrations aren't. */
+.focus-photo img[data-expandable] {
+  cursor: zoom-in;
 }
 
 .focus-photo figcaption {

@@ -26,20 +26,32 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
   "umbrellaColor": "",
   // 伞的数量。可填 "1"~"5" 或 "unknown"，空白表示未填。
-  "umbrellaCount": "1",
+  "umbrellaCount": "2",
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [
     {
-      "color": "",
+      "color": "transparent",
       "colorDetail": "",
-      "kind": "",
-      "status": [],
+      "kind": "long umbrella",
+      "status": [
+        "worn",
+        "deteriorated"
+      ],
+      "statusOther": ""
+    },
+    {
+      "color": "transparent",
+      "colorDetail": "",
+      "kind": "long umbrella",
+      "status": [
+        "fastened"
+      ],
       "statusOther": ""
     }
   ],

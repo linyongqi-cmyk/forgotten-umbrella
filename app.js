@@ -3,7 +3,7 @@ import { GOOGLE_MAPS_API_KEY } from "./config.js";
 const state = {
   umbrellas: [],
   selectedId: null,
-  listSort: "default",
+  listSort: "time",
   listSubfilter: "all",
   listOrder: "desc",
   query: "",
@@ -16,7 +16,7 @@ const state = {
   suppressNextFit: false,
   cameraAnimationFrame: null,
   projectionOverlay: null,
-  archiveMode: "default",
+  archiveMode: "time",
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
@@ -25,8 +25,13 @@ const state = {
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
   mapBase: "satellite",
   mapLabels: false,
+  poiShown: false,
   imageExpanded: false,
   focusMediaIndex: 0,
+  // Media that can be enlarged (everything except illustrations) + which one is
+  // currently shown in the expanded lightbox.
+  focusMediaList: [],
+  expandedIndex: 0,
   imageZoom: 1,
   imagePanX: 0,
   imagePanY: 0,
@@ -36,6 +41,7 @@ const state = {
   ignoreFocusCloseUntil: 0,
   isFocusCameraAnimating: false,
   languageMenuOpen: false,
+  lang: "ja",
   editMode: false,
   editingId: null,
   pendingCoords: {},
@@ -62,6 +68,62 @@ const GEOLOCATION_TIMEOUT_MS = 2500;
 // First entry into the map zooms in from a "whole main island" scale.
 const ENTRY_START_ZOOM = 5;
 const ENTRY_ZOOM_ANIMATION_MS = 1600;
+
+// ---- Language (日本語 / English) -------------------------------------------
+// Bilingual values are stored as { ja, en }; legacy records use a plain string
+// (treated as the Japanese version). localize() picks the active language and
+// falls back to whatever is filled in.
+function localize(value) {
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "object") {
+    return value[state.lang] || value.ja || value.en || "";
+  }
+  return String(value);
+}
+
+function getStoredLang() {
+  try {
+    return localStorage.getItem("fu-lang") === "en" ? "en" : "ja";
+  } catch {
+    return "ja";
+  }
+}
+
+// The few UI strings that switch with the language toggle (per the spec: the
+// About copy and the "Archive" heading). Everything else stays as authored.
+const UI_TEXT = {
+  aboutTitle: {
+    ja: "短い滞在を、戻れる座標に",
+    en: "Turning a brief pause into a coordinate you can return to",
+  },
+  aboutBody: {
+    ja: "このプロトタイプは、忘れられた傘を場所・時間・天気・素材の四つの手がかりに分解します。現在の画像にはまだ仮の内容が含まれていますが、地図・アーカイブ・絞り込みの仕組みはすでに拡張でき、今後は実際の写真・取材テキスト・音声記録を直接組み込めます。",
+    en: "This prototype breaks a forgotten umbrella down into four threads — place, time, weather and material. The images are still placeholders, but the map, archive and filtering are ready to grow, so real photos, interview notes or audio can be plugged in later.",
+  },
+  archiveHeading: { ja: "アーカイブ", en: "Archive" },
+};
+
+function applyLanguage() {
+  document.documentElement.lang = state.lang;
+  const aboutTitle = document.querySelector(".about-copy h2");
+  if (aboutTitle) {
+    aboutTitle.textContent = UI_TEXT.aboutTitle[state.lang];
+  }
+  const aboutBody = document.querySelector(".about-copy span");
+  if (aboutBody) {
+    aboutBody.textContent = UI_TEXT.aboutBody[state.lang];
+  }
+  document.querySelectorAll(".panel-heading h2, .section-heading h2").forEach((heading) => {
+    heading.textContent = UI_TEXT.archiveHeading[state.lang];
+  });
+  // Re-render everything that contains per-record bilingual text.
+  render();
+}
 
 // Shared umbrella-attribute option sets (used by both the editor and the public
 // display so the wording always matches). Labels are bilingual to help picking.
@@ -120,6 +182,7 @@ const els = {
   focusCaption: document.querySelector("#focus-caption"),
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
+  focusThumbs: document.querySelector("#focus-thumbs"),
   archiveContent: document.querySelector("#archive-content"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
@@ -144,11 +207,13 @@ const IS_LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(location.ho
 init();
 
 async function init() {
+  state.lang = getStoredLang();
   state.umbrellas = await loadUmbrellaData();
   state.selectedId = null;
 
   initWelcomeTitleLayout();
   bindEvents();
+  applyLanguage();
   render();
   await initGoogleMap();
   render();
@@ -323,7 +388,7 @@ function bindEvents() {
   });
 
   els.resetMap?.addEventListener("click", () => {
-    state.listSort = "default";
+    state.listSort = "time";
     state.listSubfilter = "all";
     state.listOrder = "desc";
     state.query = "";
@@ -336,7 +401,7 @@ function bindEvents() {
       els.search.value = "";
     }
 
-    els.chips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.listSort === "default"));
+    els.chips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.listSort === "time"));
     syncListControls(filteredUmbrellas());
     render();
     fitMapToItems(filteredUmbrellas());
@@ -345,7 +410,10 @@ function bindEvents() {
   els.toggleList?.addEventListener("click", togglePanel);
   els.focusImage?.addEventListener("click", (event) => {
     event.stopPropagation();
-    openExpandedImage(event);
+    // Already expanded? a click there is just for panning — don't re-open.
+    if (!state.imageExpanded) {
+      openExpandedImage();
+    }
   });
   els.focusImage?.addEventListener("load", () => {
     els.focusPanel?.classList.remove("is-loading");
@@ -365,19 +433,27 @@ function bindEvents() {
     }
   });
   els.focusPanel?.addEventListener("wheel", handleExpandedImageWheel, { passive: false });
+  // Click a supplement/detail photo in the article to enlarge it (#12).
   els.focusCaption?.addEventListener("click", (event) => {
-    const mediaButton = event.target.closest?.("[data-focus-media-index]");
-    if (!mediaButton) {
+    const img = event.target.closest?.("img[data-expandable]");
+    if (!img) {
       return;
     }
-
-    const index = Number(mediaButton.dataset.focusMediaIndex);
-    if (!Number.isInteger(index)) {
+    const file = img.getAttribute("data-media-file");
+    const index = (state.focusMediaList || []).findIndex((m) => m.file === file);
+    if (index >= 0) {
+      expandImageAt(index);
+    }
+  });
+  // Side thumbnail rail in the expanded lightbox switches images (#13).
+  els.focusThumbs?.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-thumb-index]");
+    if (!button) {
       return;
     }
-
-    state.focusMediaIndex = index;
-    renderFocusImage();
+    state.expandedIndex = Number(button.dataset.thumbIndex);
+    loadExpandedImage();
+    renderFocusThumbs();
   });
 
   els.searchToggle?.addEventListener("click", () => {
@@ -449,7 +525,17 @@ function bindEvents() {
     syncLanguageMenu();
   });
 
-  els.languageMenu?.addEventListener("click", () => {
+  els.languageMenu?.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-lang]");
+    if (button) {
+      state.lang = button.dataset.lang.startsWith("en") ? "en" : "ja";
+      try {
+        localStorage.setItem("fu-lang", state.lang);
+      } catch {
+        /* ignore storage errors */
+      }
+      applyLanguage();
+    }
     state.languageMenuOpen = false;
     syncLanguageMenu();
   });
@@ -791,7 +877,7 @@ async function initGoogleMap() {
     zoomControl: false,
     clickableIcons: false,
     gestureHandling: "greedy",
-    styles: mapStyles,
+    styles: state.mapBase === "roadmap" ? mapStyles : satelliteStylesForZoom(DEFAULT_MAP_ZOOM),
   });
 
   state.projectionOverlay = new google.maps.OverlayView();
@@ -802,6 +888,7 @@ async function initGoogleMap() {
 
   state.map.addListener("dragstart", dismissFocusAfterUserMapInteraction);
   state.map.addListener("zoom_changed", dismissFocusAfterUserMapInteraction);
+  state.map.addListener("zoom_changed", refreshSatellitePoi);
 
   const initialCenter = await getInitialMapCenter();
   state.map.setCenter(initialCenter);
@@ -900,10 +987,35 @@ function effectiveMapTypeId() {
   return state.mapLabels ? "hybrid" : "satellite";
 }
 
+function currentMapStyles() {
+  if (state.mapBase === "roadmap") {
+    return mapStyles;
+  }
+  return satelliteStylesForZoom(state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM);
+}
+
 function applyMapType() {
   if (state.googleReady) {
     state.map.setMapTypeId(effectiveMapTypeId());
+    // Plain map keeps its roads; satellite/hybrid drops the road line overlay
+    // and shows POI only when zoomed in.
+    state.poiShown = state.mapBase === "satellite" && currentMapStyles() === SATELLITE_STYLES_NEAR;
+    state.map.setOptions({ styles: currentMapStyles() });
   }
+}
+
+// Swap POI labels in/out as the zoom crosses the reveal threshold (satellite only).
+function refreshSatellitePoi() {
+  if (!state.googleReady || state.mapBase !== "satellite") {
+    return;
+  }
+  const zoomedIn = state.map.getZoom() >= POI_REVEAL_ZOOM;
+  const showPoi = POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
+  if (showPoi === state.poiShown) {
+    return;
+  }
+  state.poiShown = showPoi;
+  state.map.setOptions({ styles: currentMapStyles() });
 }
 
 function syncMapTypeButton() {
@@ -1037,10 +1149,13 @@ function renderList(items) {
         <button class="location-button ${item.id === state.selectedId ? "is-active" : ""}" data-id="${item.id}" type="button">
           <img src="${item.thumb}" alt="${item.id}" loading="lazy" decoding="async" />
           <span class="location-copy">
-            <strong>${item.id}</strong>
-            ${item.title ? `<span class="location-title">${escapeHtml(item.title)}</span>` : ""}
+            <span class="location-idrow">
+              <strong>${escapeHtml(item.id)}</strong>
+              ${localize(item.title) ? `<span class="location-title">${escapeHtml(localize(item.title))}</span>` : ""}
+            </span>
             <span class="location-meta">
-              <span>${escapeHtml(formatListMeta(item))}</span>
+              <span class="location-meta-place">${escapeHtml(item.location || "—")}</span>
+              <span class="location-meta-time">${escapeHtml(formatListDate(item.time) || "")}</span>
             </span>
           </span>
         </button>
@@ -1112,6 +1227,11 @@ function renderMapMarkers(items) {
         return;
       }
       state.ignoreFocusCloseUntil = performance.now() + 180;
+      // #5: clicking the already-focused marker again (after panning/zooming it
+      // out of the clear circle) re-centres it instead of doing nothing.
+      if (state.focusMarkerId === item.id) {
+        state.focusPositionedId = null;
+      }
       selectUmbrella(item.id, { focus: true });
     });
     marker.addListener("dragend", (event) => {
@@ -1143,10 +1263,12 @@ function renderFocusImage() {
   }
 
   const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
+  // Everything except illustrations can be enlarged (cover + supplement + detail).
+  state.focusMediaList = getExpandableMedia(item);
 
   els.focusPanel?.classList.add("is-loading");
   els.focusImage.src = cover?.src || item.image;
-  els.focusImage.alt = item.title || item.id;
+  els.focusImage.alt = localize(item.title) || item.id;
   if (els.focusHeader) {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
@@ -1180,7 +1302,8 @@ function effectiveBlocks(item) {
 
 // Fixed header (stays put while the images/text scroll): id(title), place, time.
 function renderFocusHeader(item) {
-  const focusTitle = item.title ? `${item.id}(${item.title})` : item.id;
+  const title = localize(item.title);
+  const focusTitle = title ? `${item.id}(${title})` : item.id;
   return `
     <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
     ${item.location ? `<p class="focus-meta">${escapeHtml(item.location)}</p>` : ""}
@@ -1209,7 +1332,8 @@ function renderFocusArticle(item) {
   const blocksHtml = effectiveBlocks(item)
     .map((block) => {
       if (block.type === "text") {
-        return `<p class="item-story">${escapeHtml(block.text)}</p>`;
+        const text = localize(block.text);
+        return text ? `<p class="item-story">${escapeHtml(text)}</p>` : "";
       }
       const media = mediaByFile[block.file];
       if (!media) {
@@ -1217,8 +1341,11 @@ function renderFocusArticle(item) {
       }
       // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
       const caption = [media.title, media.id, formatDateTime(media.photoTime)].filter(Boolean).join(", ");
+      // Supplement/detail photos can be enlarged; illustrations cannot (#12).
+      const expandable = media.role !== "illustration";
+      const expandAttrs = expandable ? ` data-expandable="1" data-media-file="${escapeHtml(media.file)}"` : "";
       return `<figure class="focus-photo">
-          <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async" />
+          <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
           ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
         </figure>`;
     })
@@ -1395,7 +1522,8 @@ function renderPhotoCard(item) {
     badges.push(`<span class="card-badge" title="插图">${CARD_ICON_ILLUSTRATION}</span>`);
   }
 
-  const titleHtml = item.title ? `<span class="card-title">${escapeHtml(item.title)}</span>` : "";
+  const cardTitle = localize(item.title);
+  const titleHtml = cardTitle ? `<span class="card-title">${escapeHtml(cardTitle)}</span>` : "";
 
   return `
     <article class="photo-card" data-id="${escapeHtml(item.id)}">
@@ -1704,11 +1832,8 @@ function selectUmbrella(id, options = {}) {
 
 function focusUmbrellaOnMap(item, id) {
   setFocusMaskPosition();
-
-  if (state.focusPositionedId === id) {
-    return;
-  }
-
+  // Always re-centre: clicking the focused marker again after the map has been
+  // panned/zoomed should bring the marker back to the clear circle (#5).
   state.focusPositionedId = id;
   animateMarkerToFocus(item);
 }
@@ -1742,23 +1867,92 @@ function closeFocusMode(options = {}) {
   els.focusPanel?.classList.remove("is-loading");
 }
 
-function openExpandedImage(event) {
-  if (!els.focusPanel || !els.focusImage) {
+// Media that can be enlarged: cover + supplement + detail, but never illustrations.
+function getExpandableMedia(item) {
+  return (item?.media || []).filter((m) => m.role !== "illustration");
+}
+
+// Entry point from clicking the cover image — expand at the cover's position.
+function openExpandedImage() {
+  const list = state.focusMediaList || [];
+  const coverIndex = Math.max(0, list.findIndex((m) => m.role === "primary"));
+  expandImageAt(coverIndex);
+}
+
+// Enlarge the n-th expandable image; bring the marker back to the clear circle
+// and re-blur the surroundings (#14); show the side thumbnail rail (#13).
+function expandImageAt(index) {
+  const list = state.focusMediaList || [];
+  if (!els.focusPanel || !els.focusImage || !list.length) {
     return;
   }
-
-  if (state.imageExpanded) {
-    return;
-  }
-
+  state.expandedIndex = Math.min(Math.max(index, 0), list.length - 1);
   state.imageExpanded = true;
+  els.focusPanel.classList.add("is-expanded");
+  els.mapView.classList.add("is-image-expanded");
+  loadExpandedImage();
+  renderFocusThumbs();
+  recenterFocusedMarker();
+}
+
+// Swap the enlarged image to the current expandedIndex (used on open + thumb click).
+function loadExpandedImage() {
+  const media = (state.focusMediaList || [])[state.expandedIndex];
+  if (!media || !els.focusImage) {
+    return;
+  }
   state.imageZoom = 1;
   state.imagePanX = 0;
   state.imagePanY = 0;
-  els.focusPanel.classList.add("is-expanded");
-  els.mapView.classList.add("is-image-expanded");
-  setExpandedImageFrame();
-  updateExpandedImageTransform();
+  els.focusImage.src = media.src;
+  // If the image is already cached the "load" listener won't fire, so size now.
+  if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
+    setExpandedImageFrame();
+    updateExpandedImageTransform();
+  }
+}
+
+// Vertical thumbnail rail on the right; one per expandable image, active marked.
+function renderFocusThumbs() {
+  if (!els.focusThumbs) {
+    return;
+  }
+  const list = state.focusMediaList || [];
+  if (!state.imageExpanded || list.length <= 1) {
+    els.focusThumbs.hidden = true;
+    els.focusThumbs.innerHTML = "";
+    return;
+  }
+  els.focusThumbs.hidden = false;
+  els.focusThumbs.innerHTML = list
+    .map(
+      (m, i) => `
+        <button type="button" class="focus-thumb ${i === state.expandedIndex ? "is-active" : ""}" data-thumb-index="${i}" aria-label="image ${i + 1}">
+          <img src="${escapeHtml(m.thumb || m.src)}" alt="" loading="lazy" decoding="async" />
+        </button>`,
+    )
+    .join("");
+}
+
+// Bring the focused marker back to the clear circle and restore the blur (#14).
+// Only animates if the marker has actually drifted off-centre, so expanding an
+// image whose marker is already centred doesn't cause a tiny camera jitter.
+function recenterFocusedMarker() {
+  const id = state.focusMarkerId || state.selectedId;
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  if (!item || !state.googleReady || !hasCoordinates(item)) {
+    return;
+  }
+  setFocusBlurSuppressed(false);
+  setFocusMaskPosition();
+
+  const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
+  const markerScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng);
+  const target = getFocusTargetScreenPoint();
+  const drift = Math.hypot(markerScreen.x - target.x, markerScreen.y - target.y);
+  if (drift > 24) {
+    animateMarkerToFocus(item);
+  }
 }
 
 function closeExpandedImage() {
@@ -1778,6 +1972,16 @@ function closeExpandedImage() {
   els.focusPanel?.style.removeProperty("--expanded-frame-height");
   els.focusImage?.style.setProperty("--image-origin-x", "50%");
   els.focusImage?.style.setProperty("--image-origin-y", "50%");
+  if (els.focusThumbs) {
+    els.focusThumbs.hidden = true;
+    els.focusThumbs.innerHTML = "";
+  }
+  // Restore the detail page's cover image (the expanded view may have swapped it).
+  const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
+  const cover = (item?.media || []).find((m) => m.role === "primary") || item?.media?.[0];
+  if (cover && els.focusImage && !els.focusImage.src.endsWith(cover.src)) {
+    els.focusImage.src = cover.src || item.image;
+  }
 }
 
 function handleExpandedImageWheel(event) {
@@ -2126,7 +2330,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=63", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=68", { updateViaCache: "none" });
   }
 }
 
@@ -2139,7 +2343,7 @@ function registerServiceWorker() {
  * ------------------------------------------------------------------------- */
 
 // Plain single-line/textarea fields keyed by record field name.
-const PLAIN_FIELD_KEYS = ["title", "time", "locationText"];
+const PLAIN_FIELD_KEYS = ["time", "locationText"];
 
 const editor = {
   root: null,
@@ -2228,8 +2432,16 @@ function setupEditor() {
     button.addEventListener("click", () => onFlagButton(button.dataset.flag));
   });
 
-  // 2 title (kept before the address), 3 time.
-  addField("title", "标题 Title");
+  // 2 title — bilingual (日本語 + English). 3 time.
+  const titleRow = document.createElement("div");
+  titleRow.className = "editor-row";
+  titleRow.innerHTML = `
+    <span>标题 Title（日本語 / English）</span>
+    <input class="editor-title-ja" placeholder="日本語タイトル（默认空白）" />
+    <input class="editor-title-en" placeholder="English title（可留空，英文系统会回退日文）" />`;
+  body.appendChild(titleRow);
+  editor.titleJa = titleRow.querySelector(".editor-title-ja");
+  editor.titleEn = titleRow.querySelector(".editor-title-en");
   addField("time", "拍摄时间(覆盖) Time");
 
   // 4. Coordinates — placed right before the display address.
@@ -2340,7 +2552,7 @@ function setupEditor() {
   body.appendChild(contentRow);
   editor.flowList = contentRow.querySelector(".editor-flow");
   contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
-    editor.flow.push({ kind: "text", text: "" });
+    editor.flow.push({ kind: "text", textJa: "", textEn: "" });
     renderFlow();
   });
   contentRow.querySelector(".editor-upload input").addEventListener("change", onUploadImages);
@@ -2461,7 +2673,12 @@ function buildFlow(raw) {
   if (blocks.length) {
     blocks.forEach((b) => {
       if (b.type === "text") {
-        flow.push({ kind: "text", text: b.text || "" });
+        const t = b.text;
+        flow.push({
+          kind: "text",
+          textJa: t && typeof t === "object" ? t.ja || "" : t || "",
+          textEn: t && typeof t === "object" ? t.en || "" : "",
+        });
       } else if (b.type === "photo" && mediaByFile[b.file] && !used.has(b.file)) {
         flow.push(photoItem(mediaByFile[b.file]));
         used.add(b.file);
@@ -2472,7 +2689,7 @@ function buildFlow(raw) {
       .split(/\n+/)
       .map((s) => s.trim())
       .filter(Boolean)
-      .forEach((text) => flow.push({ kind: "text", text }));
+      .forEach((text) => flow.push({ kind: "text", textJa: text, textEn: "" }));
   }
   media.forEach((m) => {
     if (!used.has(m.file)) {
@@ -2502,10 +2719,17 @@ function renderFlow() {
       <button type="button" data-fact="down" title="下移" ${index === flow.length - 1 ? "disabled" : ""}>↓</button>`;
 
     if (item.kind === "text") {
-      row.innerHTML = `<textarea class="editor-block-text" rows="2" placeholder="段落文字">${escapeHtml(item.text || "")}</textarea>
+      row.innerHTML = `
+        <div class="editor-block-langs">
+          <textarea class="editor-block-text-ja" rows="2" placeholder="段落（日本語）">${escapeHtml(item.textJa || "")}</textarea>
+          <textarea class="editor-block-text-en" rows="2" placeholder="Paragraph (English)">${escapeHtml(item.textEn || "")}</textarea>
+        </div>
         <div class="editor-block-buttons">${moveButtons}<button type="button" data-fact="del-text" title="删除段落">✕</button></div>`;
-      row.querySelector(".editor-block-text").addEventListener("input", (event) => {
-        item.text = event.target.value;
+      row.querySelector(".editor-block-text-ja").addEventListener("input", (event) => {
+        item.textJa = event.target.value;
+      });
+      row.querySelector(".editor-block-text-en").addEventListener("input", (event) => {
+        item.textEn = event.target.value;
       });
     } else {
       const isPrimary = item.role === "primary";
@@ -2930,8 +3154,11 @@ function openEditor(id) {
   PLAIN_FIELD_KEYS.forEach((key) => {
     editor.fields[key].value = raw[key] || "";
   });
+  // Bilingual title: existing single-language titles land in the 日本語 box.
+  const rawTitle = raw.title;
+  editor.titleJa.value = rawTitle && typeof rawTitle === "object" ? rawTitle.ja || "" : rawTitle || "";
+  editor.titleEn.value = rawTitle && typeof rawTitle === "object" ? rawTitle.en || "" : "";
   // Smart-default placeholders (what the public site falls back to when blank).
-  editor.fields.title.placeholder = "默认则空白";
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
   editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "默认用下面的地址层级";
 
@@ -2955,12 +3182,16 @@ function openEditor(id) {
   renderEditorPreview(id);
   editor.preview?.classList.add("is-open");
   editor.root.classList.add("is-open");
+  // Lets the Archive page reserve space for the side panels (see #15) so cards
+  // stay visible and clickable instead of being hidden under them.
+  document.body.classList.add("editor-open");
 }
 
 function closeEditor() {
   state.editingId = null;
   editor.root?.classList.remove("is-open");
   editor.preview?.classList.remove("is-open");
+  document.body.classList.remove("editor-open");
 }
 
 function updateCoordReadout(raw) {
@@ -3022,6 +3253,7 @@ async function saveEditor() {
   PLAIN_FIELD_KEYS.forEach((key) => {
     payload[key] = editor.fields[key].value;
   });
+  payload.title = { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() };
   payload.locationLevels = collectLevelsForSave();
   payload.umbrellaCount = editor.count.value;
   payload.umbrellaUnits = collectUnitsForSave();
@@ -3035,11 +3267,16 @@ async function saveEditor() {
   }));
   payload.blocks = (editor.flow || [])
     .filter((i) => i.kind === "text" || (i.kind === "photo" && i.role !== "primary"))
-    .map((i) => (i.kind === "text" ? { type: "text", text: i.text || "" } : { type: "photo", file: i.file }))
-    .filter((b) => b.type !== "text" || b.text.trim());
+    .map((i) =>
+      i.kind === "text"
+        ? { type: "text", text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+        : { type: "photo", file: i.file },
+    )
+    .filter((b) => b.type !== "text" || b.text.ja || b.text.en);
+  // story is the card-preview fallback; keep it as the Japanese paragraphs joined.
   payload.story = (editor.flow || [])
-    .filter((i) => i.kind === "text" && i.text.trim())
-    .map((i) => i.text.trim())
+    .filter((i) => i.kind === "text" && (i.textJa || "").trim())
+    .map((i) => i.textJa.trim())
     .join("\n");
 
   const saveButton = editor.root.querySelector(".editor-save");
@@ -3343,3 +3580,32 @@ const mapStyles = [
     stylers: [{ color: "#93aaa7" }],
   },
 ];
+
+// Applied on satellite / hybrid. We always hide the road line geometry (the
+// white lines over the imagery). POI labels (restaurants, parking, …) are
+// hidden until you zoom in close, then shown faded.
+//
+// To tune: POI_REVEAL_ZOOM is the threshold (focus-after-click zoom is 18, the
+// default city view is 14). Flip POI_SHOW_WHEN_ZOOMED_IN to invert the rule
+// (show POI when zoomed OUT instead).
+const POI_REVEAL_ZOOM = 17;
+const POI_SHOW_WHEN_ZOOMED_IN = true;
+
+const ROAD_GEOMETRY_OFF = { featureType: "road", elementType: "geometry", stylers: [{ visibility: "off" }] };
+const POI_OFF = { featureType: "poi", stylers: [{ visibility: "off" }] };
+// Google map styles can't set true label opacity, so "faded" = a softer colour
+// with a dark outline so the text stays readable over the satellite imagery.
+const POI_FADED = [
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#eef2f0" }] },
+  { featureType: "poi", elementType: "labels.text.stroke", stylers: [{ color: "#26302c" }, { weight: 2 }] },
+  { featureType: "poi", elementType: "labels.icon", stylers: [{ saturation: -30 }, { lightness: 5 }] },
+];
+
+const SATELLITE_STYLES_FAR = [ROAD_GEOMETRY_OFF, POI_OFF];
+const SATELLITE_STYLES_NEAR = [ROAD_GEOMETRY_OFF, ...POI_FADED];
+
+function satelliteStylesForZoom(zoom) {
+  const zoomedIn = zoom >= POI_REVEAL_ZOOM;
+  const showPoi = POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
+  return showPoi ? SATELLITE_STYLES_NEAR : SATELLITE_STYLES_FAR;
+}

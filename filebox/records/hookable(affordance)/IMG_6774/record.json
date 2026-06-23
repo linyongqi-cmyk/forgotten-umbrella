@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -80,7 +80,7 @@
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
       "file": "pic_1.png",
       // 角色。建议使用 primary、detail、illustration。
-      "role": "detail",
+      "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。
       "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
