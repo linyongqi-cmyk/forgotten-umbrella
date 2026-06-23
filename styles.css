@@ -628,8 +628,11 @@ body.is-entered .welcome-screen {
   display: block;
 }
 
-/* ID + title share one line; the title is muted and truncates if long. */
-.location-idrow {
+/* ID + title share one line; the title is muted and truncates if long.
+   Note the extra `.location-button` qualifier: it's needed to outrank the
+   `.location-button span { display: block }` rule below, which would otherwise
+   force the title onto its own line. */
+.location-button .location-idrow {
   display: flex;
   align-items: baseline;
   gap: 6px;
@@ -884,6 +887,7 @@ body.is-entered .welcome-screen {
 }
 
 .focus-image-frame {
+  position: relative;
   display: grid;
   place-items: center;
   width: 100%;
@@ -898,7 +902,10 @@ body.is-entered .welcome-screen {
 .focus-image-panel img {
   display: block;
   width: 100%;
-  max-height: 70vh;
+  height: auto;
+  /* Fill the column width (no max-height letterbox) so the cover's left/right
+     edges line up with the header id and the text below it (#1). */
+  max-height: none;
   object-fit: contain;
   border-radius: 8px;
   box-shadow: var(--shadow);
@@ -1050,9 +1057,35 @@ body.is-entered .welcome-screen {
   display: none;
 }
 
-/* Vertical thumbnail rail shown on the right while an image is enlarged. */
+/* #3: id / title / time caption over the enlarged photo, bottom-right corner.
+   Same content + right-alignment as the detail-page photo caption, but in white
+   with a shadow so it stays legible on top of the photo. */
+.focus-expanded-caption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  max-width: 82%;
+  text-align: right;
+  font-size: var(--detail-caption-size);
+  line-height: 1.4;
+  color: #fff;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.78),
+    0 0 2px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.focus-expanded-caption[hidden] {
+  display: none;
+}
+
+/* Vertical thumbnail rail shown just to the right of the enlarged image (#2a).
+   Its `left` is set in JS from the image's real right edge (positionFocusThumbs);
+   this fixed fallback keeps it on-screen if JS hasn't run yet. */
 .focus-thumbs {
   position: fixed;
+  left: auto;
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
@@ -1571,6 +1604,13 @@ body.edit-mode .card-edit {
   .focus-image-panel.is-expanded img {
     max-width: none;
     max-height: none;
+  }
+
+  /* On narrow screens the enlarged image is near full-width, so keep the rail
+     pinned to the screen edge instead of beside the image. */
+  .focus-thumbs {
+    left: auto;
+    right: 8px;
   }
 
   .archive-view,

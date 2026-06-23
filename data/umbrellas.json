@@ -2463,7 +2463,10 @@
     },
     "locationCoordinates": null,
     "locationText": "",
-    "title": "異なる運命/Different Fates",
+    "title": {
+      "ja": "異なる運命",
+      "en": "Different Fates"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "2",

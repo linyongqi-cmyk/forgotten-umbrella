@@ -183,6 +183,7 @@ const els = {
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
+  focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
   archiveContent: document.querySelector("#archive-content"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
@@ -428,6 +429,11 @@ function bindEvents() {
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   els.focusBlur?.addEventListener("click", () => {
+    // A swipe just switched images — don't also treat it as a close click.
+    if (state.blurSwiped) {
+      state.blurSwiped = false;
+      return;
+    }
     if (state.imageExpanded) {
       closeExpandedImage();
     }
@@ -451,10 +457,13 @@ function bindEvents() {
     if (!button) {
       return;
     }
-    state.expandedIndex = Number(button.dataset.thumbIndex);
-    loadExpandedImage();
-    renderFocusThumbs();
+    showExpandedImageAt(Number(button.dataset.thumbIndex));
   });
+
+  // #2c: a horizontal swipe over the blank area beside the enlarged image
+  // switches photos; a plain click there still closes the lightbox.
+  els.focusBlur?.addEventListener("pointerdown", startBlurSwipe);
+  els.focusBlur?.addEventListener("pointerup", endBlurSwipe);
 
   els.searchToggle?.addEventListener("click", () => {
     state.searchOpen = !state.searchOpen;
@@ -1890,12 +1899,40 @@ function expandImageAt(index) {
   state.imageExpanded = true;
   els.focusPanel.classList.add("is-expanded");
   els.mapView.classList.add("is-image-expanded");
+  preloadExpandableImages();
   loadExpandedImage();
   renderFocusThumbs();
   recenterFocusedMarker();
 }
 
-// Swap the enlarged image to the current expandedIndex (used on open + thumb click).
+// Preload every enlargeable photo so switching between them is instant (#2b).
+function preloadExpandableImages() {
+  (state.focusMediaList || []).forEach((m) => {
+    if (m.src) {
+      const img = new Image();
+      img.src = m.src;
+    }
+  });
+}
+
+// Jump to a given index: swap the photo, move the active marker on the rail and
+// refresh the corner caption — without rebuilding the whole thumbnail rail (#2b).
+function showExpandedImageAt(index) {
+  const list = state.focusMediaList || [];
+  if (!list.length) {
+    return;
+  }
+  state.expandedIndex = ((index % list.length) + list.length) % list.length;
+  loadExpandedImage();
+  setActiveThumb(state.expandedIndex);
+}
+
+// Step to the previous/next photo (used by the blank-area swipe), wrapping round.
+function switchExpandedImage(delta) {
+  showExpandedImageAt(state.expandedIndex + delta);
+}
+
+// Swap the enlarged image to the current expandedIndex (used on open + switch).
 function loadExpandedImage() {
   const media = (state.focusMediaList || [])[state.expandedIndex];
   if (!media || !els.focusImage) {
@@ -1905,11 +1942,23 @@ function loadExpandedImage() {
   state.imagePanX = 0;
   state.imagePanY = 0;
   els.focusImage.src = media.src;
+  updateExpandedCaption(media);
   // If the image is already cached the "load" listener won't fire, so size now.
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     setExpandedImageFrame();
     updateExpandedImageTransform();
   }
+}
+
+// Corner caption on the enlarged photo: "title, id, time" — same content/style
+// as a detail-page photo caption; shown for every photo incl. the cover (#3).
+function updateExpandedCaption(media) {
+  if (!els.focusExpandedCaption) {
+    return;
+  }
+  const text = [media.title, media.id, formatDateTime(media.photoTime)].filter(Boolean).join(", ");
+  els.focusExpandedCaption.textContent = text;
+  els.focusExpandedCaption.hidden = !text;
 }
 
 // Vertical thumbnail rail on the right; one per expandable image, active marked.
@@ -1932,6 +1981,56 @@ function renderFocusThumbs() {
         </button>`,
     )
     .join("");
+  positionFocusThumbs();
+}
+
+// Park the thumbnail rail just to the right of the (centered) enlarged image,
+// reading the frame's real right edge so it survives any max-width clamping (#2a).
+function positionFocusThumbs() {
+  if (!els.focusThumbs || els.focusThumbs.hidden) {
+    return;
+  }
+  if (window.matchMedia("(max-width: 820px)").matches) {
+    // On narrow screens the CSS pins it to the screen edge — don't override.
+    els.focusThumbs.style.left = "";
+    return;
+  }
+  const frame = els.focusPanel?.querySelector(".focus-image-frame");
+  if (!frame) {
+    return;
+  }
+  const right = frame.getBoundingClientRect().right;
+  els.focusThumbs.style.left = `${Math.round(right + 14)}px`;
+}
+
+// Move the "active" highlight on the rail without rebuilding it (#2b).
+function setActiveThumb(index) {
+  els.focusThumbs?.querySelectorAll(".focus-thumb").forEach((btn) => {
+    btn.classList.toggle("is-active", Number(btn.dataset.thumbIndex) === index);
+  });
+}
+
+// Blank-area swipe to switch photos (#2c). A short/near-still gesture is left to
+// the click handler (which closes); a clear horizontal drag switches instead.
+function startBlurSwipe(event) {
+  if (!state.imageExpanded) {
+    return;
+  }
+  state.blurSwipeStart = { x: event.clientX, y: event.clientY };
+}
+
+function endBlurSwipe(event) {
+  const start = state.blurSwipeStart;
+  state.blurSwipeStart = null;
+  if (!start || !state.imageExpanded) {
+    return;
+  }
+  const dx = event.clientX - start.x;
+  const dy = event.clientY - start.y;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+    state.blurSwiped = true; // suppress the close-on-click that follows
+    switchExpandedImage(dx < 0 ? 1 : -1);
+  }
 }
 
 // Bring the focused marker back to the clear circle and restore the blur (#14).
@@ -1972,9 +2071,14 @@ function closeExpandedImage() {
   els.focusPanel?.style.removeProperty("--expanded-frame-height");
   els.focusImage?.style.setProperty("--image-origin-x", "50%");
   els.focusImage?.style.setProperty("--image-origin-y", "50%");
+  state.blurSwipeStart = null;
   if (els.focusThumbs) {
     els.focusThumbs.hidden = true;
     els.focusThumbs.innerHTML = "";
+  }
+  if (els.focusExpandedCaption) {
+    els.focusExpandedCaption.hidden = true;
+    els.focusExpandedCaption.textContent = "";
   }
   // Restore the detail page's cover image (the expanded view may have swapped it).
   const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
@@ -2018,6 +2122,7 @@ function setExpandedImageFrame() {
   state.imageFrameHeight = Math.round(height);
   els.focusPanel.style.setProperty("--expanded-frame-width", `${state.imageFrameWidth}px`);
   els.focusPanel.style.setProperty("--expanded-frame-height", `${state.imageFrameHeight}px`);
+  positionFocusThumbs();
   els.focusImage.style.setProperty("--image-origin-x", "50%");
   els.focusImage.style.setProperty("--image-origin-y", "50%");
 }
@@ -2330,7 +2435,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=68", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=69", { updateViaCache: "none" });
   }
 }
 
