@@ -20,9 +20,9 @@ const state = {
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
-  // 統計 cross-tab: which dimension on each axis (#5).
+  // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
-  statsY: "color",
+  statsY: "object",
   searchOpen: false,
   // Map view: a primary base (普通地图 roadmap ↔ 卫星 satellite) plus, when on
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
@@ -550,6 +550,12 @@ function bindEvents() {
     const card = event.target.closest?.(".photo-card");
     if (card?.dataset.id) {
       jumpToMapLocation(card.dataset.id);
+      return;
+    }
+    // 統計 overview: double-clicking an IMG cell jumps to its map detail (#7).
+    const idCell = event.target.closest?.("[data-overview-id]");
+    if (idCell?.dataset.overviewId) {
+      jumpToMapLocation(idCell.dataset.overviewId);
     }
   });
 
@@ -1505,15 +1511,16 @@ const TYPE_DESCRIPTIONS = {
 
 // ---- 統計 (statistics) page (#5) -------------------------------------------
 
-// The dimensions you can put on either axis of the cross-tab.
-const STATS_DIMS = ["type", "color", "kind", "state", "month", "place"];
+// The dimensions you can put on either axis of the cross-tab. `object` merges the
+// umbrella's colour and kind into one descriptor (#3). Labels are always English,
+// regardless of the site language (#2).
+const STATS_DIMS = ["type", "object", "state", "month", "place"];
 const STATS_DIM_LABELS = {
-  type: { ja: "タイプ", en: "type" },
-  color: { ja: "色", en: "color" },
-  kind: { ja: "傘の種別", en: "kind" },
-  state: { ja: "状態", en: "state" },
-  month: { ja: "月", en: "month" },
-  place: { ja: "場所", en: "place" },
+  type: "type",
+  object: "object",
+  state: "state",
+  month: "month",
+  place: "place",
 };
 const STATS_TYPE_ORDER = [
   "hookable(affordance)",
@@ -1539,8 +1546,7 @@ function buildStatsUnits() {
     list.forEach((u) => {
       units.push({
         type: item.type || "unknown",
-        color: u.color || "unknown",
-        kind: u.kind || "unknown",
+        object: statsObjectValue(u),
         state: u.status && u.status.length ? u.status.slice() : ["unknown"],
         month,
         place,
@@ -1548,6 +1554,15 @@ function buildStatsUnits() {
     });
   });
   return units;
+}
+
+// `object` = colour + kind merged into one descriptor (#3): a folding umbrella is
+// "folding", otherwise the colour (transparent / colored / patterned / …).
+function statsObjectValue(u) {
+  if (u.kind && u.kind !== "long umbrella") {
+    return u.kind; // e.g. "folding"
+  }
+  return u.color || "unknown";
 }
 
 function statsDimValues(unit, dim) {
@@ -1570,8 +1585,15 @@ function statsOrderValues(values, dim) {
   return values.sort((a, b) => trailing(a) - trailing(b) || String(a).localeCompare(String(b)));
 }
 
+// Intro paragraph shown at the top of the 統計 page (#11). Japanese for now;
+// moving this + the type descriptions into an editable bilingual JSON is a
+// follow-up (see 交接.md, item 12).
+const STATS_INTRO =
+  "本ページは、「忘れられた傘」の記録を蓄積したアーカイブである。記録は、時間・種類・場所・type の視点から横断的に閲覧できる。type は、傘がどのような状況や環境の中で残されていたかをもとに分類したものであり、「hookable」「drop」「disposal」など、周囲との関係性によって構成されている。また、統計を通して、傘の種類や状態、繰り返し現れる行動や配置の傾向を観察することができる。";
+
 function renderStats() {
   els.archiveContent.innerHTML = `
+    <p class="stats-intro">${escapeHtml(STATS_INTRO)}</p>
     ${renderStatsPivot(buildStatsUnits())}
     ${renderStatsOverview()}
   `;
@@ -1579,8 +1601,7 @@ function renderStats() {
 
 function renderStatsAxisSelect(axis, current) {
   const options = STATS_DIMS.map(
-    (dim) =>
-      `<option value="${dim}"${dim === current ? " selected" : ""}>${escapeHtml(localize(STATS_DIM_LABELS[dim]))}</option>`,
+    (dim) => `<option value="${dim}"${dim === current ? " selected" : ""}>${STATS_DIM_LABELS[dim]}</option>`,
   ).join("");
   return `<select class="stats-axis" data-stats-axis="${axis}" aria-label="${axis} axis">${options}</select>`;
 }
@@ -1630,13 +1651,13 @@ function renderStatsPivot(units) {
   return `
     <section class="stats-block">
       <div class="stats-axis-controls">
-        <label>${state.lang === "ja" ? "縦軸" : "rows"} ${renderStatsAxisSelect("y", yDim)}</label>
-        <label>${state.lang === "ja" ? "横軸" : "columns"} ${renderStatsAxisSelect("x", xDim)}</label>
+        <label>rows ${renderStatsAxisSelect("y", yDim)}</label>
+        <label>columns ${renderStatsAxisSelect("x", xDim)}</label>
       </div>
       <div class="stats-table-wrap">
         <table class="stats-table">
           <thead>
-            <tr><th class="stats-corner">${escapeHtml(localize(STATS_DIM_LABELS[yDim]))} \\ ${escapeHtml(localize(STATS_DIM_LABELS[xDim]))}</th>${headCells}<th class="stats-total">TOTAL</th></tr>
+            <tr><th class="stats-corner">${STATS_DIM_LABELS[yDim]} \\ ${STATS_DIM_LABELS[xDim]}</th>${headCells}<th class="stats-total">TOTAL</th></tr>
           </thead>
           <tbody>
             ${bodyRows.join("")}
@@ -1648,19 +1669,22 @@ function renderStatsPivot(units) {
   `;
 }
 
-// Flat overview: one row per record (#5, screenshot 1).
+// Flat overview: one row per record (#5, screenshot 1). Sorted by IMG name by
+// default (#4); columns IMG / date / type / area / object / state (#8). The IMG
+// cell jumps to that record's map detail on double-click (#7).
 function renderStatsOverview() {
-  const rows = state.umbrellas
+  const sorted = [...state.umbrellas].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  const rows = sorted
     .map((item) => {
-      const cells = [
-        item.id,
-        item.location || "",
+      const idCell = `<td class="overview-id" data-overview-id="${escapeHtml(item.id)}" title="ダブルクリックで地図へ">${escapeHtml(item.id)}</td>`;
+      const rest = [
         formatDateTime(item.time) || "",
         statsValueLabel("type", item.type || ""),
+        item.location || "",
         item.objectText || "",
         item.statusText || "",
       ];
-      return `<tr>${cells.map((c) => `<td>${escapeHtml(c)}</td>`).join("")}</tr>`;
+      return `<tr>${idCell}${rest.map((c) => `<td>${escapeHtml(c)}</td>`).join("")}</tr>`;
     })
     .join("");
   return `
@@ -1669,7 +1693,7 @@ function renderStatsOverview() {
       <div class="stats-table-wrap">
         <table class="stats-table stats-overview">
           <thead>
-            <tr><th>IMG</th><th>area</th><th>date</th><th>type</th><th>object</th><th>state</th></tr>
+            <tr><th>IMG</th><th>date</th><th>type</th><th>area</th><th>object</th><th>state</th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
@@ -2856,7 +2880,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=73", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=74", { updateViaCache: "none" });
   }
 }
 

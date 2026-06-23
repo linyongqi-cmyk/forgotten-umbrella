@@ -1199,12 +1199,24 @@ body.is-entered .welcome-screen {
   z-index: 50;
 }
 
+/* These fade + blur out (rather than vanishing instantly) when an image is
+   enlarged (#10). */
+.topbar,
+.view-tabs,
+.map-top-tools {
+  transition:
+    opacity 260ms ease,
+    filter 260ms ease;
+}
+
 /* While an image is enlarged, all of this chrome is hidden + disabled (#4).
-   Targeted off <body> because the topbar lives outside .workspace. */
+   Targeted off <body> because the topbar lives outside .workspace. It blurs and
+   fades out over 260ms instead of disappearing instantly (#10). */
 body.is-image-expanded .topbar,
 body.is-image-expanded .view-tabs,
 body.is-image-expanded .map-top-tools,
 body.is-image-expanded .side-panel {
+  filter: blur(10px);
   opacity: 0;
   pointer-events: none;
 }
@@ -1348,8 +1360,26 @@ body.editor-open .archive-view {
 }
 
 /* 統計 (statistics) page (#5): an interactive cross-tab + a flat overview. */
+.stats-intro {
+  margin: 0 0 28px;
+  max-width: 74ch;
+  font-size: 14px;
+  line-height: 1.95;
+  text-align: justify;
+  color: var(--ink);
+}
+
 .stats-block {
   margin: 0 0 40px;
+}
+
+/* IMG cell jumps to the map detail on double-click (#7). */
+.overview-id {
+  cursor: pointer;
+}
+
+.stats-overview tbody tr:hover {
+  background: rgba(20, 26, 25, 0.04);
 }
 
 .stats-heading {
@@ -1463,6 +1493,8 @@ body.editor-open .archive-view {
 .card-id {
   font-weight: 600;
   font-size: 14px;
+  /* Double-clicking a card jumps to the map; signal it on the id (#9). */
+  cursor: pointer;
 }
 
 .card-title {
