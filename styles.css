@@ -1388,16 +1388,71 @@ body.editor-open .archive-view {
   background: rgba(20, 26, 25, 0.04);
 }
 
-.overview-filter {
-  display: block;
-  margin-top: 4px;
-  max-width: 130px;
+/* object / state filter dropdown headers (item 6). */
+.overview-filter-head {
+  position: relative;
+  white-space: nowrap;
+}
+
+.overview-filter-btn {
   font: inherit;
-  font-size: 12px;
+  font-weight: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
   padding: 2px 4px;
-  border: 1px solid var(--line);
   border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.overview-filter-btn:hover,
+.overview-filter-head.is-open .overview-filter-btn {
+  background: rgba(20, 26, 25, 0.06);
+}
+
+.overview-caret {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.overview-filter-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  margin-top: 2px;
+  min-width: 100%;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 8px 22px rgba(20, 26, 25, 0.18);
+}
+
+.overview-filter-option {
+  font: inherit;
+  font-weight: 400;
+  text-align: left;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 6px 12px;
+}
+
+.overview-filter-option:hover {
+  background: rgba(20, 26, 25, 0.06);
+}
+
+.overview-filter-option.is-active {
+  font-weight: 600;
+  background: rgba(20, 26, 25, 0.04);
 }
 
 .stats-overview tbody tr:hover {
@@ -1888,11 +1943,17 @@ body.edit-mode .card-edit {
 /* ---------------------------------------------------------------------------
  * Local-only admin editor (never rendered on the published site)
  * ------------------------------------------------------------------------- */
-.editor-toggle {
+/* Local-only toolbar holding the 编辑模式 + 文案編集 buttons, side by side. */
+.editor-toolbar {
   position: fixed;
   left: 18px;
   top: 70px;
   z-index: 1400;
+  display: flex;
+  gap: 10px;
+}
+
+.editor-toggle {
   padding: 10px 16px;
   border: none;
   border-radius: 999px;
@@ -1908,23 +1969,6 @@ body.edit-mode .card-edit {
   background: #b4502f;
 }
 
-/* 文案編集 entry button — sits just under the 编辑模式 toggle (item 12). */
-.texts-toggle {
-  position: fixed;
-  left: 18px;
-  top: 114px;
-  z-index: 1400;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 999px;
-  background: #3a4a48;
-  color: #f4f3ed;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(31, 45, 45, 0.24);
-}
-
 /* 文案編集 overlay (item 12). */
 .texts-editor-overlay {
   position: fixed;
@@ -1935,6 +1979,12 @@ body.edit-mode .card-edit {
   justify-content: center;
   padding: 24px;
   background: rgba(20, 26, 25, 0.45);
+}
+
+/* display:flex above overrides the default [hidden] (display:none), so the panel
+   never hid on close — restore it explicitly (bug fix). */
+.texts-editor-overlay[hidden] {
+  display: none;
 }
 
 .texts-editor {
