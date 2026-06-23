@@ -1673,7 +1673,10 @@
     },
     "locationCoordinates": null,
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",

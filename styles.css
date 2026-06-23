@@ -1378,6 +1378,28 @@ body.editor-open .archive-view {
   cursor: pointer;
 }
 
+.overview-sort {
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.overview-sort:hover {
+  background: rgba(20, 26, 25, 0.04);
+}
+
+.overview-filter {
+  display: block;
+  margin-top: 4px;
+  max-width: 130px;
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+}
+
 .stats-overview tbody tr:hover {
   background: rgba(20, 26, 25, 0.04);
 }
@@ -1472,6 +1494,20 @@ body.editor-open .archive-view {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+/* Hover feedback so the whole card reads as clickable (#9, like the overview row
+   white→grey). The photo lifts + darkens slightly and the id gets a grey pill. */
+.photo-card:hover .card-photo {
+  border-color: rgba(20, 26, 25, 0.25);
+  box-shadow: 0 6px 18px rgba(20, 26, 25, 0.12);
+}
+
+.photo-card:hover img {
+  filter: brightness(0.93);
 }
 
 .photo-card img {
@@ -1481,6 +1517,7 @@ body.editor-open .archive-view {
   object-fit: cover;
   /* Double-clicking the card jumps to the map; signal it on the photo too (#9). */
   cursor: pointer;
+  transition: filter 200ms ease;
 }
 
 /* id (+ optional title) under the photo — left-aligned, no box/background (#5). */
@@ -1497,6 +1534,14 @@ body.editor-open .archive-view {
   font-size: 14px;
   /* Double-clicking a card jumps to the map; signal it on the id (#9). */
   cursor: pointer;
+  padding: 1px 6px;
+  margin: -1px -6px;
+  border-radius: 6px;
+  transition: background 200ms ease;
+}
+
+.photo-card:hover .card-id {
+  background: rgba(20, 26, 25, 0.06);
 }
 
 .card-title {

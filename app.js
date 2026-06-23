@@ -23,6 +23,12 @@ const state = {
   // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
   statsY: "object",
+  // 統計 overview table: per-column sort + filter (item 6). Sort by IMG name or
+  // date (asc/desc, toggled by clicking the header); type/area/object/state each
+  // filter to a chosen value ("all" = no filter).
+  overviewSortKey: "img",
+  overviewSortDir: "asc",
+  overviewFilters: { type: "all", area: "all", object: "all", state: "all" },
   searchOpen: false,
   // Map view: a primary base (普通地图 roadmap ↔ 卫星 satellite) plus, when on
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
@@ -260,10 +266,13 @@ function normalizeUmbrellaData(items) {
       const locationText = item.locationText || formatLocationLevels(locationLevels);
       const umbrellaCount = item.umbrellaCount || "";
       const umbrellaUnits = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
-      const objectText = buildObjectText(umbrellaCount, umbrellaUnits);
-      const objectLines = buildObjectGroups(umbrellaCount, umbrellaUnits);
-      const statusText = statusTextFromUnits(umbrellaUnits);
-      const statusLines = statusLinesFromUnits(umbrellaUnits);
+      // Count=unknown: we can't describe individual umbrellas, so object and
+      // state are shown as "unknown" on the detail page rather than left blank
+      // (item 5). Otherwise build them from the units as usual.
+      const objectText = umbrellaCount === "unknown" ? "unknown" : buildObjectText(umbrellaCount, umbrellaUnits);
+      const objectLines = umbrellaCount === "unknown" ? ["unknown"] : buildObjectGroups(umbrellaCount, umbrellaUnits);
+      const statusText = umbrellaCount === "unknown" ? "unknown" : statusTextFromUnits(umbrellaUnits);
+      const statusLines = umbrellaCount === "unknown" ? ["unknown"] : statusLinesFromUnits(umbrellaUnits);
       const coordinates = item.locationCoordinates || item.photoCoordinates;
       const time = item.time || item.photoTime || "";
       const prefecture = locationLevels[0] || "Unknown";
@@ -504,7 +513,7 @@ function bindEvents() {
         state.archiveSubfilter = "all";
       }
       syncArchiveControls();
-      renderArchive(filteredUmbrellas());
+      renderArchive();
     });
   });
 
@@ -515,21 +524,44 @@ function bindEvents() {
     }
 
     state.archiveSubfilter = button.dataset.archiveSubfilter;
-    renderArchive(filteredUmbrellas());
+    renderArchive();
   });
 
   // 統計 cross-tab: changing either axis dropdown re-renders the tables (#5).
+  // Overview column filters (item 6) re-render the same way.
   els.archiveContent?.addEventListener("change", (event) => {
-    const select = event.target.closest?.("[data-stats-axis]");
-    if (!select) {
+    const axis = event.target.closest?.("[data-stats-axis]");
+    if (axis) {
+      if (axis.dataset.statsAxis === "x") {
+        state.statsX = axis.value;
+      } else {
+        state.statsY = axis.value;
+      }
+      renderArchive();
       return;
     }
-    if (select.dataset.statsAxis === "x") {
-      state.statsX = select.value;
-    } else {
-      state.statsY = select.value;
+    const filter = event.target.closest?.("[data-overview-filter]");
+    if (filter) {
+      state.overviewFilters[filter.dataset.overviewFilter] = filter.value;
+      renderArchive();
     }
-    renderArchive(filteredUmbrellas());
+  });
+
+  // 統計 overview: clicking the IMG or date header sorts (toggling direction
+  // when the same column is clicked again), like the Archive 時間 button (item 6).
+  els.archiveContent?.addEventListener("click", (event) => {
+    const sortHead = event.target.closest?.("[data-overview-sort]");
+    if (!sortHead) {
+      return;
+    }
+    const key = sortHead.dataset.overviewSort;
+    if (state.overviewSortKey === key) {
+      state.overviewSortDir = state.overviewSortDir === "asc" ? "desc" : "asc";
+    } else {
+      state.overviewSortKey = key;
+      state.overviewSortDir = "asc";
+    }
+    renderArchive();
   });
 
   // Archive card: the ✎ button opens the same editor drawer in place (no jump
@@ -1164,7 +1196,7 @@ function render() {
   renderList(items);
   renderMapMarkers(items);
   renderFocusImage();
-  renderArchive(items);
+  renderArchive();
 
   if (els.resultCount) {
     els.resultCount.textContent = `${items.length} item`;
@@ -1540,14 +1572,32 @@ const STATS_TYPE_ORDER = [
 function buildStatsUnits() {
   const units = [];
   state.umbrellas.forEach((item) => {
+    // Count=unknown: we don't know how many umbrellas there are, so the record
+    // is excluded from the cross-tab counts entirely (item 5). A record with a
+    // numeric count whose colour/kind is unknown is still counted (we know it's
+    // 1-N umbrellas) and shows up as "unknown …".
+    if (item.umbrellaCount === "unknown") {
+      return;
+    }
     const month = item.time ? String(item.time).slice(0, 7) : "no-time";
     const place = item.prefecture || "unknown";
-    const list = (item.umbrellaUnits || []).length ? item.umbrellaUnits : [{}];
-    list.forEach((u) => {
+    const raw = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
+    const first = raw[0] || {};
+    const n = Number(item.umbrellaCount);
+    // Apply the same "a blank trailing umbrella copies the first" rule the detail
+    // page uses (applyUnitInheritance); otherwise a count=2 record with only the
+    // first umbrella filled produces a phantom "unknown unknown" (issue 1).
+    const desc =
+      Number.isInteger(n) && n >= 1 ? applyUnitInheritance(item.umbrellaCount, raw) : raw.length ? raw : [{}];
+    desc.forEach((u, i) => {
+      const rawUnit = raw[i] || {};
+      const inheritedBlank = i > 0 && !rawUnit.color && !rawUnit.kind;
+      const src = inheritedBlank ? first : rawUnit;
+      const status = Array.isArray(src.status) && src.status.length ? src.status.slice() : ["unknown"];
       units.push({
         type: item.type || "unknown",
         object: statsObjectValue(u),
-        state: u.status && u.status.length ? u.status.slice() : ["unknown"],
+        state: status,
         month,
         place,
       });
@@ -1669,31 +1719,118 @@ function renderStatsPivot(units) {
   `;
 }
 
-// Flat overview: one row per record (#5, screenshot 1). Sorted by IMG name by
-// default (#4); columns IMG / date / type / area / object / state (#8). The IMG
-// cell jumps to that record's map detail on double-click (#7).
+// One overview row per umbrella (item 6a). A multi-umbrella record splits into
+// rows tagged IMG_xxxx(1), IMG_xxxx(2)…; a single umbrella keeps the plain id.
+// count=unknown stays a single row with object/state = "unknown" (item 5).
+function overviewRowsForItem(item) {
+  const dateText = formatDateTime(item.time) || "";
+  const base = {
+    id: item.id,
+    dateText,
+    timeValue: getTimeValue(item),
+    type: statsValueLabel("type", item.type || ""),
+    area: item.location || "",
+  };
+  if (item.umbrellaCount === "unknown") {
+    return [{ ...base, idLabel: item.id, object: "unknown", state: "unknown" }];
+  }
+  const raw = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
+  const n = Number(item.umbrellaCount);
+  if (!(Number.isInteger(n) && n >= 1)) {
+    // No / blank count: a single row using whatever combined text exists.
+    return [{ ...base, idLabel: item.id, object: item.objectText || "unknown", state: item.statusText || "unknown" }];
+  }
+  const desc = applyUnitInheritance(item.umbrellaCount, raw);
+  const first = raw[0] || {};
+  return desc.map((u, i) => {
+    const rawUnit = raw[i] || {};
+    const inheritedBlank = i > 0 && !rawUnit.color && !rawUnit.kind;
+    const src = inheritedBlank ? first : rawUnit;
+    const statusArr = Array.isArray(src.status) ? src.status : [];
+    const stateText =
+      statusArr
+        .map((v) => (v === "other" ? String(src.statusOther || "").trim() || "other" : v))
+        .filter(Boolean)
+        .join(", ") || "unknown";
+    return {
+      ...base,
+      idLabel: n >= 2 ? `${item.id}(${i + 1})` : item.id,
+      object: describeUnit(u) || "unknown",
+      state: stateText,
+    };
+  });
+}
+
+// A <select> filter for one overview column; options are the distinct values.
+function overviewFilterSelect(field, allRows) {
+  const values = [...new Set(allRows.map((r) => r[field]).filter(Boolean))].sort((a, b) =>
+    String(a).localeCompare(String(b)),
+  );
+  const current = state.overviewFilters[field];
+  const opts = [`<option value="all"${current === "all" ? " selected" : ""}>all</option>`]
+    .concat(
+      values.map((v) => `<option value="${escapeHtml(v)}"${v === current ? " selected" : ""}>${escapeHtml(v)}</option>`),
+    )
+    .join("");
+  return `<select class="overview-filter" data-overview-filter="${field}">${opts}</select>`;
+}
+
+function overviewSortArrow(key) {
+  if (state.overviewSortKey !== key) {
+    return "";
+  }
+  return state.overviewSortDir === "asc" ? " ↑" : " ↓";
+}
+
+// Flat overview, one row per umbrella (item 6). IMG / date headers sort (click to
+// toggle); type / area / object / state have dropdown filters. The IMG cell jumps
+// to that record's map detail on double-click (#7).
 function renderStatsOverview() {
-  const sorted = [...state.umbrellas].sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  const rows = sorted
-    .map((item) => {
-      const idCell = `<td class="overview-id" data-overview-id="${escapeHtml(item.id)}">${escapeHtml(item.id)}</td>`;
-      const rest = [
-        formatDateTime(item.time) || "",
-        statsValueLabel("type", item.type || ""),
-        item.location || "",
-        item.objectText || "",
-        item.statusText || "",
-      ];
+  const allRows = state.umbrellas.flatMap(overviewRowsForItem);
+
+  const filters = state.overviewFilters;
+  const filtered = allRows.filter(
+    (r) =>
+      (filters.type === "all" || r.type === filters.type) &&
+      (filters.area === "all" || r.area === filters.area) &&
+      (filters.object === "all" || r.object === filters.object) &&
+      (filters.state === "all" || r.state === filters.state),
+  );
+
+  const dir = state.overviewSortDir === "asc" ? 1 : -1;
+  filtered.sort((a, b) => {
+    let primary;
+    if (state.overviewSortKey === "date") {
+      primary = a.timeValue - b.timeValue;
+    } else {
+      primary = String(a.id).localeCompare(String(b.id));
+    }
+    // Keep a record's umbrellas in their natural order; only the primary key flips.
+    return (primary || String(a.idLabel).localeCompare(String(b.idLabel))) * dir;
+  });
+
+  const rows = filtered
+    .map((r) => {
+      const idCell = `<td class="overview-id" data-overview-id="${escapeHtml(r.id)}">${escapeHtml(r.idLabel)}</td>`;
+      const rest = [r.dateText, r.type, r.area, r.object, r.state];
       return `<tr>${idCell}${rest.map((c) => `<td>${escapeHtml(c)}</td>`).join("")}</tr>`;
     })
     .join("");
+
   return `
     <section class="stats-block">
-      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${state.umbrellas.length})</h3>
+      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${filtered.length})</h3>
       <div class="stats-table-wrap">
         <table class="stats-table stats-overview">
           <thead>
-            <tr><th>IMG</th><th>date</th><th>type</th><th>area</th><th>object</th><th>state</th></tr>
+            <tr>
+              <th class="overview-sort" data-overview-sort="img">IMG${overviewSortArrow("img")}</th>
+              <th class="overview-sort" data-overview-sort="date">date${overviewSortArrow("date")}</th>
+              <th>type${overviewFilterSelect("type", allRows)}</th>
+              <th>area${overviewFilterSelect("area", allRows)}</th>
+              <th>object${overviewFilterSelect("object", allRows)}</th>
+              <th>state${overviewFilterSelect("state", allRows)}</th>
+            </tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1702,10 +1839,15 @@ function renderStatsOverview() {
   `;
 }
 
-function renderArchive(items) {
+function renderArchive() {
   if (!els.archiveContent) {
     return;
   }
+
+  // The Archive page is independent of the map sidebar search (state.query): it
+  // has its own chips/sub-filters. Always start from the full record set so a
+  // search typed in the map panel never trims the Archive grid.
+  const items = state.umbrellas;
 
   syncArchiveControls();
   renderArchiveSecondary(items);
@@ -1752,7 +1894,7 @@ function renderArchive(items) {
       } else {
         state.archiveCollapsedGroups.add(key);
       }
-      renderArchive(filteredUmbrellas());
+      renderArchive();
     });
   });
 }
@@ -2880,7 +3022,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=75", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=76", { updateViaCache: "none" });
   }
 }
 
