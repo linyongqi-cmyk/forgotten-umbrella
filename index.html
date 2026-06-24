@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=79" />
+    <link rel="stylesheet" href="styles.css?v=80" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -154,6 +154,11 @@
             <div class="focus-scroll" id="focus-scroll">
               <div class="focus-image-frame">
                 <img id="focus-image" alt="" />
+                <div class="focus-crosshair" id="focus-crosshair" aria-hidden="true" hidden>
+                  <span class="crosshair-line focus-crosshair-x" id="focus-crosshair-x"></span>
+                  <span class="crosshair-line focus-crosshair-y" id="focus-crosshair-y"></span>
+                  <span class="crosshair-ring focus-crosshair-ring" id="focus-crosshair-ring"></span>
+                </div>
                 <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
               </div>
               <figcaption id="focus-caption"></figcaption>
@@ -209,6 +214,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=79" type="module"></script>
+    <script src="app.js?v=80" type="module"></script>
   </body>
 </html>

@@ -175,6 +175,7 @@ const els = {
   crosshairX: document.querySelector("#crosshair-line-x"),
   crosshairY: document.querySelector("#crosshair-line-y"),
   crosshairRing: document.querySelector("#crosshair-ring"),
+  focusCrosshair: document.querySelector("#focus-crosshair"),
   turbulenceX: document.querySelector("#filter-x-turbulence"),
   turbulenceY: document.querySelector("#filter-y-turbulence"),
   turbulenceImage: document.querySelector("#filter-image-turbulence"),
@@ -2428,11 +2429,34 @@ function loadExpandedImage() {
   state.imagePanY = 0;
   els.focusImage.src = media.src;
   updateExpandedCaption(media);
+  setFocusCrosshair(media);
   // If the image is already cached the "load" listener won't fire, so size now.
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     setExpandedImageFrame();
     updateExpandedImageTransform();
   }
+}
+
+// Show the lock-on reticle at this image's stored point (item: lightbox crosshair).
+// Only shown when the image actually has a crosshair point; set it via the editor.
+function setFocusCrosshair(media) {
+  const wrap = els.focusCrosshair;
+  if (!wrap) {
+    return;
+  }
+  const point = media && media.crosshair;
+  if (!point) {
+    wrap.hidden = true;
+    wrap.classList.remove("is-locking");
+    return;
+  }
+  wrap.style.setProperty("--cx", `${point.x * 100}%`);
+  wrap.style.setProperty("--cy", `${point.y * 100}%`);
+  wrap.hidden = false;
+  // Restart the lock-on animation (remove → reflow → re-add).
+  wrap.classList.remove("is-locking");
+  void wrap.offsetWidth;
+  wrap.classList.add("is-locking");
 }
 
 // The time shown for a photo: its own EXIF time, or — for the cover, when the
@@ -2577,6 +2601,10 @@ function closeExpandedImage() {
   els.focusPanel?.classList.remove("is-expanded");
   els.mapView?.classList.remove("is-image-expanded");
   document.body.classList.remove("is-image-expanded");
+  if (els.focusCrosshair) {
+    els.focusCrosshair.hidden = true;
+    els.focusCrosshair.classList.remove("is-locking");
+  }
   // Drop any in-flight FLIP transform/transition so the panel returns cleanly.
   if (els.focusPanel) {
     els.focusPanel.style.transition = "";
@@ -3018,7 +3046,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=79", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=80", { updateViaCache: "none" });
   }
 }
 
@@ -3347,6 +3375,7 @@ function photoItem(media) {
     photoTime: media.photoTime || "",
     thumb: media.thumb || media.src || "",
     src: media.src || "",
+    crosshair: media.crosshair || null,
   };
 }
 
@@ -3446,6 +3475,7 @@ function renderFlow() {
             ${roleControl}
             <div class="editor-block-buttons">
               ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
+              <button type="button" data-fact="crosshair" title="设置灯箱准星锁定点">✛准星${item.crosshair ? "·已设" : ""}</button>
               ${moveButtons}
               <button type="button" data-fact="del-photo" title="删除图片">✕</button>
             </div>
@@ -3497,6 +3527,111 @@ function onFlowAction(action, index) {
     renderFlow();
   } else if (action === "del-photo") {
     deleteMediaFile(item.file);
+  } else if (action === "crosshair") {
+    openCrosshairPicker(item);
+  }
+}
+
+// ---- Crosshair picker: set the lightbox lock-on point for one image (local) --
+const crosshairPicker = { overlay: null, item: null, point: null };
+
+function openCrosshairPicker(item) {
+  if (!item || item.kind !== "photo") {
+    return;
+  }
+  if (!crosshairPicker.overlay) {
+    buildCrosshairPicker();
+  }
+  crosshairPicker.item = item;
+  crosshairPicker.point = item.crosshair ? { ...item.crosshair } : null;
+  const overlay = crosshairPicker.overlay;
+  overlay.querySelector(".crosshair-picker-stage img").src = item.src || item.thumb || "";
+  syncCrosshairPickerMark();
+  overlay.hidden = false;
+}
+
+function closeCrosshairPicker() {
+  if (crosshairPicker.overlay) {
+    crosshairPicker.overlay.hidden = true;
+  }
+  crosshairPicker.item = null;
+}
+
+function syncCrosshairPickerMark() {
+  const mark = crosshairPicker.overlay.querySelector(".crosshair-picker-mark");
+  const point = crosshairPicker.point;
+  mark.classList.toggle("is-empty", !point);
+  if (point) {
+    mark.style.setProperty("--cx", `${point.x * 100}%`);
+    mark.style.setProperty("--cy", `${point.y * 100}%`);
+  }
+}
+
+function buildCrosshairPicker() {
+  const overlay = document.createElement("div");
+  overlay.className = "crosshair-picker-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="crosshair-picker-stage">
+      <img alt="" />
+      <div class="crosshair-picker-mark is-empty">
+        <span class="pk-x"></span>
+        <span class="pk-y"></span>
+        <span class="pk-ring"></span>
+      </div>
+    </div>
+    <div class="crosshair-picker-bar">
+      <span>点击图片设置灯箱准星锁定点</span>
+      <button type="button" class="pk-clear">清除</button>
+      <button type="button" class="pk-cancel">取消</button>
+      <button type="button" class="pk-save">保存</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  crosshairPicker.overlay = overlay;
+
+  const stage = overlay.querySelector(".crosshair-picker-stage");
+  stage.addEventListener("click", (event) => {
+    const rect = stage.querySelector("img").getBoundingClientRect();
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+    crosshairPicker.point = {
+      x: clamp01((event.clientX - rect.left) / rect.width),
+      y: clamp01((event.clientY - rect.top) / rect.height),
+    };
+    syncCrosshairPickerMark();
+  });
+  overlay.querySelector(".pk-clear").addEventListener("click", () => {
+    crosshairPicker.point = null;
+    syncCrosshairPickerMark();
+  });
+  overlay.querySelector(".pk-cancel").addEventListener("click", closeCrosshairPicker);
+  overlay.querySelector(".pk-save").addEventListener("click", saveCrosshairPicker);
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closeCrosshairPicker();
+    }
+  });
+}
+
+async function saveCrosshairPicker() {
+  const item = crosshairPicker.item;
+  const id = state.editingId;
+  if (!item || !id) {
+    return;
+  }
+  const point = crosshairPicker.point;
+  showEditorToast("保存中…");
+  try {
+    await apiPost("/api/save-crosshair", { id, file: item.file, crosshair: point });
+    item.crosshair = point;
+    const rawMedia = (state.rawById?.get(id)?.media || []).find((m) => m.file === item.file);
+    if (rawMedia) {
+      rawMedia.crosshair = point;
+    }
+    closeCrosshairPicker();
+    renderFlow();
+    showEditorToast(point ? "准星已设置 ✓" : "准星已清除 ✓");
+  } catch (error) {
+    showEditorToast(`保存失败：${error.message}`, true);
   }
 }
 

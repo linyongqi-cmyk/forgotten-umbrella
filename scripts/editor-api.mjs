@@ -237,8 +237,46 @@ function applyMediaMetadata(existing, incoming) {
         photoTime: typeof item.photoTime === "string" ? item.photoTime : prev.photoTime || "",
         story: typeof item.story === "string" ? item.story : prev.story || "",
         legacyThumb: prev.legacyThumb || "",
+        // The record editor never touches the crosshair; keep whatever was stored.
+        crosshair: item.crosshair !== undefined ? sanitizeCrosshair(item.crosshair) : prev.crosshair ?? null,
       };
     });
+}
+
+// Lightbox crosshair lock-on point: normalized {x, y} in 0..1, or null to clear.
+function sanitizeCrosshair(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const x = Number(value.x);
+  const y = Number(value.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return null;
+  }
+  const clamp = (n) => Math.min(1, Math.max(0, n));
+  return { x: clamp(x), y: clamp(y) };
+}
+
+// Set (or clear) one media image's crosshair point, then rebuild umbrellas.json.
+// Only that single image is touched — nothing else in the record changes.
+export async function saveCrosshair(payload) {
+  const id = typeof payload?.id === "string" ? payload.id.trim() : "";
+  const recordPath = id ? await findRecordPathById(id) : null;
+  if (!recordPath) {
+    throw new ApiError(404, `No record found for id "${id}".`);
+  }
+  const file = path.basename(String(payload?.file || ""));
+  const record = await readRecordFile(recordPath);
+  const media = Array.isArray(record.media) ? record.media : [];
+  const entry = media.find((m) => m.file === file);
+  if (!entry) {
+    throw new ApiError(404, `No media "${file}" in record "${id}".`);
+  }
+  entry.crosshair = sanitizeCrosshair(payload.crosshair);
+  const merged = await mergeRecordMediaWithFolder(recordPath, record);
+  await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
+  await rebuildDatabase();
+  return { ok: true, id, file, crosshair: entry.crosshair };
 }
 
 function sanitizeFilename(name) {
@@ -484,6 +522,8 @@ export async function handleEditorApi(pathname, payload) {
       return saveRecord(payload);
     case "/api/save-texts":
       return saveTexts(payload);
+    case "/api/save-crosshair":
+      return saveCrosshair(payload);
     case "/api/upload-image":
       return uploadImage(payload);
     case "/api/delete-image":
