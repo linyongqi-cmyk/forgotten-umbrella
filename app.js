@@ -175,7 +175,6 @@ const els = {
   crosshairX: document.querySelector("#crosshair-line-x"),
   crosshairY: document.querySelector("#crosshair-line-y"),
   crosshairRing: document.querySelector("#crosshair-ring"),
-  focusCrosshair: document.querySelector("#focus-crosshair"),
   focusImageFrame: document.querySelector(".focus-image-frame"),
   turbulenceX: document.querySelector("#filter-x-turbulence"),
   turbulenceY: document.querySelector("#filter-y-turbulence"),
@@ -365,9 +364,6 @@ function normalizeMedia(item) {
     title: entry.title || "",
     photoTime: entry.photoTime || "",
     story: entry.story || "",
-    // Lightbox crosshair lock-on point {x, y} (+ optional ring/thickness). Must be
-    // carried through or the lightbox can never see it (was the "not showing" bug).
-    crosshair: entry.crosshair || null,
   }));
 
   if (!normalized.some((entry) => entry.role === "primary") && normalized[0]) {
@@ -478,9 +474,6 @@ function bindEvents() {
   document.addEventListener("pointermove", dragExpandedImage);
   document.addEventListener("pointerup", stopExpandedImageDrag);
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
-  // Hover-driven lightbox crosshair: slide it in from the edge to the lock point.
-  els.focusImageFrame?.addEventListener("mouseenter", onFocusCrosshairEnter);
-  els.focusImageFrame?.addEventListener("mouseleave", onFocusCrosshairLeave);
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   els.focusBlur?.addEventListener("click", () => {
     // A swipe just switched images — don't also treat it as a close click.
@@ -2436,78 +2429,11 @@ function loadExpandedImage() {
   state.imagePanY = 0;
   els.focusImage.src = media.src;
   updateExpandedCaption(media);
-  configureFocusCrosshair(media);
   // If the image is already cached the "load" listener won't fire, so size now.
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     setExpandedImageFrame();
     updateExpandedImageTransform();
   }
-}
-
-const CROSSHAIR_DEFAULTS = { ring: 22, thickness: 1.5 };
-const clamp01 = (n) => Math.min(1, Math.max(0, n));
-
-// Configure the lightbox crosshair for the current image. Hover-driven: the
-// reticle only appears while the cursor is over the photo — it slides in from
-// where the cursor crossed the edge to the locked point, and slides back out to
-// the exit point on leave. Images with no point get no crosshair at all.
-function configureFocusCrosshair(media) {
-  const wrap = els.focusCrosshair;
-  if (!wrap) {
-    return;
-  }
-  const point = media && media.crosshair;
-  state.focusCrosshairPoint = point || null;
-  wrap.classList.remove("is-visible", "no-anim");
-  if (!point) {
-    wrap.hidden = true;
-    return;
-  }
-  const ring = Number(point.ring) > 0 ? Number(point.ring) : CROSSHAIR_DEFAULTS.ring;
-  const thickness = Number(point.thickness) > 0 ? Number(point.thickness) : CROSSHAIR_DEFAULTS.thickness;
-  wrap.style.setProperty("--ch-ring", `${ring}px`);
-  wrap.style.setProperty("--ch-thick", `${thickness}px`);
-  setCrosshairPos(point.x, point.y);
-  wrap.hidden = false; // present but invisible (opacity 0) until the cursor enters
-}
-
-function setCrosshairPos(x, y) {
-  if (!els.focusCrosshair) {
-    return;
-  }
-  els.focusCrosshair.style.setProperty("--cx", `${x * 100}%`);
-  els.focusCrosshair.style.setProperty("--cy", `${y * 100}%`);
-}
-
-// Cursor entered the photo: drop the reticle where it crossed the edge, then
-// animate it to the locked point.
-function onFocusCrosshairEnter(event) {
-  const wrap = els.focusCrosshair;
-  const point = state.focusCrosshairPoint;
-  if (!wrap || !point || wrap.hidden || !els.focusImageFrame) {
-    return;
-  }
-  const rect = els.focusImageFrame.getBoundingClientRect();
-  const ex = clamp01((event.clientX - rect.left) / rect.width);
-  const ey = clamp01((event.clientY - rect.top) / rect.height);
-  wrap.classList.add("no-anim");
-  setCrosshairPos(ex, ey);
-  wrap.classList.add("is-visible");
-  void wrap.offsetWidth; // commit the entry position with no transition
-  wrap.classList.remove("no-anim");
-  setCrosshairPos(point.x, point.y); // now animate to the lock point
-}
-
-// Cursor left the photo: slide the reticle out toward the exit point and fade it.
-function onFocusCrosshairLeave(event) {
-  const wrap = els.focusCrosshair;
-  const point = state.focusCrosshairPoint;
-  if (!wrap || !point || wrap.hidden || !els.focusImageFrame) {
-    return;
-  }
-  const rect = els.focusImageFrame.getBoundingClientRect();
-  setCrosshairPos(clamp01((event.clientX - rect.left) / rect.width), clamp01((event.clientY - rect.top) / rect.height));
-  wrap.classList.remove("is-visible");
 }
 
 // The time shown for a photo: its own EXIF time, or — for the cover, when the
@@ -2652,10 +2578,6 @@ function closeExpandedImage() {
   els.focusPanel?.classList.remove("is-expanded");
   els.mapView?.classList.remove("is-image-expanded");
   document.body.classList.remove("is-image-expanded");
-  if (els.focusCrosshair) {
-    els.focusCrosshair.hidden = true;
-    els.focusCrosshair.classList.remove("is-visible", "no-anim");
-  }
   // Drop any in-flight FLIP transform/transition so the panel returns cleanly.
   if (els.focusPanel) {
     els.focusPanel.style.transition = "";
@@ -3097,7 +3019,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=81", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=82", { updateViaCache: "none" });
   }
 }
 
@@ -3426,7 +3348,6 @@ function photoItem(media) {
     photoTime: media.photoTime || "",
     thumb: media.thumb || media.src || "",
     src: media.src || "",
-    crosshair: media.crosshair || null,
   };
 }
 
@@ -3526,9 +3447,6 @@ function renderFlow() {
             ${roleControl}
             <div class="editor-block-buttons">
               ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
-              <button type="button" class="flow-crosshair-btn${item.crosshair ? " is-set" : ""}" data-fact="crosshair" title="设置灯箱准星锁定点" aria-label="设置灯箱准星锁定点">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="7" /><line x1="12" y1="2.5" x2="12" y2="21.5" /><line x1="2.5" y1="12" x2="21.5" y2="12" /></svg>
-              </button>
               ${moveButtons}
               <button type="button" data-fact="del-photo" title="删除图片">✕</button>
             </div>
@@ -3580,131 +3498,6 @@ function onFlowAction(action, index) {
     renderFlow();
   } else if (action === "del-photo") {
     deleteMediaFile(item.file);
-  } else if (action === "crosshair") {
-    openCrosshairPicker(item);
-  }
-}
-
-// ---- Crosshair picker: set the lightbox lock-on point for one image (local) --
-// Click the image to set the point; sliders tune the ring size + line thickness
-// for that image. Saved as crosshair = { x, y, ring, thickness }.
-const crosshairPicker = { overlay: null, item: null, point: null, ring: 22, thickness: 1.5 };
-
-function openCrosshairPicker(item) {
-  if (!item || item.kind !== "photo") {
-    return;
-  }
-  if (!crosshairPicker.overlay) {
-    buildCrosshairPicker();
-  }
-  const ch = item.crosshair || null;
-  crosshairPicker.item = item;
-  crosshairPicker.point = ch ? { x: ch.x, y: ch.y } : null;
-  crosshairPicker.ring = Number(ch?.ring) > 0 ? Number(ch.ring) : CROSSHAIR_DEFAULTS.ring;
-  crosshairPicker.thickness = Number(ch?.thickness) > 0 ? Number(ch.thickness) : CROSSHAIR_DEFAULTS.thickness;
-  const overlay = crosshairPicker.overlay;
-  overlay.querySelector(".crosshair-picker-stage img").src = item.src || item.thumb || "";
-  overlay.querySelector(".pk-ring-range").value = crosshairPicker.ring;
-  overlay.querySelector(".pk-thick-range").value = crosshairPicker.thickness;
-  syncCrosshairPickerMark();
-  overlay.hidden = false;
-}
-
-function closeCrosshairPicker() {
-  if (crosshairPicker.overlay) {
-    crosshairPicker.overlay.hidden = true;
-  }
-  crosshairPicker.item = null;
-}
-
-function syncCrosshairPickerMark() {
-  const mark = crosshairPicker.overlay.querySelector(".crosshair-picker-mark");
-  const point = crosshairPicker.point;
-  mark.classList.toggle("is-empty", !point);
-  mark.style.setProperty("--ch-ring", `${crosshairPicker.ring}px`);
-  mark.style.setProperty("--ch-thick", `${crosshairPicker.thickness}px`);
-  if (point) {
-    mark.style.setProperty("--cx", `${point.x * 100}%`);
-    mark.style.setProperty("--cy", `${point.y * 100}%`);
-  }
-}
-
-function buildCrosshairPicker() {
-  const overlay = document.createElement("div");
-  overlay.className = "crosshair-picker-overlay";
-  overlay.hidden = true;
-  overlay.innerHTML = `
-    <div class="crosshair-picker-stage">
-      <img alt="" />
-      <div class="crosshair-picker-mark is-empty">
-        <span class="pk-x"></span>
-        <span class="pk-y"></span>
-        <span class="pk-ring"></span>
-      </div>
-    </div>
-    <div class="crosshair-picker-bar">
-      <span>点击图片设置准星锁定点</span>
-      <label class="pk-slider">圆环 <input type="range" class="pk-ring-range" min="10" max="60" step="1" /></label>
-      <label class="pk-slider">线条 <input type="range" class="pk-thick-range" min="1" max="6" step="0.5" /></label>
-      <button type="button" class="pk-clear">清除</button>
-      <button type="button" class="pk-cancel">取消</button>
-      <button type="button" class="pk-save">保存</button>
-    </div>`;
-  document.body.appendChild(overlay);
-  crosshairPicker.overlay = overlay;
-
-  const stage = overlay.querySelector(".crosshair-picker-stage");
-  stage.addEventListener("click", (event) => {
-    const rect = stage.querySelector("img").getBoundingClientRect();
-    crosshairPicker.point = {
-      x: clamp01((event.clientX - rect.left) / rect.width),
-      y: clamp01((event.clientY - rect.top) / rect.height),
-    };
-    syncCrosshairPickerMark();
-  });
-  overlay.querySelector(".pk-ring-range").addEventListener("input", (event) => {
-    crosshairPicker.ring = Number(event.target.value);
-    syncCrosshairPickerMark();
-  });
-  overlay.querySelector(".pk-thick-range").addEventListener("input", (event) => {
-    crosshairPicker.thickness = Number(event.target.value);
-    syncCrosshairPickerMark();
-  });
-  overlay.querySelector(".pk-clear").addEventListener("click", () => {
-    crosshairPicker.point = null;
-    syncCrosshairPickerMark();
-  });
-  overlay.querySelector(".pk-cancel").addEventListener("click", closeCrosshairPicker);
-  overlay.querySelector(".pk-save").addEventListener("click", saveCrosshairPicker);
-  overlay.addEventListener("click", (event) => {
-    if (event.target === overlay) {
-      closeCrosshairPicker();
-    }
-  });
-}
-
-async function saveCrosshairPicker() {
-  const item = crosshairPicker.item;
-  const id = state.editingId;
-  if (!item || !id) {
-    return;
-  }
-  const point = crosshairPicker.point
-    ? { x: crosshairPicker.point.x, y: crosshairPicker.point.y, ring: crosshairPicker.ring, thickness: crosshairPicker.thickness }
-    : null;
-  showEditorToast("保存中…");
-  try {
-    await apiPost("/api/save-crosshair", { id, file: item.file, crosshair: point });
-    item.crosshair = point;
-    const rawMedia = (state.rawById?.get(id)?.media || []).find((m) => m.file === item.file);
-    if (rawMedia) {
-      rawMedia.crosshair = point;
-    }
-    closeCrosshairPicker();
-    renderFlow();
-    showEditorToast(point ? "准星已设置 ✓" : "准星已清除 ✓");
-  } catch (error) {
-    showEditorToast(`保存失败：${error.message}`, true);
   }
 }
 

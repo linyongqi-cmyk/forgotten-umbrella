@@ -76,7 +76,6 @@ function buildUmbrellaItem(recordPath, record) {
       title: entry.title || "",
       photoTime: entry.photoTime || "",
       story: entry.story || "",
-      crosshair: entry.crosshair || null,
     };
   });
 

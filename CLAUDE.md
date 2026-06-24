@@ -16,7 +16,7 @@
 ## 架构与数据流
 - 前端：`index.html` + `app.js`(~2800行) + `styles.css`；PWA：`sw.js` + `manifest.json`。
 - 真源：`filebox/records/<category>(<group>)/<id>/record.json`（76 条）→ `scripts/build-umbrellas.mjs` 聚合成 `data/umbrellas.json`（前端读取，**自动生成物，勿手改**）。
-- **本地编辑器**：只在 `127.0.0.1`（本机）出现（`IS_LOCAL`），线上完全不渲染。后端 = `server.js` + `scripts/editor-api.mjs`，提供只对本机生效的 `/api/*` 接口（save-record / upload-image / delete-image / create-record / delete-record / move-record / save-texts / **save-crosshair**）。
+- **本地编辑器**：只在 `127.0.0.1`（本机）出现（`IS_LOCAL`），线上完全不渲染。后端 = `server.js` + `scripts/editor-api.mjs`，提供只对本机生效的 `/api/*` 接口（save-record / upload-image / delete-image / create-record / delete-record / move-record / save-texts）。
 - `data/japan-areas.json`：全日本地址数据（47 都道府县→市→区，日英双语，英文已译后缀：Kyoto / Kyoto City / Minami Ward），用于编辑器地址级联下拉。来源是用户的 KEN_ALL_ROME xlsx。
 - `data/texts.json`：可编辑的 UI 文案（双语 ja/en）——9 个类型说明文 + 统计页说明文。前端启动 fetch 读取（不是 record 生成物，**直接改它就是源**，不需 build）。本地「文 文案編集」面板（左上，仅 127.0.0.1）改完走 `/api/save-texts` 写回。**不要再在 app.js 里硬编码这些文案**。
 
@@ -32,7 +32,7 @@
 - `editFlag`："yellow"/"black"/"white"/""（编辑用标记色，仅编辑模式地图显示）
 - `story`（由 blocks 的文字段落合并，用于卡片简介）
 - `blocks`：详情页图文顺序 `[{type:"text",text} | {type:"photo",file}]`
-- `media`：`[{id, file, role, title, photoTime, story, legacyThumb, crosshair}]`，role ∈ primary/supplement/detail/illustration。`crosshair`=灯箱放大图上的准星锁定点 `{x,y,ring,thickness}`（坐标归一化 0~1，ring=圆环px，thickness=线粗px）或 null；本地编辑器每张图的圆形十字图标按钮取点（弹窗里点图+滑块调大小），走 `/api/save-crosshair` 只改单张图。**悬停驱动**：仅在灯箱放大图、鼠标悬停时显示（从进入点滑到锁定点，离开滑出）。
+- `media`：`[{id, file, role, title, photoTime, story, legacyThumb}]`，role ∈ primary/supplement/detail/illustration。（旧的灯箱准星 `crosshair` 字段已于 v82 删除。）
 
 ## 公开展示规则
 - 详情页（点标记的聚焦页）：**固定头部**（id(title)/地点/时间）+ **可滚动文章**（封面图 + INFORMATION 网格 + blocks 图文流）。
@@ -42,7 +42,7 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v77**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v82**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。

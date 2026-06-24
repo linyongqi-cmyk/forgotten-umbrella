@@ -64,9 +64,7 @@ export function stringifyRecordWithComments(record) {
     lines.push('      // 这张媒体自己的说明文字。');
     lines.push(`      "story": ${JSON.stringify(item.story ?? "")},`);
     lines.push('      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。');
-    lines.push(`      "legacyThumb": ${JSON.stringify(item.legacyThumb ?? "")},`);
-    lines.push('      // 灯箱放大图上的准星锁定点。归一化坐标 {x,y}（0~1）；没有就是 null。');
-    lines.push(`      "crosshair": ${JSON.stringify(item.crosshair ?? null)}`);
+    lines.push(`      "legacyThumb": ${JSON.stringify(item.legacyThumb ?? "")}`);
     lines.push(`    }${suffix}`);
   });
 
@@ -120,7 +118,6 @@ export async function mergeRecordMediaWithFolder(recordPath, record) {
       photoTime: item.photoTime ?? (isPrimary ? record.photoTime || "" : ""),
       story: item.story ?? "",
       legacyThumb: item.legacyThumb ?? "",
-      crosshair: item.crosshair ?? null,
     };
   });
 

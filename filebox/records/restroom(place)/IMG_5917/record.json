@@ -67,9 +67,7 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_5917.jpg",
-      // 灯箱放大图上的准星锁定点。归一化坐标 {x,y}（0~1）；没有就是 null。
-      "crosshair": null
+      "legacyThumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_5917.jpg"
     }
   ]
 }
