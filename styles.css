@@ -235,10 +235,12 @@ body.is-entered .welcome-screen {
   }
 }
 
-/* ---- Lightbox crosshair (item: lock-on reticle on the enlarged photo) ------ */
-/* Overlays the enlarged image at a stored point. mix-blend-mode:difference keeps
-   the white reticle visible over any photo. Shown only when the image has a
-   crosshair point set (or while editing one). */
+/* ---- Lightbox crosshair (hover-driven lock-on reticle on the enlarged photo) -
+   Overlays the enlarged image; mix-blend-mode:difference keeps the white reticle
+   visible over any photo. Only present when the image has a stored point, and
+   only visible while the cursor is over the photo — it slides in from the edge to
+   the lock point and back out on leave (positions transition; opacity fades).
+   --ch-ring / --ch-thick are the per-image ring size + line thickness. */
 .focus-crosshair {
   position: absolute;
   inset: 0;
@@ -246,11 +248,20 @@ body.is-entered .welcome-screen {
   color: #fff;
   mix-blend-mode: difference;
   z-index: 3;
+  opacity: 0;
+  transition: opacity 240ms ease;
 }
 
-/* Steady visible state (the wrapper is display:none when no point is set, so
-   these only show once a crosshair exists). The lock-on animation below handles
-   the entrance; visibility never depends on the animation actually running. */
+.focus-crosshair.is-visible {
+  opacity: 1;
+}
+
+/* Used for one frame to drop the reticle at the entry point without animating. */
+.focus-crosshair.no-anim,
+.focus-crosshair.no-anim * {
+  transition: none !important;
+}
+
 .focus-crosshair .crosshair-line {
   position: absolute;
   background: currentColor;
@@ -259,66 +270,34 @@ body.is-entered .welcome-screen {
 .focus-crosshair-x {
   left: 0;
   width: 100%;
-  height: 1px;
+  height: var(--ch-thick, 1.5px);
   top: var(--cy, 50%);
   transform: translateY(-50%);
-  opacity: 0.85;
+  transition: top 440ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .focus-crosshair-y {
   top: 0;
   height: 100%;
-  width: 1px;
+  width: var(--ch-thick, 1.5px);
   left: var(--cx, 50%);
   transform: translateX(-50%);
-  opacity: 0.85;
+  transition: left 440ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .focus-crosshair-ring {
   position: absolute;
   left: var(--cx, 50%);
   top: var(--cy, 50%);
-  width: 24px;
-  height: 24px;
+  width: var(--ch-ring, 22px);
+  height: var(--ch-ring, 22px);
   margin: 0;
-  border: 1.5px solid currentColor;
+  border: var(--ch-thick, 1.5px) solid currentColor;
   border-radius: 50%;
-  opacity: 0.9;
   transform: translate(-50%, -50%);
-}
-
-/* Re-triggered each time an image opens: lines fade in, ring contracts to lock. */
-.focus-crosshair.is-locking .focus-crosshair-x,
-.focus-crosshair.is-locking .focus-crosshair-y {
-  animation: focusCrosshairLineIn 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.focus-crosshair.is-locking .focus-crosshair-ring {
-  animation: focusCrosshairRingIn 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes focusCrosshairLineIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.85;
-  }
-}
-
-@keyframes focusCrosshairRingIn {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(3.4);
-  }
-  70% {
-    opacity: 0.95;
-    transform: translate(-50%, -50%) scale(0.88);
-  }
-  100% {
-    opacity: 0.9;
-    transform: translate(-50%, -50%) scale(1);
-  }
+  transition:
+    left 440ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 440ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---- Editor crosshair picker overlay (local only) -------------------------- */
@@ -373,7 +352,7 @@ body.is-entered .welcome-screen {
   position: absolute;
   left: 0;
   width: 100%;
-  height: 1px;
+  height: var(--ch-thick, 1.5px);
   top: var(--cy, 50%);
   transform: translateY(-50%);
   background: currentColor;
@@ -384,7 +363,7 @@ body.is-entered .welcome-screen {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 1px;
+  width: var(--ch-thick, 1.5px);
   left: var(--cx, 50%);
   transform: translateX(-50%);
   background: currentColor;
@@ -395,11 +374,41 @@ body.is-entered .welcome-screen {
   position: absolute;
   left: var(--cx, 50%);
   top: var(--cy, 50%);
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid currentColor;
+  width: var(--ch-ring, 22px);
+  height: var(--ch-ring, 22px);
+  border: var(--ch-thick, 1.5px) solid currentColor;
   border-radius: 50%;
   transform: translate(-50%, -50%);
+}
+
+.crosshair-picker-bar .pk-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.crosshair-picker-bar .pk-slider input[type="range"] {
+  width: 90px;
+}
+
+/* Editor crosshair button: a circular target logo. Muted by default, accent
+   colour once a point is set. */
+.flow-crosshair-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.flow-crosshair-btn.is-set {
+  color: #b4502f;
+  border-color: #b4502f;
 }
 
 .crosshair-picker-bar {

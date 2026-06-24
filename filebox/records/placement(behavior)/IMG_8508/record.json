@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -74,7 +74,9 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8508.jpg"
+      "legacyThumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8508.jpg",
+      // 灯箱放大图上的准星锁定点。归一化坐标 {x,y}（0~1）；没有就是 null。
+      "crosshair": {"x":0.38603176864449035,"y":0.8761070351639481}
     }
   ]
 }

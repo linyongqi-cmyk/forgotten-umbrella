@@ -32,7 +32,7 @@
 - `editFlag`："yellow"/"black"/"white"/""（编辑用标记色，仅编辑模式地图显示）
 - `story`（由 blocks 的文字段落合并，用于卡片简介）
 - `blocks`：详情页图文顺序 `[{type:"text",text} | {type:"photo",file}]`
-- `media`：`[{id, file, role, title, photoTime, story, legacyThumb, crosshair}]`，role ∈ primary/supplement/detail/illustration。`crosshair`=灯箱放大图上的准星锁定点 `{x,y}`（归一化 0~1）或 null；本地编辑器每张图「✛准星」按钮取点，走 `/api/save-crosshair`，只在灯箱显示。
+- `media`：`[{id, file, role, title, photoTime, story, legacyThumb, crosshair}]`，role ∈ primary/supplement/detail/illustration。`crosshair`=灯箱放大图上的准星锁定点 `{x,y,ring,thickness}`（坐标归一化 0~1，ring=圆环px，thickness=线粗px）或 null；本地编辑器每张图的圆形十字图标按钮取点（弹窗里点图+滑块调大小），走 `/api/save-crosshair` 只改单张图。**悬停驱动**：仅在灯箱放大图、鼠标悬停时显示（从进入点滑到锁定点，离开滑出）。
 
 ## 公开展示规则
 - 详情页（点标记的聚焦页）：**固定头部**（id(title)/地点/时间）+ **可滚动文章**（封面图 + INFORMATION 网格 + blocks 图文流）。

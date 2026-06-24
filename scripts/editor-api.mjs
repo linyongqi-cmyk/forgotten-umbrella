@@ -254,7 +254,16 @@ function sanitizeCrosshair(value) {
     return null;
   }
   const clamp = (n) => Math.min(1, Math.max(0, n));
-  return { x: clamp(x), y: clamp(y) };
+  const clampRange = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+  const out = { x: clamp(x), y: clamp(y) };
+  // Optional per-image styling: ring diameter (px) + line thickness (px).
+  if (Number.isFinite(Number(value.ring))) {
+    out.ring = clampRange(Number(value.ring), 6, 80);
+  }
+  if (Number.isFinite(Number(value.thickness))) {
+    out.thickness = clampRange(Number(value.thickness), 0.5, 10);
+  }
+  return out;
 }
 
 // Set (or clear) one media image's crosshair point, then rebuild umbrellas.json.

@@ -1972,7 +1972,10 @@
       "lng": 139.7126772447949
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2003,7 +2006,10 @@
         "title": "",
         "photoTime": "2025-03-11T12:39:11+09:00",
         "story": "",
-        "crosshair": null
+        "crosshair": {
+          "x": 0.5518918422903986,
+          "y": 0.43761326879401713
+        }
       }
     ],
     "locationLevels": [
@@ -3676,7 +3682,10 @@
       "lng": 135.7605576447213
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "2",
@@ -3714,7 +3723,10 @@
         "title": "",
         "photoTime": "2026-04-15T17:19:22+09:00",
         "story": "",
-        "crosshair": null
+        "crosshair": {
+          "x": 0.38603176864449035,
+          "y": 0.8761070351639481
+        }
       }
     ],
     "locationLevels": [
