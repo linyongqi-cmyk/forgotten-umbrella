@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=82" />
+    <link rel="stylesheet" href="styles.css?v=83" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -126,9 +126,9 @@
             </label>
 
             <div class="filter-row" aria-label="map archive sorting">
-              <button class="chip is-active" data-list-sort="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
-              <button class="chip" data-list-sort="type" type="button">種類</button>
-              <button class="chip" data-list-sort="place" type="button">場所</button>
+              <button class="chip is-active" data-list-sort="time" type="button"><span data-i18n="sortTime">時間</span><span class="sort-arrow" aria-hidden="true"></span></button>
+              <button class="chip" data-list-sort="type" type="button"><span data-i18n="sortType">種類</span></button>
+              <button class="chip" data-list-sort="place" type="button"><span data-i18n="sortPlace">場所</span></button>
             </div>
 
             <div class="list-secondary-row" id="list-secondary-row" hidden></div>
@@ -169,13 +169,13 @@
           </div>
 
           <div class="archive-toolbar" aria-label="archive controls">
-            <p>並び替え</p>
+            <p data-i18n="sortBy">並び替え</p>
             <div class="archive-primary-row">
               <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-                <button class="archive-control is-active" data-archive-mode="time" type="button">時間<span class="sort-arrow" aria-hidden="true"></span></button>
-                <button class="archive-control" data-archive-mode="type" type="button">種類</button>
-                <button class="archive-control" data-archive-mode="place" type="button">場所</button>
-                <button class="archive-control" data-archive-mode="stats" type="button">統計</button>
+                <button class="archive-control is-active" data-archive-mode="time" type="button"><span data-i18n="sortTime">時間</span><span class="sort-arrow" aria-hidden="true"></span></button>
+                <button class="archive-control" data-archive-mode="type" type="button"><span data-i18n="sortType">種類</span></button>
+                <button class="archive-control" data-archive-mode="place" type="button"><span data-i18n="sortPlace">場所</span></button>
+                <button class="archive-control" data-archive-mode="stats" type="button"><span data-i18n="statsTab">統計</span></button>
               </div>
             </div>
             <div class="archive-secondary-row" id="archive-secondary-row" hidden></div>
@@ -194,21 +194,21 @@
           <dl class="about-stats">
             <div>
               <dt id="stat-count">0</dt>
-              <dd>記録された地点</dd>
+              <dd data-i18n="aboutStatLocations">記録された地点</dd>
             </div>
             <div>
               <dt>2026</dt>
-              <dd>プロトタイプ</dd>
+              <dd data-i18n="aboutStatPrototype">プロトタイプ</dd>
             </div>
             <div>
               <dt>PWA</dt>
-              <dd>アプリとしてインストール可能</dd>
+              <dd data-i18n="aboutStatInstall">アプリとしてインストール可能</dd>
             </div>
           </dl>
         </section>
       </main>
     </div>
 
-    <script src="app.js?v=82" type="module"></script>
+    <script src="app.js?v=83" type="module"></script>
   </body>
 </html>

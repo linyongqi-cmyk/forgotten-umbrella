@@ -119,6 +119,29 @@ const UI_TEXT = {
     en: "This prototype breaks a forgotten umbrella down into four threads — place, time, weather and material. The images are still placeholders, but the map, archive and filtering are ready to grow, so real photos, interview notes or audio can be plugged in later.",
   },
   archiveHeading: { ja: "アーカイブ", en: "Archive" },
+  // Map type / satellite-label toggle buttons (their text is set dynamically by
+  // syncMapTypeButton, so they can't carry a data-i18n attribute).
+  mapToMap: { ja: "地図", en: "Map" },
+  mapToSatellite: { ja: "衛星", en: "Satellite" },
+  mapHintToMap: { ja: "普通の地図に切り替え", en: "Switch to map" },
+  mapHintToSatellite: { ja: "衛星写真に切り替え", en: "Switch to satellite" },
+  labelsOn: { ja: "文字オン", en: "Labels on" },
+  labelsOff: { ja: "文字オフ", en: "Labels off" },
+  labelsHintShow: { ja: "衛星写真に文字を表示", en: "Show satellite labels" },
+  labelsHintHide: { ja: "衛星写真の文字を非表示", en: "Hide satellite labels" },
+};
+
+// Static UI labels in the HTML carry a data-i18n="key" attribute; applyLanguage
+// swaps their text by language. Add a key here + the attribute in index.html.
+const I18N = {
+  sortBy: { ja: "並び替え", en: "Sort by" },
+  sortTime: { ja: "時間", en: "Time" },
+  sortType: { ja: "種類", en: "Type" },
+  sortPlace: { ja: "場所", en: "Place" },
+  statsTab: { ja: "統計", en: "Stats" },
+  aboutStatLocations: { ja: "記録された地点", en: "Recorded locations" },
+  aboutStatPrototype: { ja: "プロトタイプ", en: "Prototype" },
+  aboutStatInstall: { ja: "アプリとしてインストール可能", en: "Installable as an app" },
 };
 
 function applyLanguage() {
@@ -134,6 +157,16 @@ function applyLanguage() {
   document.querySelectorAll(".panel-heading h2, .section-heading h2").forEach((heading) => {
     heading.textContent = UI_TEXT.archiveHeading[state.lang];
   });
+  // Swap every static labelled element (sidebar chips, archive controls, about
+  // stats) to the current language.
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const entry = I18N[el.dataset.i18n];
+    if (entry) {
+      el.textContent = entry[state.lang] || entry.ja;
+    }
+  });
+  // The map base / label toggle buttons set their own text — refresh it too.
+  syncMapTypeButton();
   // Re-render everything that contains per-record bilingual text.
   render();
 }
@@ -1138,10 +1171,11 @@ function refreshSatellitePoi() {
 
 function syncMapTypeButton() {
   const onSatellite = state.mapBase === "satellite";
+  const lang = state.lang;
   if (els.mapTypeToggle) {
     // Button shows the base you'll switch TO.
-    const label = onSatellite ? "地図" : "衛星";
-    const hint = onSatellite ? "普通の地図に切り替え" : "衛星写真に切り替え";
+    const label = onSatellite ? UI_TEXT.mapToMap[lang] : UI_TEXT.mapToSatellite[lang];
+    const hint = onSatellite ? UI_TEXT.mapHintToMap[lang] : UI_TEXT.mapHintToSatellite[lang];
     els.mapTypeToggle.textContent = label;
     els.mapTypeToggle.setAttribute("aria-label", hint);
     els.mapTypeToggle.setAttribute("title", hint);
@@ -1149,8 +1183,8 @@ function syncMapTypeButton() {
   if (els.mapLabelsToggle) {
     // The labels button only appears while on satellite.
     els.mapLabelsToggle.hidden = !onSatellite;
-    const label = state.mapLabels ? "文字オフ" : "文字オン";
-    const hint = state.mapLabels ? "衛星写真の文字を非表示" : "衛星写真に文字を表示";
+    const label = state.mapLabels ? UI_TEXT.labelsOff[lang] : UI_TEXT.labelsOn[lang];
+    const hint = state.mapLabels ? UI_TEXT.labelsHintHide[lang] : UI_TEXT.labelsHintShow[lang];
     els.mapLabelsToggle.textContent = label;
     els.mapLabelsToggle.setAttribute("aria-label", hint);
     els.mapLabelsToggle.setAttribute("title", hint);
@@ -1594,8 +1628,10 @@ function statsOrderValues(values, dim) {
 function renderStats() {
   // Intro paragraph (bilingual) lives in data/texts.json now (item 12).
   const intro = TEXTS.statsIntro[state.lang] || TEXTS.statsIntro.ja || TEXTS.statsIntro.en || "";
+  // 大段正文：日语两边对齐，英语左对齐（[[text-justify-rule]]）。
+  const introJustify = state.lang === "ja" ? " is-justify" : "";
   els.archiveContent.innerHTML = `
-    <p class="stats-intro">${escapeHtml(intro)}</p>
+    <p class="stats-intro${introJustify}">${escapeHtml(intro)}</p>
     ${renderStatsPivot(buildStatsUnits())}
     ${renderStatsOverview()}
   `;
@@ -1611,9 +1647,26 @@ function positionOverviewMenu() {
     return;
   }
   const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.bottom + 2}px`;
-  // Keep the menu inside the viewport's right edge (rightmost columns).
   const viewportW = document.documentElement.clientWidth;
+  const viewportH = document.documentElement.clientHeight;
+  const margin = 8;
+  const naturalH = menu.scrollHeight;
+  const spaceBelow = viewportH - rect.bottom - margin;
+  const spaceAbove = rect.top - margin;
+  // If the table is short the page can't scroll, so a long dropdown placed below
+  // could spill past the viewport bottom and become unreachable. Cap the menu's
+  // height to the space available (it scrolls internally), and flip it above the
+  // button when there's clearly more room up there.
+  if (spaceBelow < Math.min(naturalH, 160) && spaceAbove > spaceBelow) {
+    menu.style.top = "auto";
+    menu.style.bottom = `${viewportH - rect.top + 2}px`;
+    menu.style.maxHeight = `${Math.min(260, spaceAbove)}px`;
+  } else {
+    menu.style.bottom = "auto";
+    menu.style.top = `${rect.bottom + 2}px`;
+    menu.style.maxHeight = `${Math.min(260, spaceBelow)}px`;
+  }
+  // Keep the menu inside the viewport's right edge (rightmost columns).
   const menuW = menu.offsetWidth || 160;
   menu.style.left = `${Math.max(8, Math.min(rect.left, viewportW - menuW - 8))}px`;
 }
@@ -3019,7 +3072,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=82", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=83", { updateViaCache: "none" });
   }
 }
 

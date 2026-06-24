@@ -1365,8 +1365,13 @@ body.editor-open .archive-view {
   max-width: 74ch;
   font-size: 14px;
   line-height: 1.95;
-  text-align: justify;
+  text-align: left;
   color: var(--ink);
+}
+
+/* 大段正文：日语两边对齐，英语保持左对齐（避免单词间难看的大空隙）。 */
+.stats-intro.is-justify {
+  text-align: justify;
 }
 
 .stats-block {
