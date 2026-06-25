@@ -1544,9 +1544,13 @@
           "ja": "伏見区の大きな交差点、広いアスファルトの道路中央に一本の 黒い傘が横たわっている。壁やフェンスに置かれたものとは違 い、これは車両が行き交う動的な経路の中に位置する。走行中 の車両から滑り落ちたその瞬間、たとえ気づいたとしても、激 しい車流の中で止まって拾い上げることは不可能だ。持ち主は そのまま進むしかなかった。これは、環境によって強いられた 「断念」である。白い線の傍らで、それは静止した異物とし て残された。",
           "en": "A single black umbrella lies in the middle of a wide asphalt road at a large intersection in Fushimi Ward. Unlike those leaned against walls or hung on fences, this one sits within a dynamic path of traffic. It slipped off a moving vehicle, even if the owner noticed the drop, the pressure of the constant traffic made it impossible to stop and retrieve it. They had no choice but to keep moving-a forced abandonment. Resting beside the white road markings, it remains as a static anomaly amidst the flow."
         }
+      },
+      {
+        "type": "photo",
+        "file": "________.png"
       }
     ],
-    "editFlag": "black",
+    "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8229.jpg",
@@ -1559,6 +1563,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-03-08T17:19:42+09:00",
+        "story": ""
+      },
+      {
+        "id": "________",
+        "file": "________.png",
+        "src": "filebox/records/drop(behavior)/IMG_8229/________.png",
+        "thumb": "filebox/records/drop(behavior)/IMG_8229/________.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -2584,13 +2598,13 @@
         "statusOther": ""
       }
     ],
-    "story": "Day 1: Confirmed 'Umbrella No.1' on the ground at the LUUP parking area outside the gym. Day 2-Day 42: Passed by several times and noticed an umbrella hanging on a sign. Initially assumed someone had placed it there temporarily and did not recognize it as a 'forgotten umbrella'. Day 43: Passed by again and found the umbrella still in the same spot. Finally realized it was an abandoned object. After cross-referencing details of the damage with photos, confirmed it was the same 'Umbrella No.1' from Day 1 it had been neglected here for over a month. Day 46: Confirmed a second one. 'Umbrella No.2', on the opposite side of the sight. Day 52: It rained all day and continued into the next. During the afternoon observation, both umbrellas remained in their original state. Day 53: The rain was still falling. Passing by in the early morning, 'Umbrella No.2' had vanished, while 'Umbrella No.1' remained hanging on the sign. I suspect someone needing an umbrella during the night took it. However, 'Umbrella No.1' is still left behind. Observation: Two umbrellas, two different fates. The second was reused shortly after being forgotten, but how much longer will the first one continue to be neglected?",
+    "story": "Day1: ジムの外にあるLUUP専用駐車場に落ちている「傘No.1」を確認した。\nDay2-Day42: 数回ここを通り、看板に一本の傘が掛けられているのを目にする。当初は誰かが一時的に掛けたものと考え、「忘れられた傘」とは認識していなかった。\nDay43: 再び通りかかり、傘が依然として同じ場所に掛かっているのを見つける。ようやくこれが捨てられた傘であると気づき、写真で破損箇所の細部を照合した結果、Day1に見た「傘No.1」と同一であると確認した。この傘はこうして一ヶ月以上もここに忘れ去られていたことになる。\nDay46: 看板の反対側で二本目の「傘No.2」を確認した。\nDay52: この日は一日中雨が降り、翌日まで続いた。午後の観察時、二本の傘はどちらも元のままだった。\nDay53: 雨はまだ降り続いていた。未明に通りかかると、「傘No.2」が消失しており、「傘No.1」は依然として看板に掛けられたままだった。夜間に傘が必要になった誰かが持ち去ったのだと推測される。しかし、「傘No.1」はまだそこに取り残されている。二本の傘の異なる運命。「傘No.2」は忘れられて間もなく再利用されたが、「傘No.1」はあとどれくらい忘れられ続けるのだろうか。",
     "blocks": [
       {
         "type": "text",
         "text": {
-          "ja": "",
-          "en": "Day 1: Confirmed 'Umbrella No.1' on the ground at the LUUP parking area outside the gym. Day 2-Day 42: Passed by several times and noticed an umbrella hanging on a sign. Initially assumed someone had placed it there temporarily and did not recognize it as a 'forgotten umbrella'. Day 43: Passed by again and found the umbrella still in the same spot. Finally realized it was an abandoned object. After cross-referencing details of the damage with photos, confirmed it was the same 'Umbrella No.1' from Day 1 it had been neglected here for over a month. Day 46: Confirmed a second one. 'Umbrella No.2', on the opposite side of the sight. Day 52: It rained all day and continued into the next. During the afternoon observation, both umbrellas remained in their original state. Day 53: The rain was still falling. Passing by in the early morning, 'Umbrella No.2' had vanished, while 'Umbrella No.1' remained hanging on the sign. I suspect someone needing an umbrella during the night took it. However, 'Umbrella No.1' is still left behind. Observation: Two umbrellas, two different fates. The second was reused shortly after being forgotten, but how much longer will the first one continue to be neglected?"
+          "ja": "Day1: ジムの外にあるLUUP専用駐車場に落ちている「傘No.1」を確認した。\nDay2-Day42: 数回ここを通り、看板に一本の傘が掛けられているのを目にする。当初は誰かが一時的に掛けたものと考え、「忘れられた傘」とは認識していなかった。\nDay43: 再び通りかかり、傘が依然として同じ場所に掛かっているのを見つける。ようやくこれが捨てられた傘であると気づき、写真で破損箇所の細部を照合した結果、Day1に見た「傘No.1」と同一であると確認した。この傘はこうして一ヶ月以上もここに忘れ去られていたことになる。\nDay46: 看板の反対側で二本目の「傘No.2」を確認した。\nDay52: この日は一日中雨が降り、翌日まで続いた。午後の観察時、二本の傘はどちらも元のままだった。\nDay53: 雨はまだ降り続いていた。未明に通りかかると、「傘No.2」が消失しており、「傘No.1」は依然として看板に掛けられたままだった。夜間に傘が必要になった誰かが持ち去ったのだと推測される。しかし、「傘No.1」はまだそこに取り残されている。二本の傘の異なる運命。「傘No.2」は忘れられて間もなく再利用されたが、「傘No.1」はあとどれくらい忘れられ続けるのだろうか。",
+          "en": "Day 1: Confirmed 'Umbrella No.1' on the ground at the LUUP parking area outside the gym. \nDay 2-Day 42: Passed by several times and noticed an umbrella hanging on a sign. Initially assumed someone had placed it there temporarily and did not recognize it as a 'forgotten umbrella'. \nDay 43: Passed by again and found the umbrella still in the same spot. Finally realized it was an abandoned object. After cross-referencing details of the damage with photos, confirmed it was the same 'Umbrella No.1' from Day 1 it had been neglected here for over a month. \nDay 46: Confirmed a second one. 'Umbrella No.2', on the opposite side of the sight. \nDay 52: It rained all day and continued into the next. During the afternoon observation, both umbrellas remained in their original state. \nDay 53: The rain was still falling. Passing by in the early morning, 'Umbrella No.2' had vanished, while 'Umbrella No.1' remained hanging on the sign. I suspect someone needing an umbrella during the night took it. However, 'Umbrella No.1' is still left behind. Observation: Two umbrellas, two different fates. The second was reused shortly after being forgotten, but how much longer will the first one continue to be neglected?"
         }
       },
       {

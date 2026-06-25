@@ -1634,7 +1634,13 @@ function buildStatsUnits() {
 // Long vs folding are always kept apart. Both the cross-tab and the overview use
 // this single function so they always agree.
 function statsObjectValue(u) {
-  const color = u.color || "unknown";
+  let color = u.color || "unknown";
+  // colored / patterned / other record the actual colour in the free-text detail
+  // box (e.g. "blue", "black", "floral") — show that specific colour rather than
+  // the category word. Falls back to the category word when no detail was filled.
+  if (COLOR_NEEDS_DETAIL.has(u.color)) {
+    color = String(u.colorDetail || "").trim() || u.color;
+  }
   const kind = u.kind === "folding" ? "folding umbrella" : u.kind === "long umbrella" ? "long umbrella" : "unknown";
   return `${color} ${kind}`;
 }
@@ -3106,7 +3112,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=84", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=85", { updateViaCache: "none" });
   }
 }
 

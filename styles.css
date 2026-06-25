@@ -1003,10 +1003,6 @@ body.is-entered .welcome-screen {
   color: inherit;
 }
 
-.focus-image-panel figcaption .item-story {
-  max-width: 56ch;
-}
-
 .focus-media-notes {
   display: grid;
   gap: 6px;
@@ -2923,9 +2919,10 @@ body:not(.edit-mode) .editor-add-category {
   line-height: var(--detail-body-line);
 }
 
-/* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。 */
+/* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。
+   .focus-caption-inner 已有 8px 的 grid gap，这里只补一点点段间距。 */
 .focus-image-panel figcaption .item-story {
-  margin: 0 0 0.85em;
+  margin: 0 0 0.25em;
 }
 
 .focus-image-panel figcaption .item-story.is-justify {
