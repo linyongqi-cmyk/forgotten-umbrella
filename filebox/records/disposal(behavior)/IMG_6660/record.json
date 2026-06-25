@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 5,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "garbage collection area, Lawson Inage Sakusabe, Sakusabe, Inage Ward, Chiba",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Chiba",
@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"秘密の投棄","en":"The Secret Disposal"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -49,9 +49,16 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
+        "en": "It was already afternoon when I found it, well past the collection time. The umbrella lay quietly atop a pile of non-burnable trash, looking somewhat out of place. The scene brings to mind a certain image: after the truck had gone, a small figure wearing an eyepatch—like a thief—sneaked over and quietly dropped the umbrella there. Having missed the official window, it was left behind as a remnant of this comical 'secret mission'."
+      }
+    },
     {
       "type": "photo",
       "file": "pic_1.png"

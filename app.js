@@ -74,7 +74,10 @@ const MARKER_VISUAL_CENTER_OFFSET_Y = 20;
 const DEFAULT_MAP_CENTER = { lat: 35.681236, lng: 139.767125 };
 // Rough bounding box of Japan; geolocation only jumps to the user when inside it.
 const JAPAN_BOUNDS = { minLat: 24, maxLat: 46, minLng: 122, maxLng: 154 };
-const DEFAULT_MAP_ZOOM = 14;
+const DEFAULT_MAP_ZOOM = 16;
+// Floor on zoom-out: keeps the map from receding past the "whole of Japan" scale
+// (without this the user could zoom out to the whole globe).
+const MIN_MAP_ZOOM = 5;
 const FOCUS_MAP_ZOOM = 18;
 const RESET_ZOOM_ANIMATION_MS = 760;
 const GEOLOCATION_TIMEOUT_MS = 2500;
@@ -1018,6 +1021,7 @@ async function initGoogleMap() {
   state.map = new google.maps.Map(els.mapCanvas, {
     center: DEFAULT_MAP_CENTER,
     zoom: DEFAULT_MAP_ZOOM,
+    minZoom: MIN_MAP_ZOOM,
     mapTypeId: effectiveMapTypeId(),
     isFractionalZoomEnabled: true,
     mapTypeControl: false,
@@ -1287,6 +1291,12 @@ function render() {
   }
 }
 
+// Tracks the last sidebar-list click so we can detect a double-click manually: a
+// single click pans the map and re-renders the list (replacing the buttons), which
+// would break the browser's native dblclick detection. Module-level so it survives
+// those re-renders.
+let listLastClick = { id: null, t: 0 };
+
 function renderList(items) {
   if (!els.list) {
     return;
@@ -1316,7 +1326,19 @@ function renderList(items) {
     .join("");
 
   els.list.querySelectorAll(".location-button").forEach((button) => {
-    button.addEventListener("click", () => selectUmbrella(button.dataset.id, { panMap: true }));
+    button.addEventListener("click", () => {
+      const id = button.dataset.id;
+      const now = Date.now();
+      // Double-click (same item within 350ms): jump to it AND open its detail
+      // page. Single click just pans/selects on the map.
+      if (listLastClick.id === id && now - listLastClick.t < 350) {
+        listLastClick = { id: null, t: 0 };
+        selectUmbrella(id, { focus: true });
+      } else {
+        listLastClick = { id, t: now };
+        selectUmbrella(id, { panMap: true });
+      }
+    });
   });
 }
 
@@ -1485,7 +1507,19 @@ function renderFocusArticle(item) {
     .map((block) => {
       if (block.type === "text") {
         const text = localize(block.text);
-        return text ? `<p class="item-story">${escapeHtml(text)}</p>` : "";
+        if (!text) {
+          return "";
+        }
+        // Each "\n" in the stored text is a paragraph break; render one <p> per
+        // paragraph so the line breaks actually show. Japanese justifies both
+        // edges, English stays left-aligned ([[text-justify-rule]]).
+        const justify = state.lang === "ja" ? " is-justify" : "";
+        return text
+          .split("\n")
+          .map((para) => para.trim())
+          .filter(Boolean)
+          .map((para) => `<p class="item-story${justify}">${escapeHtml(para)}</p>`)
+          .join("");
       }
       const media = mediaByFile[block.file];
       if (!media) {
@@ -3072,7 +3106,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=83", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=84", { updateViaCache: "none" });
   }
 }
 

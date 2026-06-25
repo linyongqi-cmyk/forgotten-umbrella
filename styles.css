@@ -2922,3 +2922,12 @@ body:not(.edit-mode) .editor-add-category {
   font-size: var(--detail-body-size);
   line-height: var(--detail-body-line);
 }
+
+/* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。 */
+.focus-image-panel figcaption .item-story {
+  margin: 0 0 0.85em;
+}
+
+.focus-image-panel figcaption .item-story.is-justify {
+  text-align: justify;
+}

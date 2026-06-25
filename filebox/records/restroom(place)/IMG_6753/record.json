@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 88,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "men's restroom inside Skip Tendai, Tendai, Inage Ward, Chiba",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Chiba",
@@ -23,7 +23,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"代表的トイレ型","en":"Typical Restroom Type"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -45,9 +45,17 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+        "en": "Generally speaking, compared to umbrellas left near urinals or washbasins (6651), those found inside private stalls (6753) should not be so easily forgotten. In fact, forgetting them is inherently difficult. This is because, unlike the brief actions of washing one's hands of using a urinal, a private stall usually requires one to hang multiple belongings such as bags or coats on a hook alongside the umbrella. Once finished, the natural sequence is to retrieve all items together before exiting: Given this logic, under what specific circumstances could an umbrella alone end up abandoned here?"
+      }
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {

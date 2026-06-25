@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 46,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "entrance area of Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Chiba",
@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": {"ja":"","en":""},
+  "title": {"ja":"幸運な傘","en":"The Lucky Umbrella"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -48,9 +48,16 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
+        "en": "This umbrella was left along a path I walk every day, likely forgotten by someone passing through. It was there when I passed by around 3:00 PM, but by the time I returned from the supermarket after 5:00 PM, it was gone. It appears the owner remembered the umbrella and retrieved it within that two-hour window."
+      }
+    },
     {
       "type": "photo",
       "file": "pic_1.png"

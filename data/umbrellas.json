@@ -12,7 +12,7 @@
       "lat": 35.661701695876054,
       "lng": 139.70238259797452
     },
-    "locationText": "",
+    "locationText": "traffic signal, Mitake Park, Shibuya, Shibuya City, Tokyo",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -65,8 +65,11 @@
       "lat": 35.637277480454074,
       "lng": 140.1318888380496
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "Casa Mitsuwadai J Housing, Mitsuwadai, Wakaba Ward, Chiba",
+    "title": {
+      "ja": "荷運びの余留",
+      "en": "Remnant of Transport"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -81,8 +84,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "この傘はマンションの入り口横の角に置かれている。目の前は そのマンションの駐車場だ。位置から判断すると、重い荷物を 運ぶ際に両手を空けるため、一時的に角に立てかけたと考えら れる。しかし、荷物を運び終えて車で出発する時に傘の存在を 忘れ、そのまま角に置き去りにされたのだ。",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "この傘はマンションの入り口横の角に置かれている。目の前は そのマンションの駐車場だ。位置から判断すると、重い荷物を 運ぶ際に両手を空けるため、一時的に角に立てかけたと考えら れる。しかし、荷物を運び終えて車で出発する時に傘の存在を 忘れ、そのまま角に置き去りにされたのだ。",
+          "en": "This umbrella is leaning against the corner near the apartment entrance. Directly in front is the building's parking space. Based on the position, it is likely the owner leaned the umbrella there to free up their hands while moving heavy items. However, after finishing the task and preparing to drive away, they forgot the umbrella and left it behind in the corner."
+        }
+      },
       {
         "type": "photo",
         "file": "pic_1.png"
@@ -133,7 +143,7 @@
       "lat": 34.97350743931538,
       "lng": 135.76360554619475
     },
-    "locationText": "",
+    "locationText": "near the traffic signal in front of The Reign Hotel Kyoto, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -184,7 +194,7 @@
       "lat": 34.99392763574674,
       "lng": 135.76918920943498
     },
-    "locationText": "",
+    "locationText": "bicycle parking area, Kamo River Kiyomizu-Gojo site, Osakamachi, Higashiyama Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -237,7 +247,7 @@
       "lat": 35.63016908850219,
       "lng": 140.11689703644873
     },
-    "locationText": "",
+    "locationText": "intersection 200 m northeast of Yax Drug Sakusabe, Sakusabe, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -290,8 +300,11 @@
       "lat": 35.63230214939128,
       "lng": 140.11962748459632
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "garbage collection area, Lawson Inage Sakusabe, Sakusabe, Inage Ward, Chiba",
+    "title": {
+      "ja": "秘密の投棄",
+      "en": "The Secret Disposal"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -307,8 +320,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
+          "en": "It was already afternoon when I found it, well past the collection time. The umbrella lay quietly atop a pile of non-burnable trash, looking somewhat out of place. The scene brings to mind a certain image: after the truck had gone, a small figure wearing an eyepatch—like a thief—sneaked over and quietly dropped the umbrella there. Having missed the official window, it was left behind as a remnant of this comical 'secret mission'."
+        }
+      },
       {
         "type": "photo",
         "file": "pic_1.png"
@@ -359,7 +379,7 @@
       "lat": 35.637068992045776,
       "lng": 140.12602121239655
     },
-    "locationText": "",
+    "locationText": "garbage collection area outside a residence in Tondai-cho, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -402,7 +422,7 @@
       "lat": 35.638296061659155,
       "lng": 140.12932442926947
     },
-    "locationText": "",
+    "locationText": "parking lot in Tondai-cho, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -460,7 +480,7 @@
       "lat": 35.622908764686684,
       "lng": 140.10359166999996
     },
-    "locationText": "",
+    "locationText": "bench at Nishi-Chiba Station North Exit bus stop Lane 2, Nishi-Chiba Station, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -513,7 +533,7 @@
       "lat": 35.62983611000001,
       "lng": 140.12312222000003
     },
-    "locationText": "",
+    "locationText": "roadway outside Chiba City Tsuga Junior High School, Sakusabecho, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -566,8 +586,11 @@
       "lat": 35.63402912698194,
       "lng": 140.12136256397278
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "recyclable waste collection point within Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
+    "title": {
+      "ja": "廃棄の四重奏",
+      "en": "Four Variations of Abandonment"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "4",
@@ -643,7 +666,7 @@
       "lng": 135.76521389
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "garbage collection area at Matsunoki-cho danchi Complex, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -702,8 +725,11 @@
       "lng": 135.76719722
     },
     "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
+    "locationText": "Shinkyogoku Shopping Street, near Kanzashi Wargo, Nakagyo Ward, Kyoto",
+    "title": {
+      "ja": "閉店清掃",
+      "en": "Closing Cleanup"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "2",
@@ -727,8 +753,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
+          "en": "Late at night, most shops in the arcade are already closed. The probability of two umbrellas being forgotten at the same time and place is extremely low. Based on the context and timing, these were likely intentionally discarded. Given that most nearby shops are eateries, I suspect these were unclaimed umbrellas left inside, which staff then moved to the base of the outdoor pillar while cleaning up before closing."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "behavior",
     "category": "disposal",
@@ -820,7 +854,7 @@
       "lat": 35.614792937503495,
       "lng": 140.11795064218003
     },
-    "locationText": "",
+    "locationText": "Benten Underpass pedestrian walkway, Benten, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -836,8 +870,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "その日は土砂降りの雨だった。地下道を歩いていると、曲がり 角で一本の傘を見つけた。この傘が一体いつここに置き去りに されたのか、分からない。雨が降る前だったのだろうか。それ とも、雨が降っている最中だったのだろうか。普通に考えれ ば、雨の最中に傘を手放すはずはないのだがい。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "その日は土砂降りの雨だった。地下道を歩いていると、曲がり 角で一本の傘を見つけた。この傘が一体いつここに置き去りに されたのか、分からない。雨が降る前だったのだろうか。それ とも、雨が降っている最中だったのだろうか。普通に考えれ ば、雨の最中に傘を手放すはずはないのだがい。",
+          "en": "It was a torrential downpour that day. While walking through an underground passage, I came across an umbrella at a corner. It was impossible to tell exactly when it had been abandoned. Had it been left there before the rain started, or while it was still pouring? Logically speaking, one would not normally part with an umbrella in the middle of a heavy rain..."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "behavior",
     "category": "drop",
@@ -926,10 +968,10 @@
       "lat": 35.62905574344275,
       "lng": 140.104431805509
     },
-    "locationText": "",
+    "locationText": "around Science Building No.4, Nishi-Chiba Campus, Chiba University, Inage Ward, Chiba",
     "title": {
-      "ja": "",
-      "en": ""
+      "ja": "台風の日々",
+      "en": "Typhoon Days"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -945,8 +987,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "この傘は建物の外壁のそばにひっくり返っている。傘が開いたまま外側に戻り返っていて、中には枯れ葉が厚く積 もっている。傘の古びた様子や落ち葉の厚さから見て、ここにかなりの期間置かれているのは明らかだ。これは台風 の日の物語かもしれない。風で傘が裏返って手から離れ、強風に煽られて壁際まで飛ばされ、ここに留まったのだろ う。季節が移り変わるにつれて、枯れ葉がその凹みを埋めていき、最終的に風景の一部になったのだ。",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "この傘は建物の外壁のそばにひっくり返っている。傘が開いたまま外側に戻り返っていて、中には枯れ葉が厚く積 もっている。傘の古びた様子や落ち葉の厚さから見て、ここにかなりの期間置かれているのは明らかだ。これは台風 の日の物語かもしれない。風で傘が裏返って手から離れ、強風に煽られて壁際まで飛ばされ、ここに留まったのだろ う。季節が移り変わるにつれて、枯れ葉がその凹みを埋めていき、最終的に風景の一部になったのだ。",
+          "en": "This umbrella lies overturned next to the exterior wall of the building. The canopy is open and inverted, with a thick layer of dead leaves accumulated inside. Judging by the weathered state of the fabric and the depth of the leaves, it has clearly been here for a long time. This might be a story from a typhoon. The umbrella was flipped inside out and blown from the owner's hand, swept by strong winds until it came to rest against the wall. As the seasons passed, falling leaves gradually filled the hollow, eventually making it part of the environment."
+        }
+      },
       {
         "type": "photo",
         "file": "pic_1.png"
@@ -997,7 +1046,7 @@
       "lat": 35.6368670797717,
       "lng": 140.1294430169703
     },
-    "locationText": "",
+    "locationText": "grassy area outside Mitsuwadai Prefectural Housing, Mitsuwadai, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1065,7 +1114,7 @@
       "lat": 35.63782816958253,
       "lng": 140.13279657718022
     },
-    "locationText": "",
+    "locationText": "parking lot outside Mitsuwadai 2-chome Park, Mitsuwadai, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1119,7 +1168,7 @@
       "lat": 35.63891210826623,
       "lng": 140.13475825985512
     },
-    "locationText": "",
+    "locationText": "near Chiba Bank, Mitsuwadai Station, Mitsuwadai, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1173,7 +1222,7 @@
       "lat": 35.62311635207217,
       "lng": 140.10612509380636
     },
-    "locationText": "",
+    "locationText": "sidewalk outside the construction site, Chiba University Nishi-Chiba Campus, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1226,7 +1275,7 @@
       "lat": 35.62903928594946,
       "lng": 140.10452615497013
     },
-    "locationText": "",
+    "locationText": "parking lot inside the North Gate, Chiba University Nishi-Chiba Campus, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1279,7 +1328,7 @@
       "lat": 35.631607134440664,
       "lng": 140.11926489845663
     },
-    "locationText": "",
+    "locationText": "vacant lot in Sakusabe, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1361,7 +1410,7 @@
       "lat": 35.63478510567114,
       "lng": 140.12094012323675
     },
-    "locationText": "",
+    "locationText": "lawn area within Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1414,7 +1463,7 @@
       "lat": 34.97931612057695,
       "lng": 135.74597538116393
     },
-    "locationText": "",
+    "locationText": "Keihan Kokudo-guchi intersection, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1467,8 +1516,11 @@
       "lat": 34.940572653518224,
       "lng": 135.74497926605468
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "near the traffic signal in front of Joshin Fushimi, Shimotoba Kitanokuchi-cho, Fushimi Ward, Kyoto",
+    "title": {
+      "ja": "拾えない脱落",
+      "en": "The Irretrievable Drop"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -1484,8 +1536,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "伏見区の大きな交差点、広いアスファルトの道路中央に一本の 黒い傘が横たわっている。壁やフェンスに置かれたものとは違 い、これは車両が行き交う動的な経路の中に位置する。走行中 の車両から滑り落ちたその瞬間、たとえ気づいたとしても、激 しい車流の中で止まって拾い上げることは不可能だ。持ち主は そのまま進むしかなかった。これは、環境によって強いられた 「断念」である。白い線の傍らで、それは静止した異物とし て残された。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "伏見区の大きな交差点、広いアスファルトの道路中央に一本の 黒い傘が横たわっている。壁やフェンスに置かれたものとは違 い、これは車両が行き交う動的な経路の中に位置する。走行中 の車両から滑り落ちたその瞬間、たとえ気づいたとしても、激 しい車流の中で止まって拾い上げることは不可能だ。持ち主は そのまま進むしかなかった。これは、環境によって強いられた 「断念」である。白い線の傍らで、それは静止した異物とし て残された。",
+          "en": "A single black umbrella lies in the middle of a wide asphalt road at a large intersection in Fushimi Ward. Unlike those leaned against walls or hung on fences, this one sits within a dynamic path of traffic. It slipped off a moving vehicle, even if the owner noticed the drop, the pressure of the constant traffic made it impossible to stop and retrieve it. They had no choice but to keep moving-a forced abandonment. Resting beside the white road markings, it remains as a static anomaly amidst the flow."
+        }
+      }
+    ],
     "editFlag": "black",
     "categoryGroup": "behavior",
     "category": "drop",
@@ -1518,7 +1578,7 @@
       "lng": 135.75891111
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "bicycle parking area at Kyoto Yodobashi, Shimogyo Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1571,7 +1631,7 @@
       "lat": 34.97923278057637,
       "lng": 135.75379904404411
     },
-    "locationText": "",
+    "locationText": "intersection in front of Toji Station, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1625,7 +1685,7 @@
       "lat": 34.98643953144062,
       "lng": 135.76375960470054
     },
-    "locationText": "",
+    "locationText": "Building C, Kyoto City University of Arts, Shimogyo Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1675,7 +1735,7 @@
       "lng": 135.75953611
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "along the Kamo River, approx. 500 m south of Kanjin Bridge, Fushimi Ward, Kyoto",
     "title": {
       "ja": "",
       "en": ""
@@ -1746,7 +1806,7 @@
       "lat": 34.97993360615248,
       "lng": 135.76428572680538
     },
-    "locationText": "",
+    "locationText": "monthly parking lot near Kujo Kawaramachi bus stop, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1814,8 +1874,11 @@
       "lat": 35.73576559210121,
       "lng": 139.70633811556465
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "bicycle parking area, in front of Toshima City Ikebukuro Library, Ikebukuro, Toshima City, Tokyo",
+    "title": {
+      "ja": "不自然な場所",
+      "en": "Displaced Placement"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -1830,14 +1893,21 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "その傘はフェンスの外側に掛けられていた。駐車場の外はすぐに自転車歩行者道になっている。なぜ外側に掛けられたのだろうか。駐車中に手を空けるためであれば、内側に掛ける方が自然に思える。\nこの駐車場は、入口の扉を鍵で開けて出入りする必要がある。そのため、解錠の際に一時的に掛けた可能性も考えられる。しかし、その場所は入口から約3メートル離れている。\nそう考えると、どの可能性も高くはない。",
     "blocks": [
       {
         "type": "photo",
         "file": "pic_1.png"
+      },
+      {
+        "type": "text",
+        "text": {
+          "ja": "その傘はフェンスの外側に掛けられていた。駐車場の外はすぐに自転車歩行者道になっている。なぜ外側に掛けられたのだろうか。駐車中に手を空けるためであれば、内側に掛ける方が自然に思える。\nこの駐車場は、入口の扉を鍵で開けて出入りする必要がある。そのため、解錠の際に一時的に掛けた可能性も考えられる。しかし、その場所は入口から約3メートル離れている。\nそう考えると、どの可能性も高くはない。",
+          "en": "The umbrella was hooked on the outside of the fence.Just beyond the parking lot is a shared bicycle and pedestrian path.Why was it placed on the outside?If it was to free one’s hands while parking, placing it inside would seem more natural.\nAccess to the parking lot requires unlocking the entrance gate with a key.It is therefore possible that the umbrella was hung there temporarily while unlocking it.However, the location is about three meters away from the entrance.\nConsidering this, that explanation also seems unlikely."
+        }
       }
     ],
-    "editFlag": "white",
+    "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5956.jpg",
@@ -1857,7 +1927,7 @@
         "file": "pic_1.png",
         "src": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
         "thumb": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
-        "role": "detail",
+        "role": "illustration",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -1878,7 +1948,7 @@
       "lng": 139.71284444
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "Ikebukuro Ohashi Street Art, Ikebukuro, Toshima City, Tokyo",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -1931,7 +2001,7 @@
       "lat": 35.73042209896426,
       "lng": 139.7126772447949
     },
-    "locationText": "",
+    "locationText": "traffic signal, Ikebukuro Station East Exit (North), Ikebukuro, Toshima City, Tokyo",
     "title": {
       "ja": "",
       "en": ""
@@ -1983,7 +2053,7 @@
       "lng": 139.70600833
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "parking lot, next to Tokyo Institute of Language, Japanese Language Center, Ikebukuro, Toshima City, Tokyo",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2035,7 +2105,7 @@
       "lat": 35.61355141638898,
       "lng": 140.1138907691369
     },
-    "locationText": "",
+    "locationText": "near Chiba Station North Exit bus stop, approx. 30 m, Benten, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2088,7 +2158,7 @@
       "lat": 35.62978630424775,
       "lng": 140.11605848396712
     },
-    "locationText": "",
+    "locationText": "parking lot in front of Chiba Shinkin Bank Sakusabe Branch, Sakusabe, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2138,7 +2208,7 @@
       "lng": 140.10475278
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "elevated railway underpass parking area, 200 m toward Chiba Station from Nishi-Chiba Station, Matsunami, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2154,8 +2224,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "この傘は、フェンスの内側に掛けられていた。随分と長い間に こに放置されていたことが見て取れる。元々は黒かったであろ う傘の表面は、少し白っちゃけている。その上、高架下という 場所柄、雨が直接当たることもないため、傘の上にはかなりの 量の埃が積もっていた。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "この傘は、フェンスの内側に掛けられていた。随分と長い間に こに放置されていたことが見て取れる。元々は黒かったであろ う傘の表面は、少し白っちゃけている。その上、高架下という 場所柄、雨が直接当たることもないため、傘の上にはかなりの 量の埃が積もっていた。",
+          "en": "This umbrella was hung on the inner side of the fence. It was evident that It had been left there for quite a long time. The canopy, which must have been black originally, had faded to a dull, grayish white. Furthermore, because of its location beneath the elevated tracks, it was shielded from direct rain as a result, a thick layer of dust had accumulated on its surface."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
@@ -2191,10 +2269,10 @@
       "lat": 35.63323462999996,
       "lng": 140.12096168471518
     },
-    "locationText": "",
+    "locationText": "entrance area of Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
     "title": {
-      "ja": "",
-      "en": ""
+      "ja": "幸運な傘",
+      "en": "The Lucky Umbrella"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2210,8 +2288,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
+          "en": "This umbrella was left along a path I walk every day, likely forgotten by someone passing through. It was there when I passed by around 3:00 PM, but by the time I returned from the supermarket after 5:00 PM, it was gone. It appears the owner remembered the umbrella and retrieved it within that two-hour window."
+        }
+      },
       {
         "type": "photo",
         "file": "pic_1.png"
@@ -2262,7 +2347,7 @@
       "lat": 35.63453809116378,
       "lng": 140.12234725900257
     },
-    "locationText": "",
+    "locationText": "parking lot along the outer perimeter, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2315,7 +2400,7 @@
       "lat": 35.62763099180057,
       "lng": 140.10929260253906
     },
-    "locationText": "",
+    "locationText": "near the main gate, Chiba Keizai University, Todorokicho, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2368,7 +2453,7 @@
       "lat": 35.63257974943025,
       "lng": 140.1220886006117
     },
-    "locationText": "",
+    "locationText": "Chigusadai-shita bus stop, Chigusadai, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2421,7 +2506,7 @@
       "lat": 35.63818778334464,
       "lng": 140.13329187872085
     },
-    "locationText": "",
+    "locationText": "Kokoku Parking near Mitsuwadai Station, Mitsuwadai, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2471,7 +2556,7 @@
       "lng": 135.76419167
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "chocoZAP Kujo, Minami Ward, Kyoto",
     "title": {
       "ja": "異なる運命",
       "en": "Different Fates"
@@ -2499,8 +2584,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "Day 1: Confirmed 'Umbrella No.1' on the ground at the LUUP parking area outside the gym. Day 2-Day 42: Passed by several times and noticed an umbrella hanging on a sign. Initially assumed someone had placed it there temporarily and did not recognize it as a 'forgotten umbrella'. Day 43: Passed by again and found the umbrella still in the same spot. Finally realized it was an abandoned object. After cross-referencing details of the damage with photos, confirmed it was the same 'Umbrella No.1' from Day 1 it had been neglected here for over a month. Day 46: Confirmed a second one. 'Umbrella No.2', on the opposite side of the sight. Day 52: It rained all day and continued into the next. During the afternoon observation, both umbrellas remained in their original state. Day 53: The rain was still falling. Passing by in the early morning, 'Umbrella No.2' had vanished, while 'Umbrella No.1' remained hanging on the sign. I suspect someone needing an umbrella during the night took it. However, 'Umbrella No.1' is still left behind. Observation: Two umbrellas, two different fates. The second was reused shortly after being forgotten, but how much longer will the first one continue to be neglected?",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "",
+          "en": "Day 1: Confirmed 'Umbrella No.1' on the ground at the LUUP parking area outside the gym. Day 2-Day 42: Passed by several times and noticed an umbrella hanging on a sign. Initially assumed someone had placed it there temporarily and did not recognize it as a 'forgotten umbrella'. Day 43: Passed by again and found the umbrella still in the same spot. Finally realized it was an abandoned object. After cross-referencing details of the damage with photos, confirmed it was the same 'Umbrella No.1' from Day 1 it had been neglected here for over a month. Day 46: Confirmed a second one. 'Umbrella No.2', on the opposite side of the sight. Day 52: It rained all day and continued into the next. During the afternoon observation, both umbrellas remained in their original state. Day 53: The rain was still falling. Passing by in the early morning, 'Umbrella No.2' had vanished, while 'Umbrella No.1' remained hanging on the sign. I suspect someone needing an umbrella during the night took it. However, 'Umbrella No.1' is still left behind. Observation: Two umbrellas, two different fates. The second was reused shortly after being forgotten, but how much longer will the first one continue to be neglected?"
+        }
+      },
       {
         "type": "photo",
         "file": "IMG_8245.jpeg"
@@ -2635,7 +2727,7 @@
       "lat": 34.9760004846058,
       "lng": 135.7636979918191
     },
-    "locationText": "",
+    "locationText": "Satsunotsuji Garage, Higashikujo Higashifudatsujicho, Minami Ward, Kyoto",
     "title": {
       "ja": "",
       "en": ""
@@ -2717,7 +2809,7 @@
       "lng": 135.76708889
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "northbound tunnel at Higashiyama Bridge, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2785,7 +2877,7 @@
       "lat": 34.97576083869539,
       "lng": 135.76507535970293
     },
-    "locationText": "",
+    "locationText": "Matsunokicho danchi, Minami Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2835,8 +2927,11 @@
       "lng": 135.76930278
     },
     "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
+    "locationText": "Don Quijote Shijo Kawaramachi, Nakagyo Ward, Kyoto",
+    "title": {
+      "ja": "傘袋に入った傘",
+      "en": "The Sleeved Umbrella"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2851,8 +2946,16 @@
         "statusOther": "in umbrella sleeve"
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "陳列棚に掛けられた傘袋が重要な手がかりとなっている。この 傘がつい最近まで屋内、おそらくすぐ横の店舗出入り口から出 てきたばかりであることを示している。拿袋の状態から、天候 のシーケンスを逆算できる。入店前は雨が降っていたか止んだ 直後であり、退店時には雨が完全に止んでいた可能性が高い。 ラックに掛けられた瞬間、この傘は雨具としての即時的な利用 価値を失ったのである。これは天候の変化と商業空間が交差し た瞬間の行動を物語る物理的なフィールドレポートである",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "陳列棚に掛けられた傘袋が重要な手がかりとなっている。この 傘がつい最近まで屋内、おそらくすぐ横の店舗出入り口から出 てきたばかりであることを示している。拿袋の状態から、天候 のシーケンスを逆算できる。入店前は雨が降っていたか止んだ 直後であり、退店時には雨が完全に止んでいた可能性が高い。 ラックに掛けられた瞬間、この傘は雨具としての即時的な利用 価値を失ったのである。これは天候の変化と商業空間が交差し た瞬間の行動を物語る物理的なフィールドレポートである",
+          "en": "The umbrella sleeve hanging on the rack is a critical clue it indicates that this umbrella entered an indoor space recently, most likely emerging from the adjacent shop entrance. From the state of the sleeve, one can reconstruct a weather timeline: it was raining or had just stopped when the owner entered the shop, but the rain had completely ceased by the time they exited. The moment it was hung there, the umbrella lost its immediate utility as rain gear. It is not merely a lost object, but a physical field report documenting the behavioral shift where weather patterns and commercial spaces intersect."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "affordance",
     "category": "hookable",
@@ -2885,8 +2988,11 @@
       "lng": 140.11738611
     },
     "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
+    "locationText": "fence of the Athletics Stadium, Chiba Prefectural General Sports Center, Tendaicho, Inage Ward, Chiba",
+    "title": {
+      "ja": "証明不能な連結",
+      "en": "The Unverifiable Connection"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2901,8 +3007,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
+          "en": "I discovered it at dusk after the rain (No: 6529). The umbrella was half buried in fallen leaves, with damp droplets still glistening on its surface, it appeared to have been swept to the roadside along with the debris. About a month later, walking the same route again, found another black umbrella (No. 6617) approximately 70 meters away from the first site. At the time, I didn't think there was any connection between them. Later, while organizing my photo gallery, realized they might be the same umbrella. This stretch of road lies along a national highway where pedestrians are scarce even during the day, making the frequency of abandoned black umbrellas relatively low. The only definitive clue is a numbered sticker on the handle of No. 6617. However, because the angle of the photo for No. 6529 obscures the handle, there is no longer any way to confirm with certainty whether they are the same object."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
@@ -2935,8 +3049,11 @@
       "lng": 140.11715833
     },
     "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
+    "locationText": "fence of the Athletics Stadium, Chiba Prefectural General Sports Center, Tendaicho, Inage Ward, Chiba",
+    "title": {
+      "ja": "証明不能な連結",
+      "en": "The Unverifiable Connection"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2951,8 +3068,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
+          "en": "I discovered it at dusk after the rain (No: 6529). The umbrella was half buried in fallen leaves, with damp droplets still glistening on its surface, it appeared to have been swept to the roadside along with the debris. About a month later, walking the same route again, found another black umbrella (No. 6617) approximately 70 meters away from the first site. At the time, I didn't think there was any connection between them. Later, while organizing my photo gallery, realized they might be the same umbrella. This stretch of road lies along a national highway where pedestrians are scarce even during the day, making the frequency of abandoned black umbrellas relatively low. The only definitive clue is a numbered sticker on the handle of No. 6617. However, because the angle of the photo for No. 6529 obscures the handle, there is no longer any way to confirm with certainty whether they are the same object."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
@@ -2988,8 +3113,11 @@
       "lat": 35.63119204542977,
       "lng": 140.11431007665215
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "shrubbery near the bicycle parking lot of L-Court Tendai, Tendai, Inage Ward, Chiba",
+    "title": {
+      "ja": "忘れられた傘ではない",
+      "en": "Not a Forgotten umbrella"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3004,8 +3132,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
+          "en": "An umbrella with a Japanese pattern on a black background. Because of its dark color and the way it was tucked behind the twigs of a hedge, it would have been difficult to spot without walking directly along the edge of the path. One couldn't help but wonder who had left such a beautiful, stylish umbrella behind, and when. Given how hidden it was, I assumed It would remain there for a long time. However, when I passed by again about ten days later and checked the hedge out of curiosity, found the umbrella neatly hung on the handlebars of a bicycle. It seems it had likely fallen into the bushes due to the wind or some other factor that first time. At that moment, I realized this was not, in fact, a forgotten umbrella."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "",
     "category": "unknown",
@@ -3041,8 +3177,11 @@
       "lat": 35.63014408848991,
       "lng": 140.11339118706042
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "Sakusabe Park, Sakusabe, Inage Ward, Chiba",
+    "title": {
+      "ja": "判断不能",
+      "en": "Indeterminable"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3095,7 +3234,7 @@
       "lat": 35.73307867561078,
       "lng": 139.70704721999996
     },
-    "locationText": "",
+    "locationText": "parking lot, 175 m west of the intersection of Tokiwa-dori and Theater Street, Ikebukuro, Toshima City, Tokyo",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3144,7 +3283,7 @@
       "lng": 140.10345556
     },
     "locationCoordinates": null,
-    "locationText": "",
+    "locationText": "payment machine at Nishi-Chiba Station North Exit bicycle parking lot, Nishi-Chiba Station, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3198,7 +3337,7 @@
       "lat": 34.978968011837644,
       "lng": 135.75958045619365
     },
-    "locationText": "",
+    "locationText": "bicycle parking area in front of Exit 4, Kujo Station (Karasuma Line), Minami Ward, Kyoto",
     "title": {
       "ja": "",
       "en": ""
@@ -3264,7 +3403,7 @@
       "lat": 35.61287477576295,
       "lng": 140.1147909006148
     },
-    "locationText": "",
+    "locationText": "Chiba Station Chiba Park Exit underground pedestrian tunnel, Benten, Chuo Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3317,7 +3456,7 @@
       "lat": 35.63638632042985,
       "lng": 140.11885938773156
     },
-    "locationText": "",
+    "locationText": "bicycle parking area, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3370,7 +3509,7 @@
       "lat": 35.63641589069489,
       "lng": 140.11883314644874
     },
-    "locationText": "",
+    "locationText": "bicycle parking area, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3424,7 +3563,7 @@
       "lat": 35.63417679282526,
       "lng": 140.1214562769101
     },
-    "locationText": "",
+    "locationText": "bicycle parking area, Chigusadai danchi, Inage Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3492,7 +3631,7 @@
       "lat": 35.64141995430269,
       "lng": 140.1292450378603
     },
-    "locationText": "",
+    "locationText": "350 m along Chiba Urban Monorail Line 2, from Dobutsu-Koen Station toward Mitsuwadai, Genkicho, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3598,7 +3737,7 @@
       "lat": 34.98382566670517,
       "lng": 135.7605576447213
     },
-    "locationText": "",
+    "locationText": "Kyoto Avanti, Higashikujo, Minami Ward, Kyoto",
     "title": {
       "ja": "",
       "en": ""
@@ -3661,7 +3800,7 @@
       "lat": 34.98630459999796,
       "lng": 135.76300080575223
     },
-    "locationText": "",
+    "locationText": "Room B306, Sujin Campus, Kyoto City University of Arts, Shimogyo Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3714,8 +3853,11 @@
       "lat": 35.00798385092484,
       "lng": 135.7691386731738
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "near Kawaramachi-Sanjo bus stop, Nakagyo Ward, Kyoto",
+    "title": {
+      "ja": "不安定な支点",
+      "en": "The Unstable Fulcrum"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3730,8 +3872,15 @@
         "statusOther": ""
       }
     ],
-    "story": "",
+    "story": "一本の傘が地面に横たわっている。目を向けるとすぐ近くにバ ス停がある。そこから、スマートフォンを操作するため、ある いは荷物を探すために傘をボラードに立て掛けたものの、バス が来たことで慌てて乗り込み、そのまま忘れ去られた様子が目 に浮かぶ。円柱状のボラードは表面が滑らかで安定した支えが ないため、バスが走り去った際の微風によって、傘はすぐにバ ランスを崩して路肩に倒れ込んだ。それは、都市の移動の中に 置き去りにされた、注意力の空白を物理的に物語っている。",
     "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "一本の傘が地面に横たわっている。目を向けるとすぐ近くにバ ス停がある。そこから、スマートフォンを操作するため、ある いは荷物を探すために傘をボラードに立て掛けたものの、バス が来たことで慌てて乗り込み、そのまま忘れ去られた様子が目 に浮かぶ。円柱状のボラードは表面が滑らかで安定した支えが ないため、バスが走り去った際の微風によって、傘はすぐにバ ランスを崩して路肩に倒れ込んだ。それは、都市の移動の中に 置き去りにされた、注意力の空白を物理的に物語っている。",
+          "en": "An umbrella lies sideways on the ground. Looking around, a bus stop is just a short distance away. From this, I imagine someone leaning their umbrella against a bollard to free their hands for a phone or to search for something, then forgetting it in the rush to board the bus. Due to the smooth surface and lack of stable support of the round bollard, the umbrella quickly lost balance in the breeze created by the departing bus and fell onto the curb. It serves as a physical record of a minute rupture in attention within the urban rhythm."
+        }
+      },
       {
         "type": "photo",
         "file": "IMG_8725.jpeg"
@@ -3782,8 +3931,11 @@
       "lat": 35.73095054345378,
       "lng": 139.71029379417482
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "B1F men's restroom, Tobu Department Store Ikebukuro, Ikebukuro, Toshima City, Tokyo",
+    "title": {
+      "ja": "初回記録",
+      "en": "First record"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3799,8 +3951,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "これは、最初に記録を始めた「忘れられた傘」だ。\nただし、初めて見つけたものではない。以前から、同じに忘れられた傘を何度も目にしてきた。この傘を見たとき、その記憶がよみがえった。こういうものを記録してみるのも面白いかもしれないと思った。\nそれ以来、傘に目を留めて記録するようになった。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "これは、最初に記録を始めた「忘れられた傘」だ。\nただし、初めて見つけたものではない。以前から、同じに忘れられた傘を何度も目にしてきた。この傘を見たとき、その記憶がよみがえった。こういうものを記録してみるのも面白いかもしれないと思った。\nそれ以来、傘に目を留めて記録するようになった。",
+          "en": "This is the first “forgotten umbrella” recorded in this project.\nIt is not the first one I encountered.Similar umbrellas had been observed repeatedly in various locations.This instance recalled those prior observations.It suggested the possibility of recording such occurrences.\nFrom that point on, umbrellas became objects of attention and documentation."
+        }
+      }
+    ],
     "editFlag": "white",
     "categoryGroup": "place",
     "category": "restroom",
@@ -3835,8 +3995,11 @@
       "lat": 35.62283920787449,
       "lng": 140.10329452771418
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "men's restroom inside the station, Nishi-Chiba Station, Chuo Ward, Chiba",
+    "title": {
+      "ja": "代表的トイレ型",
+      "en": "Typical Restroom Type"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3851,8 +4014,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+          "en": "Generally speaking, compared to umbrellas left near urinals or washbasins (6651), those found inside private stalls (6753) should not be so easily forgotten. In fact, forgetting them is inherently difficult. This is because, unlike the brief actions of washing one's hands of using a urinal, a private stall usually requires one to hang multiple belongings such as bags or coats on a hook alongside the umbrella. Once finished, the natural sequence is to retrieve all items together before exiting: Given this logic, under what specific circumstances could an umbrella alone end up abandoned here?"
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
@@ -3935,8 +4106,11 @@
       "lng": 140.11321944
     },
     "locationCoordinates": null,
-    "locationText": "",
-    "title": "",
+    "locationText": "men's restroom inside Skip Tendai, Tendai, Inage Ward, Chiba",
+    "title": {
+      "ja": "代表的トイレ型",
+      "en": "Typical Restroom Type"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3951,8 +4125,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+          "en": "Generally speaking, compared to umbrellas left near urinals or washbasins (6651), those found inside private stalls (6753) should not be so easily forgotten. In fact, forgetting them is inherently difficult. This is because, unlike the brief actions of washing one's hands of using a urinal, a private stall usually requires one to hang multiple belongings such as bags or coats on a hook alongside the umbrella. Once finished, the natural sequence is to retrieve all items together before exiting: Given this logic, under what specific circumstances could an umbrella alone end up abandoned here?"
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "place",
     "category": "restroom",
@@ -3988,7 +4170,7 @@
       "lat": 35.63601273236598,
       "lng": 140.14907588532634
     },
-    "locationText": "",
+    "locationText": "men's restroom inside the station, Tsuga Station, Wakaba Ward, Chiba",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -4042,7 +4224,7 @@
       "lat": 34.99005224459528,
       "lng": 135.73251950117594
     },
-    "locationText": "",
+    "locationText": "Nishioji Shichijo bus stop, Shimogyo Ward, Kyoto",
     "title": "",
     "umbrellaType": "",
     "umbrellaColor": "transparent",
@@ -4104,8 +4286,11 @@
       "lat": 35.01653999285751,
       "lng": 135.77249126126796
     },
-    "locationText": "",
-    "title": "",
+    "locationText": "Fruit Bicycle Park near Keihan Jingu-Marutamachi Station, Sakyo Ward, Kyoto",
+    "title": {
+      "ja": "代表的支払い型",
+      "en": "Typical Payment Type"
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -4120,8 +4305,16 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
+          "en": "The 'payment' type refers to umbrellas found at settlement machines, ticket machines, or any location involving the act of payment. In these scenarios, operations such as retrieving cards, searching for items, or scanning barcodes occupy both one's hands and attention. Rather than being deliberately placed, the umbrella is naturally set aside within the flow of movement-propped against the edge of a counter, beside a machine, or at one's feet. Once the payment is complete, attention shifts to the next objective, and the umbrella is left behind. This type is characterized by the interruption and switching of behavioral sequences. The act of payment, which demands high concentration within a short duration, detaches the umbrella from both hand and consciousness. These abandoned objects serve as records of the minute ruptures in attention that occur within urban life."
+        }
+      }
+    ],
     "editFlag": "",
     "categoryGroup": "behavior",
     "category": "payment",

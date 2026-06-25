@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 12,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "Shinkyogoku Shopping Street, near Kanzashi Wargo, Nakagyo Ward, Kyoto",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Kyoto",
@@ -23,7 +23,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"閉店清掃","en":"Closing Cleanup"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -54,9 +54,17 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
+        "en": "Late at night, most shops in the arcade are already closed. The probability of two umbrellas being forgotten at the same time and place is extremely low. Based on the context and timing, these were likely intentionally discarded. Given that most nearby shops are eateries, I suspect these were unclaimed umbrellas left inside, which staff then moved to the base of the outdoor pillar while cleaning up before closing."
+      }
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {

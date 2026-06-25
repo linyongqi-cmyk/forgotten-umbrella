@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 92,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "Fruit Bicycle Park near Keihan Jingu-Marutamachi Station, Sakyo Ward, Kyoto",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Kyoto",
@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"代表的支払い型","en":"Typical Payment Type"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -48,9 +48,17 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
+        "en": "The 'payment' type refers to umbrellas found at settlement machines, ticket machines, or any location involving the act of payment. In these scenarios, operations such as retrieving cards, searching for items, or scanning barcodes occupy both one's hands and attention. Rather than being deliberately placed, the umbrella is naturally set aside within the flow of movement-propped against the edge of a counter, beside a machine, or at one's feet. Once the payment is complete, attention shifts to the next objective, and the umbrella is left behind. This type is characterized by the interruption and switching of behavioral sequences. The act of payment, which demands high concentration within a short duration, detaches the umbrella from both hand and consciousness. These abandoned objects serve as records of the minute ruptures in attention that occur within urban life."
+      }
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {

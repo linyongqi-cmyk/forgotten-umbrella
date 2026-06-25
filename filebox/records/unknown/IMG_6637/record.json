@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 67,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "shrubbery near the bicycle parking lot of L-Court Tendai, Tendai, Inage Ward, Chiba",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Chiba",
@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"忘れられた傘ではない","en":"Not a Forgotten umbrella"},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -48,9 +48,17 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
+        "en": "An umbrella with a Japanese pattern on a black background. Because of its dark color and the way it was tucked behind the twigs of a hedge, it would have been difficult to spot without walking directly along the edge of the path. One couldn't help but wonder who had left such a beautiful, stylish umbrella behind, and when. Given how hidden it was, I assumed It would remain there for a long time. However, when I passed by again about ten days later and checked the hedge out of curiosity, found the umbrella neatly hung on the handlebars of a bicycle. It seems it had likely fallen into the bushes due to the wind or some other factor that first time. At that moment, I realized this was not, in fact, a forgotten umbrella."
+      }
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {

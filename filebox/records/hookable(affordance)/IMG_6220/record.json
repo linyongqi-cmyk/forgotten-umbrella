@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 43,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "near Chiba Station North Exit bus stop, approx. 30 m, Benten, Chuo Ward, Chiba",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Chiba",
