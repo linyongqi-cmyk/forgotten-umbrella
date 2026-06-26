@@ -143,20 +143,13 @@ const I18N = {
   sortPlace: { ja: "場所", en: "Place" },
   statsTab: { ja: "統計", en: "Stats" },
   aboutStatLocations: { ja: "記録された地点", en: "Recorded locations" },
-  aboutStatPrototype: { ja: "プロトタイプ", en: "Prototype" },
-  aboutStatInstall: { ja: "アプリとしてインストール可能", en: "Installable as an app" },
+  aboutStatSubmissions: { ja: "投稿数", en: "Submissions" },
+  aboutStatSince: { ja: "記録開始", en: "Recording since" },
 };
 
 function applyLanguage() {
   document.documentElement.lang = state.lang;
-  const aboutTitle = document.querySelector(".about-copy h2");
-  if (aboutTitle) {
-    aboutTitle.textContent = UI_TEXT.aboutTitle[state.lang];
-  }
-  const aboutBody = document.querySelector(".about-copy span");
-  if (aboutBody) {
-    aboutBody.textContent = UI_TEXT.aboutBody[state.lang];
-  }
+  renderAbout();
   document.querySelectorAll(".panel-heading h2, .section-heading h2").forEach((heading) => {
     heading.textContent = UI_TEXT.archiveHeading[state.lang];
   });
@@ -172,6 +165,34 @@ function applyLanguage() {
   syncMapTypeButton();
   // Re-render everything that contains per-record bilingual text.
   render();
+}
+
+// Render the About page's two sections from data/texts.json (editable copy).
+// Japanese justifies both edges; English stays left-aligned ([[text-justify-rule]]).
+function renderAbout() {
+  const root = document.getElementById("about-copy");
+  if (!root) {
+    return;
+  }
+  const about = TEXTS.about || {};
+  const lang = state.lang;
+  const justify = lang === "ja" ? " is-justify" : "";
+  const sections = [about.section1, about.section2].filter(Boolean);
+  root.innerHTML = sections
+    .map((sec) => {
+      const title = (lang === "ja" ? sec.titleJa : sec.titleEn) || sec.titleJa || "";
+      const bodyArr = lang === "ja" ? sec.bodyJa : sec.bodyEn?.length ? sec.bodyEn : sec.bodyJa;
+      const bodyHtml = (bodyArr || [])
+        .map((p) => String(p).trim())
+        .filter(Boolean)
+        .map((p) => `<p class="about-para${justify}">${escapeHtml(p)}</p>`)
+        .join("");
+      return `<section class="about-section">
+          ${title ? `<h3 class="about-section-title">${escapeHtml(title)}</h3>` : ""}
+          ${bodyHtml}
+        </section>`;
+    })
+    .join("");
 }
 
 // Shared umbrella-attribute option sets (used by both the editor and the public
@@ -234,6 +255,7 @@ const els = {
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
   focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
+  focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
@@ -277,7 +299,23 @@ async function init() {
 
 // Editable UI copy (type descriptions + stats intro), centralised in
 // data/texts.json and edited via the local-only 文案編集 panel (item 12).
-let TEXTS = { statsIntro: { ja: "", en: "" }, typeDescriptions: {} };
+// The About page's two editable sections (titles + body paragraphs, bilingual).
+function emptyAboutSection() {
+  return { titleJa: "", titleEn: "", bodyJa: [], bodyEn: [] };
+}
+function emptyAbout() {
+  return { section1: emptyAboutSection(), section2: emptyAboutSection() };
+}
+function normalizeAboutSection(raw) {
+  return {
+    titleJa: String(raw?.titleJa || ""),
+    titleEn: String(raw?.titleEn || ""),
+    bodyJa: Array.isArray(raw?.bodyJa) ? raw.bodyJa.map((p) => String(p || "")) : [],
+    bodyEn: Array.isArray(raw?.bodyEn) ? raw.bodyEn.map((p) => String(p || "")) : [],
+  };
+}
+
+let TEXTS = { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
 
 async function loadTexts() {
   try {
@@ -292,10 +330,14 @@ async function loadTexts() {
         en: String(raw?.statsIntro?.en || ""),
       },
       typeDescriptions: raw?.typeDescriptions && typeof raw.typeDescriptions === "object" ? raw.typeDescriptions : {},
+      about: {
+        section1: normalizeAboutSection(raw?.about?.section1),
+        section2: normalizeAboutSection(raw?.about?.section2),
+      },
     };
   } catch (error) {
     console.error(error);
-    return { statsIntro: { ja: "", en: "" }, typeDescriptions: {} };
+    return { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
   }
 }
 
@@ -423,6 +465,8 @@ function initWelcomeTitleLayout() {
 
 function bindEvents() {
   els.enterSite?.addEventListener("click", enterSite);
+  // Default landing view is the map (see #map-view.is-active in markup).
+  document.body.classList.add("view-map");
   initWelcomeCrosshair();
   syncPanelToggleLabels();
   syncArchiveControls();
@@ -443,6 +487,7 @@ function bindEvents() {
 
       els.tabs.forEach((item) => item.classList.toggle("is-active", item === tab));
       els.views.forEach((section) => section.classList.toggle("is-active", section.id === `${view}-view`));
+      document.body.classList.toggle("view-map", view === "map");
 
       if (view === "map" && state.googleReady) {
         setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
@@ -511,6 +556,17 @@ function bindEvents() {
   document.addEventListener("pointerup", stopExpandedImageDrag);
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
+  els.focusLink?.addEventListener("click", (event) => {
+    const anchor = event.target.closest?.("[data-link-id]");
+    if (!anchor) {
+      return;
+    }
+    event.preventDefault();
+    const targetId = anchor.dataset.linkId;
+    if (targetId) {
+      selectUmbrella(targetId, { focus: true });
+    }
+  });
   els.focusBlur?.addEventListener("click", () => {
     // A swipe just switched images — don't also treat it as a close click.
     if (state.blurSwiped) {
@@ -1176,20 +1232,21 @@ function refreshSatellitePoi() {
 function syncMapTypeButton() {
   const onSatellite = state.mapBase === "satellite";
   const lang = state.lang;
+  // Normal (roadmap) map has light tiles, so the top-right nav switches to black
+  // (only takes visible effect on the map view — see CSS `.view-map.is-roadmap`).
+  document.body.classList.toggle("is-roadmap", !onSatellite);
   if (els.mapTypeToggle) {
-    // Button shows the base you'll switch TO.
-    const label = onSatellite ? UI_TEXT.mapToMap[lang] : UI_TEXT.mapToSatellite[lang];
+    // Icon button now (#3) — text lives only in the tooltip. Hint describes the
+    // base you'll switch TO.
     const hint = onSatellite ? UI_TEXT.mapHintToMap[lang] : UI_TEXT.mapHintToSatellite[lang];
-    els.mapTypeToggle.textContent = label;
     els.mapTypeToggle.setAttribute("aria-label", hint);
     els.mapTypeToggle.setAttribute("title", hint);
   }
   if (els.mapLabelsToggle) {
     // The labels button only appears while on satellite.
     els.mapLabelsToggle.hidden = !onSatellite;
-    const label = state.mapLabels ? UI_TEXT.labelsOff[lang] : UI_TEXT.labelsOn[lang];
+    els.mapLabelsToggle.classList.toggle("is-active", state.mapLabels);
     const hint = state.mapLabels ? UI_TEXT.labelsHintHide[lang] : UI_TEXT.labelsHintShow[lang];
-    els.mapLabelsToggle.textContent = label;
     els.mapLabelsToggle.setAttribute("aria-label", hint);
     els.mapLabelsToggle.setAttribute("title", hint);
   }
@@ -1385,7 +1442,7 @@ function renderMapMarkers(items) {
       map: state.map,
       position: item.coordinates,
       title: item.id,
-      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item)),
+      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)),
       draggable: state.editMode,
     });
 
@@ -1417,10 +1474,10 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
-      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item)));
+      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
     });
     marker.addListener("mouseout", () => {
-      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item)));
+      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
     });
     state.markers.set(item.id, marker);
   });
@@ -1447,10 +1504,31 @@ function renderFocusImage() {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
   els.focusCaption.innerHTML = renderFocusArticle(item);
+  renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     els.focusPanel?.classList.remove("is-loading");
   }
   closeExpandedImage();
+}
+
+// Blue underlined link under the cover image, jumping to the linked point.
+// Hidden when there is no (valid) link; hidden while the image is enlarged (CSS).
+function renderFocusLink(item) {
+  if (!els.focusLink) {
+    return;
+  }
+  const target = item.linkedId
+    ? state.umbrellas.find((entry) => entry.id === item.linkedId)
+    : null;
+  if (!target) {
+    els.focusLink.hidden = true;
+    els.focusLink.innerHTML = "";
+    return;
+  }
+  const t = localize(target.title);
+  const label = t ? `${target.id}（${t}）` : target.id;
+  els.focusLink.hidden = false;
+  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}">→ ${escapeHtml(label)}</a>`;
 }
 
 // The detail page body: an ordered flow of paragraphs and photos. Falls back
@@ -1474,13 +1552,22 @@ function effectiveBlocks(item) {
   return out;
 }
 
+// A long address wraps onto new lines ONLY at commas — never mid-word or at a
+// plain space (用户要求). Spaces become non-breaking; a <wbr> after each comma is
+// the sole break opportunity. Combined with a max-width in CSS (≤70% of width).
+function formatAddressBreaks(text) {
+  return escapeHtml(text)
+    .replace(/ /g, " ")
+    .replace(/, ?/g, (m) => `${m}<wbr>`);
+}
+
 // Fixed header (stays put while the images/text scroll): id(title), place, time.
 function renderFocusHeader(item) {
   const title = localize(item.title);
   const focusTitle = title ? `${item.id}(${title})` : item.id;
   return `
     <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
-    ${item.location ? `<p class="focus-meta">${escapeHtml(item.location)}</p>` : ""}
+    ${item.location ? `<p class="focus-meta focus-meta-address">${formatAddressBreaks(item.location)}</p>` : ""}
     ${formatDateTime(item.time) ? `<p class="focus-meta">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
   `;
 }
@@ -1526,11 +1613,18 @@ function renderFocusArticle(item) {
         return "";
       }
       // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
-      const caption = [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+      // Illustrations show no corner caption at all (用户要求：插图不显示任何信息).
+      const caption =
+        media.role === "illustration"
+          ? ""
+          : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
       // Supplement/detail photos can be enlarged; illustrations cannot (#12).
       const expandable = media.role !== "illustration";
       const expandAttrs = expandable ? ` data-expandable="1" data-media-file="${escapeHtml(media.file)}"` : "";
-      return `<figure class="focus-photo">
+      // Illustrations are often transparent PNGs — drop the drop-shadow so it
+      // doesn't draw a rectangular halo around the transparent edges (用户要求).
+      const figClass = media.role === "illustration" ? "focus-photo is-illustration" : "focus-photo";
+      return `<figure class="${figClass}">
           <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
           ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
         </figure>`;
@@ -1617,7 +1711,7 @@ function buildStatsUnits() {
       const status = Array.isArray(src.status) && src.status.length ? src.status.slice() : ["unknown"];
       units.push({
         type: item.type || "unknown",
-        object: statsObjectValue(u),
+        object: statsObjectCategory(u),
         state: status,
         month,
         place,
@@ -1627,22 +1721,31 @@ function buildStatsUnits() {
   return units;
 }
 
-// `object` = colour category + kind, merged into one descriptor (#3). Colours
-// stay at the category level (transparent / translucent / colored / patterned /
-// unknown — never the free-text shade), and the kind is spelled out in full so
-// the value reads e.g. "unknown long umbrella" rather than just "unknown long".
-// Long vs folding are always kept apart. Both the cross-tab and the overview use
-// this single function so they always agree.
+// `object` = colour + kind, merged into one descriptor. Two granularities:
+//
+// • statsObjectValue — the SPECIFIC value, shown in the overview table cells.
+//   colored / patterned / other carry the free-text shade (e.g. "blue long
+//   umbrella", "black long umbrella", "floral folding umbrella").
+// • statsObjectCategory — the CATEGORY value, used by the cross-tab matrix (#4)
+//   and the overview's object dropdown filter (#3). colored / patterned / other
+//   collapse back to the category word ("colored long umbrella"), so a category
+//   acts as a bucket that contains the specific shades beneath it.
+//
+// Long vs folding are always kept apart.
+function objectKindWord(u) {
+  return u.kind === "folding" ? "folding umbrella" : u.kind === "long umbrella" ? "long umbrella" : "unknown";
+}
+
 function statsObjectValue(u) {
   let color = u.color || "unknown";
-  // colored / patterned / other record the actual colour in the free-text detail
-  // box (e.g. "blue", "black", "floral") — show that specific colour rather than
-  // the category word. Falls back to the category word when no detail was filled.
   if (COLOR_NEEDS_DETAIL.has(u.color)) {
     color = String(u.colorDetail || "").trim() || u.color;
   }
-  const kind = u.kind === "folding" ? "folding umbrella" : u.kind === "long umbrella" ? "long umbrella" : "unknown";
-  return `${color} ${kind}`;
+  return `${color} ${objectKindWord(u)}`;
+}
+
+function statsObjectCategory(u) {
+  return `${u.color || "unknown"} ${objectKindWord(u)}`;
 }
 
 function statsDimValues(unit, dim) {
@@ -1797,20 +1900,23 @@ function overviewRowsForItem(item) {
     type: statsValueLabel("type", item.type || ""),
     area: item.location || "",
   };
-  const single = (object, stateValues) => ({
+  // object = specific value shown in the cell; objectCategory = bucket used by
+  // the dropdown filter (#3).
+  const single = (object, objectCategory, stateValues) => ({
     ...base,
     idLabel: item.id,
     object,
+    objectCategory,
     stateValues,
     stateText: stateValues.join(", "),
   });
   if (item.umbrellaCount === "unknown") {
-    return [single("unknown", ["unknown"])];
+    return [single("unknown", "unknown", ["unknown"])];
   }
   const raw = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
   const n = Number(item.umbrellaCount);
   if (!(Number.isInteger(n) && n >= 1)) {
-    return [single(statsObjectValue(raw[0] || {}), normalizeStateValues(raw[0]))];
+    return [single(statsObjectValue(raw[0] || {}), statsObjectCategory(raw[0] || {}), normalizeStateValues(raw[0]))];
   }
   const desc = applyUnitInheritance(item.umbrellaCount, raw);
   const first = raw[0] || {};
@@ -1823,6 +1929,7 @@ function overviewRowsForItem(item) {
       ...base,
       idLabel: n >= 2 ? `${item.id}(${i + 1})` : item.id,
       object: statsObjectValue(u),
+      objectCategory: statsObjectCategory(u),
       stateValues,
       stateText: stateValues.join(", "),
     };
@@ -1874,7 +1981,7 @@ function renderStatsOverview() {
   const filters = state.overviewFilters;
   const filtered = allRows.filter(
     (r) =>
-      (filters.object === "all" || r.object === filters.object) &&
+      (filters.object === "all" || r.objectCategory === filters.object) &&
       (filters.state === "all" || r.stateValues.includes(filters.state)),
   );
 
@@ -1892,7 +1999,7 @@ function renderStatsOverview() {
     return primary * dir;
   });
 
-  const objectValues = [...new Set(allRows.map((r) => r.object))].sort((a, b) => a.localeCompare(b));
+  const objectValues = [...new Set(allRows.map((r) => r.objectCategory))].sort((a, b) => a.localeCompare(b));
   const stateValues = [...new Set(allRows.flatMap((r) => r.stateValues))].sort((a, b) => a.localeCompare(b));
 
   const rows = filtered
@@ -2086,6 +2193,21 @@ const CARD_ICON_MULTI =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><rect x="3" y="7" width="14" height="14" rx="2.5"/></svg>';
 const CARD_ICON_ILLUSTRATION =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>';
+const CARD_ICON_TEXT =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="2.6" rx="1.3"/><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"/><rect x="4" y="16.4" width="10" height="2.6" rx="1.3"/></svg>';
+
+// A record "has text" if any of its content blocks is a non-empty paragraph
+// (blocks store {ja,en}); fall back to the legacy joined story string.
+function recordHasText(item) {
+  const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+  const hasBlockText = blocks.some((b) => {
+    if (b.type !== "text") {
+      return false;
+    }
+    return typeof b.text === "object" ? Boolean(b.text?.ja || b.text?.en) : Boolean(String(b.text || "").trim());
+  });
+  return hasBlockText || Boolean((item.story || "").trim());
+}
 
 // Archive card: just the photo + id(+title) and corner logos. No address/time/
 // status/colour text (that lives on the detail page now).
@@ -2100,6 +2222,9 @@ function renderPhotoCard(item) {
   }
   if (hasIllustration) {
     badges.push(`<span class="card-badge" title="插图">${CARD_ICON_ILLUSTRATION}</span>`);
+  }
+  if (recordHasText(item)) {
+    badges.push(`<span class="card-badge" title="有文本">${CARD_ICON_TEXT}</span>`);
   }
 
   const cardTitle = localize(item.title);
@@ -2360,6 +2485,7 @@ function groupByPlace(items) {
 function switchToMapView() {
   els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.view === "map"));
   els.views.forEach((section) => section.classList.toggle("is-active", section.id === "map-view"));
+  document.body.classList.add("view-map");
   if (state.googleReady) {
     setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
   }
@@ -3048,17 +3174,29 @@ function flagColorFor(item) {
   return state.editMode && item && FLAG_COLORS[item.editFlag] ? FLAG_COLORS[item.editFlag] : null;
 }
 
+// A point has a title if either language is filled (title may be {ja,en} or a
+// legacy string). Titled points get a deeper red pin (用户要求).
+function itemHasTitle(item) {
+  const title = item?.title;
+  if (!title) {
+    return false;
+  }
+  return typeof title === "object" ? Boolean(title.ja || title.en) : Boolean(String(title).trim());
+}
+
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item)));
+    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
   });
 }
 
-function markerIcon(isActive, flagColor) {
+function markerIcon(isActive, flagColor, hasTitle) {
+  // Default pin red; titled points use a noticeably deeper red.
+  const baseRed = hasTitle ? "#8f2310" : "#c54f35";
   return {
     path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
-    fillColor: flagColor || (isActive ? "#1f8bb8" : "#c54f35"),
+    fillColor: flagColor || (isActive ? "#1f8bb8" : baseRed),
     fillOpacity: 1,
     strokeColor: flagColor === "#ffffff" ? "#1a1a1a" : "#ffffff",
     strokeOpacity: 1,
@@ -3068,9 +3206,9 @@ function markerIcon(isActive, flagColor) {
   };
 }
 
-function hoverMarkerIcon(isActive, flagColor) {
+function hoverMarkerIcon(isActive, flagColor, hasTitle) {
   return {
-    ...markerIcon(isActive, flagColor),
+    ...markerIcon(isActive, flagColor, hasTitle),
     scale: 1.72,
   };
 }
@@ -3112,7 +3250,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=85", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=88", { updateViaCache: "none" });
   }
 }
 
@@ -3233,6 +3371,16 @@ function setupEditor() {
   body.appendChild(titleRow);
   editor.titleJa = titleRow.querySelector(".editor-title-ja");
   editor.titleEn = titleRow.querySelector(".editor-title-en");
+
+  // Linked point: pick another record's id. Shows as a blue link under the
+  // detail page's cover image, click jumps to that point.
+  const linkRow = document.createElement("label");
+  linkRow.className = "editor-row";
+  linkRow.innerHTML = `<span>关联标点 Linked point（详情页主图右下角显示，可跳转）</span>`;
+  editor.linkedId = document.createElement("select");
+  linkRow.appendChild(editor.linkedId);
+  body.appendChild(linkRow);
+
   addField("time", "拍摄时间(覆盖) Time");
 
   // 4. Coordinates — placed right before the display address.
@@ -3995,6 +4143,20 @@ function buildTextsEditor() {
           <label>日本語<textarea data-texts-field="stats-ja" rows="4"></textarea></label>
           <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
         </fieldset>
+        <fieldset class="texts-section" data-texts-about="section1">
+          <legend>About 第一段（观察のきっかけ）</legend>
+          <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+          <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+          <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+          <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+        </fieldset>
+        <fieldset class="texts-section" data-texts-about="section2">
+          <legend>About 第二段（記録の作法）</legend>
+          <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+          <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+          <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+          <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+        </fieldset>
         ${typeSections}
       </div>
       <footer class="texts-editor-actions">
@@ -4020,6 +4182,13 @@ function fillTextsEditor() {
   const overlay = textsEditor.overlay;
   overlay.querySelector('[data-texts-field="stats-ja"]').value = TEXTS.statsIntro.ja || "";
   overlay.querySelector('[data-texts-field="stats-en"]').value = TEXTS.statsIntro.en || "";
+  overlay.querySelectorAll("[data-texts-about]").forEach((section) => {
+    const sec = (TEXTS.about || {})[section.dataset.textsAbout] || {};
+    section.querySelector('[data-texts-field="about-title-ja"]').value = sec.titleJa || "";
+    section.querySelector('[data-texts-field="about-title-en"]').value = sec.titleEn || "";
+    section.querySelector('[data-texts-field="about-body-ja"]').value = parasToText(sec.bodyJa);
+    section.querySelector('[data-texts-field="about-body-en"]').value = parasToText(sec.bodyEn);
+  });
   overlay.querySelectorAll("[data-texts-type]").forEach((section) => {
     const key = section.dataset.textsType;
     const desc = TEXTS.typeDescriptions[key] || {};
@@ -4035,8 +4204,17 @@ async function saveTextsEditor() {
       ja: overlay.querySelector('[data-texts-field="stats-ja"]').value.trim(),
       en: overlay.querySelector('[data-texts-field="stats-en"]').value.trim(),
     },
+    about: {},
     typeDescriptions: {},
   };
+  overlay.querySelectorAll("[data-texts-about]").forEach((section) => {
+    payload.about[section.dataset.textsAbout] = {
+      titleJa: section.querySelector('[data-texts-field="about-title-ja"]').value.trim(),
+      titleEn: section.querySelector('[data-texts-field="about-title-en"]').value.trim(),
+      bodyJa: textToParas(section.querySelector('[data-texts-field="about-body-ja"]').value),
+      bodyEn: textToParas(section.querySelector('[data-texts-field="about-body-en"]').value),
+    };
+  });
   overlay.querySelectorAll("[data-texts-type]").forEach((section) => {
     const key = section.dataset.textsType;
     payload.typeDescriptions[key] = {
@@ -4049,6 +4227,7 @@ async function saveTextsEditor() {
   try {
     await apiPost("/api/save-texts", payload);
     TEXTS = payload;
+    renderAbout();
     render();
     closeTextsEditor();
     showEditorToast("文案已保存 ✓");
@@ -4059,6 +4238,25 @@ async function saveTextsEditor() {
 
 function getRawById(id) {
   return state.rawById?.get(id) || null;
+}
+
+// Fill the "linked point" dropdown with every other record (id + title),
+// preselecting the saved one.
+function populateLinkedSelect(currentId, selectedLinkedId) {
+  if (!editor.linkedId) {
+    return;
+  }
+  const options = [`<option value="">（无 None）</option>`];
+  [...state.umbrellas]
+    .filter((entry) => entry.id !== currentId)
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .forEach((entry) => {
+      const t = localize(entry.title);
+      const label = t ? `${entry.id}（${t}）` : entry.id;
+      options.push(`<option value="${escapeHtml(entry.id)}">${escapeHtml(label)}</option>`);
+    });
+  editor.linkedId.innerHTML = options.join("");
+  editor.linkedId.value = selectedLinkedId || "";
 }
 
 function openEditor(id) {
@@ -4082,6 +4280,7 @@ function openEditor(id) {
   const rawTitle = raw.title;
   editor.titleJa.value = rawTitle && typeof rawTitle === "object" ? rawTitle.ja || "" : rawTitle || "";
   editor.titleEn.value = rawTitle && typeof rawTitle === "object" ? rawTitle.en || "" : "";
+  populateLinkedSelect(id, raw.linkedId || "");
   // Smart-default placeholders (what the public site falls back to when blank).
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
   editor.fields.locationText.placeholder = formatLocationLevels(raw.locationLevels) || "默认用下面的地址层级";
@@ -4178,6 +4377,7 @@ async function saveEditor() {
     payload[key] = editor.fields[key].value;
   });
   payload.title = { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() };
+  payload.linkedId = editor.linkedId ? editor.linkedId.value : "";
   payload.locationLevels = collectLevelsForSave();
   payload.umbrellaCount = editor.count.value;
   payload.umbrellaUnits = collectUnitsForSave();

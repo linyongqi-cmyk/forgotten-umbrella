@@ -23,7 +23,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -50,34 +50,18 @@
   "blocks": [
     {
       "type": "photo",
-      "file": "IMG_8664.jpeg"
+      "file": "IMG_8665.jpeg"
     }
   ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "IMG_8665",
-      // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "IMG_8665.jpeg",
-      // 角色。建议使用 primary、detail、illustration。
-      "role": "primary",
-      // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
-      // 这张媒体自己的拍摄时间。没有就保持空字符串。
-      "photoTime": "2026-04-28T10:57:23+09:00",
-      // 这张媒体自己的说明文字。
-      "story": "",
-      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg"
-    },
-    {
-      // 媒体 ID。主图通常和文件夹名一致。
       "id": "IMG_8664",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
       "file": "IMG_8664.jpeg",
       // 角色。建议使用 primary、detail、illustration。
-      "role": "detail",
+      "role": "primary",
       // 这张媒体自己的标题。没有就保持空字符串。
       "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
@@ -86,6 +70,22 @@
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": ""
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "IMG_8665",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "IMG_8665.jpeg",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "supplement",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "2026-04-28T10:57:23+09:00",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg"
     }
   ]
 }

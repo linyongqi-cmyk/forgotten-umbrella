@@ -52,15 +52,15 @@
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
+      "type": "photo",
+      "file": "_______.png"
+    },
+    {
       "type": "text",
       "text": {
         "ja": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
         "en": "This umbrella was left along a path I walk every day, likely forgotten by someone passing through. It was there when I passed by around 3:00 PM, but by the time I returned from the supermarket after 5:00 PM, it was gone. It appears the owner remembered the umbrella and retrieved it within that two-hour window."
       }
-    },
-    {
-      "type": "photo",
-      "file": "pic_1.png"
     }
   ],
   // 这个标点下的媒体列表。第一项通常是主图。
@@ -83,9 +83,9 @@
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "pic_1",
+      "id": "_______",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "pic_1.png",
+      "file": "_______.png",
       // 角色。建议使用 primary、detail、illustration。
       "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。

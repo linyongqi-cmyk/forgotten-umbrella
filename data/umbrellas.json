@@ -32,6 +32,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6078.jpg",
@@ -87,18 +88,19 @@
     "story": "この傘はマンションの入り口横の角に置かれている。目の前は そのマンションの駐車場だ。位置から判断すると、重い荷物を 運ぶ際に両手を空けるため、一時的に角に立てかけたと考えら れる。しかし、荷物を運び終えて車で出発する時に傘の存在を 忘れ、そのまま角に置き去りにされたのだ。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "________.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "この傘はマンションの入り口横の角に置かれている。目の前は そのマンションの駐車場だ。位置から判断すると、重い荷物を 運ぶ際に両手を空けるため、一時的に角に立てかけたと考えら れる。しかし、荷物を運び終えて車で出発する時に傘の存在を 忘れ、そのまま角に置き去りにされたのだ。",
           "en": "This umbrella is leaning against the corner near the apartment entrance. Directly in front is the building's parking space. Based on the position, it is likely the owner leaned the umbrella there to free up their hands while moving heavy items. However, after finishing the task and preparing to drive away, they forgot the umbrella and left it behind in the corner."
         }
-      },
-      {
-        "type": "photo",
-        "file": "pic_1.png"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_6872.jpg",
@@ -114,11 +116,11 @@
         "story": ""
       },
       {
-        "id": "pic_1",
-        "file": "pic_1.png",
-        "src": "filebox/records/corner(affordance)/IMG_6872/pic_1.png",
-        "thumb": "filebox/records/corner(affordance)/IMG_6872/pic_1.png",
-        "role": "detail",
+        "id": "________",
+        "file": "________.png",
+        "src": "filebox/records/corner(affordance)/IMG_6872/________.png",
+        "thumb": "filebox/records/corner(affordance)/IMG_6872/________.png",
+        "role": "illustration",
         "title": "",
         "photoTime": "",
         "story": ""
@@ -163,6 +165,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8302.jpg",
@@ -213,6 +216,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "corner",
     "thumb": "filebox/thumbs/filebox__choice__corner(affordance)__IMG_8740.jpg",
@@ -266,6 +270,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6178.jpg",
@@ -323,18 +328,19 @@
     "story": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
           "en": "It was already afternoon when I found it, well past the collection time. The umbrella lay quietly atop a pile of non-burnable trash, looking somewhat out of place. The scene brings to mind a certain image: after the truck had gone, a small figure wearing an eyepatch—like a thief—sneaked over and quietly dropped the umbrella there. Having missed the official window, it was left behind as a remnant of this comical 'secret mission'."
         }
-      },
-      {
-        "type": "photo",
-        "file": "pic_1.png"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6660.jpg",
@@ -350,10 +356,10 @@
         "story": ""
       },
       {
-        "id": "pic_1",
-        "file": "pic_1.png",
-        "src": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
-        "thumb": "filebox/records/disposal(behavior)/IMG_6660/pic_1.png",
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/disposal(behavior)/IMG_6660/_______.png",
+        "thumb": "filebox/records/disposal(behavior)/IMG_6660/_______.png",
         "role": "illustration",
         "title": "",
         "photoTime": "",
@@ -388,6 +394,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6859.jpg",
@@ -436,6 +443,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6895.jpg",
@@ -499,6 +507,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_6931.jpg",
@@ -552,6 +561,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_7171.jpg",
@@ -633,12 +643,28 @@
       }
     ],
     "story": "",
-    "blocks": [],
-    "editFlag": "white",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "________.png"
+      }
+    ],
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8056.jpg",
     "media": [
+      {
+        "id": "________",
+        "file": "________.png",
+        "src": "filebox/records/disposal(behavior)/IMG_8056/________.png",
+        "thumb": "filebox/records/disposal(behavior)/IMG_8056/________.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
       {
         "id": "IMG_8056",
         "file": "IMG_8056.jpeg",
@@ -694,6 +720,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8317.jpg",
@@ -756,6 +783,10 @@
     "story": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "夜が深まり、商店街の多くの店が既にシャッターを下ろしてい る。同じ場所で二本の傘が同時に忘れられる確率は極めて低 い。現場の状況と時間から判断すると、これは意図的に遺棄さ れたものだろう。付近の多くが飲食店であることを踏まえる と、店内に残されていた無主の傘を、閉店前の清掃時に店員が 外の柱の下へ移したのだと推測される。",
@@ -764,6 +795,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8476.jpg",
@@ -776,6 +808,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-10T21:09:54+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/disposal(behavior)/IMG_8476/_______.png",
+        "thumb": "filebox/records/disposal(behavior)/IMG_8476/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -819,7 +861,8 @@
     ],
     "story": "",
     "blocks": [],
-    "editFlag": "",
+    "editFlag": "yellow",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "disposal",
     "thumb": "filebox/thumbs/filebox__choice__disposal(behavior)__IMG_8591.jpg",
@@ -881,6 +924,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6260.jpg",
@@ -916,7 +960,10 @@
       "lng": 140.10369234258295
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -933,7 +980,8 @@
     ],
     "story": "",
     "blocks": [],
-    "editFlag": "",
+    "editFlag": "yellow",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6383.jpg",
@@ -998,10 +1046,11 @@
       },
       {
         "type": "photo",
-        "file": "pic_1.png"
+        "file": "______.png"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6838.jpg",
@@ -1017,10 +1066,10 @@
         "story": ""
       },
       {
-        "id": "pic_1",
-        "file": "pic_1.png",
-        "src": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
-        "thumb": "filebox/records/drop(behavior)/IMG_6838/pic_1.png",
+        "id": "______",
+        "file": "______.png",
+        "src": "filebox/records/drop(behavior)/IMG_6838/______.png",
+        "thumb": "filebox/records/drop(behavior)/IMG_6838/______.png",
         "role": "illustration",
         "title": "",
         "photoTime": "",
@@ -1070,6 +1119,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6867.jpg",
@@ -1134,6 +1184,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6882.jpg",
@@ -1169,7 +1220,10 @@
       "lng": 140.13475825985512
     },
     "locationText": "near Chiba Bank, Mitsuwadai Station, Mitsuwadai, Wakaba Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -1186,8 +1240,14 @@
       }
     ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_6890.jpeg"
+      }
+    ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6889.jpg",
@@ -1200,6 +1260,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:32:22+09:00",
+        "story": ""
+      },
+      {
+        "id": "IMG_6890",
+        "file": "IMG_6890.jpeg",
+        "src": "filebox/records/drop(behavior)/IMG_6889/IMG_6890.jpeg",
+        "thumb": "filebox/records/drop(behavior)/IMG_6889/IMG_6890.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2025-10-16T13:32:34+09:00",
         "story": ""
       }
     ],
@@ -1241,6 +1311,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_6942.jpg",
@@ -1294,6 +1365,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7038.jpg",
@@ -1356,6 +1428,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_7106.jpg",
@@ -1429,6 +1502,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8015.jpg",
@@ -1482,6 +1556,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8114.jpg",
@@ -1539,18 +1614,19 @@
     "story": "伏見区の大きな交差点、広いアスファルトの道路中央に一本の 黒い傘が横たわっている。壁やフェンスに置かれたものとは違 い、これは車両が行き交う動的な経路の中に位置する。走行中 の車両から滑り落ちたその瞬間、たとえ気づいたとしても、激 しい車流の中で止まって拾い上げることは不可能だ。持ち主は そのまま進むしかなかった。これは、環境によって強いられた 「断念」である。白い線の傍らで、それは静止した異物とし て残された。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "________.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "伏見区の大きな交差点、広いアスファルトの道路中央に一本の 黒い傘が横たわっている。壁やフェンスに置かれたものとは違 い、これは車両が行き交う動的な経路の中に位置する。走行中 の車両から滑り落ちたその瞬間、たとえ気づいたとしても、激 しい車流の中で止まって拾い上げることは不可能だ。持ち主は そのまま進むしかなかった。これは、環境によって強いられた 「断念」である。白い線の傍らで、それは静止した異物とし て残された。",
           "en": "A single black umbrella lies in the middle of a wide asphalt road at a large intersection in Fushimi Ward. Unlike those leaned against walls or hung on fences, this one sits within a dynamic path of traffic. It slipped off a moving vehicle, even if the owner noticed the drop, the pressure of the constant traffic made it impossible to stop and retrieve it. They had no choice but to keep moving-a forced abandonment. Resting beside the white road markings, it remains as a static anomaly amidst the flow."
         }
-      },
-      {
-        "type": "photo",
-        "file": "________.png"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8229.jpg",
@@ -1611,6 +1687,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8618.jpg",
@@ -1665,6 +1742,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8647.jpg",
@@ -1718,6 +1796,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8680.jpg",
@@ -1776,6 +1855,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8682.jpg",
@@ -1844,6 +1924,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "drop",
     "thumb": "filebox/thumbs/filebox__choice__drop(behavior)__IMG_8737.jpg",
@@ -1911,7 +1992,7 @@
     "blocks": [
       {
         "type": "photo",
-        "file": "pic_1.png"
+        "file": "_______.png"
       },
       {
         "type": "text",
@@ -1922,6 +2003,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5956.jpg",
@@ -1937,10 +2019,10 @@
         "story": ""
       },
       {
-        "id": "pic_1",
-        "file": "pic_1.png",
-        "src": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
-        "thumb": "filebox/records/hookable(affordance)/IMG_5956/pic_1.png",
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/hookable(affordance)/IMG_5956/_______.png",
+        "thumb": "filebox/records/hookable(affordance)/IMG_5956/_______.png",
         "role": "illustration",
         "title": "",
         "photoTime": "",
@@ -1982,6 +2064,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5958.jpg",
@@ -2037,6 +2120,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_5964.jpg",
@@ -2086,6 +2170,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6080.jpg",
@@ -2138,6 +2223,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6220.jpg",
@@ -2191,6 +2277,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6341.jpg",
@@ -2249,6 +2336,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6393.jpg",
@@ -2305,18 +2393,19 @@
     "story": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "この傘は、私が毎日通る道の途中に現れた。きっと誰かが、何 かの理由で、うっかりここに置き忘れたのだろう。でも、この 傘はきっと幸運だった。私がそれを見たのは午後三時頃。スー パーで買い物をして。五時過ぎに同じ を通ったときには、も うその傘はなかった。きっとその二時間のあいだに、持ち主が 「思い出して取りに戻ったのだと思う。",
           "en": "This umbrella was left along a path I walk every day, likely forgotten by someone passing through. It was there when I passed by around 3:00 PM, but by the time I returned from the supermarket after 5:00 PM, it was gone. It appears the owner remembered the umbrella and retrieved it within that two-hour window."
         }
-      },
-      {
-        "type": "photo",
-        "file": "pic_1.png"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6774.jpg",
@@ -2332,10 +2421,10 @@
         "story": ""
       },
       {
-        "id": "pic_1",
-        "file": "pic_1.png",
-        "src": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
-        "thumb": "filebox/records/hookable(affordance)/IMG_6774/pic_1.png",
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/hookable(affordance)/IMG_6774/_______.png",
+        "thumb": "filebox/records/hookable(affordance)/IMG_6774/_______.png",
         "role": "illustration",
         "title": "",
         "photoTime": "",
@@ -2380,6 +2469,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6781.jpg",
@@ -2433,6 +2523,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6791.jpg",
@@ -2468,7 +2559,10 @@
       "lng": 140.1220886006117
     },
     "locationText": "Chigusadai-shita bus stop, Chigusadai, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2485,7 +2579,8 @@
     ],
     "story": "",
     "blocks": [],
-    "editFlag": "black",
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6848.jpg",
@@ -2539,6 +2634,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_6888.jpg",
@@ -2617,10 +2713,6 @@
       },
       {
         "type": "photo",
-        "file": "IMG_8586.jpeg"
-      },
-      {
-        "type": "photo",
         "file": "IMG_8621.jpeg"
       },
       {
@@ -2636,7 +2728,8 @@
         "file": "IMG_8703.jpeg"
       }
     ],
-    "editFlag": "black",
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8622.jpg",
@@ -2667,18 +2760,8 @@
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8538.jpeg",
         "role": "supplement",
-        "title": "",
+        "title": "DYA 43",
         "photoTime": "2026-04-21T00:51:15+09:00",
-        "story": ""
-      },
-      {
-        "id": "IMG_8586",
-        "file": "IMG_8586.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8586.jpeg",
-        "role": "supplement",
-        "title": "",
-        "photoTime": "2026-04-23T19:47:59+09:00",
         "story": ""
       },
       {
@@ -2687,7 +2770,7 @@
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8621.jpeg",
         "role": "supplement",
-        "title": "",
+        "title": "DYA 46",
         "photoTime": "2026-04-24T18:25:04+09:00",
         "story": ""
       },
@@ -2697,7 +2780,7 @@
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8657.jpeg",
         "role": "supplement",
-        "title": "",
+        "title": "DYA 49",
         "photoTime": "2026-04-27T19:15:39+09:00",
         "story": ""
       },
@@ -2707,7 +2790,7 @@
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8685.jpeg",
         "role": "supplement",
-        "title": "",
+        "title": "DYA 52",
         "photoTime": "2026-04-30T15:58:09+09:00",
         "story": ""
       },
@@ -2717,7 +2800,7 @@
         "src": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8622/IMG_8703.jpeg",
         "role": "supplement",
-        "title": "",
+        "title": "DYA 53",
         "photoTime": "2026-05-01T00:53:27+09:00",
         "story": ""
       }
@@ -2761,17 +2844,9 @@
       }
     ],
     "story": "",
-    "blocks": [
-      {
-        "type": "photo",
-        "file": "a2c63f6967ce88ca8199752a79785c48.png"
-      },
-      {
-        "type": "photo",
-        "file": "IMG_8465.jpg"
-      }
-    ],
-    "editFlag": "black",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8632.jpg",
@@ -2785,26 +2860,6 @@
         "title": "",
         "photoTime": "2026-04-25T16:53:03+09:00",
         "story": ""
-      },
-      {
-        "id": "a2c63f6967ce88ca8199752a79785c48",
-        "file": "a2c63f6967ce88ca8199752a79785c48.png",
-        "src": "filebox/records/hookable(affordance)/IMG_8632/a2c63f6967ce88ca8199752a79785c48.png",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8632/a2c63f6967ce88ca8199752a79785c48.png",
-        "role": "detail",
-        "title": "",
-        "photoTime": "",
-        "story": ""
-      },
-      {
-        "id": "IMG_8465",
-        "file": "IMG_8465.jpg",
-        "src": "filebox/records/hookable(affordance)/IMG_8632/IMG_8465.jpg",
-        "thumb": "filebox/records/hookable(affordance)/IMG_8632/IMG_8465.jpg",
-        "role": "detail",
-        "title": "",
-        "photoTime": "2026-04-10T16:33:32+09:00",
-        "story": ""
       }
     ],
     "locationLevels": [
@@ -2815,7 +2870,7 @@
   },
   {
     "id": "IMG_8665",
-    "image": "filebox/records/hookable(affordance)/IMG_8665/IMG_8665.jpeg",
+    "image": "filebox/records/hookable(affordance)/IMG_8665/IMG_8664.jpeg",
     "photoTime": "2026-04-28T10:57:23+09:00",
     "time": "",
     "photoCoordinates": {
@@ -2824,7 +2879,10 @@
     },
     "locationCoordinates": null,
     "locationText": "northbound tunnel at Higashiyama Bridge, Minami Ward, Kyoto",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -2843,32 +2901,33 @@
     "blocks": [
       {
         "type": "photo",
-        "file": "IMG_8664.jpeg"
+        "file": "IMG_8665.jpeg"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
-    "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg",
+    "thumb": "",
     "media": [
-      {
-        "id": "IMG_8665",
-        "file": "IMG_8665.jpeg",
-        "src": "filebox/records/hookable(affordance)/IMG_8665/IMG_8665.jpeg",
-        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "2026-04-28T10:57:23+09:00",
-        "story": ""
-      },
       {
         "id": "IMG_8664",
         "file": "IMG_8664.jpeg",
         "src": "filebox/records/hookable(affordance)/IMG_8665/IMG_8664.jpeg",
         "thumb": "filebox/records/hookable(affordance)/IMG_8665/IMG_8664.jpeg",
-        "role": "detail",
+        "role": "primary",
         "title": "",
         "photoTime": "2026-04-28T10:56:51+09:00",
+        "story": ""
+      },
+      {
+        "id": "IMG_8665",
+        "file": "IMG_8665.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_8665/IMG_8665.jpeg",
+        "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8665.jpg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-04-28T10:57:23+09:00",
         "story": ""
       }
     ],
@@ -2910,6 +2969,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8697_post.jpg",
@@ -2963,6 +3023,10 @@
     "story": "陳列棚に掛けられた傘袋が重要な手がかりとなっている。この 傘がつい最近まで屋内、おそらくすぐ横の店舗出入り口から出 てきたばかりであることを示している。拿袋の状態から、天候 のシーケンスを逆算できる。入店前は雨が降っていたか止んだ 直後であり、退店時には雨が完全に止んでいた可能性が高い。 ラックに掛けられた瞬間、この傘は雨具としての即時的な利用 価値を失ったのである。これは天候の変化と商業空間が交差し た瞬間の行動を物語る物理的なフィールドレポートである",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "陳列棚に掛けられた傘袋が重要な手がかりとなっている。この 傘がつい最近まで屋内、おそらくすぐ横の店舗出入り口から出 てきたばかりであることを示している。拿袋の状態から、天候 のシーケンスを逆算できる。入店前は雨が降っていたか止んだ 直後であり、退店時には雨が完全に止んでいた可能性が高い。 ラックに掛けられた瞬間、この傘は雨具としての即時的な利用 価値を失ったのである。これは天候の変化と商業空間が交差し た瞬間の行動を物語る物理的なフィールドレポートである",
@@ -2971,6 +3035,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "affordance",
     "category": "hookable",
     "thumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8729.jpg",
@@ -2983,6 +3048,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-01T20:40:21+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/hookable(affordance)/IMG_8729/_______.png",
+        "thumb": "filebox/records/hookable(affordance)/IMG_8729/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -3001,11 +3076,14 @@
       "lat": 35.64621389,
       "lng": 140.11738611
     },
-    "locationCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.646208840321975,
+      "lng": 140.11739232398648
+    },
     "locationText": "fence of the Athletics Stadium, Chiba Prefectural General Sports Center, Tendaicho, Inage Ward, Chiba",
     "title": {
-      "ja": "証明不能な連結",
-      "en": "The Unverifiable Connection"
+      "ja": "証明不能な連結 1",
+      "en": "The Unverifiable Connection 1"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3024,6 +3102,10 @@
     "story": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
@@ -3032,6 +3114,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "IMG_6617",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6529.jpg",
@@ -3044,6 +3127,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-08-11T18:01:07+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/unknown/IMG_6529/_______.png",
+        "thumb": "filebox/records/unknown/IMG_6529/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -3065,8 +3158,8 @@
     "locationCoordinates": null,
     "locationText": "fence of the Athletics Stadium, Chiba Prefectural General Sports Center, Tendaicho, Inage Ward, Chiba",
     "title": {
-      "ja": "証明不能な連結",
-      "en": "The Unverifiable Connection"
+      "ja": "証明不能な連結 2",
+      "en": "The Unverifiable Connection 2"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -3085,6 +3178,10 @@
     "story": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "雨上がりの夕暮れ時、6529を見つけた。傘は落ち葉に半分埋もれ、その表 面にはまだ濡れた雨粒が光っている。まるで落ち葉と共に路 へ掃き寄せ られたかのようだった。約一ヶ月後、再びこの道を通りかかった際、6529 から70メートルほど離れた場所で別の黒い傘 (6617) に遭遇した。その時 は、二つの間に関連があるとは ほども思わなかった。しかし、後に写真フォルダを整理していると、これらは同一の傘ではないか という疑念が浮かんだ。国道沿いのこの道は日中でも人通りが少なく。黒い 傘が遺置される頻度も決して高くはないからだ。唯一の証拠となり得るのは 6617の持ち手に貼られた番号シールだが、6529の撮影角度からは詳細を確 認できず、今となっては同一性を証明する術は失われてしまった。",
@@ -3093,6 +3190,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "IMG_6529",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6617.jpg",
@@ -3105,6 +3203,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-03T15:51:10+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/unknown/IMG_6617/_______.png",
+        "thumb": "filebox/records/unknown/IMG_6617/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -3149,6 +3257,10 @@
     "story": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "黒地に和柄の入った、一本の傘。黒い傘であることに加え、 え込みの小枝に隠されるように置かれていたため、道端に沿っ て歩いていなければ、見つけるのは難しかっただろう。こんな に綺麗でおしゃれな傘を、一体誰が、いつ、ここに置き去りに したのだろうか。これほど目立たない場所だ。きっとこの先も 長い間、この傘はここにあり続けるに違いない。と、思ってい たのですが、およそ十日後、もう一度ここを通ったとき、気に なって植え込みのあたりをよく見てみると、あの傘がなんと、 自転車のハンドルにきちんとかけられていた。たぶん、あのと きは風か何かのせいで、植え込みの中に落ちてしまったので しょう。そこで私は、これが「忘れられた傘」ではないと判明 した。",
@@ -3157,6 +3269,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6637.jpg",
@@ -3169,6 +3282,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-07T13:22:30+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/unknown/IMG_6637/_______.png",
+        "thumb": "filebox/records/unknown/IMG_6637/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -3211,9 +3334,18 @@
         "statusOther": ""
       }
     ],
-    "story": "",
-    "blocks": [],
+    "story": "この傘の状況は、まだはっきりとは確認できない。ポイントになるのは、傘の後ろにあるこのカートだ。もし傘とカートが一緒に置かれたものではないとすれば、この傘は「忘れられた傘」ということになる。しかし、もし傘がカートとともに意図的にここに置かれたのだとしたら、それは「忘れられた傘」ではなく、「放置された傘」と言えるだろう。\nただし、この傘はほどけたままの状態で置かれている。もしそれが「放置された傘」なのであれば普通はきちんと留めているはずで、ほどけたまま放置されることは考えにくい。",
+    "blocks": [
+      {
+        "type": "text",
+        "text": {
+          "ja": "この傘の状況は、まだはっきりとは確認できない。ポイントになるのは、傘の後ろにあるこのカートだ。もし傘とカートが一緒に置かれたものではないとすれば、この傘は「忘れられた傘」ということになる。しかし、もし傘がカートとともに意図的にここに置かれたのだとしたら、それは「忘れられた傘」ではなく、「放置された傘」と言えるだろう。\nただし、この傘はほどけたままの状態で置かれている。もしそれが「放置された傘」なのであれば普通はきちんと留めているはずで、ほどけたまま放置されることは考えにくい。",
+          "en": "The exact status of this umbrella remains unclear. The key factor is the cart positioned behind it. If the umbrella and the cart were not placed there together, it would be classified as a 'forgotten umbrella.' However, if it was intentionally placed there along with the cart, it would be considered 'abandoned' rather than 'forgotten.' \nNotably, the umbrella was left unfurled. If it were truly abandoned, one would typically expect it to be neatly folded; it is unlikely that an umbrella would be left abandoned in such a disheveled state."
+        }
+      }
+    ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "",
     "category": "unknown",
     "thumb": "filebox/thumbs/filebox__choice__IMG_6761.jpg",
@@ -3267,6 +3399,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6079.jpg",
@@ -3317,6 +3450,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_6937.jpg",
@@ -3381,8 +3515,14 @@
       }
     ],
     "story": "",
-    "blocks": [],
-    "editFlag": "yellow",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8639.jpeg"
+      }
+    ],
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "filebox/thumbs/filebox__choice__payment(behavior)__IMG_8636.jpg",
@@ -3395,6 +3535,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-25T17:13:48+09:00",
+        "story": ""
+      },
+      {
+        "id": "IMG_8639",
+        "file": "IMG_8639.jpeg",
+        "src": "filebox/records/payment(behavior)/IMG_8636/IMG_8639.jpeg",
+        "thumb": "filebox/records/payment(behavior)/IMG_8636/IMG_8639.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-04-25T17:14:00+09:00",
         "story": ""
       }
     ],
@@ -3436,6 +3586,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6225.jpg",
@@ -3489,6 +3640,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6530.jpg",
@@ -3543,6 +3695,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6643.jpg",
@@ -3601,6 +3754,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6667.jpg",
@@ -3646,7 +3800,10 @@
       "lng": 140.1292450378603
     },
     "locationText": "350 m along Chiba Urban Monorail Line 2, from Dobutsu-Koen Station toward Mitsuwadai, Genkicho, Wakaba Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3662,8 +3819,14 @@
       }
     ],
     "story": "",
-    "blocks": [],
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_8060.jpeg"
+      }
+    ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8062.jpg",
@@ -3676,6 +3839,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-25T22:08:09+09:00",
+        "story": ""
+      },
+      {
+        "id": "IMG_8060",
+        "file": "IMG_8060.jpeg",
+        "src": "filebox/records/placement(behavior)/IMG_8062/IMG_8060.jpeg",
+        "thumb": "filebox/records/placement(behavior)/IMG_8062/IMG_8060.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-02-25T22:07:53+09:00",
         "story": ""
       }
     ],
@@ -3699,7 +3872,10 @@
       "lng": 135.7554851439673
     },
     "locationText": "",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -3716,7 +3892,8 @@
     ],
     "story": "",
     "blocks": [],
-    "editFlag": "",
+    "editFlag": "yellow",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8251.jpg",
@@ -3780,6 +3957,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8508.jpg",
@@ -3833,6 +4011,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8584.jpg",
@@ -3897,10 +4076,15 @@
       },
       {
         "type": "photo",
+        "file": "_______.png"
+      },
+      {
+        "type": "photo",
         "file": "IMG_8725.jpeg"
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "placement",
     "thumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_8724.jpg",
@@ -3913,6 +4097,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-04T03:58:20+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/placement(behavior)/IMG_8724/_______.png",
+        "thumb": "filebox/records/placement(behavior)/IMG_8724/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       },
       {
@@ -3975,7 +4169,8 @@
         }
       }
     ],
-    "editFlag": "white",
+    "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_5917.jpg",
@@ -4011,8 +4206,8 @@
     },
     "locationText": "men's restroom inside the station, Nishi-Chiba Station, Chuo Ward, Chiba",
     "title": {
-      "ja": "代表的トイレ型",
-      "en": "Typical Restroom Type"
+      "ja": "代表的トイレ型 1",
+      "en": "Typical Restroom Type 1"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -4031,6 +4226,10 @@
     "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
@@ -4038,7 +4237,8 @@
         }
       }
     ],
-    "editFlag": "",
+    "editFlag": "black",
+    "linkedId": "IMG_6753",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6651.jpg",
@@ -4051,6 +4251,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-11T21:47:18+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/restroom(place)/IMG_6651/_______.png",
+        "thumb": "filebox/records/restroom(place)/IMG_6651/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -4089,6 +4299,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6720.jpg",
@@ -4122,8 +4333,8 @@
     "locationCoordinates": null,
     "locationText": "men's restroom inside Skip Tendai, Tendai, Inage Ward, Chiba",
     "title": {
-      "ja": "代表的トイレ型",
-      "en": "Typical Restroom Type"
+      "ja": "代表的トイレ型 2",
+      "en": "Typical Restroom Type 2"
     },
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -4142,6 +4353,10 @@
     "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "_______.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
@@ -4150,6 +4365,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "IMG_6651",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_6753.jpg",
@@ -4162,6 +4378,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T14:53:10+09:00",
+        "story": ""
+      },
+      {
+        "id": "_______",
+        "file": "_______.png",
+        "src": "filebox/records/restroom(place)/IMG_6753/_______.png",
+        "thumb": "filebox/records/restroom(place)/IMG_6753/_______.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],
@@ -4204,6 +4430,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "place",
     "category": "restroom",
     "thumb": "filebox/thumbs/filebox__choice__restroom(place)__IMG_8066.jpg",
@@ -4266,6 +4493,7 @@
     "story": "",
     "blocks": [],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "place",
     "category": "transit",
     "thumb": "filebox/thumbs/filebox__choice__transit(place)__IMG_8208.jpg",
@@ -4322,6 +4550,10 @@
     "story": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
     "blocks": [
       {
+        "type": "photo",
+        "file": "________.png"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "「支払い型」は、積算機、券売機など、「支払い行為」に関わ る場所で発見される傘である。これらの場面では、カードの取 り出しや物探し、スキャンといった操作によって、手と注意が 一時的に占有される。その過程で、傘は明確に「置かれる」と いうよりも、一連の動作の流れの中で自然に脇へと置かれ、台 の端や機械の横、足元などに一時的に留まる。そして支払いが 終わると、注意は次の行動へと移り、傘はそのまま忘れられる ことになる。 このタイプは行動の中断と切り替えに由来する点に特徴があ る。短時間でありながら高い集中を伴う支払い行為は、傘を手 から離れさせ、無意識のうちにその場に留める。そこに残され た傘は、都市生活における微細な注意の断絶を記録している。",
@@ -4330,6 +4562,7 @@
       }
     ],
     "editFlag": "",
+    "linkedId": "",
     "categoryGroup": "behavior",
     "category": "payment",
     "thumb": "",
@@ -4342,6 +4575,16 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-10T16:33:32+09:00",
+        "story": ""
+      },
+      {
+        "id": "________",
+        "file": "________.png",
+        "src": "filebox/records/payment(behavior)/IMG_8465/________.png",
+        "thumb": "filebox/records/payment(behavior)/IMG_8465/________.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
         "story": ""
       }
     ],

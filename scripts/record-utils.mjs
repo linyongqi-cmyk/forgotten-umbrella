@@ -39,6 +39,8 @@ export function stringifyRecordWithComments(record) {
     `  "umbrellaUnits": ${JSON.stringify(record.umbrellaUnits ?? [], null, 2).replace(/\n/g, "\n  ")},`,
     '  // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。',
     `  "editFlag": ${JSON.stringify(record.editFlag ?? "")},`,
+    '  // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。',
+    `  "linkedId": ${JSON.stringify(record.linkedId ?? "")},`,
     '  // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。',
     `  "story": ${JSON.stringify(record.story ?? "")},`,
     '  // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。',

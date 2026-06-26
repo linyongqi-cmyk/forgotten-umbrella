@@ -52,15 +52,15 @@
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
+      "type": "photo",
+      "file": "________.png"
+    },
+    {
       "type": "text",
       "text": {
         "ja": "この傘はマンションの入り口横の角に置かれている。目の前は そのマンションの駐車場だ。位置から判断すると、重い荷物を 運ぶ際に両手を空けるため、一時的に角に立てかけたと考えら れる。しかし、荷物を運び終えて車で出発する時に傘の存在を 忘れ、そのまま角に置き去りにされたのだ。",
         "en": "This umbrella is leaning against the corner near the apartment entrance. Directly in front is the building's parking space. Based on the position, it is likely the owner leaned the umbrella there to free up their hands while moving heavy items. However, after finishing the task and preparing to drive away, they forgot the umbrella and left it behind in the corner."
       }
-    },
-    {
-      "type": "photo",
-      "file": "pic_1.png"
     }
   ],
   // 这个标点下的媒体列表。第一项通常是主图。
@@ -83,11 +83,11 @@
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "pic_1",
+      "id": "________",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "pic_1.png",
+      "file": "________.png",
       // 角色。建议使用 primary、detail、illustration。
-      "role": "detail",
+      "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。
       "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。

@@ -52,7 +52,7 @@
   "blocks": [
     {
       "type": "photo",
-      "file": "pic_1.png"
+      "file": "_______.png"
     },
     {
       "type": "text",
@@ -82,9 +82,9 @@
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "pic_1",
+      "id": "_______",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "pic_1.png",
+      "file": "_______.png",
       // 角色。建议使用 primary、detail、illustration。
       "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。

@@ -97,6 +97,7 @@ function buildUmbrellaItem(recordPath, record) {
       story: record.story || "",
       blocks: Array.isArray(record.blocks) ? record.blocks : [],
       editFlag: record.editFlag || "",
+      linkedId: record.linkedId || "",
       categoryGroup,
       category,
       thumb: primary.legacyThumb || "",

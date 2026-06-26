@@ -195,6 +195,11 @@ export async function saveRecord(payload) {
     record.editFlag = ["yellow", "black", "white"].includes(payload.editFlag) ? payload.editFlag : "";
   }
 
+  // Optional hyperlink to another point (just its id; empty = no link).
+  if (Object.prototype.hasOwnProperty.call(payload, "linkedId")) {
+    record.linkedId = typeof payload.linkedId === "string" ? payload.linkedId.trim() : "";
+  }
+
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
     const coords = sanitizeCoordinates(payload.locationCoordinates);
     if (coords !== undefined) {
@@ -455,10 +460,23 @@ function sanitizeParas(value) {
   return value.map((p) => String(p ?? "").trim()).filter(Boolean);
 }
 
+function sanitizeAboutSection(value) {
+  return {
+    titleJa: String(value?.titleJa ?? "").trim(),
+    titleEn: String(value?.titleEn ?? "").trim(),
+    bodyJa: sanitizeParas(value?.bodyJa),
+    bodyEn: sanitizeParas(value?.bodyEn),
+  };
+}
+
 export async function saveTexts(payload) {
   const statsIntro = {
     ja: String(payload?.statsIntro?.ja ?? "").trim(),
     en: String(payload?.statsIntro?.en ?? "").trim(),
+  };
+  const about = {
+    section1: sanitizeAboutSection(payload?.about?.section1),
+    section2: sanitizeAboutSection(payload?.about?.section2),
   };
   const typeDescriptions = {};
   const incoming = payload?.typeDescriptions;
@@ -472,7 +490,7 @@ export async function saveTexts(payload) {
       typeDescriptions[key] = { ja: sanitizeParas(value?.ja), en: sanitizeParas(value?.en) };
     }
   }
-  const out = { statsIntro, typeDescriptions };
+  const out = { statsIntro, typeDescriptions, about };
   await fs.writeFile(textsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
   return { ok: true };
 }

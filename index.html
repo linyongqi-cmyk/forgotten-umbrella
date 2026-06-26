@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=85" />
+    <link rel="stylesheet" href="styles.css?v=88" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -80,31 +80,39 @@
             </div>
           </section>
 
-          <div class="map-top-tools" id="map-top-tools">
-            <button
-              id="toggle-list"
-              class="panel-toggle panel-toggle-left"
-              type="button"
-              aria-label="expand location list"
-              aria-controls="list-panel"
-              aria-expanded="false"
-              title="expand location list"
-            >
-              <span aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <rect x="3" y="4" width="18" height="4" rx="1" />
-                  <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" />
-                  <path d="M9.5 12h5" />
-                </svg>
-              </span>
+          <button
+            id="toggle-list"
+            class="panel-toggle panel-toggle-left"
+            type="button"
+            aria-label="expand location list"
+            aria-controls="list-panel"
+            aria-expanded="false"
+            title="expand location list"
+          >
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <rect x="3" y="4" width="18" height="4" rx="1" />
+                <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" />
+                <path d="M9.5 12h5" />
+              </svg>
+            </span>
+          </button>
+
+          <div class="map-layer-tools" id="map-layer-tools">
+            <button id="map-type-toggle" class="map-layer-btn" type="button" aria-label="switch to map" title="switch to map">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 3 3 7.5l9 4.5 9-4.5L12 3Z" />
+                <path d="M3 12.5 12 17l9-4.5" />
+                <path d="M3 16.5 12 21l9-4.5" />
+              </svg>
             </button>
 
-            <button id="map-type-toggle" class="map-type-toggle" type="button" aria-label="switch to map" title="switch to map">
-              Map
-            </button>
-
-            <button id="map-labels-toggle" class="map-labels-toggle" type="button" aria-label="toggle satellite labels" title="toggle satellite labels" hidden>
-              文字オン
+            <button id="map-labels-toggle" class="map-layer-btn" type="button" aria-label="toggle satellite labels" title="toggle satellite labels" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M5 6h14" />
+                <path d="M12 6v13" />
+                <path d="M8.5 19h7" />
+              </svg>
             </button>
           </div>
 
@@ -147,17 +155,20 @@
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
-            <button class="focus-close" id="focus-close" type="button" aria-label="close focus view" title="close focus view">
-              <span aria-hidden="true">×</span>
-            </button>
             <header class="focus-header" id="focus-header"></header>
             <div class="focus-scroll" id="focus-scroll">
               <div class="focus-image-frame">
                 <img id="focus-image" alt="" />
                 <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
               </div>
+              <div class="focus-link" id="focus-link" hidden></div>
               <figcaption id="focus-caption"></figcaption>
             </div>
+            <button class="focus-close" id="focus-close" type="button" aria-label="close focus view" title="collapse to the right">
+              <svg viewBox="0 0 64 24" aria-hidden="true" focusable="false">
+                <path d="M2 12h56M48 4l10 8-10 8" />
+              </svg>
+            </button>
           </figure>
 
           <div class="focus-thumbs" id="focus-thumbs" aria-label="image thumbnails" hidden></div>
@@ -185,30 +196,25 @@
         </section>
 
         <section class="about-view view" id="about-view" aria-label="about project">
-          <div class="about-copy">
-            <h2>短い滞在を、戻れる座標に</h2>
-            <span>
-              このプロトタイプは、忘れられた傘を場所・時間・天気・素材の四つの手がかりに分解します。現在の画像にはまだ仮の内容が含まれていますが、地図・アーカイブ・絞り込みの仕組みはすでに拡張でき、今後は実際の写真・取材テキスト・音声記録を直接組み込めます。
-            </span>
-          </div>
+          <div class="about-copy" id="about-copy"></div>
           <dl class="about-stats">
             <div>
               <dt id="stat-count">0</dt>
               <dd data-i18n="aboutStatLocations">記録された地点</dd>
             </div>
             <div>
-              <dt>2026</dt>
-              <dd data-i18n="aboutStatPrototype">プロトタイプ</dd>
+              <dt id="stat-submissions">0</dt>
+              <dd data-i18n="aboutStatSubmissions">投稿数</dd>
             </div>
             <div>
-              <dt>PWA</dt>
-              <dd data-i18n="aboutStatInstall">アプリとしてインストール可能</dd>
+              <dt id="stat-since">2025.03</dt>
+              <dd data-i18n="aboutStatSince">記録開始</dd>
             </div>
           </dl>
         </section>
       </main>
     </div>
 
-    <script src="app.js?v=85" type="module"></script>
+    <script src="app.js?v=88" type="module"></script>
   </body>
 </html>

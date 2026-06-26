@@ -53,15 +53,15 @@
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
+      "type": "photo",
+      "file": "_______.png"
+    },
+    {
       "type": "text",
       "text": {
         "ja": "見つけたのは既に午後で、ゴミ収集の時間は過ぎていた。全は 不燃ゴミの山の上に、ただ静かに横たわっていた。その様子か ら、ある光景が浮かぶ。収集車が去った後、まるで「泥棒」の ようにアイマスクをした小人が、足音を潜めてここに現れ、こ の傘をこっそり置いていったのではないか。収集時間を逃した 末の、滑稽な「秘密工作」の痕跡だ。",
         "en": "It was already afternoon when I found it, well past the collection time. The umbrella lay quietly atop a pile of non-burnable trash, looking somewhat out of place. The scene brings to mind a certain image: after the truck had gone, a small figure wearing an eyepatch—like a thief—sneaked over and quietly dropped the umbrella there. Having missed the official window, it was left behind as a remnant of this comical 'secret mission'."
       }
-    },
-    {
-      "type": "photo",
-      "file": "pic_1.png"
     }
   ],
   // 这个标点下的媒体列表。第一项通常是主图。
@@ -84,9 +84,9 @@
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "pic_1",
+      "id": "_______",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "pic_1.png",
+      "file": "_______.png",
       // 角色。建议使用 primary、detail、illustration。
       "role": "illustration",
       // 这张媒体自己的标题。没有就保持空字符串。

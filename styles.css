@@ -139,6 +139,14 @@ button {
   opacity: 1;
 }
 
+/* In dark mode the welcome artwork is inverted (用户要求：反向处理) so it reads
+   well against the dark background. */
+@media (prefers-color-scheme: dark) {
+  .welcome-card {
+    filter: invert(1);
+  }
+}
+
 .welcome-title:focus-visible .welcome-title-text,
 .welcome-screen.is-title-hovered .welcome-title-text {
   opacity: 0;
@@ -307,6 +315,40 @@ body.is-entered .welcome-screen {
   transform: scaleX(1);
 }
 
+/* #6: the map page always uses the dark-mode look regardless of the system
+   color scheme (so the detail overlay, search, etc. stay dark)… */
+#map-view {
+  color-scheme: dark;
+}
+
+/* …except the left sidebar and the floating map buttons, which keep following
+   the system light/dark preference. */
+#map-view .side-panel,
+#map-view .panel-toggle-left,
+#map-view .map-layer-tools,
+#map-view #reset-map {
+  color-scheme: light dark;
+}
+
+/* The top-right nav sits outside #map-view, so it's themed here directly: on the
+   map view it uses the dark look (light text over the dark satellite imagery),
+   and on the normal/roadmap map (light tiles) it turns black for legibility. */
+body.view-map .view-tabs {
+  color-scheme: dark;
+}
+
+body.view-map.is-roadmap .view-tabs .tab,
+body.view-map.is-roadmap .view-tabs .language-toggle {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+body.view-map.is-roadmap .view-tabs .tab:hover,
+body.view-map.is-roadmap .view-tabs .tab.is-active,
+body.view-map.is-roadmap .view-tabs .language-toggle:hover,
+body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle {
+  color: #000;
+}
+
 .language-switcher {
   position: relative;
 }
@@ -462,43 +504,52 @@ body.is-entered .welcome-screen {
   transform: none;
 }
 
-/* #4: the archive / Map / 文字 buttons sit in a top-left cluster, above the
-   detail blur, so they stay visible and clickable while a detail page is open. */
-.map-top-tools {
+/* The map / 文字 layer toggles sit as round icon buttons stacked at the bottom
+   left (#3). The archive (list) toggle sits on its own at the left-middle (#4,
+   see .panel-toggle-left). */
+.map-layer-tools {
   position: fixed;
-  top: 22px;
-  left: clamp(18px, 4vw, 42px);
-  z-index: 50;
+  left: 24px;
+  bottom: 28px;
+  z-index: 5;
   display: flex;
-  align-items: center;
+  flex-direction: column-reverse;
+  align-items: flex-start;
   gap: 10px;
 }
 
-.map-top-tools .panel-toggle-left,
-.map-top-tools .map-type-toggle,
-.map-top-tools .map-labels-toggle {
-  position: static;
-  left: auto;
-  right: auto;
-  top: auto;
-  bottom: auto;
-  transform: none;
+.map-layer-btn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
 }
 
-/* Shrink the round archive button so it lines up with the pill buttons. */
-.map-top-tools .panel-toggle-left {
-  width: 40px;
-  height: 40px;
+.map-layer-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.map-top-tools .panel-toggle-left span svg {
-  width: 20px;
-  height: 20px;
+.map-layer-btn[hidden] {
+  display: none;
 }
 
-.map-top-tools .map-type-toggle,
-.map-top-tools .map-labels-toggle {
-  min-height: 40px;
+.map-layer-btn.is-active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .panel-heading h2,
@@ -777,47 +828,6 @@ body.is-entered .welcome-screen {
   text-shadow: 0 1px 8px light-dark(rgba(255, 255, 255, 0.88), rgba(0, 0, 0, 0.7));
 }
 
-.map-type-toggle {
-  position: fixed;
-  left: 24px;
-  bottom: 28px;
-  z-index: 5;
-  min-width: 78px;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* Sits just above the base toggle; only visible while on satellite. */
-.map-labels-toggle {
-  position: fixed;
-  left: 24px;
-  bottom: 72px;
-  z-index: 5;
-  min-width: 78px;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.map-labels-toggle[hidden] {
-  display: none;
-}
-
 .city-map {
   position: absolute;
   inset: 0;
@@ -912,21 +922,40 @@ body.is-entered .welcome-screen {
     transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Close affordance: a long right-pointing arrow ("collapse to the right"),
+   replacing the old × button (用户要求). It sits in the panel footer, BELOW the
+   scrollable content (outside the scroll area), aligned to the right. */
 .focus-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  width: 36px;
-  height: 36px;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-top: 10px;
+  width: 64px;
+  height: 28px;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
-  background: rgba(20, 26, 25, 0.72);
-  color: #fff;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.65;
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: var(--shadow);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.focus-close:hover {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.focus-close svg {
+  width: 56px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
 
 .focus-image-frame {
@@ -990,7 +1019,31 @@ body.is-entered .welcome-screen {
 
 .focus-caption-inner {
   display: grid;
-  gap: 8px;
+  /* Paragraph spacing halved again per request (was 8px). */
+  gap: 4px;
+}
+
+/* Link to another point: sits at the bottom-right of the cover image (in flow,
+   not floating over it), blue + underlined. Hidden while the image is enlarged. */
+.focus-link {
+  width: 100%;
+  margin-top: 6px;
+  text-align: right;
+}
+
+.focus-link[hidden] {
+  display: none;
+}
+
+.focus-link-a {
+  color: #2f6fe0;
+  text-decoration: underline;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.focus-link-a:hover {
+  color: #1f55c0;
 }
 
 .focus-info-heading {
@@ -1092,6 +1145,7 @@ body.is-entered .welcome-screen {
    photo (and the side thumbnail rail) remain. */
 .focus-image-panel.is-expanded .focus-header,
 .focus-image-panel.is-expanded #focus-caption,
+.focus-image-panel.is-expanded .focus-link,
 .focus-image-panel.is-expanded .focus-close {
   display: none;
 }
@@ -1199,7 +1253,8 @@ body.is-entered .welcome-screen {
    enlarged (#10). */
 .topbar,
 .view-tabs,
-.map-top-tools {
+.panel-toggle-left,
+.map-layer-tools {
   transition:
     opacity 500ms ease,
     filter 500ms ease;
@@ -1210,7 +1265,8 @@ body.is-entered .welcome-screen {
    fades out over 500ms instead of disappearing instantly (#10). */
 body.is-image-expanded .topbar,
 body.is-image-expanded .view-tabs,
-body.is-image-expanded .map-top-tools,
+body.is-image-expanded .panel-toggle-left,
+body.is-image-expanded .map-layer-tools,
 body.is-image-expanded .side-panel {
   filter: blur(10px);
   opacity: 0;
@@ -1669,7 +1725,9 @@ body.edit-mode .card-edit {
 .archive-group {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.34);
+  /* Light: soft white panel. Dark: a faint near-black tint instead of the old
+     translucent white, which read as an ugly mid-gray over the dark canvas. */
+  background: light-dark(rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.045));
   overflow: hidden;
 }
 
@@ -1728,18 +1786,35 @@ body.edit-mode .card-edit {
   display: grid;
 }
 
-.about-copy span {
-  display: block;
-  margin-top: 18px;
+.about-section + .about-section {
+  margin-top: 40px;
+}
+
+.about-section-title {
+  margin: 0 0 14px;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 700;
   color: var(--ink);
-  font-size: 18px;
+}
+
+.about-para {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 17px;
   line-height: 1.9;
+}
+
+.about-para.is-justify {
+  text-align: justify;
 }
 
 .about-stats {
   display: grid;
   gap: 12px;
-  margin: 0;
+  /* #6: nudge the stats column down so its top lines up with the first body
+     paragraph (just under the first section title), not the very top. */
+  margin: 43px 0 0;
 }
 
 .about-stats div {
@@ -1854,7 +1929,7 @@ body.edit-mode .card-edit {
     bottom: 32px;
   }
 
-  .map-type-toggle {
+  .map-layer-tools {
     left: 18px;
     bottom: 32px;
   }
@@ -1930,7 +2005,7 @@ body.edit-mode .card-edit {
     bottom: 28px;
   }
 
-  .map-type-toggle {
+  .map-layer-tools {
     left: 14px;
     bottom: 28px;
   }
@@ -1956,6 +2031,15 @@ body.edit-mode .card-edit {
   z-index: 1400;
   display: flex;
   gap: 10px;
+}
+
+/* The whole local editor UI is always light mode (用户要求). */
+.editor-toolbar,
+.editor-add,
+.editor-add-category,
+.editor-toast,
+.texts-editor-overlay {
+  color-scheme: light;
 }
 
 .editor-toggle {
@@ -2110,6 +2194,9 @@ body.edit-mode .map-stage {
   flex-direction: column;
   width: min(380px, 92vw);
   height: 100%;
+  /* The editor is always light mode, never dark (用户要求) — forces every nested
+     light-dark()/var(--ink) (inputs, the live preview) to its light value. */
+  color-scheme: light;
   background: #f4f3ed;
   border-left: 1px solid rgba(31, 45, 45, 0.18);
   box-shadow: -10px 0 30px rgba(31, 45, 45, 0.18);
@@ -2677,6 +2764,13 @@ body:not(.edit-mode) .editor-add-category {
   cursor: zoom-in;
 }
 
+/* Illustrations are usually transparent PNGs — kill the inherited drop-shadow so
+   it doesn't paint a rectangular halo around the transparent edges (用户要求). */
+.focus-photo.is-illustration img {
+  box-shadow: none;
+  border-radius: 0;
+}
+
 /* #2/#3: the photo caption (title, id, time) overlays the bottom-right corner of
    the image — same look as the enlarged-image caption (.focus-expanded-caption). */
 .focus-photo figcaption,
@@ -2802,6 +2896,8 @@ body:not(.edit-mode) .editor-add-category {
   width: min(360px, 92vw);
   box-sizing: border-box;
   padding: 16px;
+  /* Always light mode (用户要求) — keeps the rendered detail preview readable. */
+  color-scheme: light;
   background: #f4f3ed;
   border-right: 1px solid rgba(31, 45, 45, 0.18);
   box-shadow: 10px 0 30px rgba(31, 45, 45, 0.18);
@@ -2911,6 +3007,15 @@ body:not(.edit-mode) .editor-add-category {
   line-height: var(--detail-meta-line);
   margin: 2px 0 0;
   color: var(--ink);
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+/* The address wraps only at commas (break points injected as <wbr> in JS) and is
+   capped at 70% of the panel/image width (用户要求). */
+.focus-header .focus-meta-address {
+  max-width: 70%;
 }
 
 .focus-image-panel figcaption .item-detail,
@@ -2920,9 +3025,9 @@ body:not(.edit-mode) .editor-add-category {
 }
 
 /* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。
-   .focus-caption-inner 已有 8px 的 grid gap，这里只补一点点段间距。 */
+   .focus-caption-inner 有 4px 的 grid gap，这里再补一点点段间距（已减半）。 */
 .focus-image-panel figcaption .item-story {
-  margin: 0 0 0.25em;
+  margin: 0 0 0.12em;
 }
 
 .focus-image-panel figcaption .item-story.is-justify {
