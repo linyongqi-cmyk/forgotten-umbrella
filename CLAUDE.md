@@ -1,6 +1,6 @@
 # CLAUDE.md — Forgotten Umbrella 项目说明（给 AI 的常驻指南）
 
-> 这个文件会被 Claude Code 自动读取。新会话**先读这里**，再看 `交接.md`（当前进度/待办）和 `修改记录.md`（改动历史）。
+> 这个文件会被 Claude Code 自动读取。新会话**先读这里**，再看 `交接.md`（当前进度/待办，每次交接**重写**、只留最近 5 轮）。`修改记录.md`（改动历史）**只在确实要查历史时才读**，平时不用读。
 > 用户是**非技术小白**，请用最普通易懂的中文沟通，解释任何文件/命令先说"它是干嘛的"。
 
 ## 这是什么项目
@@ -11,11 +11,11 @@
 - 改了 `filebox/records/**/record.json` 后要重建：`npm run records:build`（输出 `data/umbrellas.json`）。
 - 把所有 record.json 规范化成带中文注释格式：`npm run records:format`。
 - **本地编辑器通过 API 保存时会自动重建**，只有手改 record.json 才需要手动 build。
-- 预览用 Claude Preview MCP 的 `preview_*` 工具（`.claude/launch.json` 已配置，启动命令是 `node server.js`）。改了 `scripts/editor-api.mjs` 后要**杀掉 node 进程重启**（它是动态 import，有缓存）。
+- 预览用 Claude Preview MCP 的 `preview_*` 工具。`.claude/launch.json` 已配置；**Mac 上 node 写的是绝对路径**（`/Users/eiki/.local/node-vXX/bin/node`，不能用符号链接，否则预览报 spawn 失败），以后升级 Node 换了目录要回来改这行。改了 `scripts/editor-api.mjs` 后要**杀掉 node 进程重启**（它是动态 import，有缓存）——Mac 上：`pkill -f "node server.js"`。
 
 ## 架构与数据流
-- 前端：`index.html` + `app.js`(~2800行) + `styles.css`；PWA：`sw.js` + `manifest.json`。
-- 真源：`filebox/records/<category>(<group>)/<id>/record.json`（76 条）→ `scripts/build-umbrellas.mjs` 聚合成 `data/umbrellas.json`（前端读取，**自动生成物，勿手改**）。
+- 前端：`index.html` + `app.js`(~4700行) + `styles.css`；PWA：`sw.js` + `manifest.json`。
+- 真源：`filebox/records/<category>(<group>)/<id>/record.json`（71 条）→ `scripts/build-umbrellas.mjs` 聚合成 `data/umbrellas.json`（前端读取，**自动生成物，勿手改**）。
 - **本地编辑器**：只在 `127.0.0.1`（本机）出现（`IS_LOCAL`），线上完全不渲染。后端 = `server.js` + `scripts/editor-api.mjs`，提供只对本机生效的 `/api/*` 接口（save-record / upload-image / delete-image / create-record / delete-record / move-record / save-texts）。
 - `data/japan-areas.json`：全日本地址数据（47 都道府县→市→区，日英双语，英文已译后缀：Kyoto / Kyoto City / Minami Ward），用于编辑器地址级联下拉。来源是用户的 KEN_ALL_ROME xlsx。
 - `data/texts.json`：可编辑的 UI 文案（双语 ja/en）——9 个类型说明文 + 统计页说明文。前端启动 fetch 读取（不是 record 生成物，**直接改它就是源**，不需 build）。本地「文 文案編集」面板（左上，仅 127.0.0.1）改完走 `/api/save-texts` 写回。**不要再在 app.js 里硬编码这些文案**。
@@ -42,14 +42,15 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v82**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v91**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。
 2. 分析**隐藏需求**。
 3. 每个任务结束给**小结**。
 4. **不用每次都问"是否存档"或"打开预览网址"**（用户 2026-06-23 定）。在合适的检查点（如一批活做完、或要做有风险的数据改动前）**直接 git commit 存档**即可，不必询问；预览链接只在确实需要用户看时再给。
-5. **每次改过文件就更新 `修改记录.md`**（最上面追加，绝对日期，大白话，尽量简短）。
+5. **每次改过文件就更新 `修改记录.md`**（最上面追加，绝对日期，大白话，尽量简短）。但 `修改记录.md` **只在需要查历史时才读**，平时别读。
+6. **`交接.md` 每次交接时重写**，只保留**最近 5 轮**的修改，更早的不留（历史去 `修改记录.md` 查）。
 - 原型期：**只本地开发**；「存档」=本地 `git commit`（直接提交 main，单人不开分支）；**只有用户说"上线/同步"才 push**。
 - `filebox/records` 的图片（~413MB）随仓库；`filebox/choice` 已 gitignore。
 - **数据是用户真实录入的，绝不能随意删除/清空**（删前必先核对）。
