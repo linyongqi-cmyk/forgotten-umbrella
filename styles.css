@@ -2987,6 +2987,14 @@ body:not(.edit-mode) .editor-add-category {
   overflow: hidden;
 }
 
+/* 详情页文字全部强制白色（用户要求）——不管系统深浅色，ID/标题/地点/时间/
+   INFORMATION/正文一律白字。唯一例外是关联标点的蓝色跳转链接（.focus-link），
+   保留其原有颜色以维持可点击的视觉提示。 */
+.focus-image-panel,
+.focus-image-panel *:not(.focus-link):not(.focus-link *) {
+  color: #fff !important;
+}
+
 .focus-header {
   flex-shrink: 0;
   padding-bottom: 8px;
