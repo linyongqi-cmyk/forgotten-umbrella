@@ -861,6 +861,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-blur {
+  color-scheme: dark;
   --focus-x: 23vw;
   --focus-y: 50vh;
   --focus-radius: 138px;
@@ -890,6 +891,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-image-panel {
+  color-scheme: dark;
   --image-zoom: 1;
   --image-pan-x: 0px;
   --image-pan-y: 0px;
@@ -1780,6 +1782,7 @@ body.edit-mode .card-edit {
   grid-template-columns: minmax(0, 700px) minmax(260px, 380px);
   gap: clamp(28px, 7vw, 90px);
   align-items: start;
+  justify-content: space-between;
 }
 
 .about-view.is-active {

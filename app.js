@@ -3250,7 +3250,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=88", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=89", { updateViaCache: "none" });
   }
 }
 
