@@ -892,6 +892,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 .focus-image-panel {
   color-scheme: dark;
+  /* --ink/--muted 是在 :root 用 light-dark() 声明的，会在 :root（浅色系统）就
+     固化成黑字再继承下来，单靠 color-scheme:dark 不会重新解析。所以这里把详情
+     面板用到的文字变量直接覆写成深色模式（浅字）的值，保证 ID/标题恒为浅色。 */
+  --ink: #f4f1ea;
+  --muted: #a7aaa4;
   --image-zoom: 1;
   --image-pan-x: 0px;
   --image-pan-y: 0px;
