@@ -23,6 +23,7 @@ const state = {
   // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
   statsY: "object",
+  statsScope: "own",
   // 統計 overview table (item 6): default order is by IMG name. date/type/area are
   // click-to-sort columns (asc/desc). object/state are single-value dropdown
   // filters opened from their header ("all" = no filter); overviewMenuOpen tracks
@@ -132,6 +133,12 @@ const UI_TEXT = {
   labelsOff: { ja: "文字オフ", en: "Labels off" },
   labelsHintShow: { ja: "衛星写真に文字を表示", en: "Show satellite labels" },
   labelsHintHide: { ja: "衛星写真の文字を非表示", en: "Hide satellite labels" },
+  // Contributed-umbrella detail-page bits (投稿の傘の詳細ページ用).
+  contributedBadge: { ja: "投稿", en: "Contributed" },
+  submitterCredit: { ja: "投稿者", en: "Contributed by" },
+  approxPrefix: { ja: "約 ", en: "approx. " },
+  statsScopeOwn: { ja: "自分で撮影", en: "My own" },
+  statsScopeContributed: { ja: "投稿", en: "Contributed" },
 };
 
 // Static UI labels in the HTML carry a data-i18n="key" attribute; applyLanguage
@@ -262,6 +269,7 @@ const els = {
   mapTypeToggle: document.querySelector("#map-type-toggle"),
   mapLabelsToggle: document.querySelector("#map-labels-toggle"),
   statCount: document.querySelector("#stat-count"),
+  statSubmissions: document.querySelector("#stat-submissions"),
   mapView: document.querySelector("#map-view"),
   toggleList: document.querySelector("#toggle-list"),
   archiveModeControls: document.querySelectorAll("[data-archive-mode]"),
@@ -663,6 +671,14 @@ function bindEvents() {
   // 統計 overview (item 6): date/type/area headers sort (toggle direction on a
   // repeat click); object/state headers open a single-value filter dropdown.
   els.archiveContent?.addEventListener("click", (event) => {
+    // 統計 scope toggle: 自己拍的 / 投稿 — switch which stat set is shown.
+    const scopeBtn = event.target.closest?.("[data-stats-scope]");
+    if (scopeBtn) {
+      state.statsScope = scopeBtn.dataset.statsScope === "contributed" ? "contributed" : "own";
+      state.overviewMenuOpen = null;
+      renderArchive();
+      return;
+    }
     const sortHead = event.target.closest?.("[data-overview-sort]");
     if (sortHead) {
       const key = sortHead.dataset.overviewSort;
@@ -1346,6 +1362,12 @@ function render() {
   if (els.statCount) {
     els.statCount.textContent = String(state.umbrellas.length);
   }
+  // 投稿数 = how many points came from outside contributions.
+  if (els.statSubmissions) {
+    els.statSubmissions.textContent = String(
+      state.umbrellas.filter((item) => item.submissionType === "contributed").length,
+    );
+  }
 }
 
 // Tracks the last sidebar-list click so we can detect a double-click manually: a
@@ -1565,10 +1587,24 @@ function formatAddressBreaks(text) {
 function renderFocusHeader(item) {
   const title = localize(item.title);
   const focusTitle = title ? `${item.id}(${title})` : item.id;
+  // Contributed umbrellas: show a small badge, mark approximate place/time with
+  // a "约 / approx." prefix, and credit the submitter.
+  const isContributed = item.submissionType === "contributed";
+  const badge = isContributed
+    ? ` <span class="focus-badge">${escapeHtml(UI_TEXT.contributedBadge[state.lang])}</span>`
+    : "";
+  const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix[state.lang]) : "");
+  const credit =
+    isContributed && item.submitter
+      ? `<p class="focus-meta focus-credit">${escapeHtml(UI_TEXT.submitterCredit[state.lang])}${
+          state.lang === "ja" ? "：" : ": "
+        }${escapeHtml(item.submitter)}</p>`
+      : "";
   return `
-    <h3 class="focus-title">${escapeHtml(focusTitle)}</h3>
-    ${item.location ? `<p class="focus-meta focus-meta-address">${formatAddressBreaks(item.location)}</p>` : ""}
-    ${formatDateTime(item.time) ? `<p class="focus-meta">${escapeHtml(formatDateTime(item.time))}</p>` : ""}
+    <h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>
+    ${item.location ? `<p class="focus-meta focus-meta-address">${approx(item.locationApprox)}${formatAddressBreaks(item.location)}</p>` : ""}
+    ${formatDateTime(item.time) ? `<p class="focus-meta">${approx(item.timeApprox)}${escapeHtml(formatDateTime(item.time))}</p>` : ""}
+    ${credit}
   `;
 }
 
@@ -1631,6 +1667,18 @@ function renderFocusArticle(item) {
     })
     .join("");
 
+  // Contributed umbrellas may carry the submitter's own words; show them as a
+  // quote at the top of the scrollable body (kept as-is, in their language).
+  const noteHtml =
+    item.submissionType === "contributed" && item.submitterNote
+      ? `<blockquote class="focus-note">${item.submitterNote
+          .split(/\n+/)
+          .map((para) => para.trim())
+          .filter(Boolean)
+          .map((para) => `<p>${escapeHtml(para)}</p>`)
+          .join("")}</blockquote>`
+      : "";
+
   const infoHtml = infoRows.length
     ? `<h4 class="focus-info-heading">information</h4>
       <div class="focus-info">
@@ -1648,6 +1696,7 @@ function renderFocusArticle(item) {
   return `
     <div class="focus-caption-inner">
       ${infoHtml}
+      ${noteHtml}
       ${blocksHtml}
     </div>
   `;
@@ -1681,9 +1730,16 @@ const STATS_TYPE_ORDER = [
 // One row per umbrella (umbrellaUnits entry). A record with no units counts once
 // so every photo is represented. `state` is multi-valued (a unit can have several
 // status flags), the rest are single-valued.
-function buildStatsUnits() {
+// Items belonging to a stats scope: own (作者自己拍的) vs contributed (投稿).
+function statsScopeItems(scope) {
+  return state.umbrellas.filter((item) =>
+    scope === "contributed" ? item.submissionType === "contributed" : item.submissionType !== "contributed",
+  );
+}
+
+function buildStatsUnits(items) {
   const units = [];
-  state.umbrellas.forEach((item) => {
+  (items || state.umbrellas).forEach((item) => {
     // Count=unknown: we don't know how many umbrellas there are, so the record
     // is excluded from the cross-tab counts entirely (item 5). A record with a
     // numeric count whose colour/kind is unknown is still counted (we know it's
@@ -1773,10 +1829,24 @@ function renderStats() {
   const intro = TEXTS.statsIntro[state.lang] || TEXTS.statsIntro.ja || TEXTS.statsIntro.en || "";
   // 大段正文：日语两边对齐，英语左对齐（[[text-justify-rule]]）。
   const introJustify = state.lang === "ja" ? " is-justify" : "";
+  // Two parallel stat sets — 自己拍的 (own) and 投稿 (contributed) — switched by
+  // the buttons below. Each scope gets its own full cross-tab + overview.
+  const scope = state.statsScope === "contributed" ? "contributed" : "own";
+  const ownItems = statsScopeItems("own");
+  const contribItems = statsScopeItems("contributed");
+  const scopeItems = scope === "contributed" ? contribItems : ownItems;
+  const scopeBtn = (key, items) =>
+    `<button type="button" class="stats-scope-btn${
+      scope === key ? " is-active" : ""
+    }" data-stats-scope="${key}">${escapeHtml(
+      UI_TEXT[key === "own" ? "statsScopeOwn" : "statsScopeContributed"][state.lang],
+    )}（${items.length}）</button>`;
+  const tabs = `<div class="stats-scope">${scopeBtn("own", ownItems)}${scopeBtn("contributed", contribItems)}</div>`;
   els.archiveContent.innerHTML = `
     <p class="stats-intro${introJustify}">${escapeHtml(intro)}</p>
-    ${renderStatsPivot(buildStatsUnits())}
-    ${renderStatsOverview()}
+    ${tabs}
+    ${renderStatsPivot(buildStatsUnits(scopeItems))}
+    ${renderStatsOverview(scopeItems)}
   `;
   positionOverviewMenu();
 }
@@ -1975,8 +2045,8 @@ function overviewFilterHead(field, label, values) {
 // Flat overview, one row per umbrella (item 6). date / type / area headers sort
 // (click to toggle direction); object / state headers open a single-value filter
 // dropdown. The IMG cell jumps to that record's map detail on double-click (#7).
-function renderStatsOverview() {
-  const allRows = state.umbrellas.flatMap(overviewRowsForItem);
+function renderStatsOverview(items) {
+  const allRows = (items || state.umbrellas).flatMap(overviewRowsForItem);
 
   const filters = state.overviewFilters;
   const filtered = allRows.filter(
@@ -3250,7 +3320,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=91", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=92", { updateViaCache: "none" });
   }
 }
 
@@ -3343,6 +3413,44 @@ function setupEditor() {
   catRow.appendChild(editor.category);
   body.appendChild(catRow);
   editor.category.addEventListener("change", onCategoryChange);
+
+  // Submission origin: 自己拍的 (own) vs 投稿的伞 (contributed). Switching to
+  // contributed reveals the credit + "approximate" helpers below, and changes
+  // how the detail page / stats treat this point.
+  const sourceRow = document.createElement("div");
+  sourceRow.className = "editor-row";
+  sourceRow.innerHTML = `
+    <span>来源 Source</span>
+    <div class="editor-source">
+      <label><input type="radio" name="editor-source" value="own" checked /> 自己拍的</label>
+      <label><input type="radio" name="editor-source" value="contributed" /> 投稿的伞</label>
+    </div>`;
+  body.appendChild(sourceRow);
+  editor.sourceRadios = sourceRow.querySelectorAll('input[name="editor-source"]');
+
+  // Contributed-only fields (hidden unless 来源 = 投稿的伞).
+  const contribRow = document.createElement("div");
+  contribRow.className = "editor-row editor-contrib";
+  contribRow.hidden = true;
+  contribRow.innerHTML = `
+    <span>投稿信息 Submission（仅投稿伞）</span>
+    <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
+    <input class="editor-submission-channel" placeholder="投稿渠道/日期（仅内部管理，如 微信 2025-06）" />
+    <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>
+    <label class="editor-check"><input type="checkbox" class="editor-loc-approx" /> 地点只是大概（详情页地点前加「约」）</label>
+    <label class="editor-check"><input type="checkbox" class="editor-time-approx" /> 时间只是大概（详情页时间前加「约」）</label>`;
+  body.appendChild(contribRow);
+  editor.contribRow = contribRow;
+  editor.submitter = contribRow.querySelector(".editor-submitter");
+  editor.submissionChannel = contribRow.querySelector(".editor-submission-channel");
+  editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
+  editor.locApprox = contribRow.querySelector(".editor-loc-approx");
+  editor.timeApprox = contribRow.querySelector(".editor-time-approx");
+  editor.sourceRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      contribRow.hidden = getEditorSource() !== "contributed";
+    });
+  });
 
   // Marker flag (a colour to find points that still need work; edit-mode only).
   const flagRow = document.createElement("div");
@@ -3537,6 +3645,18 @@ function setupEditor() {
   document.body.appendChild(addCategory);
   editor.addCategory = addCategory;
   populateCategorySelects();
+
+  // Source picker for the next "new point": 自己拍的 / 投稿的伞. Creating a
+  // contributed point seeds submissionType + "approximate" flags so batch
+  // entry of contributed umbrellas is one click.
+  const addSource = document.createElement("select");
+  addSource.className = "editor-add-source";
+  addSource.title = "新增标点的来源";
+  addSource.innerHTML = `
+    <option value="own">自己拍的</option>
+    <option value="contributed">投稿的伞</option>`;
+  document.body.appendChild(addSource);
+  editor.addSource = addSource;
 
   // Live detail-page preview shown on the left while editing.
   const preview = document.createElement("aside");
@@ -4259,6 +4379,11 @@ function populateLinkedSelect(currentId, selectedLinkedId) {
   editor.linkedId.value = selectedLinkedId || "";
 }
 
+function getEditorSource() {
+  const checked = Array.from(editor.sourceRadios || []).find((radio) => radio.checked);
+  return checked ? checked.value : "own";
+}
+
 function openEditor(id) {
   const raw = getRawById(id);
   if (!raw) {
@@ -4280,6 +4405,17 @@ function openEditor(id) {
   const rawTitle = raw.title;
   editor.titleJa.value = rawTitle && typeof rawTitle === "object" ? rawTitle.ja || "" : rawTitle || "";
   editor.titleEn.value = rawTitle && typeof rawTitle === "object" ? rawTitle.en || "" : "";
+  // Submission origin + contributed-only fields.
+  const submissionType = raw.submissionType === "contributed" ? "contributed" : "own";
+  editor.sourceRadios.forEach((radio) => {
+    radio.checked = radio.value === submissionType;
+  });
+  editor.contribRow.hidden = submissionType !== "contributed";
+  editor.submitter.value = raw.submitter || "";
+  editor.submissionChannel.value = raw.submissionChannel || "";
+  editor.submitterNote.value = raw.submitterNote || "";
+  editor.locApprox.checked = Boolean(raw.locationApprox);
+  editor.timeApprox.checked = Boolean(raw.timeApprox);
   populateLinkedSelect(id, raw.linkedId || "");
   // Smart-default placeholders (what the public site falls back to when blank).
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
@@ -4378,6 +4514,12 @@ async function saveEditor() {
   });
   payload.title = { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() };
   payload.linkedId = editor.linkedId ? editor.linkedId.value : "";
+  payload.submissionType = getEditorSource();
+  payload.submitter = editor.submitter.value;
+  payload.submissionChannel = editor.submissionChannel.value;
+  payload.submitterNote = editor.submitterNote.value;
+  payload.locationApprox = editor.locApprox.checked;
+  payload.timeApprox = editor.timeApprox.checked;
   payload.locationLevels = collectLevelsForSave();
   payload.umbrellaCount = editor.count.value;
   payload.umbrellaUnits = collectUnitsForSave();
@@ -4499,7 +4641,16 @@ async function onCreateRecord(event) {
     const center = state.map?.getCenter?.();
     const coordinates = center ? { lat: center.lat(), lng: center.lng() } : null;
     const category = editor.addCategory?.value || "unknown";
-    const result = await apiPost("/api/create-record", { filename: file.name, dataBase64, coordinates, category });
+    const source = editor.addSource?.value === "contributed" ? "contributed" : "own";
+    // Contributed points usually only have a rough location/time, so default
+    // both "approximate" flags on (the editor can untick them).
+    const createPayload = { filename: file.name, dataBase64, coordinates, category };
+    if (source === "contributed") {
+      createPayload.submissionType = "contributed";
+      createPayload.locationApprox = true;
+      createPayload.timeApprox = true;
+    }
+    const result = await apiPost("/api/create-record", createPayload);
     state.umbrellas = await loadUmbrellaData();
     if (!state.editMode) {
       toggleEditMode();

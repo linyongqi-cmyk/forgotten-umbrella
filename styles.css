@@ -1433,6 +1433,31 @@ body.editor-open .archive-view {
   text-align: justify;
 }
 
+/* 統計 scope toggle: 自己拍的 / 投稿. The active button is filled. */
+.stats-scope {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 24px;
+  flex-wrap: wrap;
+}
+
+.stats-scope-btn {
+  padding: 6px 14px;
+  border: 1px solid rgba(31, 45, 45, 0.3);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.stats-scope-btn.is-active {
+  background: #1f2d2d;
+  color: #f4f3ed;
+  border-color: #1f2d2d;
+}
+
 .stats-block {
   margin: 0 0 40px;
 }
@@ -2266,6 +2291,33 @@ body.edit-mode .map-stage {
   resize: vertical;
 }
 
+/* Source toggle (自己拍 / 投稿) + contributed-only checkboxes: keep the radio
+   and checkbox inputs at their natural size instead of the 100%-wide default. */
+.editor-source {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.editor-source label,
+.editor-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.editor-source input,
+.editor-check input {
+  width: auto;
+  margin: 0;
+}
+
+.editor-contrib {
+  border-left: 3px solid #6f8f86;
+  padding-left: 10px;
+}
+
 .editor-levels {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2393,6 +2445,26 @@ body:not(.edit-mode) .editor-add {
 }
 
 body:not(.edit-mode) .editor-add-category {
+  display: none;
+}
+
+.editor-add-source {
+  position: fixed;
+  left: 18px;
+  top: 196px;
+  z-index: 1400;
+  max-width: 200px;
+  padding: 6px 10px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 999px;
+  background: #f4f3ed;
+  color: #1f2d2d;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(31, 45, 45, 0.2);
+}
+
+body:not(.edit-mode) .editor-add-source {
   display: none;
 }
 
@@ -3032,6 +3104,41 @@ body:not(.edit-mode) .editor-add-category {
    capped at 70% of the panel/image width (用户要求). */
 .focus-header .focus-meta-address {
   max-width: 70%;
+}
+
+/* Contributed-umbrella detail bits: a small "投稿" pill next to the title, an
+   italic submitter credit, and the submitter's quoted note in the body. They
+   inherit the surrounding text colour (white on the detail page). */
+.focus-header .focus-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.62em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.focus-header .focus-credit {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.focus-image-panel figcaption .focus-note {
+  margin: 0.4em 0 0.6em;
+  padding-left: 10px;
+  border-left: 2px solid currentColor;
+  font-size: var(--detail-body-size);
+  line-height: var(--detail-body-line);
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.focus-image-panel figcaption .focus-note p {
+  margin: 0 0 0.2em;
 }
 
 .focus-image-panel figcaption .item-detail,

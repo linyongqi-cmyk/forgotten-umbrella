@@ -200,6 +200,21 @@ export async function saveRecord(payload) {
     record.linkedId = typeof payload.linkedId === "string" ? payload.linkedId.trim() : "";
   }
 
+  // Submission origin (own vs contributed) + contributed-only metadata.
+  if (Object.prototype.hasOwnProperty.call(payload, "submissionType")) {
+    record.submissionType = payload.submissionType === "contributed" ? "contributed" : "own";
+  }
+  for (const field of ["submitter", "submissionChannel", "submitterNote"]) {
+    if (Object.prototype.hasOwnProperty.call(payload, field)) {
+      record[field] = String(payload[field] ?? "").trim();
+    }
+  }
+  for (const field of ["locationApprox", "timeApprox"]) {
+    if (Object.prototype.hasOwnProperty.call(payload, field)) {
+      record[field] = Boolean(payload[field]);
+    }
+  }
+
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
     const coords = sanitizeCoordinates(payload.locationCoordinates);
     if (coords !== undefined) {
@@ -392,6 +407,12 @@ export async function createRecord(payload) {
     umbrellaType: "",
     umbrellaColor: "",
     umbrellaStatus: "",
+    submissionType: payload.submissionType === "contributed" ? "contributed" : "own",
+    submitter: typeof payload.submitter === "string" ? payload.submitter.trim() : "",
+    submissionChannel: typeof payload.submissionChannel === "string" ? payload.submissionChannel.trim() : "",
+    submitterNote: typeof payload.submitterNote === "string" ? payload.submitterNote.trim() : "",
+    locationApprox: Boolean(payload.locationApprox),
+    timeApprox: Boolean(payload.timeApprox),
     story: "",
     media: [{ id, file: filename, role: "primary", title: "", photoTime: "", story: "", legacyThumb: "" }],
   };
