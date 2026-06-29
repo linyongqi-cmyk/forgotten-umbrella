@@ -38,8 +38,12 @@
   "submitter": "LYUCHEN",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
+  // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
+  "submissionTime": "2026.04.23 22:36",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "編者:これ、めっちゃシュールで面白いね。(笑)\n投稿者: ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者: 夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者: もしかして誰かの傘を拾って、そのまま…………………。\n編者: やばい、それはちょっと悪いね。(笑)\nEditor: Haha, this is so absurd-it's really interesting.\nSender: It's actually hilarious. I just happened to pass by and saw an umbrella hanging on a tree. It's hard to imagine how it even got up there. Were they that drunk?\nEditor: Feels like one of those \"let's try this\" ideas someone had on the way home after drinking at night.\nSender: Maybe they picked up someone else's umbrella and then...\nEditor: Haha, that's kind of evil.\n\n[2026.04.24]\n投稿者:まだあそこにあるよ!\n編者:葉っぱも出てきたのに、まだある!\n投稿者:春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!\nSender: It's still there!\nEditor: Even though the leaves have started to grow in, it's still hanging on!\nSender: Looks like we'll be able to document it through all four seasons. I can't believe it was hanging on such a tiny branch. It's so resilient. It really is a miracle umbrella!",
+  // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
+  "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。

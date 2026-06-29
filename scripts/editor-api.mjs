@@ -204,7 +204,7 @@ export async function saveRecord(payload) {
   if (Object.prototype.hasOwnProperty.call(payload, "submissionType")) {
     record.submissionType = payload.submissionType === "contributed" ? "contributed" : "own";
   }
-  for (const field of ["submitter", "submissionChannel", "submitterNote"]) {
+  for (const field of ["submitter", "submissionChannel", "submissionTime", "submitterNote", "remarks"]) {
     if (Object.prototype.hasOwnProperty.call(payload, field)) {
       record[field] = String(payload[field] ?? "").trim();
     }

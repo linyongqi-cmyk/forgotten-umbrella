@@ -24,6 +24,8 @@ const state = {
   statsX: "type",
   statsY: "object",
   statsScope: "own",
+  contributedSort: "submission",
+  contributedOrder: "desc",
   // 統計 overview table (item 6): default order is by IMG name. date/type/area are
   // click-to-sort columns (asc/desc). object/state are single-value dropdown
   // filters opened from their header ("all" = no filter); overviewMenuOpen tracks
@@ -137,7 +139,7 @@ const UI_TEXT = {
   contributedBadge: { ja: "投稿", en: "Contributed" },
   submitterCredit: { ja: "投稿者", en: "Contributed by" },
   approxPrefix: { ja: "約 ", en: "approx. " },
-  statsScopeOwn: { ja: "自分で撮影", en: "My own" },
+  statsScopeOwn: { ja: "オリジナル", en: "Original" },
   statsScopeContributed: { ja: "投稿", en: "Contributed" },
 };
 
@@ -264,6 +266,7 @@ const els = {
   focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
   focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
+  contributedContent: document.querySelector("#contributed-content"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
@@ -728,6 +731,28 @@ function bindEvents() {
       return;
     }
     // 統計 overview: double-clicking an IMG cell jumps to its map detail (#7).
+    const idCell = event.target.closest?.("[data-overview-id]");
+    if (idCell?.dataset.overviewId) {
+      jumpToMapLocation(idCell.dataset.overviewId);
+    }
+  });
+
+  // Archive (contributed): sort buttons re-sort; double-clicking IMG jumps to map.
+  els.contributedContent?.addEventListener("click", (event) => {
+    const sortBtn = event.target.closest?.("[data-contrib-sort]");
+    if (!sortBtn) {
+      return;
+    }
+    const key = sortBtn.dataset.contribSort;
+    if (state.contributedSort === key) {
+      state.contributedOrder = state.contributedOrder === "asc" ? "desc" : "asc";
+    } else {
+      state.contributedSort = key;
+      state.contributedOrder = key === "location" ? "asc" : "desc";
+    }
+    renderContributedArchive();
+  });
+  els.contributedContent?.addEventListener("dblclick", (event) => {
     const idCell = event.target.closest?.("[data-overview-id]");
     if (idCell?.dataset.overviewId) {
       jumpToMapLocation(idCell.dataset.overviewId);
@@ -1355,6 +1380,7 @@ function render() {
   renderMapMarkers(items);
   renderFocusImage();
   renderArchive();
+  renderContributedArchive();
 
   if (els.resultCount) {
     els.resultCount.textContent = `${items.length} item`;
@@ -1607,25 +1633,33 @@ function renderFocusHeader(item) {
           state.lang === "ja" ? "：" : ": "
         }${escapeHtml(item.submitter)}</p>`
       : "";
+  // Contributed times are rough/free-text — use the unified loose-date format
+  // (slash separators, no stray 00:00); own times stay on the ISO formatter.
+  const timeText = isContributed ? formatLooseDate(item.time) : formatDateTime(item.time);
   return `
     <h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>
     ${item.location ? `<p class="focus-meta focus-meta-address">${approx(item.locationApprox)}${formatAddressBreaks(item.location)}</p>` : ""}
-    ${formatDateTime(item.time) ? `<p class="focus-meta">${approx(item.timeApprox)}${escapeHtml(formatDateTime(item.time))}</p>` : ""}
+    ${timeText ? `<p class="focus-meta">${approx(item.timeApprox)}${escapeHtml(timeText)}</p>` : ""}
     ${credit}
   `;
 }
 
 function renderFocusArticle(item) {
+  // Contributed umbrellas don't show the type/object/state INFORMATION grid
+  // (their category is "submission(pending)" and umbrella details are usually
+  // unknown) — they rely on the submitter credit + note instead (用户要求).
   const infoRows = [];
-  const typeValue = formatInformationType(item);
-  if (typeValue) {
-    infoRows.push({ label: "type", lines: [typeValue] });
-  }
-  if (item.objectLines?.length) {
-    infoRows.push({ label: "object", lines: item.objectLines });
-  }
-  if (item.statusLines?.length) {
-    infoRows.push({ label: "state", lines: item.statusLines });
+  if (item.submissionType !== "contributed") {
+    const typeValue = formatInformationType(item);
+    if (typeValue) {
+      infoRows.push({ label: "type", lines: [typeValue] });
+    }
+    if (item.objectLines?.length) {
+      infoRows.push({ label: "object", lines: item.objectLines });
+    }
+    if (item.statusLines?.length) {
+      infoRows.push({ label: "state", lines: item.statusLines });
+    }
   }
 
   const mediaByFile = {};
@@ -1843,24 +1877,13 @@ function renderStats() {
   const intro = TEXTS.statsIntro[state.lang] || TEXTS.statsIntro.ja || TEXTS.statsIntro.en || "";
   // 大段正文：日语两边对齐，英语左对齐（[[text-justify-rule]]）。
   const introJustify = state.lang === "ja" ? " is-justify" : "";
-  // Two parallel stat sets — 自己拍的 (own) and 投稿 (contributed) — switched by
-  // the buttons below. Each scope gets its own full cross-tab + overview.
-  const scope = state.statsScope === "contributed" ? "contributed" : "own";
+  // The main Archive stats now cover the author's own (Original) umbrellas only;
+  // contributed umbrellas have their own "Archive (contributed)" view.
   const ownItems = statsScopeItems("own");
-  const contribItems = statsScopeItems("contributed");
-  const scopeItems = scope === "contributed" ? contribItems : ownItems;
-  const scopeBtn = (key, items) =>
-    `<button type="button" class="stats-scope-btn${
-      scope === key ? " is-active" : ""
-    }" data-stats-scope="${key}">${escapeHtml(
-      UI_TEXT[key === "own" ? "statsScopeOwn" : "statsScopeContributed"][state.lang],
-    )}（${items.length}）</button>`;
-  const tabs = `<div class="stats-scope">${scopeBtn("own", ownItems)}${scopeBtn("contributed", contribItems)}</div>`;
   els.archiveContent.innerHTML = `
     <p class="stats-intro${introJustify}">${escapeHtml(intro)}</p>
-    ${tabs}
-    ${renderStatsPivot(buildStatsUnits(scopeItems))}
-    ${renderStatsOverview(scopeItems)}
+    ${renderStatsPivot(buildStatsUnits(ownItems))}
+    ${renderStatsOverview(ownItems)}
   `;
   positionOverviewMenu();
 }
@@ -2120,15 +2143,117 @@ function renderStatsOverview(items) {
   `;
 }
 
+// Parse a loose date string (ISO, "2026.04.23 22:36", "2024.10",
+// "2026.04.23, around 18:00", …) into its parts. Used for both display and sort.
+function parseLooseDateParts(value) {
+  const m = String(value || "").match(/(\d{4})[.\-/](\d{1,2})(?:[.\-/](\d{1,2}))?(?:[^\d]+(\d{1,2}):(\d{2}))?/);
+  if (!m) {
+    return null;
+  }
+  const [, y, mo, da, hh, mm] = m;
+  return { y: Number(y), mo: Number(mo), da: da ? Number(da) : 0, hh: hh != null ? Number(hh) : null, mm: mm != null ? Number(mm) : 0 };
+}
+
+// Display a loose date with "/" separators; drop a meaningless 00:00 and any
+// "around"/text noise (用户要求：投稿伞时间统一格式). Falls back to the raw text.
+function formatLooseDate(value) {
+  const parts = parseLooseDateParts(value);
+  if (!parts) {
+    return String(value || "").trim();
+  }
+  const p = (n) => String(n).padStart(2, "0");
+  let out = `${parts.y}/${p(parts.mo)}`;
+  if (parts.da) {
+    out += `/${p(parts.da)}`;
+  }
+  if (parts.hh != null && !(parts.hh === 0 && parts.mm === 0)) {
+    out += ` ${p(parts.hh)}:${p(parts.mm)}`;
+  }
+  return out;
+}
+
+// A sortable numeric key from a loose date string (earlier = smaller).
+function looseDateKey(value) {
+  const parts = parseLooseDateParts(value);
+  if (!parts) {
+    return 0;
+  }
+  return parts.y * 1e8 + parts.mo * 1e6 + parts.da * 1e4 + (parts.hh || 0) * 100 + parts.mm;
+}
+
+// The "Archive (contributed)" view: a sortable overview table of contributed
+// umbrellas only — no cross-tab, and no type/object/state columns (用户要求).
+// Columns: IMG / submission time / photo time / location / remarks.
+function renderContributedArchive() {
+  if (!els.contributedContent) {
+    return;
+  }
+  const items = state.umbrellas.filter((item) => item.submissionType === "contributed");
+  const sortKey = state.contributedSort || "submission";
+  const order = state.contributedOrder === "asc" ? 1 : -1;
+  const keyFns = {
+    submission: (it) => looseDateKey(it.submissionTime),
+    photo: (it) => looseDateKey(it.time || it.photoTime),
+    location: (it) => (it.location || "").toLowerCase(),
+  };
+  const kf = keyFns[sortKey] || keyFns.submission;
+  const sorted = items.slice().sort((a, b) => {
+    const ka = kf(a);
+    const kb = kf(b);
+    if (ka < kb) return -order;
+    if (ka > kb) return order;
+    return String(a.id).localeCompare(String(b.id));
+  });
+
+  const ja = state.lang === "ja";
+  const arrow = (key) => (state.contributedSort === key ? (state.contributedOrder === "asc" ? " ▲" : " ▼") : "");
+  const btn = (key, label) =>
+    `<button type="button" class="archive-control${state.contributedSort === key ? " is-active" : ""}" data-contrib-sort="${key}">${label}${arrow(key)}</button>`;
+  const heads = ja ? ["IMG", "投稿日時", "撮影日時", "場所", "備考"] : ["IMG", "Submitted", "Taken", "Location", "Remarks"];
+  const rows = sorted
+    .map(
+      (it) =>
+        `<tr>` +
+        `<td class="overview-id" data-overview-id="${escapeHtml(it.id)}">${escapeHtml(it.id)}</td>` +
+        `<td>${escapeHtml(formatLooseDate(it.submissionTime))}</td>` +
+        `<td>${escapeHtml(formatLooseDate(it.time || it.photoTime))}</td>` +
+        `<td>${escapeHtml(it.location || "")}</td>` +
+        `<td>${escapeHtml(it.remarks || "")}</td>` +
+        `</tr>`,
+    )
+    .join("");
+
+  els.contributedContent.innerHTML = `
+    <div class="archive-toolbar" aria-label="contributed sort controls">
+      <p>${ja ? "並び替え" : "Sort by"}</p>
+      <div class="archive-primary-row">
+        <div class="archive-toolbar-group" role="group" aria-label="sort mode">
+          ${btn("submission", ja ? "投稿日時" : "Submitted")}
+          ${btn("photo", ja ? "撮影日時" : "Taken")}
+          ${btn("location", ja ? "場所" : "Location")}
+        </div>
+      </div>
+    </div>
+    <section class="stats-block">
+      <h3 class="stats-heading">${ja ? "投稿の傘 総覧" : "Contributed umbrellas"} (${sorted.length})</h3>
+      <div class="stats-table-wrap">
+        <table class="stats-table stats-overview">
+          <thead><tr>${heads.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
 function renderArchive() {
   if (!els.archiveContent) {
     return;
   }
 
   // The Archive page is independent of the map sidebar search (state.query): it
-  // has its own chips/sub-filters. Always start from the full record set so a
-  // search typed in the map panel never trims the Archive grid.
-  const items = state.umbrellas;
+  // has its own chips/sub-filters. Start from the author's own (Original) records
+  // only — contributed umbrellas live in the "Archive (contributed)" view.
+  const items = state.umbrellas.filter((item) => item.submissionType !== "contributed");
 
   syncArchiveControls();
   renderArchiveSecondary(items);
@@ -3343,7 +3468,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=93", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=94", { updateViaCache: "none" });
   }
 }
 
@@ -3392,6 +3517,7 @@ function setupEditor() {
   drawer.innerHTML = `
     <header class="editor-head">
       <strong id="editor-title">编辑记录</strong>
+      <label class="editor-flag-check" title="勾选＝标记此点后续需要修改（仅编辑模式地图显示）"><input type="checkbox" id="editor-flag-toggle" /><span>待改</span></label>
       <button type="button" class="editor-close" aria-label="close">×</button>
     </header>
     <div class="editor-body"></div>
@@ -3459,6 +3585,7 @@ function setupEditor() {
     <span>投稿信息 Submission（仅投稿伞）</span>
     <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
     <input class="editor-submission-channel" placeholder="投稿渠道/日期（仅内部管理，如 微信 2025-06）" />
+    <label class="editor-sub-field">投稿时间 Submitted<input class="editor-submission-time" placeholder="默认取照片建立时间，可手改" /></label>
     <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>
     <label class="editor-check"><input type="checkbox" class="editor-loc-approx" /> 地点只是大概（详情页地点前加「约」）</label>
     <label class="editor-check"><input type="checkbox" class="editor-time-approx" /> 时间只是大概（详情页时间前加「约」）</label>`;
@@ -3466,6 +3593,7 @@ function setupEditor() {
   editor.contribRow = contribRow;
   editor.submitter = contribRow.querySelector(".editor-submitter");
   editor.submissionChannel = contribRow.querySelector(".editor-submission-channel");
+  editor.submissionTime = contribRow.querySelector(".editor-submission-time");
   editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
   editor.locApprox = contribRow.querySelector(".editor-loc-approx");
   editor.timeApprox = contribRow.querySelector(".editor-time-approx");
@@ -3476,21 +3604,10 @@ function setupEditor() {
   });
 
   // Marker flag (a colour to find points that still need work; edit-mode only).
-  const flagRow = document.createElement("div");
-  flagRow.className = "editor-row";
-  flagRow.innerHTML = `
-    <span>标记颜色 Flag（仅编辑模式可见，用来标记待办；点一下立即生效）</span>
-    <div class="editor-flags">
-      <button type="button" class="editor-flag flag-yellow" data-flag="yellow">黄·改数量/状态</button>
-      <button type="button" class="editor-flag flag-black" data-flag="black">黑·加图片</button>
-      <button type="button" class="editor-flag flag-white" data-flag="white">白·加文字</button>
-      <button type="button" class="editor-flag flag-clear" data-flag="">清除</button>
-    </div>`;
-  body.appendChild(flagRow);
-  editor.flagRow = flagRow;
-  flagRow.querySelectorAll("[data-flag]").forEach((button) => {
-    button.addEventListener("click", () => onFlagButton(button.dataset.flag));
-  });
+  // The "待改" marker now lives as a single checkbox in the header (see above);
+  // wire it up here. Checked saves immediately and recolours the map marker.
+  editor.flagToggle = drawer.querySelector("#editor-flag-toggle");
+  editor.flagToggle.addEventListener("change", onFlagToggle);
 
   // 2 title — bilingual (日本語 + English). 3 time.
   const titleRow = document.createElement("div");
@@ -3577,7 +3694,24 @@ function setupEditor() {
   });
   loadAreas();
 
-  // 7. Count. (类型已由「分类 Category」承担，去掉手写的伞的类型框)
+  // 7/8/9. Umbrella attributes (count + colour/kind + status) folded into ONE
+  // collapsible section with a checkbox. Own umbrellas default checked + open;
+  // contributed default unchecked + collapsed (we usually don't know the伞细节).
+  // Unchecked = this record doesn't record umbrella details (cleared on save).
+  const umbSection = document.createElement("div");
+  umbSection.className = "editor-row editor-umbrella-section";
+  umbSection.innerHTML = `
+    <label class="editor-umbrella-toggle"><input type="checkbox" class="editor-umbrella-check" /> <span>记录伞的属性 Umbrella details（数量 / 颜色种类 / 状态）</span></label>
+    <div class="editor-umbrella-body"></div>`;
+  body.appendChild(umbSection);
+  editor.umbrellaCheck = umbSection.querySelector(".editor-umbrella-check");
+  const umbBody = umbSection.querySelector(".editor-umbrella-body");
+  editor.umbrellaBody = umbBody;
+  editor.umbrellaCheck.addEventListener("change", () => {
+    umbBody.hidden = !editor.umbrellaCheck.checked;
+  });
+
+  // Count. (类型已由「分类 Category」承担，去掉手写的伞的类型框)
   const countRow = document.createElement("label");
   countRow.className = "editor-row";
   countRow.innerHTML = `<span>伞的数量 Count</span>`;
@@ -3591,21 +3725,21 @@ function setupEditor() {
     renderEditorStatuses();
   });
   countRow.appendChild(editor.count);
-  body.appendChild(countRow);
+  umbBody.appendChild(countRow);
 
-  // 8. Color & kind units (one row per umbrella, driven by the count).
+  // Color & kind units (one row per umbrella, driven by the count).
   const unitsRow = document.createElement("div");
   unitsRow.className = "editor-row";
   unitsRow.innerHTML = `<span>伞的颜色和种类 Color & kind</span><div class="editor-units"></div>`;
   editor.unitsWrap = unitsRow.querySelector(".editor-units");
-  body.appendChild(unitsRow);
+  umbBody.appendChild(unitsRow);
 
-  // 9. Status — one multi-select group per umbrella, driven by the count.
+  // Status — one multi-select group per umbrella, driven by the count.
   const statusRow = document.createElement("div");
   statusRow.className = "editor-row";
   statusRow.innerHTML = `<span>状态 Status（每把伞一组，可多选；随数量增加）</span><div class="editor-statuses"></div>`;
   editor.statusesWrap = statusRow.querySelector(".editor-statuses");
-  body.appendChild(statusRow);
+  umbBody.appendChild(statusRow);
 
   // 10. Content — ONE combined list of photos (cover + others) and text
   // paragraphs, all reorderable together. The detail page renders the
@@ -4423,7 +4557,7 @@ function openEditor(id) {
   editor.idEl.value = id;
   populateCategorySelects();
   editor.category.value = categoryFolderOf(raw);
-  syncFlagButtons(raw.editFlag || "");
+  syncFlagCheckbox(raw.editFlag || "");
   PLAIN_FIELD_KEYS.forEach((key) => {
     editor.fields[key].value = raw[key] || "";
   });
@@ -4439,6 +4573,7 @@ function openEditor(id) {
   editor.contribRow.hidden = submissionType !== "contributed";
   editor.submitter.value = raw.submitter || "";
   editor.submissionChannel.value = raw.submissionChannel || "";
+  editor.submissionTime.value = raw.submissionTime || "";
   editor.submitterNote.value = raw.submitterNote || "";
   editor.locApprox.checked = Boolean(raw.locationApprox);
   editor.timeApprox.checked = Boolean(raw.timeApprox);
@@ -4461,6 +4596,12 @@ function openEditor(id) {
   syncUnitsToCount();
   renderEditorUnits();
   renderEditorStatuses();
+  // Umbrella-details section: own → on+open by default; contributed → off+closed,
+  // unless the record already carries umbrella data (then keep it on).
+  const hasUmbrellaData = Boolean(raw.umbrellaCount) || (Array.isArray(raw.umbrellaUnits) && raw.umbrellaUnits.length > 0);
+  const showUmbrella = hasUmbrellaData || submissionType !== "contributed";
+  editor.umbrellaCheck.checked = showUmbrella;
+  editor.umbrellaBody.hidden = !showUmbrella;
   buildFlow(raw);
   renderFlow();
   updateCoordReadout(raw);
@@ -4543,12 +4684,20 @@ async function saveEditor() {
   payload.submissionType = getEditorSource();
   payload.submitter = editor.submitter.value;
   payload.submissionChannel = editor.submissionChannel.value;
+  payload.submissionTime = editor.submissionTime.value;
   payload.submitterNote = editor.submitterNote.value;
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;
   payload.locationLevels = collectLevelsForSave();
-  payload.umbrellaCount = editor.count.value;
-  payload.umbrellaUnits = collectUnitsForSave();
+  // Umbrella details only saved when the section is enabled; otherwise cleared
+  // (so contributed umbrellas without details don't show object/state).
+  if (editor.umbrellaCheck.checked) {
+    payload.umbrellaCount = editor.count.value;
+    payload.umbrellaUnits = collectUnitsForSave();
+  } else {
+    payload.umbrellaCount = "";
+    payload.umbrellaUnits = [];
+  }
   const photos = (editor.flow || []).filter((i) => i.kind === "photo");
   payload.media = photos.map((p) => ({
     file: p.file,
@@ -4778,18 +4927,20 @@ async function onCategoryChange(event) {
   }
 }
 
-function syncFlagButtons(active) {
-  editor.flagRow?.querySelectorAll("[data-flag]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.flag === (active || ""));
-  });
+function syncFlagCheckbox(active) {
+  if (editor.flagToggle) {
+    editor.flagToggle.checked = Boolean(active);
+  }
 }
 
-// Marker flag saves immediately and recolours the map without a full reload.
-async function onFlagButton(color) {
+// The "待改" checkbox saves immediately and recolours the map without a full
+// reload. Checked = a single yellow flag; unchecked = no flag.
+async function onFlagToggle() {
   const id = state.editingId;
   if (!id) {
     return;
   }
+  const color = editor.flagToggle?.checked ? "yellow" : "";
   try {
     await apiPost("/api/save-record", { id, editFlag: color });
     const raw = getRawById(id);
@@ -4801,8 +4952,7 @@ async function onFlagButton(color) {
       item.editFlag = color;
     }
     renderMapMarkers(filteredUmbrellas());
-    syncFlagButtons(color);
-    showEditorToast(color ? "已标记 ✓" : "已清除标记");
+    showEditorToast(color ? "已标记待改 ✓" : "已清除标记");
   } catch (error) {
     showEditorToast(`标记失败：${error.message}`, true);
   }

@@ -92,6 +92,14 @@ function cleanLocation(text) {
   return String(text || "").replace(/\n+/g, " / ").trim();
 }
 
+// Submission time = the original photo file's creation (birth) time, formatted
+// "YYYY.MM.DD HH:MM". (Read from the iCloud source, since the repo copies have
+// a fresh birthtime from when we imported them.)
+function fmtBirth(d) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 async function nextSourceIndexBase() {
   let max = -1;
   const walk = async (dir) => {
@@ -198,6 +206,9 @@ async function main() {
       });
     }
 
+    const firstStat = await fs.stat(path.join(SOURCE_DIR, p.files[0]));
+    const submissionTime = fmtBirth(firstStat.birthtime);
+
     const record = {
       schemaVersion: 1,
       sourceIndex: p.sourceIndex,
@@ -217,7 +228,9 @@ async function main() {
       submissionType: "contributed",
       submitter: String(p.row.photoBy || "").trim(),
       submissionChannel: "",
+      submissionTime,
       submitterNote: String(p.row.text || "").trim(),
+      remarks: "",
       locationApprox: true,
       timeApprox: Boolean(p.meta.timeApprox),
       story: "",

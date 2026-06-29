@@ -38,8 +38,12 @@
   "submitter": "@rednote/9732476585",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
+  // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
+  "submissionTime": "2026.04.24 16:20",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "投稿者:世界にまた一本、悲しい傘が増えました。\n編者:世界にまた一つ、悲しい傘の骨組みが増えました。\nSender: The world just got one more sad umbrella\nEditor: The world just got one more sad umbrella skeleton.\n\n投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。\nSender: I really felt a vibe from this umbrella, so I actually went home and did a painting based on it.",
+  // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
+  "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
