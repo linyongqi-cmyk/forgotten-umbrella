@@ -1924,11 +1924,14 @@ function renderFocusArticle(item) {
         return "";
       }
       // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
-      // Illustrations show no corner caption at all (用户要求：插图不显示任何信息).
+      // Per role (item 8): 插图 shows nothing; 细节 shows title (if any) + id, no
+      // time; 补充 shows title + id + time.
       const caption =
         media.role === "illustration"
           ? ""
-          : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+          : media.role === "detail"
+            ? [media.title, media.id].filter(Boolean).join(", ")
+            : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
       // Videos render as an inline player (controls, no enlarge).
       if (isVideoFile(media.file)) {
         return `<figure class="focus-photo focus-video-fig">
@@ -2982,20 +2985,18 @@ function sortByTime(items, order) {
 }
 
 function groupByMonth(items) {
-  const formatter = new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "long",
-  });
   const groups = new Map();
 
   items.forEach((item) => {
     const date = new Date(item.time);
     const hasTime = Number.isFinite(date.getTime());
+    // Always "YYYY/MM" regardless of site language (item 3) — no "2026年5月".
+    const yyyymm = hasTime ? `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}` : "";
     const key = hasTime ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` : "no-time";
     if (!groups.has(key)) {
       groups.set(key, {
         key,
-        label: hasTime ? formatter.format(date) : "time needed",
+        label: hasTime ? yyyymm : "time needed",
         items: [],
       });
     }
@@ -3840,7 +3841,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=98", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=99", { updateViaCache: "none" });
   }
 }
 
@@ -4166,7 +4167,8 @@ function setupEditor() {
     markEditorDirty();
   });
   contentRow.querySelector(".editor-add-dialogue").addEventListener("click", () => {
-    editor.flow.push({ kind: "dialogue", textJa: "", textEn: "" });
+    // A new dialogue starts with one line defaulting to 投稿者 (item 9).
+    editor.flow.push({ kind: "dialogue", lines: [{ speaker: "sender", ja: "", en: "" }] });
     renderFlow();
     markEditorDirty();
   });
@@ -4363,7 +4365,7 @@ function buildPreviewDraft() {
     .filter((i) => isTextLike(i) || (i.kind === "photo" && i.role !== "primary"))
     .map((i) =>
       isTextLike(i)
-        ? { type: i.kind, text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+        ? { type: i.kind, text: flowTextLike(i) }
         : { type: "photo", file: i.file },
     );
   const submissionType = getEditorSource();
@@ -4408,6 +4410,107 @@ const MEDIA_ROLE_LABELS = {
   detail: "细节",
   illustration: "插图",
 };
+
+// ---- Dialogue blocks (item 9 / T10) -----------------------------------------
+// In the editor a dialogue is edited as a list of lines, each with a speaker
+// (投稿者 / 編者, plus a "none" marker line like a date divider) and a bilingual
+// ja/en body. On disk it stays the SAME text format as before — ja/en multiline
+// strings with "投稿者：…" / "Sender: …" prefixes — so the detail page renderer
+// (renderDialogueLines) and the build/api code don't change. We only parse on
+// load and re-serialize on save.
+const DIALOGUE_SPEAKERS = {
+  sender: { ja: "投稿者", en: "Sender" },
+  editor: { ja: "編者", en: "Editor" },
+};
+
+function dialogueSpeakerFromLabel(label) {
+  const s = String(label || "").trim();
+  if (/編|编|editor/i.test(s)) return "editor";
+  if (/投稿|sender/i.test(s)) return "sender";
+  return null;
+}
+
+// Split one language's multiline text into classified lines: speaker-prefixed
+// lines become {speaker, body}; everything else (e.g. a "[2026.04.24]" marker)
+// becomes a {speaker:"none", body} line.
+function splitDialogueRaw(text) {
+  return String(text || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const m = line.match(/^([^：:]{1,12})[：:]\s*(.*)$/);
+      if (m) {
+        const sp = dialogueSpeakerFromLabel(m[1]);
+        if (sp) return { speaker: sp, body: m[2] };
+      }
+      return { speaker: "none", body: line };
+    });
+}
+
+// Pair the ja and en lines into structured {speaker, ja, en} entries. They are
+// normally 1:1 in order, but one language can carry an extra marker line (the
+// ja-only "[date]" divider) — a "none" line consumes only its own language so
+// the rest stays aligned.
+function parseDialogueLines(textJa, textEn) {
+  const ja = splitDialogueRaw(textJa);
+  const en = splitDialogueRaw(textEn);
+  const lines = [];
+  let i = 0;
+  let j = 0;
+  while (i < ja.length || j < en.length) {
+    const a = ja[i];
+    const b = en[j];
+    if (a && a.speaker === "none" && (!b || b.speaker !== "none")) {
+      lines.push({ speaker: "none", ja: a.body, en: "" });
+      i += 1;
+    } else if (b && b.speaker === "none" && (!a || a.speaker !== "none")) {
+      lines.push({ speaker: "none", ja: "", en: b.body });
+      j += 1;
+    } else if (a && b) {
+      lines.push({ speaker: a.speaker !== "none" ? a.speaker : b.speaker, ja: a.body, en: b.body });
+      i += 1;
+      j += 1;
+    } else if (a) {
+      lines.push({ speaker: a.speaker, ja: a.body, en: "" });
+      i += 1;
+    } else {
+      lines.push({ speaker: b.speaker, ja: "", en: b.body });
+      j += 1;
+    }
+  }
+  if (!lines.length) {
+    lines.push({ speaker: "sender", ja: "", en: "" });
+  }
+  return lines;
+}
+
+// Structured lines → the on-disk {ja, en} text (with speaker prefixes).
+function serializeDialogueLines(lines) {
+  const jaParts = [];
+  const enParts = [];
+  (lines || []).forEach((ln) => {
+    const ja = (ln.ja || "").trim();
+    const en = (ln.en || "").trim();
+    if (ln.speaker === "none") {
+      if (ja) jaParts.push(ja);
+      if (en) enParts.push(en);
+    } else {
+      const lbl = DIALOGUE_SPEAKERS[ln.speaker] || DIALOGUE_SPEAKERS.sender;
+      if (ja) jaParts.push(`${lbl.ja}：${ja}`);
+      if (en) enParts.push(`${lbl.en}: ${en}`);
+    }
+  });
+  return { ja: jaParts.join("\n"), en: enParts.join("\n") };
+}
+
+// The {ja, en} text for any text-like flow item (paragraph or dialogue).
+function flowTextLike(item) {
+  if (item.kind === "dialogue") {
+    return serializeDialogueLines(item.lines);
+  }
+  return { ja: (item.textJa || "").trim(), en: (item.textEn || "").trim() };
+}
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -4455,10 +4558,15 @@ function buildFlow(raw) {
   const blocks = Array.isArray(raw.blocks) ? raw.blocks : [];
   if (blocks.length) {
     blocks.forEach((b) => {
-      if (b.type === "text" || b.type === "dialogue") {
+      if (b.type === "dialogue") {
+        const t = b.text;
+        const ja = t && typeof t === "object" ? t.ja || "" : t || "";
+        const en = t && typeof t === "object" ? t.en || "" : "";
+        flow.push({ kind: "dialogue", lines: parseDialogueLines(ja, en) });
+      } else if (b.type === "text") {
         const t = b.text;
         flow.push({
-          kind: b.type,
+          kind: "text",
           textJa: t && typeof t === "object" ? t.ja || "" : t || "",
           textEn: t && typeof t === "object" ? t.en || "" : "",
         });
@@ -4501,20 +4609,14 @@ function renderFlow() {
       <button type="button" data-fact="up" title="上移" ${index === 0 ? "disabled" : ""}>↑</button>
       <button type="button" data-fact="down" title="下移" ${index === flow.length - 1 ? "disabled" : ""}>↓</button>`;
 
-    if (item.kind === "text" || item.kind === "dialogue") {
-      // Paragraph or dialogue — both edit as bilingual auto-height textareas; a
-      // ▾/▸ button folds long ones. Buttons stacked vertically (item 11). The
-      // dialogue kind renders specially on the detail page (item 12).
+    if (item.kind === "text") {
+      // Paragraph — bilingual auto-height textareas; a ▾/▸ button folds long ones.
       const collapsed = item.collapsed ? " is-collapsed" : "";
       const foldGlyph = item.collapsed ? "▸" : "▾";
-      const isDlg = item.kind === "dialogue";
-      const jaPh = isDlg ? "对话（日本語）每行如「編者：…」「投稿者：…」" : "段落（日本語）";
-      const enPh = isDlg ? "Dialogue (English) e.g. Editor: … / Sender: …" : "Paragraph (English)";
       row.innerHTML = `
-        ${isDlg ? `<span class="editor-block-tag">对话</span>` : ""}
         <div class="editor-block-langs">
-          <textarea class="editor-block-text-ja${collapsed}" placeholder="${jaPh}">${escapeHtml(item.textJa || "")}</textarea>
-          <textarea class="editor-block-text-en${collapsed}" placeholder="${enPh}">${escapeHtml(item.textEn || "")}</textarea>
+          <textarea class="editor-block-text-ja${collapsed}" placeholder="段落（日本語）">${escapeHtml(item.textJa || "")}</textarea>
+          <textarea class="editor-block-text-en${collapsed}" placeholder="Paragraph (English)">${escapeHtml(item.textEn || "")}</textarea>
         </div>
         <div class="editor-block-buttons editor-block-buttons-vertical">
           <button type="button" data-fact="fold-text" title="折叠/展开">${foldGlyph}</button>
@@ -4527,53 +4629,125 @@ function renderFlow() {
       row.querySelector(".editor-block-text-en").addEventListener("input", (event) => {
         item.textEn = event.target.value;
       });
+    } else if (item.kind === "dialogue") {
+      // Dialogue (item 9): a list of lines, each = speaker selector (投稿者/編者)
+      // + a bilingual ja/en body. Lines can be added/removed; renders specially
+      // on the detail page (renderDialogueLines).
+      if (!Array.isArray(item.lines) || !item.lines.length) {
+        item.lines = [{ speaker: "sender", ja: "", en: "" }];
+      }
+      const speakerSelect = (sp) => `
+        <select class="editor-dlg-speaker">
+          <option value="sender" ${sp === "sender" ? "selected" : ""}>投稿者</option>
+          <option value="editor" ${sp === "editor" ? "selected" : ""}>編者</option>
+          <option value="none" ${sp === "none" ? "selected" : ""}>—（旁白）</option>
+        </select>`;
+      const linesHtml = item.lines
+        .map(
+          (ln, li) => `
+        <div class="editor-dlg-line" data-li="${li}">
+          <div class="editor-dlg-line-head">
+            ${speakerSelect(ln.speaker)}
+            <button type="button" class="editor-dlg-del" data-li="${li}" title="删除这句" ${item.lines.length <= 1 ? "disabled" : ""}>✕</button>
+          </div>
+          <textarea class="editor-dlg-ja" placeholder="日本語">${escapeHtml(ln.ja || "")}</textarea>
+          <textarea class="editor-dlg-en" placeholder="English">${escapeHtml(ln.en || "")}</textarea>
+        </div>`,
+        )
+        .join("");
+      row.innerHTML = `
+        <span class="editor-block-tag">对话</span>
+        <div class="editor-dlg">
+          ${linesHtml}
+          <button type="button" class="editor-dlg-add">＋ 添加一句</button>
+        </div>
+        <div class="editor-block-buttons editor-block-buttons-vertical">
+          ${moveButtons}
+          <button type="button" data-fact="del-text" title="删除整段">✕</button>
+        </div>`;
+      row.querySelectorAll(".editor-dlg-line").forEach((lineEl, li) => {
+        const ln = item.lines[li];
+        lineEl.querySelector(".editor-dlg-speaker").addEventListener("change", (event) => {
+          ln.speaker = event.target.value;
+        });
+        lineEl.querySelector(".editor-dlg-ja").addEventListener("input", (event) => {
+          ln.ja = event.target.value;
+        });
+        lineEl.querySelector(".editor-dlg-en").addEventListener("input", (event) => {
+          ln.en = event.target.value;
+        });
+        lineEl.querySelector(".editor-dlg-del").addEventListener("click", () => {
+          if (item.lines.length > 1) {
+            item.lines.splice(li, 1);
+            afterFlowEdit();
+          }
+        });
+      });
+      row.querySelector(".editor-dlg-add").addEventListener("click", () => {
+        // New line follows the previous one's speaker, alternating 投稿者↔編者
+        // (item 9). A "none" marker line defaults the next back to 投稿者.
+        const lastReal = [...item.lines].reverse().find((l) => l.speaker !== "none");
+        const next = lastReal && lastReal.speaker === "sender" ? "editor" : "sender";
+        item.lines.push({ speaker: next, ja: "", en: "" });
+        afterFlowEdit();
+      });
     } else {
+      // Photo block. Cover (primary): just thumbnail + 封面 badge + filename, no
+      // edit fields and no action buttons (item 5). Other roles get a round
+      // delete button floating on the thumbnail (item 6), a role dropdown the
+      // same width as the thumbnail (item 7), and role-driven title/time fields
+      // (item 8): 补充 shows title+time, 细节 shows title only, 插图 shows nothing.
       const isPrimary = item.role === "primary";
-      const showTitle = !isPrimary;
-      const showTime = !isPrimary; // all non-primary roles get an EXIF-default time box (item 15)
-      const underThumb = isPrimary
-        ? `<span class="editor-media-badge">封面</span>`
-        : `<select class="editor-flow-role">
+      const isIllustration = item.role === "illustration";
+      const showFile = !isIllustration;
+      const showTitle = !isPrimary && !isIllustration;
+      const showTime = item.role === "supplement";
+      const mediaPreview = isVideoFile(item.file)
+        ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
+        : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
+      if (isPrimary) {
+        row.innerHTML = `
+          <div class="editor-media-thumb">
+            ${mediaPreview}
+            <span class="editor-media-badge">封面</span>
+          </div>
+          <div class="editor-media-controls">
+            <div class="editor-media-top">
+              <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
+            </div>
+          </div>`;
+      } else {
+        const roleSelect = `<select class="editor-flow-role">
             ${Object.entries(MEDIA_ROLE_LABELS)
               .map(([value, label]) => `<option value="${value}" ${item.role === value ? "selected" : ""}>${label}</option>`)
               .join("")}
           </select>`;
-      const mediaPreview = isVideoFile(item.file)
-        ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
-        : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
-      // Role dropdown UNDER the thumbnail; filename in the top row (item 16). Time
-      // box blank by default — placeholder shows the photo's EXIF time, fill to
-      // override (item 15). Primary keeps horizontal buttons (item 11).
-      const btnClass = isPrimary
-        ? "editor-block-buttons"
-        : "editor-block-buttons editor-block-buttons-vertical";
-      row.innerHTML = `
-        <div class="editor-media-thumb">
-          ${mediaPreview}
-          ${underThumb}
-        </div>
-        <div class="editor-media-controls">
-          <div class="editor-media-top">
-            <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
+        row.innerHTML = `
+          <div class="editor-media-thumb">
+            ${mediaPreview}
+            <button type="button" class="editor-media-del" data-fact="del-photo" title="删除图片">✕</button>
+            ${roleSelect}
           </div>
-          ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
-          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.timeOverride || "")}" placeholder="${escapeHtml(item.photoTime || "默认用照片EXIF")}" /></label>` : ""}
-        </div>
-        <div class="${btnClass}">
-          ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
-          ${moveButtons}
-          <button type="button" data-fact="del-photo" title="删除图片">✕</button>
-        </div>`;
-      row.querySelector(".editor-flow-role")?.addEventListener("change", (event) => {
-        item.role = event.target.value;
-        renderFlow();
-      });
-      row.querySelector(".editor-flow-title")?.addEventListener("input", (event) => {
-        item.title = event.target.value;
-      });
-      row.querySelector(".editor-flow-time")?.addEventListener("input", (event) => {
-        item.timeOverride = event.target.value;
-      });
+          <div class="editor-media-controls">
+            ${showFile ? `<div class="editor-media-top"><span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span></div>` : ""}
+            ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
+            ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.timeOverride || "")}" placeholder="${escapeHtml(item.photoTime || "默认用照片EXIF")}" /></label>` : ""}
+          </div>
+          <div class="editor-block-buttons editor-block-buttons-vertical">
+            <button type="button" data-fact="primary" title="设为封面">★</button>
+            ${moveButtons}
+          </div>`;
+        row.querySelector(".editor-flow-role")?.addEventListener("change", (event) => {
+          item.role = event.target.value;
+          renderFlow();
+        });
+        row.querySelector(".editor-flow-title")?.addEventListener("input", (event) => {
+          item.title = event.target.value;
+        });
+        row.querySelector(".editor-flow-time")?.addEventListener("input", (event) => {
+          item.timeOverride = event.target.value;
+        });
+      }
     }
 
     row.querySelectorAll("[data-fact]").forEach((btn) => {
@@ -5377,14 +5551,15 @@ async function saveEditor() {
     .filter((i) => isTextLike(i) || (i.kind === "photo" && i.role !== "primary"))
     .map((i) =>
       isTextLike(i)
-        ? { type: i.kind, text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+        ? { type: i.kind, text: flowTextLike(i) }
         : { type: "photo", file: i.file },
     )
     .filter((b) => b.type === "photo" || b.text.ja || b.text.en);
   // story is the card-preview fallback; keep it as the Japanese paragraphs joined.
   payload.story = (editor.flow || [])
-    .filter((i) => isTextLike(i) && (i.textJa || "").trim())
-    .map((i) => i.textJa.trim())
+    .filter(isTextLike)
+    .map((i) => flowTextLike(i).ja)
+    .filter(Boolean)
     .join("\n");
 
   const saveButton = editor.root.querySelector(".editor-save");

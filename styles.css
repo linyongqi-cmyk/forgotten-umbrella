@@ -3173,8 +3173,10 @@ body:not(.edit-mode) .editor-add {
   flex-shrink: 0;
 }
 
-/* Thumbnail with the role dropdown stacked UNDER it (item 16). */
+/* Thumbnail with the role dropdown stacked UNDER it (item 16). position:relative
+   anchors the floating round delete button (item 6). */
 .editor-media-thumb {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -3191,9 +3193,35 @@ body:not(.edit-mode) .editor-add {
   border-radius: 6px;
 }
 
+/* Role dropdown stretches to the full thumbnail width (item 7). */
 .editor-media-thumb .editor-flow-role {
-  width: 56px;
+  width: 100%;
   box-sizing: border-box;
+}
+
+/* Round delete button floating on the thumbnail's top-right corner (item 6). */
+.editor-media-del {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 50%;
+  background: #fff;
+  color: #b4502f;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.editor-media-del:hover {
+  background: #b4502f;
+  color: #fff;
 }
 
 .editor-media-thumb .editor-media-badge {
@@ -3209,6 +3237,94 @@ body:not(.edit-mode) .editor-add {
   padding-top: 4px;
 }
 
+/* Structured dialogue editor: one row per line = speaker selector + ja/en body
+   (item 9). */
+.editor-dlg {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Each line stacks vertically (speaker + delete on top, then ja, then en) so
+   the textareas stay full-width even in a narrow editor column (item 9). */
+.editor-dlg-line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(31, 45, 45, 0.14);
+  border-radius: 6px;
+  background: #faf9f4;
+}
+
+.editor-dlg-line-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.editor-dlg-speaker {
+  flex: 0 0 auto;
+  width: auto;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  background: #fff;
+}
+
+.editor-dlg-ja,
+.editor-dlg-en {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 5px 7px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  resize: none;
+  field-sizing: content;
+  min-height: 2.2em;
+  overflow-y: hidden;
+}
+
+.editor-dlg-en {
+  border-style: dashed;
+}
+
+.editor-dlg-del {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  background: #f4f3ed;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.editor-dlg-del:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.editor-dlg-add {
+  align-self: flex-start;
+  padding: 5px 10px;
+  border: 1px dashed rgba(31, 45, 45, 0.4);
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .editor-add-dialogue {
   margin-top: 8px;
   padding: 8px 12px;
@@ -3217,14 +3333,6 @@ body:not(.edit-mode) .editor-add {
   background: none;
   font: inherit;
   cursor: pointer;
-}
-
-.editor-block-photo img,
-.editor-block-photo video {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 6px;
 }
 
 .editor-block-buttons {
@@ -3385,13 +3493,26 @@ body:not(.edit-mode) .editor-add {
 .editor-flow-actions {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
+  flex-wrap: wrap;
   margin-top: 8px;
 }
 
-.editor-flow-actions .editor-upload,
-.editor-flow-actions .editor-add-para {
+/* All three "＋ …" buttons share the same box so they line up (item 4). */
+.editor-flow-actions > .editor-add-para,
+.editor-flow-actions > .editor-add-dialogue,
+.editor-flow-actions > .editor-upload {
   margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+  border: 1px dashed rgba(31, 45, 45, 0.4);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
 }
 
 .editor-block.editor-block-photo > img,

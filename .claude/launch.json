@@ -5,7 +5,8 @@
       "name": "umbrella",
       "runtimeExecutable": "/Users/eiki/.local/node-v24.18.0-darwin-arm64/bin/node",
       "runtimeArgs": ["server.js"],
-      "port": 4173
+      "port": 4173,
+      "autoPort": true
     }
   ]
 }
