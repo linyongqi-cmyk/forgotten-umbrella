@@ -2785,7 +2785,8 @@ body:not(.edit-mode) .editor-add-source {
   color: #4d5a56;
 }
 
-.editor-block-photo img {
+.editor-block-photo img,
+.editor-block-photo video {
   width: 48px;
   height: 48px;
   object-fit: cover;
@@ -2837,6 +2838,16 @@ body:not(.edit-mode) .editor-add-source {
   cursor: default;
   transform: none;
   border-radius: 8px;
+}
+
+/* Inline video player (own + contributed umbrellas) — same width/rounding as a
+   detail photo, but it shows native controls and can't be enlarged. */
+.focus-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #000;
 }
 
 /* Supplement/detail photos are clickable to enlarge (#12); illustrations aren't. */
@@ -2949,7 +2960,8 @@ body:not(.edit-mode) .editor-add-source {
   margin-top: 0;
 }
 
-.editor-block.editor-block-photo > img {
+.editor-block.editor-block-photo > img,
+.editor-block.editor-block-photo > video {
   width: 56px;
   height: 56px;
   object-fit: cover;

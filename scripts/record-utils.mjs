@@ -2,6 +2,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"]);
+const VIDEO_EXTENSIONS = new Set([".mp4", ".mov", ".webm", ".m4v"]);
+// Media = images + videos. Videos are valid media (playable in the detail page)
+// but never chosen as the primary cover (the cover must be a still image).
+const MEDIA_EXTENSIONS = new Set([...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS]);
+
+export function isImageFile(file) {
+  return IMAGE_EXTENSIONS.has(path.extname(String(file || "")).toLowerCase());
+}
+
+export function isVideoFile(file) {
+  return VIDEO_EXTENSIONS.has(path.extname(String(file || "")).toLowerCase());
+}
 
 export async function readRecordFile(filePath) {
   const raw = await fs.readFile(filePath, "utf8");
@@ -91,7 +103,7 @@ export function stringifyRecordWithComments(record) {
 export async function listRecordImageFiles(recordDir) {
   const entries = await fs.readdir(recordDir, { withFileTypes: true });
   return entries
-    .filter((entry) => entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+    .filter((entry) => entry.isFile() && MEDIA_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
     .map((entry) => entry.name)
     .sort((a, b) => a.localeCompare(b, "en"));
 }
@@ -115,10 +127,13 @@ export async function mergeRecordMediaWithFolder(recordPath, record) {
     }
   });
 
-  const explicitPrimary = ordered.find((item) => item.role === "primary");
+  // The cover must be a still image — never a video. Fall back through:
+  // explicit image primary → image named after the folder → first image → first file.
+  const explicitPrimary = ordered.find((item) => item.role === "primary" && isImageFile(item.file));
   const primaryFile =
     (explicitPrimary && explicitPrimary.file) ||
-    ordered.find((item) => path.parse(item.file).name === recordId)?.file ||
+    ordered.find((item) => isImageFile(item.file) && path.parse(item.file).name === recordId)?.file ||
+    ordered.find((item) => isImageFile(item.file))?.file ||
     ordered[0]?.file ||
     "";
 

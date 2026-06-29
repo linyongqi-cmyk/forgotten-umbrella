@@ -5019,5 +5019,1071 @@
       "Kyoto City",
       "Sakyo Ward"
     ]
+  },
+  {
+    "id": "LYUCHEN_1",
+    "image": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.03.29, 20:05",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6073,
+      "lng": 140.1153
+    },
+    "locationText": "McDonald's Chiba Fujimicho, Chuo Ward, Chiba",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "LYUCHEN",
+    "submissionChannel": "",
+    "submitterNote": "編者:これ、めっちゃシュールで面白いね。(笑)\n投稿者: ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者: 夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者: もしかして誰かの傘を拾って、そのまま…………………。\n編者: やばい、それはちょっと悪いね。(笑)\nEditor: Haha, this is so absurd-it's really interesting.\nSender: It's actually hilarious. I just happened to pass by and saw an umbrella hanging on a tree. It's hard to imagine how it even got up there. Were they that drunk?\nEditor: Feels like one of those \"let's try this\" ideas someone had on the way home after drinking at night.\nSender: Maybe they picked up someone else's umbrella and then...\nEditor: Haha, that's kind of evil.\n\n[2026.04.24]\n投稿者:まだあそこにあるよ!\n編者:葉っぱも出てきたのに、まだある!\n投稿者:春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!\nSender: It's still there!\nEditor: Even though the leaves have started to grow in, it's still hanging on!\nSender: Looks like we'll be able to document it through all four seasons. I can't believe it was hanging on such a tiny branch. It's so resilient. It really is a miracle umbrella!",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "LYUCHEN_1_1",
+        "file": "LYUCHEN_1_1.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_2",
+        "file": "LYUCHEN_1_2.mp4",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_2.mp4",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_2.mp4",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_3",
+        "file": "LYUCHEN_1_3.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_3.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_3.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_4",
+        "file": "LYUCHEN_1_4.mp4",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_4.mp4",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_4.mp4",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_5",
+        "file": "LYUCHEN_1_5.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_5.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_5.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_6",
+        "file": "LYUCHEN_1_6.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_6.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_6.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "LYUCHEN_1_7",
+        "file": "LYUCHEN_1_7.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_7.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_1/LYUCHEN_1_7.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "WQD_1",
+    "image": "filebox/records/submission(pending)/WQD_1/WQD_1_1.webp",
+    "photoTime": "",
+    "time": "2024.10",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.4656,
+      "lng": 136.737
+    },
+    "locationText": "Gifu University, Gifu, Japan",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "WQD",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:私の写真ちょっとテーマから外れてるかもしれない。\n編者:いや、これもすごく面白いよ。直接傘は写ってないけど、この掲示の向こうにたくさん傘があるのが想像できるし、全然外れてないと思う。\n投稿者:そうそう、そのときこの写真すごく気に入ってて。あそこ、ほんとにかわいい傘がたくさんあったんだ。\n\nSender: My submission might be a bit off-topic\nEditor: No. I think it's actually really interesting. Even though there's no umbrella in the photo, you can imagine there are a bunch of them behind that sign. I don't think it's off-topic at all.\nSender: Yeah, exactly. I really liked that photo at the time. There were a lot of really cute umbrellas there.",
+    "locationApprox": true,
+    "timeApprox": true,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "WQD_1_1",
+        "file": "WQD_1_1.webp",
+        "src": "filebox/records/submission(pending)/WQD_1/WQD_1_1.webp",
+        "thumb": "filebox/records/submission(pending)/WQD_1/WQD_1_1.webp",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "ZHANG_ZHONGPU_1",
+    "image": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.23, around 18:00",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.7025,
+      "lng": 135.4959
+    },
+    "locationText": "entrance of McDonald's, B1F, Umeda Station, Kita Ward, Osaka",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "ZHANG ZHONGPU",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": true,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "ZHANG_ZHONGPU_1_1",
+        "file": "ZHANG_ZHONGPU_1_1.jpg",
+        "src": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "ZHANG_ZHONGPU_1_2",
+        "file": "ZHANG_ZHONGPU_1_2.jpg",
+        "src": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_2.jpg",
+        "thumb": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_2.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "ZHANG_ZHONGPU_1_3",
+        "file": "ZHANG_ZHONGPU_1_3.jpg",
+        "src": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_3.jpg",
+        "thumb": "filebox/records/submission(pending)/ZHANG_ZHONGPU_1/ZHANG_ZHONGPU_1_3.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_102652598_1",
+    "image": "filebox/records/submission(pending)/rednote_102652598_1/rednote_102652598_1_1.jpg",
+    "photoTime": "",
+    "time": "2025.05.02",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.71,
+      "lng": 139.8132
+    },
+    "locationText": "Oshiage Station, Sumida City, Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/102652598",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_102652598_1_1",
+        "file": "rednote_102652598_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_102652598_1/rednote_102652598_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_102652598_1/rednote_102652598_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "LIU_SIJIA_1",
+    "image": "filebox/records/submission(pending)/LIU_SIJIA_1/LIU_SIJIA_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.21",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6256,
+      "lng": 140.1037
+    },
+    "locationText": "Nishi-Chiba Station, Inage Ward, Chiba City, Chiba",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "LIU SIJIA",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "LIU_SIJIA_1_1",
+        "file": "LIU_SIJIA_1_1.jpg",
+        "src": "filebox/records/submission(pending)/LIU_SIJIA_1/LIU_SIJIA_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/LIU_SIJIA_1/LIU_SIJIA_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_1164552325_1",
+    "image": "filebox/records/submission(pending)/rednote_1164552325_1/rednote_1164552325_1_1.jpg",
+    "photoTime": "",
+    "time": "1: 2024.06.13 2: 2024.06.14",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6967,
+      "lng": 139.8146
+    },
+    "locationText": "1: Kinshicho Station, Sumida City, Tokyo / 2: public restroom in a park, Kinshicho area, Sumida City, Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/1164552325",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)\n\nSender: How about this umbrella? For a while, I was really into taking photos of umbrellas forgotten in street corners.\nEditor: Oh, that's perfect Haha, looks exactly like what you'd see after a typhoon.\nSender: The next day, I found another beautiful umbrella inside a public restroom at the park.\nEditor: This one looks pretty high-end. I bet the owner was devastated to lose it\nSender: Totally. I saw it was still there when I passed the park on the bus, so the second time I went by, I just took it home. It's been put to good use ever since! (Laughs)",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_1164552325_1_1",
+        "file": "rednote_1164552325_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_1164552325_1/rednote_1164552325_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_1164552325_1/rednote_1164552325_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "rednote_1164552325_1_2",
+        "file": "rednote_1164552325_1_2.jpg",
+        "src": "filebox/records/submission(pending)/rednote_1164552325_1/rednote_1164552325_1_2.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_1164552325_1/rednote_1164552325_1_2.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "ZHANG_ZHONGPU_2",
+    "image": "filebox/records/submission(pending)/ZHANG_ZHONGPU_2/ZHANG_ZHONGPU_2_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.23, around 17:00",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.6937,
+      "lng": 135.4948
+    },
+    "locationText": "inside Watanabebashi Station, Nakanoshima, Kita Ward, Osaka",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "ZHANG ZHONGPU",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": true,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "ZHANG_ZHONGPU_2_1",
+        "file": "ZHANG_ZHONGPU_2_1.jpg",
+        "src": "filebox/records/submission(pending)/ZHANG_ZHONGPU_2/ZHANG_ZHONGPU_2_1.jpg",
+        "thumb": "filebox/records/submission(pending)/ZHANG_ZHONGPU_2/ZHANG_ZHONGPU_2_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_186833939_1",
+    "image": "filebox/records/submission(pending)/rednote_186833939_1/rednote_186833939_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.19, 20:11",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.8077,
+      "lng": 139.724
+    },
+    "locationText": "Kawaguchi City, Saitama",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/186833939",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥\nSender: It might not be a forgotten umbrella, but it's a heart",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_186833939_1_1",
+        "file": "rednote_186833939_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_186833939_1/rednote_186833939_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_186833939_1/rednote_186833939_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_uka98art_1",
+    "image": "filebox/records/submission(pending)/rednote_uka98art_1/rednote_uka98art_1_1.jpg",
+    "photoTime": "",
+    "time": "2022.06.04, 14:33",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.609,
+      "lng": 139.552
+    },
+    "locationText": "pedestrian overpass near Ikuta Station, Tama Ward, Kawasaki City, Kanagawa",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/uka98art",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:傘って、長く忘れられすぎると、しまいには植物になっちゃうのかも。\nSender: If an umbrella is left forgotten for long enough, it might even start turning into a plant.",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_uka98art_1_1",
+        "file": "rednote_uka98art_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_uka98art_1/rednote_uka98art_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_uka98art_1/rednote_uka98art_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_2352131487_1",
+    "image": "filebox/records/submission(pending)/rednote_2352131487_1/rednote_2352131487_1_1.jpg",
+    "photoTime": "",
+    "time": "2025.04",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.4478,
+      "lng": 139.6425
+    },
+    "locationText": "Kanagawa, Japan",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/2352131487",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": true,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_2352131487_1_1",
+        "file": "rednote_2352131487_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_2352131487_1/rednote_2352131487_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_2352131487_1/rednote_2352131487_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_621639248_1",
+    "image": "filebox/records/submission(pending)/rednote_621639248_1/rednote_621639248_1_1.jpg",
+    "photoTime": "",
+    "time": "2024.03.19",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 31.2304,
+      "lng": 121.4737
+    },
+    "locationText": "Shanghai, China",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/621639248",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_621639248_1_1",
+        "file": "rednote_621639248_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_621639248_1/rednote_621639248_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_621639248_1/rednote_621639248_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_9732476585_1",
+    "image": "filebox/records/submission(pending)/rednote_9732476585_1/rednote_9732476585_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.03.26",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.7289,
+      "lng": 139.717
+    },
+    "locationText": "under the elevated roadway, Higashi-Ikebukuro, Toshima City, Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/9732476585",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:世界にまた一本、悲しい傘が増えました。\n編者:世界にまた一つ、悲しい傘の骨組みが増えました。\nSender: The world just got one more sad umbrella\nEditor: The world just got one more sad umbrella skeleton.\n\n投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。\nSender: I really felt a vibe from this umbrella, so I actually went home and did a painting based on it.",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_9732476585_1_1",
+        "file": "rednote_9732476585_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_9732476585_1/rednote_9732476585_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_9732476585_1/rednote_9732476585_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      },
+      {
+        "id": "rednote_9732476585_1_2",
+        "file": "rednote_9732476585_1_2.jpg",
+        "src": "filebox/records/submission(pending)/rednote_9732476585_1/rednote_9732476585_1_2.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_9732476585_1/rednote_9732476585_1_2.jpg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "aaa_1",
+    "image": "filebox/records/submission(pending)/aaa_1/aaa_1_1.jpeg",
+    "photoTime": "",
+    "time": "2025.04.27",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.9858,
+      "lng": 135.7588
+    },
+    "locationText": "bicycle parking area, Kyoto City University of Arts, Shimogyo Ward, Kyoto",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "あああ",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "aaa_1_1",
+        "file": "aaa_1_1.jpeg",
+        "src": "filebox/records/submission(pending)/aaa_1/aaa_1_1.jpeg",
+        "thumb": "filebox/records/submission(pending)/aaa_1/aaa_1_1.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_kankan_1",
+    "image": "filebox/records/submission(pending)/rednote_kankan_1/rednote_kankan_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.28",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.0045,
+      "lng": 135.8686
+    },
+    "locationText": "Shiga, Japan",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/kankan",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_kankan_1_1",
+        "file": "rednote_kankan_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_kankan_1/rednote_kankan_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_kankan_1/rednote_kankan_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_5648778497_1",
+    "image": "filebox/records/submission(pending)/rednote_5648778497_1/rednote_5648778497_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.30",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.658,
+      "lng": 139.7016
+    },
+    "locationText": "inside a Keio Line train (Keio Railway), Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/5648778497",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_5648778497_1_1",
+        "file": "rednote_5648778497_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_5648778497_1/rednote_5648778497_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_5648778497_1/rednote_5648778497_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "LYUCHEN_2",
+    "image": "filebox/records/submission(pending)/LYUCHEN_2/LYUCHEN_2_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.28, 11:47",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6256,
+      "lng": 140.102
+    },
+    "locationText": "under the railway bridge near Nishi-Chiba Station (Chuo-Sobu Line), Inage Ward, Chiba",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "LYUCHEN",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "LYUCHEN_2_1",
+        "file": "LYUCHEN_2_1.jpg",
+        "src": "filebox/records/submission(pending)/LYUCHEN_2/LYUCHEN_2_1.jpg",
+        "thumb": "filebox/records/submission(pending)/LYUCHEN_2/LYUCHEN_2_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "aaa_2",
+    "image": "filebox/records/submission(pending)/aaa_2/aaa_2_1.jpeg",
+    "photoTime": "",
+    "time": "2026.05.02",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 34.9858,
+      "lng": 135.7588
+    },
+    "locationText": "near a station, Kyoto",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "あああ",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "aaa_2_1",
+        "file": "aaa_2_1.jpeg",
+        "src": "filebox/records/submission(pending)/aaa_2/aaa_2_1.jpeg",
+        "thumb": "filebox/records/submission(pending)/aaa_2/aaa_2_1.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_kankan_2",
+    "image": "filebox/records/submission(pending)/rednote_kankan_2/rednote_kankan_2_1.jpg",
+    "photoTime": "",
+    "time": "2026.05.02, 17:53",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.0036,
+      "lng": 135.7681
+    },
+    "locationText": "Shijo Kawaramachi, Nakagyo Ward, Kyoto",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/kankan",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_kankan_2_1",
+        "file": "rednote_kankan_2_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_kankan_2/rednote_kankan_2_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_kankan_2/rednote_kankan_2_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_129096578_1",
+    "image": "filebox/records/submission(pending)/rednote_129096578_1/rednote_129096578_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.02.08, 20:21",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6997,
+      "lng": 139.7647
+    },
+    "locationText": "inside a JR Chuo-Sobu Line (Local Service)",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/129096578",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:あの日、雨なのに傘を持ってなくて。電車に乗ったら、すごく新しくて高級そうな傘を見つけて、正直、拾って帰りたいなーって思っちゃいました。\nSender: It was raining that day and I didn't have an umbrella. When I got on, I saw this brand-new, really premium-looking umbrella, and I was so tempted to just take it home lol",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_129096578_1_1",
+        "file": "rednote_129096578_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_129096578_1/rednote_129096578_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_129096578_1/rednote_129096578_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_26215291992_1",
+    "image": "filebox/records/submission(pending)/rednote_26215291992_1/rednote_26215291992_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.04.25, 08:20",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.7126,
+      "lng": 139.7038
+    },
+    "locationText": "Takadanobaba Station Square, Shinjuku City, Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/26215291992",
+    "submissionChannel": "",
+    "submitterNote": "",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_26215291992_1_1",
+        "file": "rednote_26215291992_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_26215291992_1/rednote_26215291992_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_26215291992_1/rednote_26215291992_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
+  },
+  {
+    "id": "rednote_sanponimabi_1",
+    "image": "filebox/records/submission(pending)/rednote_sanponimabi_1/rednote_sanponimabi_1_1.jpg",
+    "photoTime": "",
+    "time": "2026.05.08, around 18:00",
+    "photoCoordinates": null,
+    "locationCoordinates": {
+      "lat": 35.6852,
+      "lng": 139.6983
+    },
+    "locationText": "Bunka Fashion College, Yoyogi, Shibuya City, Tokyo",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "@rednote/sanponimabi",
+    "submissionChannel": "",
+    "submitterNote": "投稿者:今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。\nSender: I took this after school today. It looked like it was going to rain but never did, so I guess the owner just forgot it. The handle is broken too, so maybe it was blown here by the wind. Where I found it might not ever be the \"original scene\"",
+    "locationApprox": true,
+    "timeApprox": false,
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "",
+    "media": [
+      {
+        "id": "rednote_sanponimabi_1_1",
+        "file": "rednote_sanponimabi_1_1.jpg",
+        "src": "filebox/records/submission(pending)/rednote_sanponimabi_1/rednote_sanponimabi_1_1.jpg",
+        "thumb": "filebox/records/submission(pending)/rednote_sanponimabi_1/rednote_sanponimabi_1_1.jpg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": ""
+      }
+    ],
+    "locationLevels": []
   }
 ]

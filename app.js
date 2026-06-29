@@ -1464,7 +1464,7 @@ function renderMapMarkers(items) {
       map: state.map,
       position: item.coordinates,
       title: item.id,
-      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)),
+      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)),
       draggable: state.editMode,
     });
 
@@ -1496,10 +1496,10 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
-      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
+      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
     });
     marker.addListener("mouseout", () => {
-      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
+      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
     });
     state.markers.set(item.id, marker);
   });
@@ -1507,6 +1507,13 @@ function renderMapMarkers(items) {
   if (state.suppressNextFit) {
     state.suppressNextFit = false;
   }
+}
+
+// A media file is a (playable) video when its extension is a known video type.
+// Videos render as a <video> player; they are never the cover and can't enlarge.
+const VIDEO_EXT_RE = /\.(mp4|mov|webm|m4v)$/i;
+function isVideoFile(file) {
+  return VIDEO_EXT_RE.test(String(file || ""));
 }
 
 function renderFocusImage() {
@@ -1654,6 +1661,13 @@ function renderFocusArticle(item) {
         media.role === "illustration"
           ? ""
           : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+      // Videos render as an inline player (controls, no enlarge).
+      if (isVideoFile(media.file)) {
+        return `<figure class="focus-photo focus-video-fig">
+            <video class="focus-video" controls preload="metadata" playsinline src="${escapeHtml(media.src)}"></video>
+            ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+          </figure>`;
+      }
       // Supplement/detail photos can be enlarged; illustrations cannot (#12).
       const expandable = media.role !== "illustration";
       const expandAttrs = expandable ? ` data-expandable="1" data-media-file="${escapeHtml(media.file)}"` : "";
@@ -2647,7 +2661,8 @@ function closeFocusMode(options = {}) {
 
 // Media that can be enlarged: cover + supplement + detail, but never illustrations.
 function getExpandableMedia(item) {
-  return (item?.media || []).filter((m) => m.role !== "illustration");
+  // Only still images can be enlarged — exclude illustrations and videos.
+  return (item?.media || []).filter((m) => m.role !== "illustration" && !isVideoFile(m.file));
 }
 
 // Entry point from clicking the cover image — expand at the cover's position.
@@ -3244,6 +3259,12 @@ function flagColorFor(item) {
   return state.editMode && item && FLAG_COLORS[item.editFlag] ? FLAG_COLORS[item.editFlag] : null;
 }
 
+// Contributed (投稿) umbrellas get a green pin on the public map so they stand
+// out from the author's own (red) points.
+function isContributedItem(item) {
+  return item?.submissionType === "contributed";
+}
+
 // A point has a title if either language is filled (title may be {ja,en} or a
 // legacy string). Titled points get a deeper red pin (用户要求).
 function itemHasTitle(item) {
@@ -3257,16 +3278,16 @@ function itemHasTitle(item) {
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item)));
+    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
   });
 }
 
-function markerIcon(isActive, flagColor, hasTitle) {
-  // Default pin red; titled points use a noticeably deeper red.
-  const baseRed = hasTitle ? "#8f2310" : "#c54f35";
+function markerIcon(isActive, flagColor, hasTitle, isContributed) {
+  // Contributed → green; otherwise red (titled points a deeper red).
+  const base = isContributed ? "#2e9e5b" : hasTitle ? "#8f2310" : "#c54f35";
   return {
     path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
-    fillColor: flagColor || (isActive ? "#1f8bb8" : baseRed),
+    fillColor: flagColor || (isActive ? "#1f8bb8" : base),
     fillOpacity: 1,
     strokeColor: flagColor === "#ffffff" ? "#1a1a1a" : "#ffffff",
     strokeOpacity: 1,
@@ -3276,9 +3297,9 @@ function markerIcon(isActive, flagColor, hasTitle) {
   };
 }
 
-function hoverMarkerIcon(isActive, flagColor, hasTitle) {
+function hoverMarkerIcon(isActive, flagColor, hasTitle, isContributed) {
   return {
-    ...markerIcon(isActive, flagColor, hasTitle),
+    ...markerIcon(isActive, flagColor, hasTitle, isContributed),
     scale: 1.72,
   };
 }
@@ -3307,7 +3328,9 @@ function formatListDate(value) {
 function formatDateTime(value) {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) {
-    return "";
+    // Not a parseable date (e.g. a contributed umbrella's rough "2024.10" or
+    // "around 18:00") — show the raw text rather than hiding it. Empty stays empty.
+    return typeof value === "string" ? value.trim() : "";
   }
   return new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
@@ -3320,7 +3343,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=92", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=93", { updateViaCache: "none" });
   }
 }
 
@@ -3594,7 +3617,7 @@ function setupEditor() {
     <div class="editor-flow"></div>
     <div class="editor-flow-actions">
       <button type="button" class="editor-add-para">＋ 加段落</button>
-      <label class="editor-upload"><span>＋ 上传图片</span><input type="file" accept="image/*" multiple hidden /></label>
+      <label class="editor-upload"><span>＋ 上传图片/视频</span><input type="file" accept="image/*,video/*" multiple hidden /></label>
     </div>`;
   body.appendChild(contentRow);
   editor.flowList = contentRow.querySelector(".editor-flow");
@@ -3801,8 +3824,11 @@ function renderFlow() {
               .map(([value, label]) => `<option value="${value}" ${item.role === value ? "selected" : ""}>${label}</option>`)
               .join("")}
           </select>`;
+      const mediaPreview = isVideoFile(item.file)
+        ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
+        : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
       row.innerHTML = `
-        <img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />
+        ${mediaPreview}
         <div class="editor-media-controls">
           <div class="editor-media-top">
             ${roleControl}

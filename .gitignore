@@ -10,3 +10,6 @@ node_modules/
 # Legacy pre-migration image source (~400MB). Superseded by filebox/records/.
 # Keep on disk for reference, but never commit it to the repo.
 filebox/choice/
+
+# Office 临时锁文件（打开 xlsx/docx 时生成）
+~$*
