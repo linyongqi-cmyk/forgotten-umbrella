@@ -27,8 +27,12 @@ const state = {
   statsX: "type",
   statsY: "object",
   statsScope: "own",
-  contributedSort: "submission",
+  // Contributed Archive (item 3): grid sort mode (submission/photo/location) or
+  // the stats overview, plus the overview's own sort key/dir.
+  contributedMode: "submission",
   contributedOrder: "desc",
+  contribOverviewSortKey: "submitter",
+  contribOverviewSortDir: "asc",
   // 統計 overview table (item 6): default order is by IMG name. date/type/area are
   // click-to-sort columns (asc/desc). object/state are single-value dropdown
   // filters opened from their header ("all" = no filter); overviewMenuOpen tracks
@@ -42,6 +46,9 @@ const state = {
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
   mapBase: "satellite",
   mapLabels: false,
+  // Map marker filter (item 6/15/16): which of the 4 colour categories show.
+  markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
+  markerFilterOpen: false,
   poiShown: false,
   imageExpanded: false,
   focusMediaIndex: 0,
@@ -223,6 +230,23 @@ function renderAbout() {
         </section>`;
     })
     .join("");
+  renderLegend();
+}
+
+// Map legend on the About page: the 4 marker colours + their meaning (item 15).
+// Labels are always English to match the rest of the legend/overview (item 9).
+function renderLegend() {
+  const root = document.getElementById("about-legend");
+  if (!root) {
+    return;
+  }
+  const heading = state.lang === "ja" ? "地図の凡例" : "Map legend";
+  root.innerHTML =
+    `<h3 class="about-legend-title">${heading}</h3>` +
+    MARKER_CATEGORIES.map(
+      (cat) =>
+        `<div class="about-legend-row"><span class="about-legend-swatch" style="background:${MARKER_COLORS[cat]}"></span><span>${escapeHtml(MARKER_LABELS[cat])}</span></div>`,
+    ).join("");
 }
 
 // Shared umbrella-attribute option sets (used by both the editor and the public
@@ -294,6 +318,9 @@ const els = {
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
   mapLabelsToggle: document.querySelector("#map-labels-toggle"),
+  mapFilter: document.querySelector("#map-filter"),
+  mapFilterToggle: document.querySelector("#map-filter-toggle"),
+  mapFilterPanel: document.querySelector("#map-filter-panel"),
   statCount: document.querySelector("#stat-count"),
   statFieldwork: document.querySelector("#stat-fieldwork"),
   statSubmissions: document.querySelector("#stat-submissions"),
@@ -540,6 +567,24 @@ function bindEvents() {
     });
   });
 
+  // Map marker filter (item 6/15/16): one button expands a panel of 4 colour
+  // toggles that show/hide each marker category on the map.
+  els.mapFilterToggle?.addEventListener("click", () => {
+    state.markerFilterOpen = !state.markerFilterOpen;
+    syncMarkerFilter();
+  });
+  els.mapFilterPanel?.addEventListener("click", (event) => {
+    const row = event.target.closest?.("[data-marker-cat]");
+    if (!row) {
+      return;
+    }
+    const cat = row.dataset.markerCat;
+    state.markerFilter[cat] = !state.markerFilter[cat];
+    syncMarkerFilter();
+    renderMapMarkers(filteredUmbrellas());
+  });
+  syncMarkerFilter();
+
   els.search?.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
     render();
@@ -771,22 +816,55 @@ function bindEvents() {
     }
   });
 
-  // Archive (contributed): sort buttons re-sort; double-clicking IMG jumps to map.
+  // Contributed Archive (item 3): toolbar switches grid sort mode / stats; the
+  // overview headers sort (contributor = reset to default); ✎ opens the editor;
+  // double-clicking a card or a contributor cell jumps to the map detail.
   els.contributedContent?.addEventListener("click", (event) => {
-    const sortBtn = event.target.closest?.("[data-contrib-sort]");
-    if (!sortBtn) {
+    const modeBtn = event.target.closest?.("[data-contrib-mode]");
+    if (modeBtn) {
+      const m = modeBtn.dataset.contribMode;
+      if (m === state.contributedMode && m !== "stats") {
+        state.contributedOrder = state.contributedOrder === "asc" ? "desc" : "asc";
+      } else {
+        state.contributedMode = m;
+        if (m !== "stats") {
+          state.contributedOrder = m === "location" ? "asc" : "desc";
+        }
+      }
+      renderContributedArchive();
       return;
     }
-    const key = sortBtn.dataset.contribSort;
-    if (state.contributedSort === key) {
-      state.contributedOrder = state.contributedOrder === "asc" ? "desc" : "asc";
-    } else {
-      state.contributedSort = key;
-      state.contributedOrder = key === "location" ? "asc" : "desc";
+    const ovSort = event.target.closest?.("[data-contrib-overview-sort]");
+    if (ovSort) {
+      const k = ovSort.dataset.contribOverviewSort;
+      if (k === "submitter") {
+        // Contributor header resets to the default order (item 3).
+        state.contribOverviewSortKey = "submitter";
+        state.contribOverviewSortDir = "asc";
+      } else if (state.contribOverviewSortKey === k) {
+        state.contribOverviewSortDir = state.contribOverviewSortDir === "asc" ? "desc" : "asc";
+      } else {
+        state.contribOverviewSortKey = k;
+        state.contribOverviewSortDir = "asc";
+      }
+      renderContributedArchive();
+      return;
     }
-    renderContributedArchive();
+    const editBtn = event.target.closest?.("[data-card-edit]");
+    if (editBtn) {
+      event.stopPropagation();
+      const card = editBtn.closest(".photo-card");
+      if (card?.dataset.id && IS_LOCAL && typeof editor !== "undefined" && editor.root) {
+        openEditor(card.dataset.id);
+      }
+    }
   });
   els.contributedContent?.addEventListener("dblclick", (event) => {
+    const card = event.target.closest?.(".photo-card");
+    if (card?.dataset.id) {
+      jumpToMapLocation(card.dataset.id);
+      return;
+    }
     const idCell = event.target.closest?.("[data-overview-id]");
     if (idCell?.dataset.overviewId) {
       jumpToMapLocation(idCell.dataset.overviewId);
@@ -904,6 +982,26 @@ function syncArchiveScope() {
   if (els.contributedContent) {
     els.contributedContent.hidden = !contributed;
   }
+}
+
+// Render the marker-filter panel (4 colour rows, each a show/hide toggle) and
+// open/close it (item 6/15/16).
+function syncMarkerFilter() {
+  if (els.mapFilterToggle) {
+    els.mapFilterToggle.setAttribute("aria-expanded", String(state.markerFilterOpen));
+    els.mapFilterToggle.classList.toggle("is-active", state.markerFilterOpen);
+  }
+  if (!els.mapFilterPanel) {
+    return;
+  }
+  els.mapFilterPanel.hidden = !state.markerFilterOpen;
+  els.mapFilterPanel.innerHTML = MARKER_CATEGORIES.map((cat) => {
+    const on = state.markerFilter[cat] !== false;
+    return `<button type="button" class="map-filter-row${on ? " is-on" : ""}" data-marker-cat="${cat}">
+        <span class="map-filter-swatch" style="background:${MARKER_COLORS[cat]}"></span>
+        <span class="map-filter-label">${escapeHtml(MARKER_LABELS[cat])}</span>
+      </button>`;
+  }).join("");
 }
 
 function syncArchiveControls() {
@@ -1560,12 +1658,18 @@ function renderMapMarkers(items) {
   state.markers.forEach((marker) => marker.setMap(null));
   state.markers.clear();
 
-  items.filter(hasCoordinates).forEach((item) => {
+  // Hide categories switched off in the map filter (item 6/15/16). In edit mode
+  // show everything so points stay editable regardless of the filter.
+  items
+    .filter(hasCoordinates)
+    .filter((item) => state.editMode || state.markerFilter[markerCategory(item)] !== false)
+    .forEach((item) => {
+    const category = markerCategory(item);
     const marker = new google.maps.Marker({
       map: state.map,
       position: item.coordinates,
       title: item.id,
-      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)),
+      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category),
       draggable: state.editMode,
     });
 
@@ -1597,10 +1701,10 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
-      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
+      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
     marker.addListener("mouseout", () => {
-      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
+      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
     state.markers.set(item.id, marker);
   });
@@ -1697,16 +1801,16 @@ function renderFocusHeader(item) {
   const focusTitle = title ? `${item.id}(${title})` : item.id;
   // Contributed umbrellas: show a small badge, mark approximate place/time with
   // a "约 / approx." prefix, and credit the submitter.
+  // Badge / approx prefix / submitter credit are always ENGLISH regardless of
+  // the site language (用户要求 item 9).
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
-    ? ` <span class="focus-badge">${escapeHtml(UI_TEXT.contributedBadge[state.lang])}</span>`
+    ? ` <span class="focus-badge">${escapeHtml(UI_TEXT.contributedBadge.en)}</span>`
     : "";
-  const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix[state.lang]) : "");
+  const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
   const credit =
     isContributed && item.submitter
-      ? `<p class="focus-meta focus-credit">${escapeHtml(UI_TEXT.submitterCredit[state.lang])}${
-          state.lang === "ja" ? "：" : ": "
-        }${escapeHtml(item.submitter)}</p>`
+      ? `<p class="focus-meta focus-credit">${escapeHtml(UI_TEXT.submitterCredit.en)}: ${escapeHtml(item.submitter)}</p>`
       : "";
   // Contributed times are rough/free-text — use the unified loose-date format
   // (slash separators, no stray 00:00); own times stay on the ISO formatter.
@@ -1790,18 +1894,8 @@ function renderFocusArticle(item) {
     })
     .join("");
 
-  // Contributed umbrellas may carry the submitter's own words; show them as a
-  // quote at the top of the scrollable body (kept as-is, in their language).
-  const noteHtml =
-    item.submissionType === "contributed" && item.submitterNote
-      ? `<blockquote class="focus-note">${item.submitterNote
-          .split(/\n+/)
-          .map((para) => para.trim())
-          .filter(Boolean)
-          .map((para) => `<p>${escapeHtml(para)}</p>`)
-          .join("")}</blockquote>`
-      : "";
-
+  // (item 8) The submitter's words are now migrated into the content blocks
+  // above, so there's no separate quote block any more.
   const infoHtml = infoRows.length
     ? `<h4 class="focus-info-heading">information</h4>
       <div class="focus-info">
@@ -1819,7 +1913,6 @@ function renderFocusArticle(item) {
   return `
     <div class="focus-caption-inner">
       ${infoHtml}
-      ${noteHtml}
       ${blocksHtml}
     </div>
   `;
@@ -2203,7 +2296,7 @@ function renderStatsOverview(items) {
         <table class="stats-table stats-overview">
           <thead>
             <tr>
-              <th>IMG</th>
+              <th class="overview-sort" data-overview-sort="img" title="按 IMG 排（默认）">IMG${overviewSortArrow("img")}</th>
               <th class="overview-sort" data-overview-sort="date">date${overviewSortArrow("date")}</th>
               <th class="overview-sort" data-overview-sort="type">type${overviewSortArrow("type")}</th>
               <th class="overview-sort" data-overview-sort="area">area${overviewSortArrow("area")}</th>
@@ -2267,22 +2360,64 @@ function looseDateKey(value) {
   return parts.y * 1e8 + parts.mo * 1e6 + parts.da * 1e4 + (parts.hh || 0) * 100 + parts.mm;
 }
 
-// The "Archive (contributed)" view: a sortable overview table of contributed
-// umbrellas only — no cross-tab, and no type/object/state columns (用户要求).
-// Columns: IMG / submission time / photo time / location / remarks.
+// Build "Name" / "Name（k）" labels for contributed records — same submitter with
+// multiple submissions gets a numbered suffix (item 3). Numbered by submission
+// time then id for stability.
+function contributedSubmitterLabels(items) {
+  const byName = {};
+  items.forEach((it) => {
+    const n = it.submitter || "(unknown)";
+    (byName[n] = byName[n] || []).push(it);
+  });
+  const labels = new Map();
+  Object.entries(byName).forEach(([name, list]) => {
+    list.sort((a, b) => looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime) || String(a.id).localeCompare(b.id));
+    list.forEach((it, i) => labels.set(it.id, list.length > 1 ? `${name}（${i + 1}）` : name));
+  });
+  return labels;
+}
+
+// The contributed Archive scope (item 3): mirrors Fieldwork — a sort toolbar
+// (投稿時間/撮影時間/場所) over a photo-card grid, plus a 統計 overview table.
 function renderContributedArchive() {
   if (!els.contributedContent) {
     return;
   }
   const items = state.umbrellas.filter((item) => item.submissionType === "contributed");
-  const sortKey = state.contributedSort || "submission";
+  const ja = state.lang === "ja";
+  const mode = state.contributedMode || "submission";
+
+  const arrow = (key) =>
+    `<span class="sort-arrow" aria-hidden="true">${
+      mode === key ? (state.contributedOrder === "asc" ? " ↑" : " ↓") : ""
+    }</span>`;
+  const btn = (key, label, withArrow = true) =>
+    `<button type="button" class="archive-control${mode === key ? " is-active" : ""}" data-contrib-mode="${key}">${label}${withArrow ? arrow(key) : ""}</button>`;
+  const toolbar = `
+    <div class="archive-toolbar" aria-label="contributed sort controls">
+      <p data-i18n="sortBy">${ja ? "並び替え" : "Sort by"}</p>
+      <div class="archive-primary-row">
+        <div class="archive-toolbar-group" role="group" aria-label="sort mode">
+          ${btn("submission", ja ? "投稿日時" : "Submitted")}
+          ${btn("photo", ja ? "撮影日時" : "Taken")}
+          ${btn("location", ja ? "場所" : "Location")}
+          ${btn("stats", ja ? "統計" : "Stats", false)}
+        </div>
+      </div>
+    </div>`;
+
+  if (mode === "stats") {
+    els.contributedContent.innerHTML = toolbar + renderContributedOverview(items);
+    return;
+  }
+
   const order = state.contributedOrder === "asc" ? 1 : -1;
   const keyFns = {
     submission: (it) => looseDateKey(it.submissionTime),
     photo: (it) => looseDateKey(it.time || it.photoTime),
     location: (it) => (it.location || "").toLowerCase(),
   };
-  const kf = keyFns[sortKey] || keyFns.submission;
+  const kf = keyFns[mode] || keyFns.submission;
   const sorted = items.slice().sort((a, b) => {
     const ka = kf(a);
     const kb = kf(b);
@@ -2290,46 +2425,59 @@ function renderContributedArchive() {
     if (ka > kb) return order;
     return String(a.id).localeCompare(String(b.id));
   });
+  els.contributedContent.innerHTML =
+    toolbar + `<div class="photo-grid">${sorted.map((item) => renderPhotoCard(item)).join("")}</div>`;
+}
 
-  const ja = state.lang === "ja";
-  // Match the main Archive look: an ↑ / ↓ glyph inside a .sort-arrow span on the
-  // active sort button (item 2 — same up/down arrow icons as Archive).
-  const arrow = (key) =>
-    `<span class="sort-arrow" aria-hidden="true">${
-      state.contributedSort === key ? (state.contributedOrder === "asc" ? " ↑" : " ↓") : ""
-    }</span>`;
-  const btn = (key, label) =>
-    `<button type="button" class="archive-control${state.contributedSort === key ? " is-active" : ""}" data-contrib-sort="${key}">${label}${arrow(key)}</button>`;
-  const heads = ja ? ["IMG", "投稿日時", "撮影日時", "場所", "備考"] : ["IMG", "Submitted", "Taken", "Location", "Remarks"];
+// Contributed stats overview: contributor / submitted / taken / place. English
+// labels regardless of site language (item 3/9). Default order = contributor
+// alphabetical; submitted/taken/place toggle direction; contributor resets.
+function renderContributedOverview(items) {
+  const labels = contributedSubmitterLabels(items);
+  const key = state.contribOverviewSortKey || "submitter";
+  const dir = state.contribOverviewSortDir === "desc" ? -1 : 1;
+  const keyFns = {
+    submitter: (it) => labels.get(it.id) || "",
+    submitted: (it) => looseDateKey(it.submissionTime),
+    taken: (it) => looseDateKey(it.time || it.photoTime),
+    place: (it) => (it.location || "").toLowerCase(),
+  };
+  const kf = keyFns[key] || keyFns.submitter;
+  const sorted = items.slice().sort((a, b) => {
+    const ka = kf(a);
+    const kb = kf(b);
+    let d = 0;
+    if (typeof ka === "number") {
+      d = ka - kb;
+    } else {
+      d = String(ka).localeCompare(String(kb));
+    }
+    return (d || String(labels.get(a.id)).localeCompare(String(labels.get(b.id)))) * dir;
+  });
+  const arrow = (k) => (key === k ? (dir === 1 ? " ▲" : " ▼") : "");
+  const head = (k, label) => `<th class="overview-sort" data-contrib-overview-sort="${k}">${label}${arrow(k)}</th>`;
   const rows = sorted
     .map(
       (it) =>
         `<tr>` +
-        `<td class="overview-id" data-overview-id="${escapeHtml(it.id)}">${escapeHtml(it.id)}</td>` +
-        `<td>${escapeHtml(formatLooseDate(it.submissionTime))}</td>` +
+        `<td class="overview-id" data-overview-id="${escapeHtml(it.id)}">${escapeHtml(labels.get(it.id) || "")}</td>` +
+        `<td>${escapeHtml(formatDateOnly(it.submissionTime))}</td>` +
         `<td>${escapeHtml(formatLooseDate(it.time || it.photoTime))}</td>` +
         `<td>${escapeHtml(it.location || "")}</td>` +
-        `<td>${escapeHtml(it.remarks || "")}</td>` +
         `</tr>`,
     )
     .join("");
-
-  els.contributedContent.innerHTML = `
-    <div class="archive-toolbar" aria-label="contributed sort controls">
-      <p>${ja ? "並び替え" : "Sort by"}</p>
-      <div class="archive-primary-row">
-        <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-          ${btn("submission", ja ? "投稿日時" : "Submitted")}
-          ${btn("photo", ja ? "撮影日時" : "Taken")}
-          ${btn("location", ja ? "場所" : "Location")}
-        </div>
-      </div>
-    </div>
+  return `
     <section class="stats-block">
-      <h3 class="stats-heading">${ja ? "投稿の傘 総覧" : "Contributed umbrellas"} (${sorted.length})</h3>
+      <h3 class="stats-heading">${state.lang === "ja" ? "投稿の傘 総覧" : "Contributed umbrellas"} (${sorted.length})</h3>
       <div class="stats-table-wrap">
         <table class="stats-table stats-overview">
-          <thead><tr>${heads.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
+          <thead><tr>
+            ${head("submitter", "contributor")}
+            ${head("submitted", "submitted")}
+            ${head("taken", "taken")}
+            ${head("place", "place")}
+          </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -3481,6 +3629,36 @@ function isContributedItem(item) {
   return item?.submissionType === "contributed";
 }
 
+// Four marker categories, each its own pin colour + legend entry (items 6/15/16):
+//   own-title (深红) / own (红) / contrib-story (深绿) / contrib (绿)
+// A contributed point counts as "story" once it carries narrative text (its
+// submitter note is migrated into a content paragraph → item.story, item 8/15).
+const MARKER_COLORS = {
+  "own-title": "#8f2310",
+  own: "#c54f35",
+  "contrib-story": "#1f6b3a",
+  contrib: "#2e9e5b",
+};
+const MARKER_CATEGORIES = ["own-title", "own", "contrib-story", "contrib"];
+// English labels for the map filter + About legend (always English, item 3/9/15).
+const MARKER_LABELS = {
+  "own-title": "Fieldwork · titled",
+  own: "Fieldwork",
+  "contrib-story": "Contributed · story",
+  contrib: "Contributed",
+};
+
+function itemHasStory(item) {
+  return Boolean(item?.story && String(item.story).trim());
+}
+
+function markerCategory(item) {
+  if (isContributedItem(item)) {
+    return itemHasStory(item) ? "contrib-story" : "contrib";
+  }
+  return itemHasTitle(item) ? "own-title" : "own";
+}
+
 // A point has a title if either language is filled (title may be {ja,en} or a
 // legacy string). Titled points get a deeper red pin (用户要求).
 function itemHasTitle(item) {
@@ -3494,13 +3672,13 @@ function itemHasTitle(item) {
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), itemHasTitle(item), isContributedItem(item)));
+    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
   });
 }
 
-function markerIcon(isActive, flagColor, hasTitle, isContributed) {
-  // Contributed → green; otherwise red (titled points a deeper red).
-  const base = isContributed ? "#2e9e5b" : hasTitle ? "#8f2310" : "#c54f35";
+function markerIcon(isActive, flagColor, category) {
+  // Colour by the 4-way category (own-title / own / contrib-story / contrib).
+  const base = MARKER_COLORS[category] || MARKER_COLORS.own;
   return {
     path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
     fillColor: flagColor || (isActive ? "#1f8bb8" : base),
@@ -3513,9 +3691,9 @@ function markerIcon(isActive, flagColor, hasTitle, isContributed) {
   };
 }
 
-function hoverMarkerIcon(isActive, flagColor, hasTitle, isContributed) {
+function hoverMarkerIcon(isActive, flagColor, category) {
   return {
-    ...markerIcon(isActive, flagColor, hasTitle, isContributed),
+    ...markerIcon(isActive, flagColor, category),
     scale: 1.72,
   };
 }
@@ -3559,7 +3737,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=96", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=97", { updateViaCache: "none" });
   }
 }
 
@@ -3858,6 +4036,13 @@ function setupEditor() {
   editor.statusesWrap = statusRow.querySelector(".editor-statuses");
   umbBody.appendChild(statusRow);
 
+  // 备注 Remarks — internal note, sits above 内容 in the right column (item 1).
+  const remarksRow = document.createElement("label");
+  remarksRow.className = "editor-row";
+  remarksRow.innerHTML = `<span>备注 Remarks（仅内部，不公开展示）</span><textarea class="editor-remarks" rows="2" placeholder="内部备注，可留空"></textarea>`;
+  rightCol.appendChild(remarksRow);
+  editor.remarks = remarksRow.querySelector(".editor-remarks");
+
   // 内容 Content — its own column on the right (item 9). Photos (cover + others)
   // and text paragraphs reorder together.
   const contentRow = document.createElement("div");
@@ -4091,7 +4276,7 @@ function renderEditorPreview() {
 }
 
 const MEDIA_ROLE_LABELS = {
-  supplement: "补充图片",
+  supplement: "补充",
   detail: "细节",
   illustration: "插图",
 };
@@ -4215,19 +4400,23 @@ function renderFlow() {
       const mediaPreview = isVideoFile(item.file)
         ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
         : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
+      // Filename to the LEFT of the role dropdown (item 10); action buttons in a
+      // tidy vertical column on the right (item 2). Time box is blank by default
+      // (blank = use the photo's own EXIF time, item 2).
       row.innerHTML = `
         ${mediaPreview}
         <div class="editor-media-controls">
           <div class="editor-media-top">
+            <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
             ${roleControl}
-            <div class="editor-block-buttons">
-              ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
-              ${moveButtons}
-              <button type="button" data-fact="del-photo" title="删除图片">✕</button>
-            </div>
           </div>
           ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
-          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.photoTime || "")}" placeholder="默认用照片时间" /></label>` : ""}
+          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.photoTime || "")}" placeholder="" /></label>` : ""}
+        </div>
+        <div class="editor-block-buttons editor-block-buttons-vertical">
+          ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
+          ${moveButtons}
+          <button type="button" data-fact="del-photo" title="删除图片">✕</button>
         </div>`;
       row.querySelector(".editor-flow-role")?.addEventListener("change", (event) => {
         item.role = event.target.value;
@@ -4843,6 +5032,9 @@ function openEditor(id) {
   syncSourceVisibility();
   editor.submitter.value = raw.submitter || "";
   editor.submissionTime.value = formatDateOnly(raw.submissionTime) || "";
+  if (editor.remarks) {
+    editor.remarks.value = raw.remarks || "";
+  }
   editor.submitterNote.value = raw.submitterNote || "";
   editor.locApprox.checked = Boolean(raw.locationApprox);
   editor.timeApprox.checked = Boolean(raw.timeApprox);
@@ -4987,6 +5179,7 @@ async function saveEditor() {
   payload.submitter = editor.submitter.value;
   // Submission time is stored date-only (年月日), no hour/minute (item 8).
   payload.submissionTime = formatDateOnly(editor.submissionTime.value);
+  payload.remarks = editor.remarks ? editor.remarks.value : "";
   payload.submitterNote = editor.submitterNote.value;
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;
@@ -5112,6 +5305,22 @@ async function onCreateRecord(event) {
   if (!file) {
     return;
   }
+  // Offer to rename the file (item 14). Blank = keep the original name. The
+  // chosen filename becomes the primary image (and thus the record's id).
+  let filename = file.name;
+  const renamed = window.prompt(
+    `是否修改图片文件名？\n留空＝保持原名「${file.name}」。\n（含扩展名，如 abc.jpg；这也会成为标点 ID）`,
+    "",
+  );
+  if (renamed && renamed.trim()) {
+    let name = renamed.trim();
+    // Keep the original extension if the user didn't type one.
+    if (!/\.[a-z0-9]+$/i.test(name)) {
+      const ext = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : "";
+      name += ext;
+    }
+    filename = name;
+  }
   showEditorToast("新增中…");
   try {
     const dataBase64 = await readFileAsDataUrl(file);
@@ -5124,7 +5333,7 @@ async function onCreateRecord(event) {
     const category = pending.category || (source === "contributed" ? "submission(pending)" : "unknown");
     // Contributed points usually only have a rough location/time, so default
     // both "approximate" flags on (the editor can untick them).
-    const createPayload = { filename: file.name, dataBase64, coordinates, category };
+    const createPayload = { filename, dataBase64, coordinates, category };
     if (source === "contributed") {
       createPayload.submissionType = "contributed";
       createPayload.locationApprox = true;

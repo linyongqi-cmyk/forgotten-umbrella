@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=96" />
+    <link rel="stylesheet" href="styles.css?v=97" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -114,6 +114,15 @@
                 <path d="M8.5 19h7" />
               </svg>
             </button>
+
+            <div class="map-filter" id="map-filter">
+              <button id="map-filter-toggle" class="map-layer-btn" type="button" aria-expanded="false" aria-label="filter markers" title="filter markers">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M3 5h18l-7 8.5V20l-4-2.2v-4.3z" />
+                </svg>
+              </button>
+              <div class="map-filter-panel" id="map-filter-panel" hidden></div>
+            </div>
           </div>
 
           <aside class="side-panel" id="list-panel" aria-label="location list">
@@ -200,6 +209,7 @@
 
         <section class="about-view view" id="about-view" aria-label="about project">
           <div class="about-copy" id="about-copy"></div>
+          <div class="about-legend" id="about-legend" aria-label="map legend"></div>
           <dl class="about-stats">
             <div>
               <dt id="stat-count">0</dt>
@@ -222,6 +232,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=96" type="module"></script>
+    <script src="app.js?v=97" type="module"></script>
   </body>
 </html>

@@ -552,6 +552,61 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   border-color: var(--accent);
 }
 
+/* Map marker filter: a button that expands a 4-colour show/hide panel (item 6). */
+.map-filter {
+  position: relative;
+}
+
+.map-filter-panel {
+  position: absolute;
+  left: calc(100% + 10px);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.map-filter-panel[hidden] {
+  display: none;
+}
+
+.map-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  opacity: 0.4;
+}
+
+.map-filter-row.is-on {
+  opacity: 1;
+}
+
+.map-filter-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.map-filter-label {
+  white-space: nowrap;
+}
+
 .panel-heading h2,
 .section-heading h2,
 .about-copy h2 {
@@ -987,7 +1042,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   max-height: none;
   object-fit: contain;
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  /* No drop shadow on detail-page images (用户要求 item 4). */
   cursor: zoom-in;
   transform: translate3d(var(--image-pan-x), var(--image-pan-y), 0) scale(var(--image-zoom));
   transform-origin: var(--image-origin-x) var(--image-origin-y);
@@ -1878,6 +1933,35 @@ body.edit-mode .card-edit {
   text-align: justify;
 }
 
+/* Map legend (item 15) — 4 marker colours + meaning. */
+.about-legend {
+  margin: 28px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.about-legend-title {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.about-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.about-legend-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
 .about-stats {
   display: grid;
   gap: 12px;
@@ -2104,6 +2188,18 @@ body.edit-mode .card-edit {
   flex-direction: column-reverse;
   align-items: center;
   gap: 10px;
+}
+
+/* When a record editor is open, the left preview (≤360px) + right drawer (≤880px)
+   sandwich the map; float the toolbar horizontally in the middle of that free
+   gap, up top (item 12). */
+body.editor-open .editor-toolbar {
+  right: auto;
+  bottom: auto;
+  top: 16px;
+  left: calc(360px + (100vw - 360px - min(880px, 96vw)) / 2);
+  transform: translateX(-50%);
+  flex-direction: row;
 }
 
 /* The whole local editor UI is always light mode (用户要求). */
@@ -3007,10 +3103,27 @@ body:not(.edit-mode) .editor-add {
 .editor-block-photo {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 12px;
   color: #4d5a56;
+}
+
+/* Filename shown to the left of the role dropdown, truncated (item 10). */
+.editor-media-file {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #8a948f;
+}
+
+/* Action buttons stacked vertically on the right of the block (item 2). */
+.editor-block-buttons-vertical {
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .editor-block-photo img,
@@ -3205,6 +3318,9 @@ body:not(.edit-mode) .editor-add {
   font: inherit;
   font-size: 12px;
   background: #fff;
+  /* Options are 2 chars — keep it narrow, don't stretch (item 10). */
+  flex-shrink: 0;
+  width: auto;
 }
 
 /* Live detail preview on the left while editing */

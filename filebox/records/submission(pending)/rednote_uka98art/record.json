@@ -2,22 +2,22 @@
   // 版本号。以后如果记录结构升级，可以用这个字段做兼容。
   "schemaVersion": 1,
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
-  "sourceIndex": 100,
+  "sourceIndex": 101,
   // 手动填写的展示地址。
-  "locationText": "Kawaguchi City, Saitama",
+  "locationText": "pedestrian overpass near Ikuta Station, Tama Ward, Kawasaki City, Kanagawa",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 35.8077,
-    "lng": 139.724
+    "lat": 35.609,
+    "lng": 139.552
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
-  "time": "2026.04.19, 20:11",
+  "time": "2022.06.04, 14:33",
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
@@ -35,13 +35,13 @@
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "contributed",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
-  "submitter": "@rednote/186833939",
+  "submitter": "@rednote/uka98art",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "2026/04/21",
+  "submissionTime": "2026/04/22",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
-  "submitterNote": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥\nSender: It might not be a forgotten umbrella, but it's a heart",
+  "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
   "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
@@ -49,16 +49,24 @@
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "投稿者:傘って、長く忘れられすぎると、しまいには植物になっちゃうのかも。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "投稿者:傘って、長く忘れられすぎると、しまいには植物になっちゃうのかも。",
+        "en": "Sender: If an umbrella is left forgotten for long enough, it might even start turning into a plant."
+      }
+    }
+  ],
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
       // 媒体 ID。主图通常和文件夹名一致。
-      "id": "rednote_186833939_1_1",
+      "id": "rednote_uka98art_1_1",
       // 文件名。文件本体放在当前 record.json 所在文件夹里。
-      "file": "rednote_186833939_1_1.jpg",
+      "file": "rednote_uka98art_1_1.jpg",
       // 角色。建议使用 primary、detail、illustration。
       "role": "primary",
       // 这张媒体自己的标题。没有就保持空字符串。
