@@ -17,6 +17,9 @@ const state = {
   cameraAnimationFrame: null,
   projectionOverlay: null,
   archiveMode: "time",
+  // Archive page has two scopes toggled from the big heading: own (Fieldwork) or
+  // contributed. Replaces the old separate "Archive (contributed)" nav tab.
+  archiveScope: "own",
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
@@ -125,6 +128,7 @@ const UI_TEXT = {
     en: "This prototype breaks a forgotten umbrella down into four threads — place, time, weather and material. The images are still placeholders, but the map, archive and filtering are ready to grow, so real photos, interview notes or audio can be plugged in later.",
   },
   archiveHeading: { ja: "アーカイブ", en: "Archive" },
+  contributedHeading: { ja: "アーカイブ（投稿）", en: "Archive (contributed)" },
   // Map type / satellite-label toggle buttons (their text is set dynamically by
   // syncMapTypeButton, so they can't carry a data-i18n attribute).
   mapToMap: { ja: "地図", en: "Map" },
@@ -139,7 +143,7 @@ const UI_TEXT = {
   contributedBadge: { ja: "投稿", en: "Contributed" },
   submitterCredit: { ja: "投稿者", en: "Contributed by" },
   approxPrefix: { ja: "約 ", en: "approx. " },
-  statsScopeOwn: { ja: "オリジナル", en: "Original" },
+  statsScopeOwn: { ja: "フィールド", en: "Fieldwork" },
   statsScopeContributed: { ja: "投稿", en: "Contributed" },
 };
 
@@ -159,8 +163,18 @@ const I18N = {
 function applyLanguage() {
   document.documentElement.lang = state.lang;
   renderAbout();
-  document.querySelectorAll(".panel-heading h2, .section-heading h2").forEach((heading) => {
+  document.querySelectorAll(".panel-heading h2").forEach((heading) => {
     heading.textContent = UI_TEXT.archiveHeading[state.lang];
+  });
+  // Archive page scope tabs: own = アーカイブ/Archive, contributed = with suffix.
+  document.querySelectorAll("[data-archive-scope]").forEach((tab) => {
+    const heading = tab.querySelector("h2");
+    if (heading) {
+      heading.textContent =
+        tab.dataset.archiveScope === "contributed"
+          ? UI_TEXT.contributedHeading[state.lang]
+          : UI_TEXT.archiveHeading[state.lang];
+    }
   });
   // Swap every static labelled element (sidebar chips, archive controls, about
   // stats) to the current language.
@@ -267,6 +281,8 @@ const els = {
   focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
   contributedContent: document.querySelector("#contributed-content"),
+  archiveOwnToolbar: document.querySelector("#archive-own-toolbar"),
+  archiveScopeTabs: document.querySelectorAll("[data-archive-scope]"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
@@ -503,6 +519,16 @@ function bindEvents() {
       if (view === "map" && state.googleReady) {
         setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
       }
+    });
+  });
+
+  // Archive page heading toggle: switch between own (Fieldwork) and contributed
+  // overviews in place — same page, same look (item 2).
+  els.archiveScopeTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      state.archiveScope = tab.dataset.archiveScope === "contributed" ? "contributed" : "own";
+      syncArchiveScope();
+      render();
     });
   });
 
@@ -820,6 +846,20 @@ function bindEvents() {
       return;
     }
 
+    // Local editor (item 13): ESC closes the create popup, then the editor
+    // drawer / edit mode. Exiting edit mode prompts to save when there are
+    // unsaved edits (handled in closeEditor).
+    if (IS_LOCAL && typeof editor !== "undefined" && editor.root) {
+      if (editor.createDialog && !editor.createDialog.hidden) {
+        closeCreateDialog();
+        return;
+      }
+      if (state.editMode) {
+        toggleEditMode();
+        return;
+      }
+    }
+
     if (els.mapView.classList.contains("is-focus-mode")) {
       closeFocusMode({ resetZoom: true });
     }
@@ -833,6 +873,24 @@ function syncPanelToggleLabels() {
     "\u30ea\u30b9\u30c8\u3092\u9589\u3058\u308b",
     "\u30ea\u30b9\u30c8\u3092\u958b\u304f",
   );
+}
+
+// Show the own (Fieldwork) toolbar + grid for scope "own", or the contributed
+// overview table for scope "contributed". Same Archive page, toggled by heading.
+function syncArchiveScope() {
+  const contributed = state.archiveScope === "contributed";
+  els.archiveScopeTabs.forEach((tab) => {
+    tab.classList.toggle("is-active", (tab.dataset.archiveScope === "contributed") === contributed);
+  });
+  if (els.archiveOwnToolbar) {
+    els.archiveOwnToolbar.hidden = contributed;
+  }
+  if (els.archiveContent) {
+    els.archiveContent.hidden = contributed;
+  }
+  if (els.contributedContent) {
+    els.contributedContent.hidden = !contributed;
+  }
 }
 
 function syncArchiveControls() {
@@ -1381,6 +1439,7 @@ function render() {
   renderFocusImage();
   renderArchive();
   renderContributedArchive();
+  syncArchiveScope();
 
   if (els.resultCount) {
     els.resultCount.textContent = `${items.length} item`;
@@ -2206,7 +2265,12 @@ function renderContributedArchive() {
   });
 
   const ja = state.lang === "ja";
-  const arrow = (key) => (state.contributedSort === key ? (state.contributedOrder === "asc" ? " ▲" : " ▼") : "");
+  // Match the main Archive look: an ↑ / ↓ glyph inside a .sort-arrow span on the
+  // active sort button (item 2 — same up/down arrow icons as Archive).
+  const arrow = (key) =>
+    `<span class="sort-arrow" aria-hidden="true">${
+      state.contributedSort === key ? (state.contributedOrder === "asc" ? " ↑" : " ↓") : ""
+    }</span>`;
   const btn = (key, label) =>
     `<button type="button" class="archive-control${state.contributedSort === key ? " is-active" : ""}" data-contrib-sort="${key}">${label}${arrow(key)}</button>`;
   const heads = ja ? ["IMG", "投稿日時", "撮影日時", "場所", "備考"] : ["IMG", "Submitted", "Taken", "Location", "Remarks"];
@@ -3468,7 +3532,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=94", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=95", { updateViaCache: "none" });
   }
 }
 
@@ -3492,9 +3556,17 @@ const editor = {
   unitsDraft: [],
 };
 
+// Icon-only logos for the bottom-right toolbar buttons (item 11).
+const EDITOR_ICON_EDIT =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>';
+const EDITOR_ICON_TEXTS =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 10h14M5 14h9M5 18h9"/></svg>';
+const EDITOR_ICON_ADD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+
 function setupEditor() {
-  // Both local-only buttons live in one fixed toolbar so they line up and share
-  // the same size/style (item: 文案編集 sits to the right of 编辑模式).
+  // The three local-only buttons (edit / 文案 / 新增) live in one fixed toolbar
+  // stacked at the bottom-right, just above the globe button (item 11). Icons
+  // only — no text. 文案 + 新增 only appear once edit mode is on (CSS).
   const toolbar = document.createElement("div");
   toolbar.className = "editor-toolbar";
   document.body.appendChild(toolbar);
@@ -3504,7 +3576,9 @@ function setupEditor() {
   toggle.type = "button";
   toggle.id = "editor-toggle";
   toggle.className = "editor-toggle";
-  toggle.textContent = "✎ 编辑模式";
+  toggle.innerHTML = EDITOR_ICON_EDIT;
+  toggle.title = "编辑模式";
+  toggle.setAttribute("aria-label", "编辑模式");
   toggle.addEventListener("click", toggleEditMode);
   toolbar.appendChild(toggle);
   editor.toggle = toggle;
@@ -3517,21 +3591,30 @@ function setupEditor() {
   drawer.innerHTML = `
     <header class="editor-head">
       <strong id="editor-title">编辑记录</strong>
-      <label class="editor-flag-check" title="勾选＝标记此点后续需要修改（仅编辑模式地图显示）"><input type="checkbox" id="editor-flag-toggle" /><span>待改</span></label>
+      <div class="editor-head-checks">
+        <label class="editor-head-check editor-flag-check" title="标记此点后续需要修改（仅编辑模式地图显示）"><span>待改</span><input type="checkbox" id="editor-flag-toggle" /></label>
+        <label class="editor-head-check" title="勾选后在下方填写关联标点"><span>关联</span><input type="checkbox" id="editor-linked-toggle" /></label>
+        <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
+      </div>
       <button type="button" class="editor-close" aria-label="close">×</button>
     </header>
-    <div class="editor-body"></div>
+    <div class="editor-body">
+      <div class="editor-col editor-col-left"></div>
+      <div class="editor-col editor-col-right"></div>
+    </div>
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
+      <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点">🗑</button>
     </footer>`;
   document.body.appendChild(drawer);
   editor.root = drawer;
   editor.titleEl = drawer.querySelector("#editor-title");
 
-  const body = drawer.querySelector(".editor-body");
+  const body = drawer.querySelector(".editor-col-left");
+  const rightCol = drawer.querySelector(".editor-col-right");
 
-  const addField = (key, label, { textarea = false } = {}) => {
+  const addField = (key, label, { textarea = false, parent = body } = {}) => {
     const row = document.createElement("label");
     row.className = "editor-row";
     const control = textarea ? document.createElement("textarea") : document.createElement("input");
@@ -3540,98 +3623,70 @@ function setupEditor() {
     }
     row.innerHTML = `<span>${label}</span>`;
     row.appendChild(control);
-    body.appendChild(row);
+    parent.appendChild(row);
     editor.fields[key] = control;
-    return control;
+    return { row, control };
   };
 
-  // 1. ID (read-only — it is the record's folder name = primary image name).
-  const idRow = document.createElement("label");
-  idRow.className = "editor-row";
-  idRow.innerHTML = `<span>ID（自动＝主图文件名）</span>`;
-  editor.idEl = document.createElement("input");
-  editor.idEl.readOnly = true;
-  idRow.appendChild(editor.idEl);
-  body.appendChild(idRow);
-
-  // Category (the whole folder name, e.g. "hookable(affordance)") = the type tag.
-  const catRow = document.createElement("label");
-  catRow.className = "editor-row";
-  catRow.innerHTML = `<span>分类 Category（改这里会移动文件夹）</span>`;
-  editor.category = document.createElement("select");
-  catRow.appendChild(editor.category);
-  body.appendChild(catRow);
-  editor.category.addEventListener("change", onCategoryChange);
-
-  // Submission origin: 自己拍的 (own) vs 投稿的伞 (contributed). Switching to
-  // contributed reveals the credit + "approximate" helpers below, and changes
-  // how the detail page / stats treat this point.
+  // ① 来源 Source: 自己拍的 (own) vs 投稿的伞 (contributed).
   const sourceRow = document.createElement("div");
   sourceRow.className = "editor-row";
   sourceRow.innerHTML = `
     <span>来源 Source</span>
     <div class="editor-source">
-      <label><input type="radio" name="editor-source" value="own" checked /> 自己拍的</label>
-      <label><input type="radio" name="editor-source" value="contributed" /> 投稿的伞</label>
+      <label><span>自己拍的</span><input type="radio" name="editor-source" value="own" checked /></label>
+      <label><span>投稿的伞</span><input type="radio" name="editor-source" value="contributed" /></label>
     </div>`;
   body.appendChild(sourceRow);
   editor.sourceRadios = sourceRow.querySelectorAll('input[name="editor-source"]');
 
-  // Contributed-only fields (hidden unless 来源 = 投稿的伞).
-  const contribRow = document.createElement("div");
-  contribRow.className = "editor-row editor-contrib";
-  contribRow.hidden = true;
-  contribRow.innerHTML = `
-    <span>投稿信息 Submission（仅投稿伞）</span>
-    <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
-    <input class="editor-submission-channel" placeholder="投稿渠道/日期（仅内部管理，如 微信 2025-06）" />
-    <label class="editor-sub-field">投稿时间 Submitted<input class="editor-submission-time" placeholder="默认取照片建立时间，可手改" /></label>
-    <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>
-    <label class="editor-check"><input type="checkbox" class="editor-loc-approx" /> 地点只是大概（详情页地点前加「约」）</label>
-    <label class="editor-check"><input type="checkbox" class="editor-time-approx" /> 时间只是大概（详情页时间前加「约」）</label>`;
-  body.appendChild(contribRow);
-  editor.contribRow = contribRow;
-  editor.submitter = contribRow.querySelector(".editor-submitter");
-  editor.submissionChannel = contribRow.querySelector(".editor-submission-channel");
-  editor.submissionTime = contribRow.querySelector(".editor-submission-time");
-  editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
-  editor.locApprox = contribRow.querySelector(".editor-loc-approx");
-  editor.timeApprox = contribRow.querySelector(".editor-time-approx");
-  editor.sourceRadios.forEach((radio) => {
-    radio.addEventListener("change", () => {
-      contribRow.hidden = getEditorSource() !== "contributed";
-    });
-  });
+  // ② 类型 / type (the whole folder name) — only shown for 自己拍的; contributed
+  // umbrellas don't take part in the type classification (item 6).
+  const catRow = document.createElement("label");
+  catRow.className = "editor-row editor-type-row";
+  catRow.innerHTML = `<span>类型 / type（改这里会移动文件夹）</span>`;
+  editor.category = document.createElement("select");
+  catRow.appendChild(editor.category);
+  body.appendChild(catRow);
+  editor.typeRow = catRow;
+  editor.category.addEventListener("change", onCategoryChange);
 
-  // Marker flag (a colour to find points that still need work; edit-mode only).
-  // The "待改" marker now lives as a single checkbox in the header (see above);
-  // wire it up here. Checked saves immediately and recolours the map marker.
-  editor.flagToggle = drawer.querySelector("#editor-flag-toggle");
-  editor.flagToggle.addEventListener("change", onFlagToggle);
-
-  // 2 title — bilingual (日本語 + English). 3 time.
+  // ③ 标题 Title — bilingual; gated by the 标题 checkbox in the header (item 8).
   const titleRow = document.createElement("div");
-  titleRow.className = "editor-row";
+  titleRow.className = "editor-row editor-title-row";
+  titleRow.hidden = true;
   titleRow.innerHTML = `
     <span>标题 Title（日本語 / English）</span>
     <input class="editor-title-ja" placeholder="日本語タイトル（默认空白）" />
     <input class="editor-title-en" placeholder="English title（可留空，英文系统会回退日文）" />`;
   body.appendChild(titleRow);
+  editor.titleRow = titleRow;
   editor.titleJa = titleRow.querySelector(".editor-title-ja");
   editor.titleEn = titleRow.querySelector(".editor-title-en");
 
-  // Linked point: pick another record's id. Shows as a blue link under the
-  // detail page's cover image, click jumps to that point.
+  // ④ 关联标点 Linked point — gated by the 关联 checkbox in the header (item 7).
   const linkRow = document.createElement("label");
-  linkRow.className = "editor-row";
+  linkRow.className = "editor-row editor-linked-row";
+  linkRow.hidden = true;
   linkRow.innerHTML = `<span>关联标点 Linked point（详情页主图右下角显示，可跳转）</span>`;
   editor.linkedId = document.createElement("select");
   linkRow.appendChild(editor.linkedId);
   body.appendChild(linkRow);
+  editor.linkedRow = linkRow;
 
-  addField("time", "拍摄时间(覆盖) Time");
+  // Header checkboxes: 待改 flag (saves immediately), 关联/标题 reveal their rows.
+  editor.flagToggle = drawer.querySelector("#editor-flag-toggle");
+  editor.flagToggle.addEventListener("change", onFlagToggle);
+  editor.linkedToggle = drawer.querySelector("#editor-linked-toggle");
+  editor.titleToggle = drawer.querySelector("#editor-title-toggle");
+  editor.linkedToggle.addEventListener("change", () => {
+    linkRow.hidden = !editor.linkedToggle.checked;
+  });
+  editor.titleToggle.addEventListener("change", () => {
+    titleRow.hidden = !editor.titleToggle.checked;
+  });
 
-  // 4. Coordinates — placed right before the display address.
+  // ⑤ Coordinates (用户要求：放在显示地址前面).
   const coordRow = document.createElement("div");
   coordRow.className = "editor-row";
   coordRow.innerHTML = `
@@ -3644,12 +3699,15 @@ function setupEditor() {
   editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
   coordRow.querySelector(".editor-coord-place").addEventListener("click", placeOnMapCenter);
 
-  // 5. Display address (manual; falls back to the levels below when blank).
+  // ⑥ Display address + 「地点只是大概」checkbox right after it (item 3).
   addField("locationText", "显示地址 Location");
+  const locApproxRow = document.createElement("label");
+  locApproxRow.className = "editor-row editor-inline-check";
+  locApproxRow.innerHTML = `<span>地点只是大概（详情页地点前加「约」）</span><input type="checkbox" class="editor-loc-approx" />`;
+  body.appendChild(locApproxRow);
+  editor.locApprox = locApproxRow.querySelector(".editor-loc-approx");
 
-  // 6. Location levels — cascading dropdowns built from data/japan-areas.json.
-  // Level 1 (japan/other/unknown) is not shown publicly; japan reveals the
-  // prefecture → city → ward selects (each filterable by typing a keyword).
+  // ⑦ Location levels — cascading dropdowns built from data/japan-areas.json.
   const levelsRow = document.createElement("div");
   levelsRow.className = "editor-row editor-levels-row";
   levelsRow.innerHTML = `
@@ -3694,14 +3752,41 @@ function setupEditor() {
   });
   loadAreas();
 
-  // 7/8/9. Umbrella attributes (count + colour/kind + status) folded into ONE
-  // collapsible section with a checkbox. Own umbrellas default checked + open;
-  // contributed default unchecked + collapsed (we usually don't know the伞细节).
-  // Unchecked = this record doesn't record umbrella details (cleared on save).
+  // ⑧ 拍摄时间 Time + 「时间只是大概」checkbox right after it (item 3).
+  addField("time", "拍摄时间(覆盖) Time");
+  const timeApproxRow = document.createElement("label");
+  timeApproxRow.className = "editor-row editor-inline-check";
+  timeApproxRow.innerHTML = `<span>时间只是大概（详情页时间前加「约」）</span><input type="checkbox" class="editor-time-approx" />`;
+  body.appendChild(timeApproxRow);
+  editor.timeApprox = timeApproxRow.querySelector(".editor-time-approx");
+
+  // ⑨ 投稿信息 Submission — only shown for 投稿的伞 (item 3). The approx flags
+  // moved out (now sit next to the address/time fields above).
+  const contribRow = document.createElement("div");
+  contribRow.className = "editor-row editor-contrib";
+  contribRow.hidden = true;
+  contribRow.innerHTML = `
+    <span>投稿信息 Submission（仅投稿伞）</span>
+    <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
+    <input class="editor-submission-channel" placeholder="投稿渠道/日期（仅内部管理，如 微信 2025-06）" />
+    <label class="editor-sub-field">投稿时间 Submitted<input class="editor-submission-time" placeholder="默认取照片建立时间，可手改" /></label>
+    <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>`;
+  body.appendChild(contribRow);
+  editor.contribRow = contribRow;
+  editor.submitter = contribRow.querySelector(".editor-submitter");
+  editor.submissionChannel = contribRow.querySelector(".editor-submission-channel");
+  editor.submissionTime = contribRow.querySelector(".editor-submission-time");
+  editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
+  // Source toggle reveals/hides 投稿信息 and the 类型 row (contributed = no type).
+  editor.sourceRadios.forEach((radio) => {
+    radio.addEventListener("change", syncSourceVisibility);
+  });
+
+  // ⑩ Umbrella attributes (count + colour/kind + status), one collapsible block.
   const umbSection = document.createElement("div");
   umbSection.className = "editor-row editor-umbrella-section";
   umbSection.innerHTML = `
-    <label class="editor-umbrella-toggle"><input type="checkbox" class="editor-umbrella-check" /> <span>记录伞的属性 Umbrella details（数量 / 颜色种类 / 状态）</span></label>
+    <label class="editor-umbrella-toggle"><span>伞的属性</span><input type="checkbox" class="editor-umbrella-check" /></label>
     <div class="editor-umbrella-body"></div>`;
   body.appendChild(umbSection);
   editor.umbrellaCheck = umbSection.querySelector(".editor-umbrella-check");
@@ -3711,10 +3796,9 @@ function setupEditor() {
     umbBody.hidden = !editor.umbrellaCheck.checked;
   });
 
-  // Count. (类型已由「分类 Category」承担，去掉手写的伞的类型框)
   const countRow = document.createElement("label");
   countRow.className = "editor-row";
-  countRow.innerHTML = `<span>伞的数量 Count</span>`;
+  countRow.innerHTML = `<span>数量</span>`;
   editor.count = document.createElement("select");
   editor.count.innerHTML = UMBRELLA_COUNT_OPTIONS.map(
     (value) => `<option value="${value}">${value}</option>`,
@@ -3727,25 +3811,22 @@ function setupEditor() {
   countRow.appendChild(editor.count);
   umbBody.appendChild(countRow);
 
-  // Color & kind units (one row per umbrella, driven by the count).
   const unitsRow = document.createElement("div");
   unitsRow.className = "editor-row";
-  unitsRow.innerHTML = `<span>伞的颜色和种类 Color & kind</span><div class="editor-units"></div>`;
+  unitsRow.innerHTML = `<span>颜色 / 种类</span><div class="editor-units"></div>`;
   editor.unitsWrap = unitsRow.querySelector(".editor-units");
   umbBody.appendChild(unitsRow);
 
-  // Status — one multi-select group per umbrella, driven by the count.
   const statusRow = document.createElement("div");
   statusRow.className = "editor-row";
-  statusRow.innerHTML = `<span>状态 Status（每把伞一组，可多选；随数量增加）</span><div class="editor-statuses"></div>`;
+  statusRow.innerHTML = `<span>状态</span><div class="editor-statuses"></div>`;
   editor.statusesWrap = statusRow.querySelector(".editor-statuses");
   umbBody.appendChild(statusRow);
 
-  // 10. Content — ONE combined list of photos (cover + others) and text
-  // paragraphs, all reorderable together. The detail page renders the
-  // non-cover items in this order.
+  // 内容 Content — its own column on the right (item 9). Photos (cover + others)
+  // and text paragraphs reorder together.
   const contentRow = document.createElement("div");
-  contentRow.className = "editor-row";
+  contentRow.className = "editor-row editor-content-row";
   contentRow.innerHTML = `
     <span>内容 Content（图片与段落一起排序，★ 设为封面）</span>
     <div class="editor-flow"></div>
@@ -3753,37 +3834,40 @@ function setupEditor() {
       <button type="button" class="editor-add-para">＋ 加段落</button>
       <label class="editor-upload"><span>＋ 上传图片/视频</span><input type="file" accept="image/*,video/*" multiple hidden /></label>
     </div>`;
-  body.appendChild(contentRow);
+  rightCol.appendChild(contentRow);
   editor.flowList = contentRow.querySelector(".editor-flow");
   contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
     editor.flow.push({ kind: "text", textJa: "", textEn: "" });
     renderFlow();
+    markEditorDirty();
   });
   contentRow.querySelector(".editor-upload input").addEventListener("change", onUploadImages);
 
-  // Danger zone: delete the whole record.
-  const dangerRow = document.createElement("div");
-  dangerRow.className = "editor-row editor-danger";
-  dangerRow.innerHTML = `<button type="button" class="editor-delete-record">🗑 删除此标点</button>`;
-  body.appendChild(dangerRow);
-  dangerRow.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
-
-  drawer.querySelector(".editor-close").addEventListener("click", closeEditor);
-  drawer.querySelector(".editor-cancel").addEventListener("click", closeEditor);
+  drawer.querySelector(".editor-close").addEventListener("click", () => closeEditor());
+  drawer.querySelector(".editor-cancel").addEventListener("click", () => closeEditor());
   drawer.querySelector(".editor-save").addEventListener("click", saveEditor);
+  drawer.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
   coordRow.querySelector(".editor-coord-reset").addEventListener("click", () => {
     editor.draftCoords = null;
     updateCoordReadout(getRawById(state.editingId));
   });
 
-  // "Add record" button sits next to the edit toggle.
+  // Any input/change inside the drawer marks it dirty (item 13) and live-updates
+  // the left preview (item 10).
+  drawer.addEventListener("input", onEditorInput);
+  drawer.addEventListener("change", onEditorInput);
+
+  // 新增 button → opens a small popup to pick 来源 + 类型 before choosing a photo
+  // (item 12).
   const addButton = document.createElement("button");
   addButton.type = "button";
   addButton.id = "editor-add";
   addButton.className = "editor-add";
-  addButton.textContent = "＋ 新增标点";
-  addButton.addEventListener("click", () => editor.addInput?.click());
-  document.body.appendChild(addButton);
+  addButton.innerHTML = EDITOR_ICON_ADD;
+  addButton.title = "新增标点";
+  addButton.setAttribute("aria-label", "新增标点");
+  addButton.addEventListener("click", openCreateDialog);
+  toolbar.appendChild(addButton);
   editor.addButton = addButton;
 
   const addInput = document.createElement("input");
@@ -3794,26 +3878,8 @@ function setupEditor() {
   document.body.appendChild(addInput);
   editor.addInput = addInput;
 
-  // Category picker for the next "new point" (sits under the add button).
-  const addCategory = document.createElement("select");
-  addCategory.className = "editor-add-category";
-  addCategory.title = "新增标点时使用的分类";
-  addCategory.addEventListener("change", onAddCategoryChange);
-  document.body.appendChild(addCategory);
-  editor.addCategory = addCategory;
+  buildCreateDialog();
   populateCategorySelects();
-
-  // Source picker for the next "new point": 自己拍的 / 投稿的伞. Creating a
-  // contributed point seeds submissionType + "approximate" flags so batch
-  // entry of contributed umbrellas is one click.
-  const addSource = document.createElement("select");
-  addSource.className = "editor-add-source";
-  addSource.title = "新增标点的来源";
-  addSource.innerHTML = `
-    <option value="own">自己拍的</option>
-    <option value="contributed">投稿的伞</option>`;
-  document.body.appendChild(addSource);
-  editor.addSource = addSource;
 
   // Live detail-page preview shown on the left while editing.
   const preview = document.createElement("aside");
@@ -3825,17 +3891,167 @@ function setupEditor() {
   editor.previewInner = preview.querySelector(".editor-preview-inner");
 }
 
-// Render the (last saved) detail page of the record being edited, as a
-// reference preview on the left.
-function renderEditorPreview(id) {
-  const item = state.umbrellas.find((entry) => entry.id === id);
-  if (!item || !editor.previewInner) {
+// Show/hide the contributed-only block and the type row based on 来源 (item 3/6).
+function syncSourceVisibility() {
+  const contributed = getEditorSource() === "contributed";
+  if (editor.contribRow) {
+    editor.contribRow.hidden = !contributed;
+  }
+  if (editor.typeRow) {
+    editor.typeRow.hidden = contributed;
+  }
+}
+
+// The "新增" popup: pick 来源 + 类型 first; 投稿 hides the type select (item 12).
+function buildCreateDialog() {
+  const dialog = document.createElement("div");
+  dialog.className = "editor-create-dialog";
+  dialog.hidden = true;
+  dialog.innerHTML = `
+    <div class="editor-create-card" role="dialog" aria-label="新增标点">
+      <strong>新增标点</strong>
+      <div class="editor-row">
+        <span>来源 Source</span>
+        <div class="editor-source">
+          <label><span>自己拍的</span><input type="radio" name="editor-create-source" value="own" checked /></label>
+          <label><span>投稿的伞</span><input type="radio" name="editor-create-source" value="contributed" /></label>
+        </div>
+      </div>
+      <div class="editor-row editor-create-type-row">
+        <span>类型 / type</span>
+        <select class="editor-create-type"></select>
+      </div>
+      <div class="editor-create-actions">
+        <button type="button" class="editor-create-pick">选择照片</button>
+        <button type="button" class="editor-create-cancel">取消</button>
+      </div>
+    </div>`;
+  document.body.appendChild(dialog);
+  editor.createDialog = dialog;
+  editor.createSourceRadios = dialog.querySelectorAll('input[name="editor-create-source"]');
+  editor.createType = dialog.querySelector(".editor-create-type");
+  editor.createTypeRow = dialog.querySelector(".editor-create-type-row");
+  editor.createSourceRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      const contributed = getCreateSource() === "contributed";
+      editor.createTypeRow.hidden = contributed;
+    });
+  });
+  // "＋ 新建分类…" prompts for a new type and inserts it (same as the editor select).
+  editor.createType.addEventListener("change", (event) => {
+    if (event.target.value !== "__new__") {
+      return;
+    }
+    const created = promptNewCategory();
+    if (created) {
+      const option = document.createElement("option");
+      option.value = created;
+      option.textContent = created;
+      event.target.insertBefore(option, event.target.lastElementChild);
+      event.target.value = created;
+    } else {
+      event.target.value = "unknown";
+    }
+  });
+  dialog.querySelector(".editor-create-cancel").addEventListener("click", closeCreateDialog);
+  dialog.querySelector(".editor-create-pick").addEventListener("click", () => {
+    editor.pendingCreate = {
+      source: getCreateSource(),
+      category: getCreateSource() === "contributed" ? "submission(pending)" : editor.createType.value || "unknown",
+    };
+    closeCreateDialog();
+    editor.addInput?.click();
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      closeCreateDialog();
+    }
+  });
+}
+
+function getCreateSource() {
+  const checked = Array.from(editor.createSourceRadios || []).find((radio) => radio.checked);
+  return checked ? checked.value : "own";
+}
+
+function openCreateDialog() {
+  if (!editor.createDialog) {
     return;
   }
+  // Reset to 自己拍的 + first type each time.
+  editor.createSourceRadios.forEach((radio) => {
+    radio.checked = radio.value === "own";
+  });
+  editor.createTypeRow.hidden = false;
+  editor.createDialog.hidden = false;
+}
+
+function closeCreateDialog() {
+  if (editor.createDialog) {
+    editor.createDialog.hidden = true;
+  }
+}
+
+// Render the (last saved) detail page of the record being edited, as a
+// reference preview on the left.
+// Build a draft item from the editor's CURRENT (unsaved) field values so the
+// preview reflects edits live (item 10). Overlays the editable fields onto the
+// last-saved record; object/state info lines stay as last saved (they only
+// recompute on save).
+function buildPreviewDraft() {
+  const id = state.editingId;
+  const saved = state.umbrellas.find((entry) => entry.id === id) || {};
+  const flow = editor.flow || [];
+  const photos = flow.filter((i) => i.kind === "photo");
+  const media = photos.map((p) => ({
+    file: p.file,
+    id: p.id,
+    role: p.role,
+    title: p.title,
+    photoTime: p.photoTime,
+    src: p.src || p.thumb || "",
+  }));
+  const blocks = flow
+    .filter((i) => i.kind === "text" || (i.kind === "photo" && i.role !== "primary"))
+    .map((i) =>
+      i.kind === "text"
+        ? { type: "text", text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+        : { type: "photo", file: i.file },
+    );
+  const submissionType = getEditorSource();
+  const title = editor.titleToggle?.checked
+    ? { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() }
+    : { ja: "", en: "" };
+  const location =
+    editor.fields.locationText.value.trim() ||
+    formatLocationLevels(collectLevelsForSave()) ||
+    saved.location ||
+    "";
+  return {
+    ...saved,
+    id,
+    title,
+    location,
+    time: editor.fields.time.value.trim() || saved.time || "",
+    submissionType,
+    submitter: editor.submitter.value.trim(),
+    submitterNote: editor.submitterNote.value.trim(),
+    locationApprox: editor.locApprox.checked,
+    timeApprox: editor.timeApprox.checked,
+    media,
+    blocks,
+  };
+}
+
+function renderEditorPreview() {
+  if (!state.editingId || !editor.previewInner) {
+    return;
+  }
+  const item = buildPreviewDraft();
   const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
   editor.previewInner.innerHTML = `
     <header class="focus-header">${renderFocusHeader(item)}</header>
-    <div class="editor-preview-cover"><img src="${escapeHtml(cover?.src || item.image)}" alt="" /></div>
+    ${cover ? `<div class="editor-preview-cover"><img src="${escapeHtml(cover.src || item.image || "")}" alt="" /></div>` : ""}
     ${renderFocusArticle(item)}`;
 }
 
@@ -4002,13 +4218,13 @@ function onFlowAction(action, index) {
   }
   if (action === "up" && index > 0) {
     flow.splice(index - 1, 0, flow.splice(index, 1)[0]);
-    renderFlow();
+    afterFlowEdit();
   } else if (action === "down" && index < flow.length - 1) {
     flow.splice(index + 1, 0, flow.splice(index, 1)[0]);
-    renderFlow();
+    afterFlowEdit();
   } else if (action === "del-text") {
     flow.splice(index, 1);
-    renderFlow();
+    afterFlowEdit();
   } else if (action === "primary") {
     flow.forEach((entry) => {
       if (entry.kind === "photo" && entry.role === "primary") {
@@ -4016,10 +4232,17 @@ function onFlowAction(action, index) {
       }
     });
     item.role = "primary";
-    renderFlow();
+    afterFlowEdit();
   } else if (action === "del-photo") {
     deleteMediaFile(item.file);
   }
+}
+
+// Re-render the content list, mark unsaved (item 13) + refresh preview (item 10).
+function afterFlowEdit() {
+  renderFlow();
+  markEditorDirty();
+  renderEditorPreview();
 }
 
 // Make the units draft length match the chosen count (1-5). Blank/"unknown"
@@ -4131,7 +4354,7 @@ function renderEditorStatuses() {
       <div class="editor-status">
         ${UMBRELLA_STATUS_OPTIONS.map(
           (o) =>
-            `<label class="editor-status-item"><input type="checkbox" value="${o.value}" ${unit.status.includes(o.value) ? "checked" : ""} ${otherOn && o.value !== "other" ? "disabled" : ""} /><span>${o.label}</span></label>`,
+            `<label class="editor-status-item"><span>${o.label}</span><input type="checkbox" value="${o.value}" ${unit.status.includes(o.value) ? "checked" : ""} ${otherOn && o.value !== "other" ? "disabled" : ""} /></label>`,
         ).join("")}
       </div>
       <input class="editor-status-other" placeholder="other 的说明" value="${escapeHtml(unit.statusOther || "")}" ${otherOn ? "" : "hidden"} />`;
@@ -4336,8 +4559,8 @@ function collectLevelsForSave() {
 function toggleEditMode() {
   state.editMode = !state.editMode;
   document.body.classList.toggle("edit-mode", state.editMode);
-  editor.toggle.textContent = state.editMode ? "✓ 退出编辑" : "✎ 编辑模式";
   editor.toggle.classList.toggle("is-active", state.editMode);
+  editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
   if (!state.editMode) {
     closeEditor();
   }
@@ -4362,10 +4585,12 @@ function setupTextsEditor() {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.id = "texts-toggle";
-  // Reuse .editor-toggle so it's the exact same size/style as the 编辑模式 button.
+  // Reuse .editor-toggle so it's the exact same size/style as the 编辑模式 button
+  // (icon-only, item 11).
   btn.className = "editor-toggle texts-toggle";
-  btn.textContent = "文 文案編集";
-  btn.title = "编辑类型说明文 / 统计页说明文（日英双语，存到 data/texts.json）";
+  btn.innerHTML = EDITOR_ICON_TEXTS;
+  btn.title = "文案編集（类型说明文 / 统计页说明文，日英双语）";
+  btn.setAttribute("aria-label", "文案編集");
   btn.addEventListener("click", openTextsEditor);
   (editor.toolbar || document.body).appendChild(btn);
 }
@@ -4554,29 +4779,36 @@ function openEditor(id) {
   if (editor.titleEl) {
     editor.titleEl.textContent = `编辑：${id}`;
   }
-  editor.idEl.value = id;
   populateCategorySelects();
   editor.category.value = categoryFolderOf(raw);
   syncFlagCheckbox(raw.editFlag || "");
   PLAIN_FIELD_KEYS.forEach((key) => {
     editor.fields[key].value = raw[key] || "";
   });
-  // Bilingual title: existing single-language titles land in the 日本語 box.
+  // Bilingual title: existing single-language titles land in the 日本語 box. The
+  // 标题 row is gated by the header checkbox — ticked when a title already exists.
   const rawTitle = raw.title;
-  editor.titleJa.value = rawTitle && typeof rawTitle === "object" ? rawTitle.ja || "" : rawTitle || "";
-  editor.titleEn.value = rawTitle && typeof rawTitle === "object" ? rawTitle.en || "" : "";
+  const titleJa = rawTitle && typeof rawTitle === "object" ? rawTitle.ja || "" : rawTitle || "";
+  const titleEn = rawTitle && typeof rawTitle === "object" ? rawTitle.en || "" : "";
+  editor.titleJa.value = titleJa;
+  editor.titleEn.value = titleEn;
+  editor.titleToggle.checked = Boolean(titleJa || titleEn);
+  editor.titleRow.hidden = !editor.titleToggle.checked;
   // Submission origin + contributed-only fields.
   const submissionType = raw.submissionType === "contributed" ? "contributed" : "own";
   editor.sourceRadios.forEach((radio) => {
     radio.checked = radio.value === submissionType;
   });
-  editor.contribRow.hidden = submissionType !== "contributed";
+  syncSourceVisibility();
   editor.submitter.value = raw.submitter || "";
   editor.submissionChannel.value = raw.submissionChannel || "";
   editor.submissionTime.value = raw.submissionTime || "";
   editor.submitterNote.value = raw.submitterNote || "";
   editor.locApprox.checked = Boolean(raw.locationApprox);
   editor.timeApprox.checked = Boolean(raw.timeApprox);
+  // Linked-point row is gated by the 关联 header checkbox — ticked when set.
+  editor.linkedToggle.checked = Boolean(raw.linkedId);
+  editor.linkedRow.hidden = !editor.linkedToggle.checked;
   populateLinkedSelect(id, raw.linkedId || "");
   // Smart-default placeholders (what the public site falls back to when blank).
   editor.fields.time.placeholder = raw.photoTime || "默认用照片时间";
@@ -4605,16 +4837,43 @@ function openEditor(id) {
   buildFlow(raw);
   renderFlow();
   updateCoordReadout(raw);
-  renderEditorPreview(id);
+  renderEditorPreview();
   editor.preview?.classList.add("is-open");
   editor.root.classList.add("is-open");
   // Lets the Archive page reserve space for the side panels (see #15) so cards
   // stay visible and clickable instead of being hidden under them.
   document.body.classList.add("editor-open");
+  // Freshly opened = no unsaved edits yet (item 13).
+  editor.dirty = false;
 }
 
-function closeEditor() {
+// Mark the open editor as having unsaved changes (item 13) and refresh the live
+// left-side preview (item 10).
+function markEditorDirty() {
+  editor.dirty = true;
+}
+
+function onEditorInput() {
+  if (!state.editingId) {
+    return;
+  }
+  editor.dirty = true;
+  renderEditorPreview();
+}
+
+// closeEditor({ force }) — when there are unsaved edits, ask whether to save
+// first (item 13). force skips the prompt (used after a successful save).
+function closeEditor({ force = false } = {}) {
+  if (!force && state.editingId && editor.dirty) {
+    const save = window.confirm("有未保存的修改。\n点「确定」保存后退出，点「取消」放弃修改退出。");
+    if (save) {
+      // Save, then close once it finishes.
+      saveEditor().then(() => closeEditor({ force: true }));
+      return;
+    }
+  }
   state.editingId = null;
+  editor.dirty = false;
   editor.root?.classList.remove("is-open");
   editor.preview?.classList.remove("is-open");
   document.body.classList.remove("editor-open");
@@ -4679,8 +4938,11 @@ async function saveEditor() {
   PLAIN_FIELD_KEYS.forEach((key) => {
     payload[key] = editor.fields[key].value;
   });
-  payload.title = { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() };
-  payload.linkedId = editor.linkedId ? editor.linkedId.value : "";
+  // Title/linked rows are gated by their header checkboxes — unchecked = cleared.
+  payload.title = editor.titleToggle?.checked
+    ? { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() }
+    : { ja: "", en: "" };
+  payload.linkedId = editor.linkedToggle?.checked && editor.linkedId ? editor.linkedId.value : "";
   payload.submissionType = getEditorSource();
   payload.submitter = editor.submitter.value;
   payload.submissionChannel = editor.submissionChannel.value;
@@ -4815,8 +5077,11 @@ async function onCreateRecord(event) {
     const dataBase64 = await readFileAsDataUrl(file);
     const center = state.map?.getCenter?.();
     const coordinates = center ? { lat: center.lat(), lng: center.lng() } : null;
-    const category = editor.addCategory?.value || "unknown";
-    const source = editor.addSource?.value === "contributed" ? "contributed" : "own";
+    // The 新增 popup (item 12) chose the source + category before the file picker.
+    const pending = editor.pendingCreate || { source: "own", category: "unknown" };
+    editor.pendingCreate = null;
+    const source = pending.source === "contributed" ? "contributed" : "own";
+    const category = pending.category || (source === "contributed" ? "submission(pending)" : "unknown");
     // Contributed points usually only have a rough location/time, so default
     // both "approximate" flags on (the editor can untick them).
     const createPayload = { filename: file.name, dataBase64, coordinates, category };
@@ -4864,19 +5129,25 @@ function listCategories() {
   return [...set].sort();
 }
 
+// Type selects exclude the "submission" folder — contributed umbrellas don't
+// take part in the type classification (item 6).
+function listTypeCategories() {
+  return listCategories().filter((c) => !c.startsWith("submission"));
+}
+
 function populateCategorySelects() {
   const options =
-    listCategories()
+    listTypeCategories()
       .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
       .join("") + `<option value="__new__">＋ 新建分类…</option>`;
   if (editor.category) {
     editor.category.innerHTML = options;
   }
-  if (editor.addCategory) {
-    const prev = editor.addCategory.value;
-    editor.addCategory.innerHTML = options;
-    if (prev && [...editor.addCategory.options].some((o) => o.value === prev)) {
-      editor.addCategory.value = prev;
+  if (editor.createType) {
+    const prev = editor.createType.value;
+    editor.createType.innerHTML = options;
+    if (prev && [...editor.createType.options].some((o) => o.value === prev)) {
+      editor.createType.value = prev;
     }
   }
 }
@@ -4884,22 +5155,6 @@ function populateCategorySelects() {
 function promptNewCategory() {
   const value = window.prompt("输入新分类（整串作为一个类型），例如 hookable(affordance) 或 unknown：");
   return value ? value.trim() : "";
-}
-
-function onAddCategoryChange(event) {
-  if (event.target.value !== "__new__") {
-    return;
-  }
-  const created = promptNewCategory();
-  if (created) {
-    const option = document.createElement("option");
-    option.value = created;
-    option.textContent = created;
-    event.target.insertBefore(option, event.target.lastElementChild);
-    event.target.value = created;
-  } else {
-    event.target.value = "unknown";
-  }
 }
 
 async function onCategoryChange(event) {

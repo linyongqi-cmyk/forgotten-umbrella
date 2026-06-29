@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=94" />
+    <link rel="stylesheet" href="styles.css?v=95" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -51,7 +51,6 @@
         <nav class="view-tabs" aria-label="view switcher">
           <button class="tab is-active" data-view="map" type="button">Umbrella map</button>
           <button class="tab" data-view="archive" type="button">Archive</button>
-          <button class="tab" data-view="contributed" type="button">Archive (contributed)</button>
           <button class="tab" data-view="about" type="button">About</button>
           <div class="language-switcher">
             <button
@@ -176,11 +175,12 @@
         </section>
 
         <section class="archive-view view" id="archive-view" aria-label="archive view">
-          <div class="section-heading">
-            <h2>Archive</h2>
+          <div class="section-heading archive-scope-tabs" role="group" aria-label="archive scope">
+            <button class="archive-scope-tab is-active" data-archive-scope="own" type="button"><h2>Archive</h2></button>
+            <button class="archive-scope-tab" data-archive-scope="contributed" type="button"><h2>Archive (contributed)</h2></button>
           </div>
 
-          <div class="archive-toolbar" aria-label="archive controls">
+          <div class="archive-toolbar" id="archive-own-toolbar" aria-label="archive controls">
             <p data-i18n="sortBy">並び替え</p>
             <div class="archive-primary-row">
               <div class="archive-toolbar-group" role="group" aria-label="sort mode">
@@ -194,13 +194,7 @@
           </div>
 
           <div class="archive-content" id="archive-content"></div>
-        </section>
-
-        <section class="archive-view view" id="contributed-view" aria-label="contributed archive">
-          <div class="section-heading">
-            <h2>Archive (contributed)</h2>
-          </div>
-          <div class="archive-content" id="contributed-content"></div>
+          <div class="archive-content" id="contributed-content" hidden></div>
         </section>
 
         <section class="about-view view" id="about-view" aria-label="about project">
@@ -223,6 +217,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=94" type="module"></script>
+    <script src="app.js?v=95" type="module"></script>
   </body>
 </html>
