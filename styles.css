@@ -1296,33 +1296,33 @@ body.editor-open .archive-view {
   margin-bottom: 24px;
 }
 
-/* Archive page heading doubles as an own/contributed toggle (item 2). */
-.archive-scope-tabs {
-  display: flex;
+/* Archive heading "Archive ( Fieldwork / Contributed )": "Archive (" "/" ")" are
+   fixed text; only the two words are clickable, active one underlined (item 2). */
+.archive-scope-heading {
+  display: inline-flex;
   align-items: baseline;
-  gap: 18px;
   flex-wrap: wrap;
 }
 
 .archive-scope-tab {
   border: 0;
   background: none;
-  padding: 0;
+  padding: 0 1px 2px;
   cursor: pointer;
+  font: inherit;
   color: inherit;
+  opacity: 0.4;
+  border-bottom: 2px solid transparent;
+  transition: opacity 0.18s ease, border-color 0.18s ease;
 }
 
-.archive-scope-tab h2 {
-  opacity: 0.32;
-  transition: opacity 0.18s ease;
+.archive-scope-tab:hover {
+  opacity: 0.7;
 }
 
-.archive-scope-tab:hover h2 {
-  opacity: 0.6;
-}
-
-.archive-scope-tab.is-active h2 {
+.archive-scope-tab.is-active {
   opacity: 1;
+  border-bottom-color: currentColor;
 }
 
 .archive-toolbar {
@@ -1417,6 +1417,13 @@ body.editor-open .archive-view {
 .archive-content {
   display: grid;
   gap: 22px;
+}
+
+/* display:grid above would override the [hidden] attribute, so the inactive
+   scope's content (item 2) never hid — restore it explicitly. */
+.archive-content[hidden],
+.archive-toolbar[hidden] {
+  display: none;
 }
 
 .photo-grid {
@@ -2344,6 +2351,33 @@ body.edit-mode .map-stage {
   gap: 10px;
 }
 
+/* Address/time input with a compact 「大概」checkbox to its right (item 3). */
+.editor-field-approx {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor-field-approx > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.editor-mini-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.editor-mini-check input {
+  width: auto !important;
+  margin: 0;
+}
+
 /* Checkbox rows: label text on the left, checkbox pushed to the right (item 4). */
 .editor-umbrella-toggle,
 .editor-inline-check {
@@ -2381,6 +2415,10 @@ body.edit-mode .map-stage {
   flex-direction: column;
   gap: 4px;
   font-size: 12px;
+}
+
+.editor-sub-note {
+  color: #8a948f;
 }
 
 .editor-close {
@@ -2423,6 +2461,12 @@ body.edit-mode .map-stage {
   color: #4d5a56;
 }
 
+/* display:flex above would override the [hidden] attribute, so gated rows
+   (类型 / 标题 / 关联 / 投稿信息) never actually hid — restore it (item 5). */
+.editor-row[hidden] {
+  display: none;
+}
+
 .editor-row input,
 .editor-row textarea {
   width: 100%;
@@ -2435,8 +2479,28 @@ body.edit-mode .map-stage {
   box-sizing: border-box;
 }
 
+/* Checkboxes/radios must keep their natural size — the 100% above made them
+   stretch full-width and squash the label (items 3/4). */
+.editor-row input[type="checkbox"],
+.editor-row input[type="radio"] {
+  width: auto;
+}
+
 .editor-row textarea {
-  resize: vertical;
+  /* Auto-grow to fit all the text instead of an inner scrollbar (item 6). */
+  resize: none;
+  field-sizing: content;
+  min-height: 2.6em;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* Collapsed content paragraph (item 6) — fold a long block down to a peek. */
+.editor-block textarea.is-collapsed {
+  field-sizing: fixed;
+  height: 2.6em;
+  min-height: 0;
+  overflow-y: hidden;
 }
 
 /* Source toggle (自己拍 / 投稿) + contributed-only checkboxes: keep the radio
@@ -2928,7 +2992,12 @@ body:not(.edit-mode) .editor-add {
   border-radius: 6px;
   font: inherit;
   font-size: 13px;
-  resize: vertical;
+  /* Auto-grow to show all text; long ones can be folded (item 6). */
+  resize: none;
+  field-sizing: content;
+  min-height: 2.6em;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .editor-block-text-en {

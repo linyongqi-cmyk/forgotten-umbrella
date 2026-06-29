@@ -39,7 +39,7 @@
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "2026.04.23 21:31",
+  "submissionTime": "2026/04/23",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)\n\nSender: How about this umbrella? For a while, I was really into taking photos of umbrellas forgotten in street corners.\nEditor: Oh, that's perfect Haha, looks exactly like what you'd see after a typhoon.\nSender: The next day, I found another beautiful umbrella inside a public restroom at the park.\nEditor: This one looks pretty high-end. I bet the owner was devastated to lose it\nSender: Totally. I saw it was still there when I passed the park on the bus, so the second time I went by, I just took it home. It's been put to good use ever since! (Laughs)",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
@@ -72,3 +72,4 @@
     }
   ]
 }
+

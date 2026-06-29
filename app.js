@@ -156,6 +156,7 @@ const I18N = {
   sortPlace: { ja: "場所", en: "Place" },
   statsTab: { ja: "統計", en: "Stats" },
   aboutStatLocations: { ja: "記録された地点", en: "Recorded locations" },
+  aboutStatFieldwork: { ja: "フィールド数", en: "Fieldwork" },
   aboutStatSubmissions: { ja: "投稿数", en: "Submissions" },
   aboutStatSince: { ja: "記録開始", en: "Recording since" },
 };
@@ -166,15 +167,21 @@ function applyLanguage() {
   document.querySelectorAll(".panel-heading h2").forEach((heading) => {
     heading.textContent = UI_TEXT.archiveHeading[state.lang];
   });
-  // Archive page scope tabs: own = アーカイブ/Archive, contributed = with suffix.
+  // Archive heading "Archive ( Fieldwork / Contributed )": only the two scope
+  // words are clickable, the rest is fixed text (item 2).
+  const prefix = document.querySelector(".archive-scope-prefix");
+  const suffix = document.querySelector(".archive-scope-suffix");
+  if (prefix) {
+    prefix.textContent = state.lang === "ja" ? "アーカイブ（" : "Archive (";
+  }
+  if (suffix) {
+    suffix.textContent = state.lang === "ja" ? "）" : ")";
+  }
   document.querySelectorAll("[data-archive-scope]").forEach((tab) => {
-    const heading = tab.querySelector("h2");
-    if (heading) {
-      heading.textContent =
-        tab.dataset.archiveScope === "contributed"
-          ? UI_TEXT.contributedHeading[state.lang]
-          : UI_TEXT.archiveHeading[state.lang];
-    }
+    tab.textContent =
+      tab.dataset.archiveScope === "contributed"
+        ? UI_TEXT.statsScopeContributed[state.lang]
+        : UI_TEXT.statsScopeOwn[state.lang];
   });
   // Swap every static labelled element (sidebar chips, archive controls, about
   // stats) to the current language.
@@ -288,6 +295,7 @@ const els = {
   mapTypeToggle: document.querySelector("#map-type-toggle"),
   mapLabelsToggle: document.querySelector("#map-labels-toggle"),
   statCount: document.querySelector("#stat-count"),
+  statFieldwork: document.querySelector("#stat-fieldwork"),
   statSubmissions: document.querySelector("#stat-submissions"),
   mapView: document.querySelector("#map-view"),
   toggleList: document.querySelector("#toggle-list"),
@@ -846,12 +854,17 @@ function bindEvents() {
       return;
     }
 
-    // Local editor (item 13): ESC closes the create popup, then the editor
-    // drawer / edit mode. Exiting edit mode prompts to save when there are
-    // unsaved edits (handled in closeEditor).
+    // Local editor (item 7): ESC peels back one layer at a time —
+    // create popup → open record editor (with unsaved-changes prompt) → edit
+    // mode. So ESC inside a record editor only closes that record; press again
+    // to leave edit mode.
     if (IS_LOCAL && typeof editor !== "undefined" && editor.root) {
       if (editor.createDialog && !editor.createDialog.hidden) {
         closeCreateDialog();
+        return;
+      }
+      if (state.editingId) {
+        closeEditor();
         return;
       }
       if (state.editMode) {
@@ -1447,11 +1460,14 @@ function render() {
   if (els.statCount) {
     els.statCount.textContent = String(state.umbrellas.length);
   }
+  const contributedCount = state.umbrellas.filter((item) => item.submissionType === "contributed").length;
+  // フィールド数 = my own (Fieldwork) records = total minus contributions (item 10).
+  if (els.statFieldwork) {
+    els.statFieldwork.textContent = String(state.umbrellas.length - contributedCount);
+  }
   // 投稿数 = how many points came from outside contributions.
   if (els.statSubmissions) {
-    els.statSubmissions.textContent = String(
-      state.umbrellas.filter((item) => item.submissionType === "contributed").length,
-    );
+    els.statSubmissions.textContent = String(contributedCount);
   }
 }
 
@@ -2229,6 +2245,17 @@ function formatLooseDate(value) {
     out += ` ${p(parts.hh)}:${p(parts.mm)}`;
   }
   return out;
+}
+
+// Year/month/day only — drop any hour:minute (item 8, 投稿时间). Falls back to
+// the raw trimmed text if it can't be parsed.
+function formatDateOnly(value) {
+  const parts = parseLooseDateParts(value);
+  if (!parts) {
+    return String(value || "").trim();
+  }
+  const p = (n) => String(n).padStart(2, "0");
+  return parts.da ? `${parts.y}/${p(parts.mo)}/${p(parts.da)}` : `${parts.y}/${p(parts.mo)}`;
 }
 
 // A sortable numeric key from a loose date string (earlier = smaller).
@@ -3532,7 +3559,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=95", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=96", { updateViaCache: "none" });
   }
 }
 
@@ -3699,13 +3726,18 @@ function setupEditor() {
   editor.coordReadout = coordRow.querySelector(".editor-coord-readout");
   coordRow.querySelector(".editor-coord-place").addEventListener("click", placeOnMapCenter);
 
-  // ⑥ Display address + 「地点只是大概」checkbox right after it (item 3).
-  addField("locationText", "显示地址 Location");
-  const locApproxRow = document.createElement("label");
-  locApproxRow.className = "editor-row editor-inline-check";
-  locApproxRow.innerHTML = `<span>地点只是大概（详情页地点前加「约」）</span><input type="checkbox" class="editor-loc-approx" />`;
-  body.appendChild(locApproxRow);
-  editor.locApprox = locApproxRow.querySelector(".editor-loc-approx");
+  // ⑥ Display address + 「大概」checkbox to the RIGHT of the input (item 3).
+  const locRow = document.createElement("div");
+  locRow.className = "editor-row";
+  locRow.innerHTML = `
+    <span>显示地址 Location</span>
+    <div class="editor-field-approx">
+      <input class="editor-loc-input" />
+      <label class="editor-mini-check" title="地点只是大概（详情页地点前加「约」）"><span>大概</span><input type="checkbox" class="editor-loc-approx" /></label>
+    </div>`;
+  body.appendChild(locRow);
+  editor.fields.locationText = locRow.querySelector(".editor-loc-input");
+  editor.locApprox = locRow.querySelector(".editor-loc-approx");
 
   // ⑦ Location levels — cascading dropdowns built from data/japan-areas.json.
   const levelsRow = document.createElement("div");
@@ -3752,13 +3784,18 @@ function setupEditor() {
   });
   loadAreas();
 
-  // ⑧ 拍摄时间 Time + 「时间只是大概」checkbox right after it (item 3).
-  addField("time", "拍摄时间(覆盖) Time");
-  const timeApproxRow = document.createElement("label");
-  timeApproxRow.className = "editor-row editor-inline-check";
-  timeApproxRow.innerHTML = `<span>时间只是大概（详情页时间前加「约」）</span><input type="checkbox" class="editor-time-approx" />`;
-  body.appendChild(timeApproxRow);
-  editor.timeApprox = timeApproxRow.querySelector(".editor-time-approx");
+  // ⑧ 拍摄时间 Time + 「大概」checkbox to the RIGHT of the input (item 3).
+  const timeRow = document.createElement("div");
+  timeRow.className = "editor-row";
+  timeRow.innerHTML = `
+    <span>拍摄时间(覆盖) Time</span>
+    <div class="editor-field-approx">
+      <input class="editor-time-input" />
+      <label class="editor-mini-check" title="时间只是大概（详情页时间前加「约」）"><span>大概</span><input type="checkbox" class="editor-time-approx" /></label>
+    </div>`;
+  body.appendChild(timeRow);
+  editor.fields.time = timeRow.querySelector(".editor-time-input");
+  editor.timeApprox = timeRow.querySelector(".editor-time-approx");
 
   // ⑨ 投稿信息 Submission — only shown for 投稿的伞 (item 3). The approx flags
   // moved out (now sit next to the address/time fields above).
@@ -3768,13 +3805,11 @@ function setupEditor() {
   contribRow.innerHTML = `
     <span>投稿信息 Submission（仅投稿伞）</span>
     <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
-    <input class="editor-submission-channel" placeholder="投稿渠道/日期（仅内部管理，如 微信 2025-06）" />
-    <label class="editor-sub-field">投稿时间 Submitted<input class="editor-submission-time" placeholder="默认取照片建立时间，可手改" /></label>
+    <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>
     <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>`;
   body.appendChild(contribRow);
   editor.contribRow = contribRow;
   editor.submitter = contribRow.querySelector(".editor-submitter");
-  editor.submissionChannel = contribRow.querySelector(".editor-submission-channel");
   editor.submissionTime = contribRow.querySelector(".editor-submission-time");
   editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
   // Source toggle reveals/hides 投稿信息 and the 类型 row (contributed = no type).
@@ -4151,12 +4186,15 @@ function renderFlow() {
       <button type="button" data-fact="down" title="下移" ${index === flow.length - 1 ? "disabled" : ""}>↓</button>`;
 
     if (item.kind === "text") {
+      // Auto-height textareas (show all text); a ▾/▸ button folds long ones.
+      const collapsed = item.collapsed ? " is-collapsed" : "";
+      const foldGlyph = item.collapsed ? "▸" : "▾";
       row.innerHTML = `
         <div class="editor-block-langs">
-          <textarea class="editor-block-text-ja" rows="2" placeholder="段落（日本語）">${escapeHtml(item.textJa || "")}</textarea>
-          <textarea class="editor-block-text-en" rows="2" placeholder="Paragraph (English)">${escapeHtml(item.textEn || "")}</textarea>
+          <textarea class="editor-block-text-ja${collapsed}" placeholder="段落（日本語）">${escapeHtml(item.textJa || "")}</textarea>
+          <textarea class="editor-block-text-en${collapsed}" placeholder="Paragraph (English)">${escapeHtml(item.textEn || "")}</textarea>
         </div>
-        <div class="editor-block-buttons">${moveButtons}<button type="button" data-fact="del-text" title="删除段落">✕</button></div>`;
+        <div class="editor-block-buttons"><button type="button" data-fact="fold-text" title="折叠/展开段落">${foldGlyph}</button>${moveButtons}<button type="button" data-fact="del-text" title="删除段落">✕</button></div>`;
       row.querySelector(".editor-block-text-ja").addEventListener("input", (event) => {
         item.textJa = event.target.value;
       });
@@ -4225,6 +4263,9 @@ function onFlowAction(action, index) {
   } else if (action === "del-text") {
     flow.splice(index, 1);
     afterFlowEdit();
+  } else if (action === "fold-text") {
+    item.collapsed = !item.collapsed;
+    renderFlow(); // local-only fold state; no need to mark dirty / re-preview
   } else if (action === "primary") {
     flow.forEach((entry) => {
       if (entry.kind === "photo" && entry.role === "primary") {
@@ -4801,8 +4842,7 @@ function openEditor(id) {
   });
   syncSourceVisibility();
   editor.submitter.value = raw.submitter || "";
-  editor.submissionChannel.value = raw.submissionChannel || "";
-  editor.submissionTime.value = raw.submissionTime || "";
+  editor.submissionTime.value = formatDateOnly(raw.submissionTime) || "";
   editor.submitterNote.value = raw.submitterNote || "";
   editor.locApprox.checked = Boolean(raw.locationApprox);
   editor.timeApprox.checked = Boolean(raw.timeApprox);
@@ -4945,8 +4985,8 @@ async function saveEditor() {
   payload.linkedId = editor.linkedToggle?.checked && editor.linkedId ? editor.linkedId.value : "";
   payload.submissionType = getEditorSource();
   payload.submitter = editor.submitter.value;
-  payload.submissionChannel = editor.submissionChannel.value;
-  payload.submissionTime = editor.submissionTime.value;
+  // Submission time is stored date-only (年月日), no hour/minute (item 8).
+  payload.submissionTime = formatDateOnly(editor.submissionTime.value);
   payload.submitterNote = editor.submitterNote.value;
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;

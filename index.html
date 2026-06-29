@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=95" />
+    <link rel="stylesheet" href="styles.css?v=96" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -175,9 +175,10 @@
         </section>
 
         <section class="archive-view view" id="archive-view" aria-label="archive view">
-          <div class="section-heading archive-scope-tabs" role="group" aria-label="archive scope">
-            <button class="archive-scope-tab is-active" data-archive-scope="own" type="button"><h2>Archive</h2></button>
-            <button class="archive-scope-tab" data-archive-scope="contributed" type="button"><h2>Archive (contributed)</h2></button>
+          <div class="section-heading" role="group" aria-label="archive scope">
+            <h2 class="archive-scope-heading">
+              <span class="archive-scope-prefix">Archive (</span><button class="archive-scope-tab is-active" data-archive-scope="own" type="button">Fieldwork</button><span class="archive-scope-sep"> / </span><button class="archive-scope-tab" data-archive-scope="contributed" type="button">Contributed</button><span class="archive-scope-suffix">)</span>
+            </h2>
           </div>
 
           <div class="archive-toolbar" id="archive-own-toolbar" aria-label="archive controls">
@@ -205,6 +206,10 @@
               <dd data-i18n="aboutStatLocations">記録された地点</dd>
             </div>
             <div>
+              <dt id="stat-fieldwork">0</dt>
+              <dd data-i18n="aboutStatFieldwork">フィールド数</dd>
+            </div>
+            <div>
               <dt id="stat-submissions">0</dt>
               <dd data-i18n="aboutStatSubmissions">投稿数</dd>
             </div>
@@ -217,6 +222,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=95" type="module"></script>
+    <script src="app.js?v=96" type="module"></script>
   </body>
 </html>
