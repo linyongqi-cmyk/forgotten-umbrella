@@ -49,15 +49,19 @@
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "投稿者:世界にまた一本、悲しい傘が増えました。\n編者:世界にまた一つ、悲しい傘の骨組みが増えました。\n\n投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
+  "story": "投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
-      "type": "text",
+      "type": "dialogue",
       "text": {
-        "ja": "投稿者:世界にまた一本、悲しい傘が増えました。\n編者:世界にまた一つ、悲しい傘の骨組みが増えました。\n\n投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
-        "en": "Sender: The world just got one more sad umbrella\nEditor: The world just got one more sad umbrella skeleton.\n\nSender: I really felt a vibe from this umbrella, so I actually went home and did a painting based on it."
+        "ja": "投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
+        "en": "Sender: I really felt a vibe from this umbrella, so I actually went home and did a painting based on it."
       }
+    },
+    {
+      "type": "photo",
+      "file": "rednote_9732476585_1_2.jpg"
     }
   ],
   // 这个标点下的媒体列表。第一项通常是主图。

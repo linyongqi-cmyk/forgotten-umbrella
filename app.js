@@ -20,6 +20,8 @@ const state = {
   // Archive page has two scopes toggled from the big heading: own (Fieldwork) or
   // contributed. Replaces the old separate "Archive (contributed)" nav tab.
   archiveScope: "own",
+  // Map sidebar list also has a Fieldwork/Contributed scope toggle (item 17).
+  listScope: "own",
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
@@ -29,7 +31,7 @@ const state = {
   statsScope: "own",
   // Contributed Archive (item 3): grid sort mode (submission/photo/location) or
   // the stats overview, plus the overview's own sort key/dir.
-  contributedMode: "submission",
+  contributedMode: "photo",
   contributedOrder: "desc",
   contribOverviewSortKey: "submitter",
   contribOverviewSortDir: "asc",
@@ -159,7 +161,7 @@ const UI_TEXT = {
 const I18N = {
   sortBy: { ja: "並び替え", en: "Sort by" },
   sortTime: { ja: "時間", en: "Time" },
-  sortType: { ja: "種類", en: "Type" },
+  sortType: { ja: "タイプ", en: "Type" },
   sortPlace: { ja: "場所", en: "Place" },
   statsTab: { ja: "統計", en: "Stats" },
   aboutStatLocations: { ja: "記録された地点", en: "Recorded locations" },
@@ -171,8 +173,13 @@ const I18N = {
 function applyLanguage() {
   document.documentElement.lang = state.lang;
   renderAbout();
-  document.querySelectorAll(".panel-heading h2").forEach((heading) => {
-    heading.textContent = UI_TEXT.archiveHeading[state.lang];
+  // Map sidebar list scope tabs (item 17): Fieldwork / Contributed.
+  document.querySelectorAll("[data-list-scope] h2").forEach((heading) => {
+    const tab = heading.closest("[data-list-scope]");
+    heading.textContent =
+      tab.dataset.listScope === "contributed"
+        ? UI_TEXT.statsScopeContributed[state.lang]
+        : UI_TEXT.statsScopeOwn[state.lang];
   });
   // Archive heading "Archive ( Fieldwork / Contributed )": only the two scope
   // words are clickable, the rest is fixed text (item 2).
@@ -314,6 +321,7 @@ const els = {
   contributedContent: document.querySelector("#contributed-content"),
   archiveOwnToolbar: document.querySelector("#archive-own-toolbar"),
   archiveScopeTabs: document.querySelectorAll("[data-archive-scope]"),
+  listScopeTabs: document.querySelectorAll("[data-list-scope]"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
@@ -563,6 +571,14 @@ function bindEvents() {
     tab.addEventListener("click", () => {
       state.archiveScope = tab.dataset.archiveScope === "contributed" ? "contributed" : "own";
       syncArchiveScope();
+      render();
+    });
+  });
+
+  // Map sidebar list scope toggle (item 17): Fieldwork / Contributed.
+  els.listScopeTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      state.listScope = tab.dataset.listScope === "contributed" ? "contributed" : "own";
       render();
     });
   });
@@ -953,6 +969,12 @@ function bindEvents() {
 
     if (els.mapView.classList.contains("is-focus-mode")) {
       closeFocusMode({ resetZoom: true });
+      return;
+    }
+
+    // ESC also closes the expanded map sidebar list (item 17).
+    if (els.mapView && !els.mapView.classList.contains("is-list-collapsed")) {
+      collapseListPanel();
     }
   });
 }
@@ -1580,8 +1602,16 @@ function renderList(items) {
     return;
   }
 
-  syncListControls(items);
-  const sortedItems = sortListItems(filterListItems(items));
+  // Scope the sidebar list to Fieldwork (own) or Contributed (item 17); the map
+  // markers still show everything.
+  const scoped = items.filter((it) =>
+    state.listScope === "contributed" ? it.submissionType === "contributed" : it.submissionType !== "contributed",
+  );
+  els.listScopeTabs?.forEach((tab) => {
+    tab.classList.toggle("is-active", (tab.dataset.listScope === "contributed") === (state.listScope === "contributed"));
+  });
+  syncListControls(scoped);
+  const sortedItems = sortListItems(filterListItems(scoped));
 
   els.list.innerHTML = sortedItems
     .map(
@@ -1795,6 +1825,23 @@ function formatAddressBreaks(text) {
     .replace(/, ?/g, (m) => `${m}<wbr>`);
 }
 
+// One line per speaker: "編者：…" → speaker cell (left) + body cell (right).
+// Lines with no colon render as a plain body line. Used by dialogue blocks (item 12).
+function renderDialogueLines(text) {
+  return String(text)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const m = line.match(/^([^：:]{1,12})[：:]\s*(.*)$/);
+      if (m) {
+        return `<p class="focus-dialogue-line"><span class="focus-dialogue-speaker">${escapeHtml(m[1])}</span><span class="focus-dialogue-body">${escapeHtml(m[2])}</span></p>`;
+      }
+      return `<p class="focus-dialogue-line focus-dialogue-cont"><span class="focus-dialogue-body">${escapeHtml(line)}</span></p>`;
+    })
+    .join("");
+}
+
 // Fixed header (stays put while the images/text scroll): id(title), place, time.
 function renderFocusHeader(item) {
   const title = localize(item.title);
@@ -1848,6 +1895,14 @@ function renderFocusArticle(item) {
 
   const blocksHtml = effectiveBlocks(item)
     .map((block) => {
+      if (block.type === "dialogue") {
+        // Speaker on the left, line on the right, italic + left rule (item 12).
+        const text = localize(block.text);
+        if (!text) {
+          return "";
+        }
+        return `<blockquote class="focus-dialogue">${renderDialogueLines(text)}</blockquote>`;
+      }
       if (block.type === "text") {
         const text = localize(block.text);
         if (!text) {
@@ -2372,20 +2427,67 @@ function contributedSubmitterLabels(items) {
   const labels = new Map();
   Object.entries(byName).forEach(([name, list]) => {
     list.sort((a, b) => looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime) || String(a.id).localeCompare(b.id));
-    list.forEach((it, i) => labels.set(it.id, list.length > 1 ? `${name}（${i + 1}）` : name));
+    list.forEach((it, i) => labels.set(it.id, list.length > 1 ? `${name}(${i + 1})` : name));
   });
   return labels;
 }
 
-// The contributed Archive scope (item 3): mirrors Fieldwork — a sort toolbar
-// (投稿時間/撮影時間/場所) over a photo-card grid, plus a 統計 overview table.
+// Contributed photo time → month group (precise to month, item 10). Loose dates
+// (dots/commas) are parsed with parseLooseDateParts so they group correctly.
+function groupContributedByMonth(items) {
+  const groups = new Map();
+  items.forEach((it) => {
+    const parts = parseLooseDateParts(it.time || it.photoTime);
+    const key = parts ? `${parts.y}-${String(parts.mo).padStart(2, "0")}` : "0000-no";
+    const label = parts ? `${parts.y}/${String(parts.mo).padStart(2, "0")}` : state.lang === "ja" ? "時間不明" : "time needed";
+    if (!groups.has(key)) {
+      groups.set(key, { key: `m-${key}`, label, items: [] });
+    }
+    groups.get(key).items.push(it);
+  });
+  return Array.from(groups.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([, g]) => g);
+}
+
+// The 47 Japanese prefectures (romaji, as stored in locationLevels[0]); anything
+// else (China, unknown, …) groups as 海外 / Overseas (item 10).
+const JAPAN_PREFECTURES = new Set([
+  "Hokkaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamagata", "Fukushima",
+  "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa",
+  "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu",
+  "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara",
+  "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi",
+  "Tokushima", "Kagawa", "Ehime", "Kochi", "Fukuoka", "Saga", "Nagasaki",
+  "Kumamoto", "Oita", "Miyazaki", "Kagoshima", "Okinawa",
+]);
+
+// Contributed place → prefecture group; non-Japan → 海外 (item 10).
+function groupContributedByCity(items) {
+  const groups = new Map();
+  items.forEach((it) => {
+    const levels = Array.isArray(it.locationLevels) ? it.locationLevels : [];
+    const pref = levels[0];
+    const label = JAPAN_PREFECTURES.has(pref) ? pref : state.lang === "ja" ? "海外" : "Overseas";
+    if (!groups.has(label)) {
+      groups.set(label, { key: `c-${label}`, label, items: [] });
+    }
+    groups.get(label).items.push(it);
+  });
+  return Array.from(groups.values()).sort(
+    (a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label),
+  );
+}
+
+// The contributed Archive scope (item 3/10): a sort toolbar (撮影時間/場所, both
+// grouped like Fieldwork) over a photo-card grid, plus a 統計 overview table.
 function renderContributedArchive() {
   if (!els.contributedContent) {
     return;
   }
   const items = state.umbrellas.filter((item) => item.submissionType === "contributed");
   const ja = state.lang === "ja";
-  const mode = state.contributedMode || "submission";
+  const mode = state.contributedMode || "photo";
 
   const arrow = (key) =>
     `<span class="sort-arrow" aria-hidden="true">${
@@ -2398,7 +2500,6 @@ function renderContributedArchive() {
       <p data-i18n="sortBy">${ja ? "並び替え" : "Sort by"}</p>
       <div class="archive-primary-row">
         <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-          ${btn("submission", ja ? "投稿日時" : "Submitted")}
           ${btn("photo", ja ? "撮影日時" : "Taken")}
           ${btn("location", ja ? "場所" : "Location")}
           ${btn("stats", ja ? "統計" : "Stats", false)}
@@ -2411,22 +2512,23 @@ function renderContributedArchive() {
     return;
   }
 
-  const order = state.contributedOrder === "asc" ? 1 : -1;
-  const keyFns = {
-    submission: (it) => looseDateKey(it.submissionTime),
-    photo: (it) => looseDateKey(it.time || it.photoTime),
-    location: (it) => (it.location || "").toLowerCase(),
-  };
-  const kf = keyFns[mode] || keyFns.submission;
-  const sorted = items.slice().sort((a, b) => {
-    const ka = kf(a);
-    const kb = kf(b);
-    if (ka < kb) return -order;
-    if (ka > kb) return order;
-    return String(a.id).localeCompare(String(b.id));
+  // Grouped grid (撮影時間 → by month, 場所 → by city) like Fieldwork (item 10).
+  let groups = mode === "location" ? groupContributedByCity(items) : groupContributedByMonth(items);
+  if (mode === "photo" && state.contributedOrder === "asc") {
+    groups = groups.slice().reverse();
+  }
+  els.contributedContent.innerHTML = toolbar + groups.map((group) => renderArchiveGroup(group)).join("");
+  els.contributedContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.groupToggle;
+      if (state.archiveCollapsedGroups.has(key)) {
+        state.archiveCollapsedGroups.delete(key);
+      } else {
+        state.archiveCollapsedGroups.add(key);
+      }
+      renderContributedArchive();
+    });
   });
-  els.contributedContent.innerHTML =
-    toolbar + `<div class="photo-grid">${sorted.map((item) => renderPhotoCard(item)).join("")}</div>`;
 }
 
 // Contributed stats overview: contributor / submitted / taken / place. English
@@ -2454,7 +2556,8 @@ function renderContributedOverview(items) {
     }
     return (d || String(labels.get(a.id)).localeCompare(String(labels.get(b.id)))) * dir;
   });
-  const arrow = (k) => (key === k ? (dir === 1 ? " ▲" : " ▼") : "");
+  // Same arrow glyphs as the Fieldwork overview (item 9).
+  const arrow = (k) => (key === k ? (dir === 1 ? " ↑" : " ↓") : "");
   const head = (k, label) => `<th class="overview-sort" data-contrib-overview-sort="${k}">${label}${arrow(k)}</th>`;
   const rows = sorted
     .map(
@@ -2469,7 +2572,7 @@ function renderContributedOverview(items) {
     .join("");
   return `
     <section class="stats-block">
-      <h3 class="stats-heading">${state.lang === "ja" ? "投稿の傘 総覧" : "Contributed umbrellas"} (${sorted.length})</h3>
+      <h3 class="stats-heading">${state.lang === "ja" ? "総覧" : "overview"} (${sorted.length})</h3>
       <div class="stats-table-wrap">
         <table class="stats-table stats-overview">
           <thead><tr>
@@ -3737,7 +3840,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=97", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=98", { updateViaCache: "none" });
   }
 }
 
@@ -3910,7 +4013,7 @@ function setupEditor() {
   locRow.innerHTML = `
     <span>显示地址 Location</span>
     <div class="editor-field-approx">
-      <input class="editor-loc-input" />
+      <textarea class="editor-loc-input" rows="1"></textarea>
       <label class="editor-mini-check" title="地点只是大概（详情页地点前加「约」）"><span>大概</span><input type="checkbox" class="editor-loc-approx" /></label>
     </div>`;
   body.appendChild(locRow);
@@ -3983,13 +4086,11 @@ function setupEditor() {
   contribRow.innerHTML = `
     <span>投稿信息 Submission（仅投稿伞）</span>
     <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
-    <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>
-    <textarea class="editor-submitter-note" rows="2" placeholder="投稿者原话/备注（可能展示在详情页）"></textarea>`;
+    <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>`;
   body.appendChild(contribRow);
   editor.contribRow = contribRow;
   editor.submitter = contribRow.querySelector(".editor-submitter");
   editor.submissionTime = contribRow.querySelector(".editor-submission-time");
-  editor.submitterNote = contribRow.querySelector(".editor-submitter-note");
   // Source toggle reveals/hides 投稿信息 and the 类型 row (contributed = no type).
   editor.sourceRadios.forEach((radio) => {
     radio.addEventListener("change", syncSourceVisibility);
@@ -4040,7 +4141,9 @@ function setupEditor() {
   const remarksRow = document.createElement("label");
   remarksRow.className = "editor-row";
   remarksRow.innerHTML = `<span>备注 Remarks（仅内部，不公开展示）</span><textarea class="editor-remarks" rows="2" placeholder="内部备注，可留空"></textarea>`;
+  remarksRow.hidden = true; // only shown when 待改 is checked (item 13)
   rightCol.appendChild(remarksRow);
+  editor.remarksRow = remarksRow;
   editor.remarks = remarksRow.querySelector(".editor-remarks");
 
   // 内容 Content — its own column on the right (item 9). Photos (cover + others)
@@ -4052,12 +4155,18 @@ function setupEditor() {
     <div class="editor-flow"></div>
     <div class="editor-flow-actions">
       <button type="button" class="editor-add-para">＋ 加段落</button>
+      <button type="button" class="editor-add-dialogue">＋ 对话</button>
       <label class="editor-upload"><span>＋ 上传图片/视频</span><input type="file" accept="image/*,video/*" multiple hidden /></label>
     </div>`;
   rightCol.appendChild(contentRow);
   editor.flowList = contentRow.querySelector(".editor-flow");
   contentRow.querySelector(".editor-add-para").addEventListener("click", () => {
     editor.flow.push({ kind: "text", textJa: "", textEn: "" });
+    renderFlow();
+    markEditorDirty();
+  });
+  contentRow.querySelector(".editor-add-dialogue").addEventListener("click", () => {
+    editor.flow.push({ kind: "dialogue", textJa: "", textEn: "" });
     renderFlow();
     markEditorDirty();
   });
@@ -4109,6 +4218,24 @@ function setupEditor() {
   document.body.appendChild(preview);
   editor.preview = preview;
   editor.previewInner = preview.querySelector(".editor-preview-inner");
+
+  // Local-only zoom readout, top-right edge (item 6) — never on the live site
+  // since setupEditor only runs when IS_LOCAL.
+  const scale = document.createElement("div");
+  scale.className = "map-scale-readout";
+  scale.id = "scale-readout";
+  document.body.appendChild(scale);
+  editor.scaleReadout = scale;
+  editor.updateScale = () => {
+    if (state.map && editor.scaleReadout) {
+      editor.scaleReadout.textContent = `z ${state.map.getZoom()}`;
+    }
+  };
+  if (state.map && window.google?.maps) {
+    editor.updateScale();
+    google.maps.event.addListener(state.map, "zoom_changed", editor.updateScale);
+    google.maps.event.addListener(state.map, "idle", editor.updateScale);
+  }
 }
 
 // Show/hide the contributed-only block and the type row based on 来源 (item 3/6).
@@ -4228,14 +4355,15 @@ function buildPreviewDraft() {
     id: p.id,
     role: p.role,
     title: p.title,
-    photoTime: p.photoTime,
+    photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
     src: p.src || p.thumb || "",
   }));
+  const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   const blocks = flow
-    .filter((i) => i.kind === "text" || (i.kind === "photo" && i.role !== "primary"))
+    .filter((i) => isTextLike(i) || (i.kind === "photo" && i.role !== "primary"))
     .map((i) =>
-      i.kind === "text"
-        ? { type: "text", text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+      isTextLike(i)
+        ? { type: i.kind, text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
         : { type: "photo", file: i.file },
     );
   const submissionType = getEditorSource();
@@ -4255,7 +4383,7 @@ function buildPreviewDraft() {
     time: editor.fields.time.value.trim() || saved.time || "",
     submissionType,
     submitter: editor.submitter.value.trim(),
-    submitterNote: editor.submitterNote.value.trim(),
+    submitterNote: "",
     locationApprox: editor.locApprox.checked,
     timeApprox: editor.timeApprox.checked,
     media,
@@ -4299,7 +4427,10 @@ function photoItem(media) {
     id: media.id || "",
     role: media.role || "detail",
     title: media.title || "",
+    // photoTime = the stored/EXIF time (shown as placeholder); timeOverride is
+    // what the user types to replace it (item 15). Blank override keeps photoTime.
     photoTime: media.photoTime || "",
+    timeOverride: "",
     thumb: media.thumb || media.src || "",
     src: media.src || "",
   };
@@ -4324,10 +4455,10 @@ function buildFlow(raw) {
   const blocks = Array.isArray(raw.blocks) ? raw.blocks : [];
   if (blocks.length) {
     blocks.forEach((b) => {
-      if (b.type === "text") {
+      if (b.type === "text" || b.type === "dialogue") {
         const t = b.text;
         flow.push({
-          kind: "text",
+          kind: b.type,
           textJa: t && typeof t === "object" ? t.ja || "" : t || "",
           textEn: t && typeof t === "object" ? t.en || "" : "",
         });
@@ -4370,16 +4501,26 @@ function renderFlow() {
       <button type="button" data-fact="up" title="上移" ${index === 0 ? "disabled" : ""}>↑</button>
       <button type="button" data-fact="down" title="下移" ${index === flow.length - 1 ? "disabled" : ""}>↓</button>`;
 
-    if (item.kind === "text") {
-      // Auto-height textareas (show all text); a ▾/▸ button folds long ones.
+    if (item.kind === "text" || item.kind === "dialogue") {
+      // Paragraph or dialogue — both edit as bilingual auto-height textareas; a
+      // ▾/▸ button folds long ones. Buttons stacked vertically (item 11). The
+      // dialogue kind renders specially on the detail page (item 12).
       const collapsed = item.collapsed ? " is-collapsed" : "";
       const foldGlyph = item.collapsed ? "▸" : "▾";
+      const isDlg = item.kind === "dialogue";
+      const jaPh = isDlg ? "对话（日本語）每行如「編者：…」「投稿者：…」" : "段落（日本語）";
+      const enPh = isDlg ? "Dialogue (English) e.g. Editor: … / Sender: …" : "Paragraph (English)";
       row.innerHTML = `
+        ${isDlg ? `<span class="editor-block-tag">对话</span>` : ""}
         <div class="editor-block-langs">
-          <textarea class="editor-block-text-ja${collapsed}" placeholder="段落（日本語）">${escapeHtml(item.textJa || "")}</textarea>
-          <textarea class="editor-block-text-en${collapsed}" placeholder="Paragraph (English)">${escapeHtml(item.textEn || "")}</textarea>
+          <textarea class="editor-block-text-ja${collapsed}" placeholder="${jaPh}">${escapeHtml(item.textJa || "")}</textarea>
+          <textarea class="editor-block-text-en${collapsed}" placeholder="${enPh}">${escapeHtml(item.textEn || "")}</textarea>
         </div>
-        <div class="editor-block-buttons"><button type="button" data-fact="fold-text" title="折叠/展开段落">${foldGlyph}</button>${moveButtons}<button type="button" data-fact="del-text" title="删除段落">✕</button></div>`;
+        <div class="editor-block-buttons editor-block-buttons-vertical">
+          <button type="button" data-fact="fold-text" title="折叠/展开">${foldGlyph}</button>
+          ${moveButtons}
+          <button type="button" data-fact="del-text" title="删除">✕</button>
+        </div>`;
       row.querySelector(".editor-block-text-ja").addEventListener("input", (event) => {
         item.textJa = event.target.value;
       });
@@ -4389,8 +4530,8 @@ function renderFlow() {
     } else {
       const isPrimary = item.role === "primary";
       const showTitle = !isPrimary;
-      const showTime = item.role === "supplement";
-      const roleControl = isPrimary
+      const showTime = !isPrimary; // all non-primary roles get an EXIF-default time box (item 15)
+      const underThumb = isPrimary
         ? `<span class="editor-media-badge">封面</span>`
         : `<select class="editor-flow-role">
             ${Object.entries(MEDIA_ROLE_LABELS)
@@ -4400,20 +4541,25 @@ function renderFlow() {
       const mediaPreview = isVideoFile(item.file)
         ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
         : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
-      // Filename to the LEFT of the role dropdown (item 10); action buttons in a
-      // tidy vertical column on the right (item 2). Time box is blank by default
-      // (blank = use the photo's own EXIF time, item 2).
+      // Role dropdown UNDER the thumbnail; filename in the top row (item 16). Time
+      // box blank by default — placeholder shows the photo's EXIF time, fill to
+      // override (item 15). Primary keeps horizontal buttons (item 11).
+      const btnClass = isPrimary
+        ? "editor-block-buttons"
+        : "editor-block-buttons editor-block-buttons-vertical";
       row.innerHTML = `
-        ${mediaPreview}
+        <div class="editor-media-thumb">
+          ${mediaPreview}
+          ${underThumb}
+        </div>
         <div class="editor-media-controls">
           <div class="editor-media-top">
             <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
-            ${roleControl}
           </div>
           ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
-          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.photoTime || "")}" placeholder="" /></label>` : ""}
+          ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.timeOverride || "")}" placeholder="${escapeHtml(item.photoTime || "默认用照片EXIF")}" /></label>` : ""}
         </div>
-        <div class="editor-block-buttons editor-block-buttons-vertical">
+        <div class="${btnClass}">
           ${isPrimary ? "" : `<button type="button" data-fact="primary" title="设为封面">★</button>`}
           ${moveButtons}
           <button type="button" data-fact="del-photo" title="删除图片">✕</button>
@@ -4426,7 +4572,7 @@ function renderFlow() {
         item.title = event.target.value;
       });
       row.querySelector(".editor-flow-time")?.addEventListener("input", (event) => {
-        item.photoTime = event.target.value;
+        item.timeOverride = event.target.value;
       });
     }
 
@@ -5035,7 +5181,6 @@ function openEditor(id) {
   if (editor.remarks) {
     editor.remarks.value = raw.remarks || "";
   }
-  editor.submitterNote.value = raw.submitterNote || "";
   editor.locApprox.checked = Boolean(raw.locationApprox);
   editor.timeApprox.checked = Boolean(raw.timeApprox);
   // Linked-point row is gated by the 关联 header checkbox — ticked when set.
@@ -5136,6 +5281,27 @@ function onMarkerDragged(id, coords) {
 
 // Put a record that has no coordinates onto the map at the current map center,
 // so a draggable marker appears. The position is a draft until you click 保存.
+// Centre a coordinate in the *visible* map area between the side panels, not the
+// physical screen centre (which the editor drawer covers). Used after creating /
+// placing a point so its marker is actually visible (item 3).
+function centerInEditorGap(coords) {
+  if (!state.map || !coords) {
+    return;
+  }
+  state.map.setCenter(coords);
+  if (!document.body.classList.contains("editor-open")) {
+    return;
+  }
+  const vw = window.innerWidth;
+  const pw = document.querySelector(".editor-preview")?.getBoundingClientRect().width || 0;
+  const dw = document.querySelector(".editor-drawer")?.getBoundingClientRect().width || 0;
+  const gapCenter = pw + (vw - pw - dw) / 2;
+  const dx = vw / 2 - gapCenter; // shift east so the centred point lands in the gap
+  if (Math.abs(dx) > 4) {
+    state.map.panBy(dx, 0);
+  }
+}
+
 function placeOnMapCenter() {
   const id = state.editingId;
   if (!id) {
@@ -5146,6 +5312,8 @@ function placeOnMapCenter() {
     return;
   }
   switchToMapView();
+  // Use the centre of the *visible* gap (not screen centre) so the new marker
+  // isn't dropped behind the editor drawer (item 3).
   const center = state.map.getCenter();
   const coords = { lat: center.lat(), lng: center.lng() };
   editor.draftCoords = coords;
@@ -5158,7 +5326,8 @@ function placeOnMapCenter() {
   }
   updateCoordReadout(getRawById(id));
   render();
-  showEditorToast("已放到地图中心，请拖动标记到准确位置后点保存");
+  centerInEditorGap(coords);
+  showEditorToast("已放到可见地图区，请拖动标记到准确位置后点保存");
 }
 
 async function saveEditor() {
@@ -5180,7 +5349,8 @@ async function saveEditor() {
   // Submission time is stored date-only (年月日), no hour/minute (item 8).
   payload.submissionTime = formatDateOnly(editor.submissionTime.value);
   payload.remarks = editor.remarks ? editor.remarks.value : "";
-  payload.submitterNote = editor.submitterNote.value;
+  // submitterNote is no longer edited here (item 14) — the words live in 内容;
+  // don't send it so the stored value is preserved untouched.
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;
   payload.locationLevels = collectLevelsForSave();
@@ -5199,19 +5369,21 @@ async function saveEditor() {
     id: p.id,
     role: p.role,
     title: p.title,
-    photoTime: p.photoTime,
+    // Blank time box keeps the stored/EXIF time; a typed override replaces it (item 15).
+    photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
   }));
+  const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   payload.blocks = (editor.flow || [])
-    .filter((i) => i.kind === "text" || (i.kind === "photo" && i.role !== "primary"))
+    .filter((i) => isTextLike(i) || (i.kind === "photo" && i.role !== "primary"))
     .map((i) =>
-      i.kind === "text"
-        ? { type: "text", text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
+      isTextLike(i)
+        ? { type: i.kind, text: { ja: (i.textJa || "").trim(), en: (i.textEn || "").trim() } }
         : { type: "photo", file: i.file },
     )
-    .filter((b) => b.type !== "text" || b.text.ja || b.text.en);
+    .filter((b) => b.type === "photo" || b.text.ja || b.text.en);
   // story is the card-preview fallback; keep it as the Japanese paragraphs joined.
   payload.story = (editor.flow || [])
-    .filter((i) => i.kind === "text" && (i.textJa || "").trim())
+    .filter((i) => isTextLike(i) && (i.textJa || "").trim())
     .map((i) => i.textJa.trim())
     .join("\n");
 
@@ -5347,11 +5519,15 @@ async function onCreateRecord(event) {
       render();
     }
     openEditor(result.id);
-    // If the photo carried GPS, the point landed at its real spot — fly there.
+    // Bring the new marker into the visible map gap between the side panels —
+    // both the EXIF-GPS spot and the no-GPS map-center one would otherwise sit
+    // dead-centre, hidden behind the editor drawer (item 3).
     if (result.coordinates && state.googleReady && state.map) {
       switchToMapView();
-      state.map.panTo(result.coordinates);
-      state.map.setZoom(Math.max(state.map.getZoom(), DEFAULT_MAP_ZOOM));
+      if (result.fromExif) {
+        state.map.setZoom(Math.max(state.map.getZoom(), DEFAULT_MAP_ZOOM));
+      }
+      centerInEditorGap(result.coordinates);
     }
     showEditorToast(
       result.fromExif
@@ -5435,6 +5611,10 @@ function syncFlagCheckbox(active) {
   if (editor.flagToggle) {
     editor.flagToggle.checked = Boolean(active);
   }
+  // 备注 only shows once a point is flagged 待改 (item 13).
+  if (editor.remarksRow) {
+    editor.remarksRow.hidden = !Boolean(active);
+  }
 }
 
 // The "待改" checkbox saves immediately and recolours the map without a full
@@ -5445,6 +5625,9 @@ async function onFlagToggle() {
     return;
   }
   const color = editor.flagToggle?.checked ? "yellow" : "";
+  if (editor.remarksRow) {
+    editor.remarksRow.hidden = !editor.flagToggle?.checked;
+  }
   try {
     await apiPost("/api/save-record", { id, editFlag: color });
     const raw = getRawById(id);

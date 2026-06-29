@@ -76,10 +76,10 @@ function sanitizeBlocks(value) {
   }
   const blocks = [];
   for (const block of value) {
-    if (block?.type === "text") {
+    if (block?.type === "text" || block?.type === "dialogue") {
       const text = sanitizeBilingual(block.text);
       if (text.ja || text.en) {
-        blocks.push({ type: "text", text });
+        blocks.push({ type: block.type, text });
       }
     } else if (block?.type === "photo" && typeof block.file === "string" && block.file) {
       blocks.push({ type: "photo", file: path.basename(block.file) });

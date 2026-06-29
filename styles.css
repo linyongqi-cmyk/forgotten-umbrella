@@ -1,5 +1,9 @@
 :root {
   color-scheme: light dark;
+  /* Editor/preview panel widths: fixed px on wide screens, shrink to a screen
+     percentage on narrow ones so the map always stays visible (item 3). */
+  --editor-w: clamp(440px, 56vw, 860px);
+  --preview-w: clamp(280px, 26vw, 360px);
   --ink: light-dark(#182322, #f4f1ea);
   --muted: light-dark(#65706b, #a7aaa4);
   --paper: transparent;
@@ -1343,8 +1347,8 @@ body.is-image-expanded .side-panel {
 /* #15: while editing from Archive, push the cards out from under the fixed
    preview (left) and editor drawer (right) so every card stays clickable. */
 body.editor-open .archive-view {
-  padding-left: calc(min(360px, 92vw) + 36px);
-  padding-right: calc(min(380px, 92vw) + 36px);
+  padding-left: calc(var(--preview-w) + 36px);
+  padding-right: calc(var(--editor-w) + 36px);
 }
 
 .section-heading {
@@ -1376,6 +1380,34 @@ body.editor-open .archive-view {
 }
 
 .archive-scope-tab.is-active {
+  opacity: 1;
+  border-bottom-color: currentColor;
+}
+
+/* Map sidebar list scope toggle (item 17) — same idea, smaller to fit the panel. */
+.panel-scope-tabs {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.panel-scope-tab {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.panel-scope-tab h2 {
+  font-size: 18px;
+  opacity: 0.4;
+  border-bottom: 2px solid transparent;
+  transition: opacity 0.18s ease, border-color 0.18s ease;
+}
+
+.panel-scope-tab.is-active h2 {
   opacity: 1;
   border-bottom-color: currentColor;
 }
@@ -2190,14 +2222,13 @@ body.edit-mode .card-edit {
   gap: 10px;
 }
 
-/* When a record editor is open, the left preview (≤360px) + right drawer (≤880px)
-   sandwich the map; float the toolbar horizontally in the middle of that free
-   gap, up top (item 12). */
+/* When a record editor is open, the left preview + right drawer sandwich the map;
+   float the toolbar horizontally in the middle of that free gap, up top (item 12). */
 body.editor-open .editor-toolbar {
   right: auto;
   bottom: auto;
   top: 16px;
-  left: calc(360px + (100vw - 360px - min(880px, 96vw)) / 2);
+  left: calc(var(--preview-w) + (100vw - var(--preview-w) - var(--editor-w)) / 2);
   transform: translateX(-50%);
   flex-direction: row;
 }
@@ -2371,6 +2402,21 @@ body:not(.edit-mode) .texts-toggle {
   color: var(--ink, #141a19);
 }
 
+/* Local-only zoom readout, flush to the top-right corner (item 6). */
+.map-scale-readout {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1450;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #f4f3ed;
+  background: rgba(31, 45, 45, 0.78);
+  border-bottom-left-radius: 6px;
+  pointer-events: none;
+}
+
 body.edit-mode .map-stage {
   outline: 3px solid rgba(180, 80, 47, 0.65);
   outline-offset: -3px;
@@ -2383,7 +2429,7 @@ body.edit-mode .map-stage {
   z-index: 1300;
   display: flex;
   flex-direction: column;
-  width: min(880px, 96vw);
+  width: var(--editor-w);
   height: 100%;
   /* The editor is always light mode, never dark (用户要求) — forces every nested
      light-dark()/var(--ink) (inputs, the live preview) to its light value. */
@@ -2454,7 +2500,8 @@ body.edit-mode .map-stage {
   gap: 10px;
 }
 
-.editor-field-approx > input {
+.editor-field-approx > input,
+.editor-field-approx > textarea {
   flex: 1;
   min-width: 0;
 }
@@ -3120,10 +3167,56 @@ body:not(.edit-mode) .editor-add {
   color: #8a948f;
 }
 
-/* Action buttons stacked vertically on the right of the block (item 2). */
+/* Action buttons stacked vertically on the right of the block (item 2/11). */
 .editor-block-buttons-vertical {
   flex-direction: column;
   flex-shrink: 0;
+}
+
+/* Thumbnail with the role dropdown stacked UNDER it (item 16). */
+.editor-media-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 56px;
+}
+
+.editor-media-thumb img,
+.editor-media-thumb video {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.editor-media-thumb .editor-flow-role {
+  width: 56px;
+  box-sizing: border-box;
+}
+
+.editor-media-thumb .editor-media-badge {
+  text-align: center;
+}
+
+/* "对话" tag on a dialogue block in the editor (item 12). */
+.editor-block-tag {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6f8f86;
+  padding-top: 4px;
+}
+
+.editor-add-dialogue {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(31, 45, 45, 0.4);
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .editor-block-photo img,
@@ -3329,7 +3422,7 @@ body:not(.edit-mode) .editor-add {
   left: 0;
   top: 0;
   height: 100%;
-  width: min(360px, 92vw);
+  width: var(--preview-w);
   box-sizing: border-box;
   padding: 16px;
   /* Always light mode (用户要求) — keeps the rendered detail preview readable. */
@@ -3501,6 +3594,35 @@ body:not(.edit-mode) .editor-add {
 .focus-image-panel figcaption .item-story {
   font-size: var(--detail-body-size);
   line-height: var(--detail-body-line);
+}
+
+/* Dialogue block (item 12): italic, left rule; speaker left, line body right. */
+.focus-image-panel figcaption .focus-dialogue {
+  margin: 0.4em 0 0.6em;
+  padding-left: 10px;
+  border-left: 2px solid currentColor;
+  font-size: var(--detail-body-size);
+  line-height: var(--detail-body-line);
+  font-style: italic;
+  opacity: 0.92;
+}
+
+.focus-dialogue-line {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 0.25em;
+  align-items: baseline;
+}
+
+.focus-dialogue-speaker {
+  flex-shrink: 0;
+  font-weight: 600;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.focus-dialogue-cont .focus-dialogue-body {
+  padding-left: 0;
 }
 
 /* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。

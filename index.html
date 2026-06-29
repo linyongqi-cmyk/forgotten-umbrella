@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=97" />
+    <link rel="stylesheet" href="styles.css?v=98" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -37,7 +37,7 @@
         <span class="welcome-title-frame" aria-hidden="true">
           <span class="welcome-title-text">
             <span class="welcome-title-line" data-text="FORGOTTEN"></span>
-            <span class="welcome-title-line" data-text="UMBRELLA"></span>
+            <span class="welcome-title-line" data-text="UMBRELLAS"></span>
           </span>
           <span class="welcome-title-media">
             <img class="welcome-card is-active" src="filebox/welcome-pic/2.png" alt="" />
@@ -126,8 +126,9 @@
           </div>
 
           <aside class="side-panel" id="list-panel" aria-label="location list">
-            <div class="panel-heading">
-              <h2>Archive</h2>
+            <div class="panel-heading panel-scope-tabs" role="group" aria-label="list scope">
+              <button class="panel-scope-tab is-active" data-list-scope="own" type="button"><h2>Fieldwork</h2></button>
+              <button class="panel-scope-tab" data-list-scope="contributed" type="button"><h2>Contributed</h2></button>
             </div>
 
             <div class="search-shell">
@@ -232,6 +233,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=97" type="module"></script>
+    <script src="app.js?v=98" type="module"></script>
   </body>
 </html>

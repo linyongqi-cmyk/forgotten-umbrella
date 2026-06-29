@@ -53,7 +53,7 @@
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
-      "type": "text",
+      "type": "dialogue",
       "text": {
         "ja": "投稿者:今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。",
         "en": "Sender: I took this after school today. It looked like it was going to rain but never did, so I guess the owner just forgot it. The handle is broken too, so maybe it was blown here by the wind. Where I found it might not ever be the \"original scene\""
