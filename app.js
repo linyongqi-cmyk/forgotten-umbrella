@@ -2010,11 +2010,11 @@ function renderFocusHeader(item) {
   const title = localize(item.title);
   const idText = displayUmbrellaId(item);
   const focusTitle = title ? `${idText}(${title})` : idText;
-  // 用户 #6: mark a contributed umbrella with a small stroked person icon (same line
-  // style as the magnifier / back-to-map controls) instead of the old text pill.
+  // 用户: mark a contributed umbrella with a small stroked ENVELOPE icon (a received
+  // submission), same line style as the magnifier / back-to-map controls.
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
-    ? ` <span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg></span>`
+    ? ` <span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M4 7l8 5.5L20 7"/></svg></span>`
     : "";
   return `<h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>`;
 }
@@ -4148,7 +4148,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=111", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=112", { updateViaCache: "none" });
   }
 }
 

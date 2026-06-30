@@ -1594,6 +1594,15 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: none;
 }
 
+/* 用户 #1: …EXCEPT in the enlarged lightbox. The "click the blank backdrop to go
+   back to the detail page" handler lives on .focus-blur; for a 模糊地址 point it was
+   display:none, so clicking outside the enlarged photo did nothing (you got stuck).
+   Re-show it when the image is expanded so the lightbox backdrop catches the click,
+   same as every other marker. */
+.workspace.is-focus-mode.is-blur-approx.is-image-expanded .focus-blur {
+  display: block;
+}
+
 /* T7 item 3: small text label under the pin in the blurred focus view (the rough
    place, since the map around it is blurred). Sits above the blur layer, plain
    text only (no background). Sits comfortably below the pin tip (item 2: gap
@@ -3815,31 +3824,31 @@ body:not(.edit-mode) .editor-add {
   pointer-events: none;
 }
 
-/* INFORMATION block: label on the left, value(s) left-aligned on the right */
+/* INFORMATION block: label on the left, value(s) left-aligned on the right.
+   用户 #3: a 2-column grid whose label column auto-sizes to the WIDEST label that is
+   actually shown. So the value column hugs the labels (no big gap), and when a long
+   label like "submitted" isn't present (own umbrellas) every value shifts left by
+   itself — no fixed width forcing the gap. The rows use display:contents so each
+   label/value lands directly in the shared grid columns. */
 .focus-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 5px 10px;
 }
 
 .focus-info-row {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
+  display: contents;
 }
 
 .focus-info-label {
-  flex: 0 0 auto;
-  /* Wide enough for the longest label ("submitted:") so every value left-aligns in
-     one column (用户 #4). */
-  min-width: 84px;
   font-size: var(--detail-body-size);
   line-height: var(--detail-body-line);
   color: var(--ink);
+  white-space: nowrap;
 }
 
 .focus-info-value {
-  flex: 1;
   min-width: 0;
 }
 
