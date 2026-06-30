@@ -1356,7 +1356,6 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
    backdrop blur px = how strong. (A: whiter, B: weaker blur, C: pin not blurred.) */
 .workspace.is-focus-mode.is-blur-approx .focus-blur {
   --focus-radius: 188px;
-  --pin-clear: 34px;
   backdrop-filter: blur(3.5px);
   background: radial-gradient(
     circle var(--focus-radius) at var(--focus-x) var(--focus-y),
@@ -1365,29 +1364,50 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
     rgba(0, 0, 0, 0.22) var(--focus-radius),
     rgba(0, 0, 0, 0.22) 100%
   );
-  /* Clear hole over the pin so the marker isn't blurred (item 2C). */
-  -webkit-mask-image: radial-gradient(
-    circle at var(--focus-x) var(--focus-y),
-    transparent 0 var(--pin-clear),
-    #000 calc(var(--pin-clear) + 14px)
-  );
-  mask-image: radial-gradient(
-    circle at var(--focus-x) var(--focus-y),
-    transparent 0 var(--pin-clear),
-    #000 calc(var(--pin-clear) + 14px)
-  );
+}
+
+/* T7 item 1: a sharp pin that FLOATS ABOVE the blur layer, so the whole map
+   (including the real Google marker beneath) stays uniformly blurred while this
+   crisp pin marks the rough spot. Tip points at --focus-x/--focus-y. */
+.focus-approx-pin {
+  position: fixed;
+  z-index: 31;
+  width: 30px;
+  height: 33px;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.focus-approx-pin svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.focus-approx-pin path {
+  fill: #2e9e5b;
+  stroke: #ffffff;
+  stroke-width: 2.1;
+}
+
+.focus-approx-pin[hidden] {
+  display: none;
+}
+
+.workspace.is-focus-mode.is-focus-map-active .focus-approx-pin {
+  opacity: 0;
 }
 
 /* T7 item 3: small text label under the pin in the blurred focus view (the rough
-   place, since the map around it is blurred). Sits above the blur layer. */
+   place, since the map around it is blurred). Sits above the blur layer, plain
+   text only (no background), ~8px below the pin tip (item 2). */
 .focus-approx-label {
   position: fixed;
   z-index: 31;
-  transform: translate(-50%, 22px);
+  transform: translate(-50%, 8px);
   max-width: 42vw;
-  padding: 3px 10px;
-  border-radius: 12px;
-  background: rgba(20, 24, 22, 0.6);
   color: #fff;
   font-size: 13px;
   line-height: 1.3;
@@ -1396,7 +1416,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  backdrop-filter: blur(2px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 2px rgba(0, 0, 0, 0.5);
   transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 

@@ -314,6 +314,7 @@ const els = {
   mapCanvas: document.querySelector("#google-map"),
   mapMessage: document.querySelector("#map-message"),
   focusBlur: document.querySelector("#focus-blur"),
+  focusApproxPin: document.querySelector("#focus-approx-pin"),
   focusApproxLabel: document.querySelector("#focus-approx-label"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
@@ -900,11 +901,9 @@ function bindEvents() {
     const ovSort = event.target.closest?.("[data-contrib-overview-sort]");
     if (ovSort) {
       const k = ovSort.dataset.contribOverviewSort;
-      if (k === "submitter") {
-        // Contributor header resets to the default order (item 3).
-        state.contribOverviewSortKey = "submitter";
-        state.contribOverviewSortDir = "asc";
-      } else if (state.contribOverviewSortKey === k) {
+      // Every header (contributor included) toggles direction when already
+      // active, so contributor can be reversed too (item 3).
+      if (state.contribOverviewSortKey === k) {
         state.contribOverviewSortDir = state.contribOverviewSortDir === "asc" ? "desc" : "asc";
       } else {
         state.contribOverviewSortKey = k;
@@ -3223,6 +3222,15 @@ function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
+  // Floating sharp pin above the blur (item 1) — only for 模糊地址 points; colour
+  // it to match the marker category (contributed = green etc.).
+  if (els.focusApproxPin) {
+    els.focusApproxPin.hidden = !item.blurApprox;
+    const pinPath = els.focusApproxPin.querySelector("path");
+    if (pinPath) {
+      pinPath.style.fill = MARKER_COLORS[markerCategory(item)] || MARKER_COLORS.contrib;
+    }
+  }
   // Under-pin label (item 3): custom text, or the display address as fallback.
   if (els.focusApproxLabel) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
@@ -3262,6 +3270,9 @@ function closeFocusMode(options = {}) {
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
+  if (els.focusApproxPin) {
+    els.focusApproxPin.hidden = true;
+  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
   }
@@ -3722,7 +3733,11 @@ function setFocusMaskPosition() {
   const target = getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
-  // Park the under-pin approx label just below the pin (item 3).
+  // Park the floating pin (tip at the point) and the under-pin label (item 1/3).
+  if (els.focusApproxPin) {
+    els.focusApproxPin.style.left = `${target.x}px`;
+    els.focusApproxPin.style.top = `${target.y}px`;
+  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
@@ -4000,7 +4015,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=102", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=103", { updateViaCache: "none" });
   }
 }
 
