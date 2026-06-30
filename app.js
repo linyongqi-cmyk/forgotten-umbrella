@@ -314,11 +314,11 @@ const els = {
   mapCanvas: document.querySelector("#google-map"),
   mapMessage: document.querySelector("#map-message"),
   focusBlur: document.querySelector("#focus-blur"),
-  focusApproxPin: document.querySelector("#focus-approx-pin"),
   focusApproxLabel: document.querySelector("#focus-approx-label"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusCaption: document.querySelector("#focus-caption"),
+  focusAsideInfo: document.querySelector("#focus-aside-info"),
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
@@ -1871,6 +1871,11 @@ function renderFocusImage() {
   if (els.focusHeader) {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
+  // 方案 B: the INFORMATION grid sits in the LEFT aside (next to the image);
+  // the paragraph/photo flow scrolls below the image+info row.
+  if (els.focusAsideInfo) {
+    els.focusAsideInfo.innerHTML = renderFocusInfo(item);
+  }
   els.focusCaption.innerHTML = renderFocusArticle(item);
   renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
@@ -1991,10 +1996,11 @@ function renderFocusHeader(item) {
   `;
 }
 
-function renderFocusArticle(item) {
-  // Contributed umbrellas don't show the type/object/state INFORMATION grid
-  // (their category is "submission(pending)" and umbrella details are usually
-  // unknown) — they rely on the submitter credit + note instead (用户要求).
+// The INFORMATION grid (type / object / state). Lives in the left aside next to
+// the cover image (方案 B). Contributed umbrellas don't show it (their category
+// is "submission(pending)" and umbrella details are usually unknown) — they rely
+// on the submitter credit + note instead (用户要求).
+function renderFocusInfo(item) {
   const infoRows = [];
   if (item.submissionType !== "contributed") {
     const typeValue = formatInformationType(item);
@@ -2008,7 +2014,23 @@ function renderFocusArticle(item) {
       infoRows.push({ label: "state", lines: item.statusLines });
     }
   }
+  if (!infoRows.length) {
+    return "";
+  }
+  return `<h4 class="focus-info-heading">information</h4>
+      <div class="focus-info">
+        ${infoRows
+          .map(
+            (row) => `<div class="focus-info-row">
+              <span class="focus-info-label">${row.label}:</span>
+              <div class="focus-info-value">${row.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>
+            </div>`,
+          )
+          .join("")}
+      </div>`;
+}
 
+function renderFocusArticle(item) {
   const mediaByFile = {};
   (item.media || []).forEach((m) => {
     mediaByFile[m.file] = m;
@@ -2074,24 +2096,10 @@ function renderFocusArticle(item) {
     .join("");
 
   // (item 8) The submitter's words are now migrated into the content blocks
-  // above, so there's no separate quote block any more.
-  const infoHtml = infoRows.length
-    ? `<h4 class="focus-info-heading">information</h4>
-      <div class="focus-info">
-        ${infoRows
-          .map(
-            (row) => `<div class="focus-info-row">
-              <span class="focus-info-label">${row.label}:</span>
-              <div class="focus-info-value">${row.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>
-            </div>`,
-          )
-          .join("")}
-      </div>`
-    : "";
-
+  // above, so there's no separate quote block any more. The INFORMATION grid now
+  // lives in the left aside (renderFocusInfo), so this is just the block flow.
   return `
     <div class="focus-caption-inner">
-      ${infoHtml}
       ${blocksHtml}
     </div>
   `;
@@ -3222,16 +3230,9 @@ function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
-  // Floating sharp pin above the blur (item 1) — only for 模糊地址 points; colour
-  // it to match the marker category (contributed = green etc.).
-  if (els.focusApproxPin) {
-    els.focusApproxPin.hidden = !item.blurApprox;
-    const pinPath = els.focusApproxPin.querySelector("path");
-    if (pinPath) {
-      pinPath.style.fill = MARKER_COLORS[markerCategory(item)] || MARKER_COLORS.contrib;
-    }
-  }
-  // Under-pin label (item 3): custom text, or the display address as fallback.
+  // The real Google marker floats sharp on top of the blur, so no extra pin is
+  // drawn (用户要求 v104). Under-pin label (item 3): custom text, or the display
+  // address as fallback.
   if (els.focusApproxLabel) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
     els.focusApproxLabel.textContent = labelText;
@@ -3270,9 +3271,6 @@ function closeFocusMode(options = {}) {
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
-  if (els.focusApproxPin) {
-    els.focusApproxPin.hidden = true;
-  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
   }
@@ -3733,11 +3731,7 @@ function setFocusMaskPosition() {
   const target = getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
-  // Park the floating pin (tip at the point) and the under-pin label (item 1/3).
-  if (els.focusApproxPin) {
-    els.focusApproxPin.style.left = `${target.x}px`;
-    els.focusApproxPin.style.top = `${target.y}px`;
-  }
+  // Park the under-pin approx label just below the pin (item 3).
   if (els.focusApproxLabel) {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
@@ -4015,7 +4009,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=103", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=104", { updateViaCache: "none" });
   }
 }
 
@@ -4591,6 +4585,7 @@ function renderEditorPreview() {
   editor.previewInner.innerHTML = `
     <header class="focus-header">${renderFocusHeader(item)}</header>
     ${cover ? `<div class="editor-preview-cover"><img src="${escapeHtml(cover.src || item.image || "")}" alt="" /></div>` : ""}
+    ${renderFocusInfo(item)}
     ${renderFocusArticle(item)}`;
 }
 

@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=103" />
+    <link rel="stylesheet" href="styles.css?v=104" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -174,21 +174,23 @@
           </button>
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
-          <div class="focus-approx-pin" id="focus-approx-pin" aria-hidden="true" hidden>
-            <svg viewBox="0 0 24 26" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z" />
-            </svg>
-          </div>
           <div class="focus-approx-label" id="focus-approx-label" aria-hidden="true" hidden></div>
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
-            <header class="focus-header" id="focus-header"></header>
-            <div class="focus-scroll" id="focus-scroll">
-              <div class="focus-image-frame">
-                <img id="focus-image" alt="" />
-                <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
+            <div class="focus-layout">
+              <div class="focus-aside">
+                <header class="focus-header" id="focus-header"></header>
+                <div class="focus-aside-info" id="focus-aside-info"></div>
               </div>
-              <div class="focus-link" id="focus-link" hidden></div>
+              <div class="focus-image-col">
+                <div class="focus-image-frame">
+                  <img id="focus-image" alt="" />
+                  <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
+                </div>
+                <div class="focus-link" id="focus-link" hidden></div>
+              </div>
+            </div>
+            <div class="focus-scroll" id="focus-scroll">
               <figcaption id="focus-caption"></figcaption>
             </div>
             <button class="focus-close" id="focus-close" type="button" aria-label="close focus view" title="collapse to the right">
@@ -250,6 +252,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=103" type="module"></script>
+    <script src="app.js?v=104" type="module"></script>
   </body>
 </html>
