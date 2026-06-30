@@ -1348,24 +1348,65 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
 }
 
-/* T7 模糊地址 (approximate-location) variant: the WHOLE map stays blurred (no
-   clear hole). The outer area keeps the normal DARK blur; the enlarged circle in
-   the middle gets a gentle WHITE blur that fades out into the dark — so the
-   exact spot is never sharp. Tunable: --focus-radius = white-circle size, the
-   centre white alpha (keep it light), the dark outer alpha matches the normal
-   blur. The mask is removed so nothing reads fully clear. */
+/* T7 模糊地址 (approximate-location) variant: the map is blurred but the MARKER
+   stays sharp. A tiny clear hole (--pin-clear) sits over the pin so it reads
+   crisp; the enlarged circle around it gets a gentle WHITE blur fading into the
+   normal DARK blur outside. Tunable: --focus-radius = white-circle size,
+   --pin-clear = sharp hole for the pin, the centre white alpha = how white,
+   backdrop blur px = how strong. (A: whiter, B: weaker blur, C: pin not blurred.) */
 .workspace.is-focus-mode.is-blur-approx .focus-blur {
   --focus-radius: 188px;
-  backdrop-filter: blur(6px);
+  --pin-clear: 34px;
+  backdrop-filter: blur(3.5px);
   background: radial-gradient(
     circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(255, 255, 255, 0.16) 0,
-    rgba(255, 255, 255, 0.1) calc(var(--focus-radius) * 0.5),
+    rgba(255, 255, 255, 0.34) 0,
+    rgba(255, 255, 255, 0.26) calc(var(--focus-radius) * 0.5),
     rgba(0, 0, 0, 0.22) var(--focus-radius),
     rgba(0, 0, 0, 0.22) 100%
   );
-  -webkit-mask-image: none;
-  mask-image: none;
+  /* Clear hole over the pin so the marker isn't blurred (item 2C). */
+  -webkit-mask-image: radial-gradient(
+    circle at var(--focus-x) var(--focus-y),
+    transparent 0 var(--pin-clear),
+    #000 calc(var(--pin-clear) + 14px)
+  );
+  mask-image: radial-gradient(
+    circle at var(--focus-x) var(--focus-y),
+    transparent 0 var(--pin-clear),
+    #000 calc(var(--pin-clear) + 14px)
+  );
+}
+
+/* T7 item 3: small text label under the pin in the blurred focus view (the rough
+   place, since the map around it is blurred). Sits above the blur layer. */
+.focus-approx-label {
+  position: fixed;
+  z-index: 31;
+  transform: translate(-50%, 22px);
+  max-width: 42vw;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(20, 24, 22, 0.6);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.focus-approx-label[hidden] {
+  display: none;
+}
+
+/* When the user pans/zooms (blur suppressed), fade the label out too. */
+.workspace.is-focus-mode.is-focus-map-active .focus-approx-label {
+  opacity: 0;
 }
 
 .workspace.is-focus-mode.is-focus-map-active .focus-blur {

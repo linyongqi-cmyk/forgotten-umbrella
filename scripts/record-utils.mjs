@@ -73,6 +73,8 @@ export function stringifyRecordWithComments(record) {
     `  "blurApprox": ${JSON.stringify(record.blurApprox ?? false)},`,
     '  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。',
     `  "approxZoom": ${JSON.stringify(record.approxZoom ?? "")},`,
+    '  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。',
+    `  "blurLabel": ${JSON.stringify(record.blurLabel ?? "")},`,
     '  // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。',
     `  "story": ${JSON.stringify(record.story ?? "")},`,
     '  // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。',

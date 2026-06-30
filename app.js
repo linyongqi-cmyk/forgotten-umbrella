@@ -314,6 +314,7 @@ const els = {
   mapCanvas: document.querySelector("#google-map"),
   mapMessage: document.querySelector("#map-message"),
   focusBlur: document.querySelector("#focus-blur"),
+  focusApproxLabel: document.querySelector("#focus-approx-label"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusCaption: document.querySelector("#focus-caption"),
@@ -1950,11 +1951,16 @@ function renderDialogueLines(text) {
     .join("");
 }
 
-// Contributed ids are stored with underscores (folder names), but the human name
-// reads with spaces — show "ZHANG ZHONGPU", not "ZHANG_ZHONGPU", to match the
-// overview's submitter column (item 2). Own (IMG_xxxx) ids keep their underscore.
+// Person-name contributed ids are stored with underscores (folder names) but read
+// with spaces — show "ZHANG ZHONGPU", not "ZHANG_ZHONGPU" (item 2). Own (IMG_xxxx)
+// ids AND rednote handles (rednote_kankan) keep their underscores — those are real
+// filenames/handles, not names where the underscore replaced a space (item 1).
 function displayUmbrellaId(item) {
-  return item?.submissionType === "contributed" ? String(item.id || "").replace(/_/g, " ") : item?.id || "";
+  const id = item?.id || "";
+  if (item?.submissionType !== "contributed" || /^rednote/i.test(id)) {
+    return id;
+  }
+  return id.replace(/_/g, " ");
 }
 
 // Fixed header (stays put while the images/text scroll): id(title), place, time.
@@ -3217,6 +3223,12 @@ function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
+  // Under-pin label (item 3): custom text, or the display address as fallback.
+  if (els.focusApproxLabel) {
+    const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
+    els.focusApproxLabel.textContent = labelText;
+    els.focusApproxLabel.hidden = !labelText;
+  }
   setFocusMaskPosition();
   // Always re-centre: clicking the focused marker again after the map has been
   // panned/zoomed should bring the marker back to the clear circle (#5).
@@ -3250,6 +3262,9 @@ function closeFocusMode(options = {}) {
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
+  if (els.focusApproxLabel) {
+    els.focusApproxLabel.hidden = true;
+  }
   els.focusPanel?.setAttribute("aria-hidden", "true");
   els.focusPanel?.classList.remove("is-loading");
 }
@@ -3707,6 +3722,11 @@ function setFocusMaskPosition() {
   const target = getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
+  // Park the under-pin approx label just below the pin (item 3).
+  if (els.focusApproxLabel) {
+    els.focusApproxLabel.style.left = `${target.x}px`;
+    els.focusApproxLabel.style.top = `${target.y}px`;
+  }
 }
 
 function animateMarkerToFocus(item) {
@@ -3980,7 +4000,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=101", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=102", { updateViaCache: "none" });
   }
 }
 
@@ -4229,7 +4249,10 @@ function setupEditor() {
     <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>
     <div class="editor-sub-field editor-blur-field">
       <label class="editor-head-check editor-blur-check" title="聚焦时用白色模糊、清晰圈更大，让位置更含糊"><span>模糊地址</span><input type="checkbox" class="editor-blur-approx" /></label>
-      <label class="editor-sub-inline"><span class="editor-sub-note">聚焦缩放（留空=默认18，越小越含糊；可看右上角数字）</span><input class="editor-approx-zoom" type="number" min="3" max="21" step="1" placeholder="留空=18" /></label>
+      <div class="editor-blur-extra" hidden>
+        <label class="editor-sub-inline"><span class="editor-sub-note">聚焦缩放（留空=默认18，越小越含糊；可看右上角数字）</span><input class="editor-approx-zoom" type="number" min="3" max="21" step="1" placeholder="留空=18" /></label>
+        <label class="editor-sub-inline"><span class="editor-sub-note">标点下文字（留空=用显示地址）</span><input class="editor-blur-label" type="text" placeholder="显示地址" /></label>
+      </div>
     </div>`;
   body.appendChild(contribRow);
   editor.contribRow = contribRow;
@@ -4237,6 +4260,12 @@ function setupEditor() {
   editor.submissionTime = contribRow.querySelector(".editor-submission-time");
   editor.blurApprox = contribRow.querySelector(".editor-blur-approx");
   editor.approxZoom = contribRow.querySelector(".editor-approx-zoom");
+  editor.blurLabel = contribRow.querySelector(".editor-blur-label");
+  editor.blurExtra = contribRow.querySelector(".editor-blur-extra");
+  // The zoom/label extras only show once 模糊地址 is ticked (item 3).
+  editor.blurApprox.addEventListener("change", () => {
+    editor.blurExtra.hidden = !editor.blurApprox.checked;
+  });
   // Source toggle reveals/hides 投稿信息 and the 类型 row (contributed = no type).
   editor.sourceRadios.forEach((radio) => {
     radio.addEventListener("change", syncSourceVisibility);
@@ -5501,12 +5530,20 @@ function openEditor(id) {
   syncSourceVisibility();
   editor.submitter.value = raw.submitter || "";
   editor.submissionTime.value = formatDateOnly(raw.submissionTime) || "";
-  // T7 模糊地址 + per-point focus zoom.
+  // T7 模糊地址 + per-point focus zoom + under-pin label.
   if (editor.blurApprox) {
     editor.blurApprox.checked = Boolean(raw.blurApprox);
   }
   if (editor.approxZoom) {
     editor.approxZoom.value = raw.approxZoom === 0 || raw.approxZoom ? String(raw.approxZoom) : "";
+  }
+  if (editor.blurLabel) {
+    editor.blurLabel.value = raw.blurLabel || "";
+    // Placeholder = the display address, so the user sees the default fallback.
+    editor.blurLabel.placeholder = raw.locationText || raw.location || "显示地址";
+  }
+  if (editor.blurExtra) {
+    editor.blurExtra.hidden = !Boolean(raw.blurApprox);
   }
   if (editor.remarks) {
     editor.remarks.value = raw.remarks || "";
@@ -5683,9 +5720,10 @@ async function saveEditor() {
   // don't send it so the stored value is preserved untouched.
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;
-  // T7 模糊地址 + per-point focus zoom.
+  // T7 模糊地址 + per-point focus zoom + under-pin label.
   payload.blurApprox = editor.blurApprox ? editor.blurApprox.checked : false;
   payload.approxZoom = editor.approxZoom && editor.approxZoom.value.trim() !== "" ? Number(editor.approxZoom.value) : "";
+  payload.blurLabel = editor.blurLabel ? editor.blurLabel.value.trim() : "";
   payload.locationLevels = collectLevelsForSave();
   // Umbrella details only saved when the section is enabled; otherwise cleared
   // (so contributed umbrellas without details don't show object/state).

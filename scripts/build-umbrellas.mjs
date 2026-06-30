@@ -110,6 +110,9 @@ function buildUmbrellaItem(recordPath, record) {
       // special white-blur focus and an optional per-point zoom.
       blurApprox: Boolean(record.blurApprox),
       approxZoom: Number.isFinite(Number(record.approxZoom)) && record.approxZoom !== "" ? Number(record.approxZoom) : null,
+      // T7: optional text shown under the pin in the blurred focus view (defaults
+      // to the display address when blank).
+      blurLabel: record.blurLabel || "",
       categoryGroup,
       category,
       thumb: primary.legacyThumb || "",

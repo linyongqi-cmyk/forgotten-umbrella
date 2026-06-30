@@ -219,6 +219,9 @@ export async function saveRecord(payload) {
     const z = Number(payload.approxZoom);
     record.approxZoom = payload.approxZoom !== "" && Number.isFinite(z) ? z : "";
   }
+  if (Object.prototype.hasOwnProperty.call(payload, "blurLabel")) {
+    record.blurLabel = String(payload.blurLabel ?? "").trim();
+  }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
     const coords = sanitizeCoordinates(payload.locationCoordinates);
@@ -420,6 +423,7 @@ export async function createRecord(payload) {
     timeApprox: Boolean(payload.timeApprox),
     blurApprox: Boolean(payload.blurApprox),
     approxZoom: "",
+    blurLabel: "",
     story: "",
     media: [{ id, file: filename, role: "primary", title: "", photoTime: "", story: "", legacyThumb: "" }],
   };
