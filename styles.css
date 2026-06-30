@@ -1127,10 +1127,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   margin-top: 12px;
 }
 
-/* The cover fills the (wide) media column again; cap its height by viewport so a
-   portrait still fits one screen without scrolling (用户 v106). */
+/* The cover fills the (wide) media column at full width; the height cap is by
+   viewport only (no px cap) and generous enough that a normal 3:4 portrait fills
+   the column width while still fitting one screen (用户 v107: was too small at
+   70vh/620px — a portrait got letterboxed narrower than the column). */
 .focus-image-panel #focus-image {
-  max-height: min(70vh, 620px);
+  max-height: 82vh;
   width: 100%;
   object-fit: contain;
 }
@@ -1408,76 +1410,26 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
 }
 
-/* T7 模糊地址: unlike the normal focus (clear circle in the middle), the circle
-   here is also blurred — just GENTLY — and washed with a WHITE filter, so the
-   rough spot reads hazy/light. Because the real Google marker is BELOW this blur
-   overlay (and can't be lifted above it without un-blurring the whole map), the
-   focused marker is hidden in JS and a sharp `.focus-approx-pin` is drawn ON TOP
-   of the blur at the same spot (用户要求 v105: pin must float above the blur).
-   The mask alpha sets how strong the blur is: the centre is partly transparent
-   (weak blur), ramping to fully opaque outside the circle (full blur + dark).
-   Tunable: --focus-radius = circle size, backdrop blur px = max blur strength,
-   the centre mask alpha (0.4) = how blurred the circle is, the white rgba in
-   `background` = how strong the white filter is. */
-.workspace.is-focus-mode.is-blur-approx .focus-blur {
-  --focus-radius: 188px;
-  backdrop-filter: blur(4px);
-  background: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(255, 255, 255, 0.6) 0,
-    rgba(255, 255, 255, 0.5) calc(var(--focus-radius) * 0.6),
-    rgba(0, 0, 0, 0.22) var(--focus-radius),
-    rgba(0, 0, 0, 0.22) 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(0, 0, 0, 0.4) 0,
-    rgba(0, 0, 0, 0.5) calc(var(--focus-radius) - 20px),
-    rgba(0, 0, 0, 0.85) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
-  );
-  mask-image: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(0, 0, 0, 0.4) 0,
-    rgba(0, 0, 0, 0.5) calc(var(--focus-radius) - 20px),
-    rgba(0, 0, 0, 0.85) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
-  );
-}
-
-/* T7 item 1: the sharp pin that floats ABOVE the blur (z-index 31 > blur 30).
-   Coloured like the real active marker (blue) and sized to match it; tip points
-   at --focus-x/--focus-y. The real Google marker underneath is hidden in JS so
-   there is only ONE pin. Tunable: width/height = pin size. */
-.focus-approx-pin {
-  position: fixed;
-  z-index: 31;
-  width: 34px;
-  height: 37px;
-  transform: translate(-50%, -100%);
+/* T7 模糊地址 (v107, ROOT-CAUSE fix): the blur is no longer a full-screen overlay
+   on top of the map (which buried the marker). Instead a blur element is injected
+   INTO a Google Maps pane that sits BELOW the marker pane (an OverlayView in
+   `overlayLayer`). So the real marker renders SHARP on top of the blurred map with
+   no fake pin and no hiding. This `.focus-blur-approx-layer` is that pane element;
+   it's sized/positioned by JS (draw()) to cover the viewport and tracks the map on
+   pan/zoom. Tunable: backdrop blur px = blur strength, background rgba = white
+   filter strength. */
+.focus-blur-approx-layer {
+  position: absolute;
   pointer-events: none;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
-  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(244, 241, 234, 0.34);
 }
 
-.focus-approx-pin svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.focus-approx-pin path {
-  fill: #1f8bb8;
-  stroke: #ffffff;
-  stroke-width: 2.1;
-}
-
-.focus-approx-pin[hidden] {
+/* In 模糊地址 mode the full-screen blur overlay is suppressed — the pane-based
+   blur above does the work (so the marker stays sharp). */
+.workspace.is-focus-mode.is-blur-approx .focus-blur {
   display: none;
-}
-
-.workspace.is-focus-mode.is-focus-map-active .focus-approx-pin {
-  opacity: 0;
 }
 
 /* T7 item 3: small text label under the pin in the blurred focus view (the rough

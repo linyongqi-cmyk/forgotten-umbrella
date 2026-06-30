@@ -51,9 +51,9 @@ const state = {
   // Map marker filter (item 6/15/16): which of the 4 colour categories show.
   markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
   markerFilterOpen: false,
-  // Id of the marker focused with 模糊地址 (we hide it and draw a sharp pin on the
-  // blur instead; while the user pans/zooms the blur is off so we re-show it).
-  blurApproxFocusId: null,
+  // OverlayView that blurs the map BELOW the marker pane for 模糊地址 focus (so the
+  // real marker stays sharp on top — no fake pin). Created lazily once the map is.
+  blurOverlay: null,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
@@ -323,7 +323,6 @@ const els = {
   focusCaption: document.querySelector("#focus-caption"),
   focusCaptionRight: document.querySelector("#focus-caption-right"),
   focusInfoBlock: document.querySelector("#focus-info-block"),
-  focusApproxPin: document.querySelector("#focus-approx-pin"),
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
@@ -3282,41 +3281,71 @@ function selectUmbrella(id, options = {}) {
   }
 }
 
-// Show/hide the real marker that's standing in for a 模糊地址 focus. Hidden while
-// the blur (+ sharp fake pin) is showing; shown while the user pans/zooms (blur
-// off) so there's always a visible marker that tracks the map.
-function setBlurApproxMarkerHidden(hidden) {
-  if (!state.blurApproxFocusId) {
+// Lazily build the 模糊地址 blur OverlayView. Its div lives in the `overlayLayer`
+// pane (below the marker panes), so the map blurs but the marker stays SHARP on
+// top — the real root-cause fix, no fake pin (用户 v107). draw() keeps the div
+// covering the visible map, so it tracks pan/zoom.
+function ensureBlurOverlay() {
+  if (state.blurOverlay || !state.googleReady || !window.google?.maps) {
     return;
   }
-  state.markers.get(state.blurApproxFocusId)?.setVisible(!hidden);
+  const overlay = new google.maps.OverlayView();
+  overlay.onAdd = function onAdd() {
+    const div = document.createElement("div");
+    div.className = "focus-blur-approx-layer";
+    this._div = div;
+    // overlayLayer is BELOW markerLayer / overlayMouseTarget (where the markers
+    // render), so markers paint on top of this blur and stay crisp.
+    this.getPanes().overlayLayer.appendChild(div);
+  };
+  overlay.draw = function draw() {
+    const div = this._div;
+    const projection = this.getProjection();
+    const bounds = state.map?.getBounds();
+    if (!div || !projection || !bounds) {
+      return;
+    }
+    const ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+    const sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+    const pad = 140; // cover a little past the edges so corners never show through
+    const left = Math.min(ne.x, sw.x) - pad;
+    const top = Math.min(ne.y, sw.y) - pad;
+    div.style.left = `${left}px`;
+    div.style.top = `${top}px`;
+    div.style.width = `${Math.abs(ne.x - sw.x) + pad * 2}px`;
+    div.style.height = `${Math.abs(ne.y - sw.y) + pad * 2}px`;
+  };
+  overlay.onRemove = function onRemove() {
+    this._div?.remove();
+    this._div = null;
+  };
+  state.blurOverlay = overlay;
 }
 
-// Fully release the 模糊地址 stand-in: re-show the real marker and forget it.
-function restoreBlurHiddenMarker() {
-  if (!state.blurApproxFocusId) {
-    return;
+function showBlurApproxOverlay() {
+  ensureBlurOverlay();
+  if (state.blurOverlay && state.blurOverlay.getMap() !== state.map) {
+    state.blurOverlay.setMap(state.map);
   }
-  state.markers.get(state.blurApproxFocusId)?.setVisible(true);
-  state.blurApproxFocusId = null;
+}
+
+function hideBlurApproxOverlay() {
+  if (state.blurOverlay && state.blurOverlay.getMap()) {
+    state.blurOverlay.setMap(null);
+  }
 }
 
 function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
-  // T7 item 1 (v105): the real Google marker sits BELOW the blur overlay and
-  // can't be lifted above it without un-blurring the whole map. So for 模糊地址
-  // points we HIDE the real marker and draw a sharp pin on top of the blur at the
-  // same spot — one pin, floating clearly above the haze.
-  if (els.focusApproxPin) {
-    els.focusApproxPin.hidden = !item.blurApprox;
-  }
-  // Restore any previously-hidden marker, then hide this one if it's 模糊地址.
-  restoreBlurHiddenMarker();
+  // T7 item 1 (v107): the blur for 模糊地址 lives in a map pane BELOW the markers
+  // (showBlurApproxOverlay), so the real marker stays sharp on top — no fake pin,
+  // nothing hidden. Plain focus keeps the full-screen .focus-blur (clear circle).
   if (item.blurApprox) {
-    state.blurApproxFocusId = id;
-    setBlurApproxMarkerHidden(true);
+    showBlurApproxOverlay();
+  } else {
+    hideBlurApproxOverlay();
   }
   // Under-pin label (item 3): custom text, or the display address as fallback.
   if (els.focusApproxLabel) {
@@ -3354,13 +3383,10 @@ function closeFocusMode(options = {}) {
   state.focusMarkerId = null;
   setFocusBlurSuppressed(false);
   closeExpandedImage();
-  restoreBlurHiddenMarker();
+  hideBlurApproxOverlay();
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
-  if (els.focusApproxPin) {
-    els.focusApproxPin.hidden = true;
-  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
   }
@@ -3821,11 +3847,7 @@ function setFocusMaskPosition() {
   const target = getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
-  // Park the floating sharp pin (tip at the point) and the under-pin label.
-  if (els.focusApproxPin) {
-    els.focusApproxPin.style.left = `${target.x}px`;
-    els.focusApproxPin.style.top = `${target.y}px`;
-  }
+  // Park the under-pin approx label just below the marker (item 3).
   if (els.focusApproxLabel) {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
@@ -3955,10 +3977,6 @@ function easeInOutCubic(t) {
 
 function setFocusBlurSuppressed(isSuppressed) {
   els.mapView?.classList.toggle("is-focus-map-active", isSuppressed);
-  // While the blur is suppressed (user panning/zooming) the sharp fake pin fades
-  // out (CSS) and would no longer track the map, so re-show the REAL marker; hide
-  // it again (fake pin returns) once the blur is back. No-op for non-模糊 focus.
-  setBlurApproxMarkerHidden(!isSuppressed);
 }
 
 function getFocusTargetScreenPoint() {
@@ -4107,7 +4125,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=106", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=107", { updateViaCache: "none" });
   }
 }
 
