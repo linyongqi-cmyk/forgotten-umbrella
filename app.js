@@ -51,6 +51,8 @@ const state = {
   // Map marker filter (item 6/15/16): which of the 4 colour categories show.
   markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
   markerFilterOpen: false,
+  // Marker hidden behind a 模糊地址 focus (we draw a sharp pin on top instead).
+  blurHiddenMarkerId: null,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
@@ -318,7 +320,9 @@ const els = {
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusCaption: document.querySelector("#focus-caption"),
-  focusAsideInfo: document.querySelector("#focus-aside-info"),
+  focusCaptionRight: document.querySelector("#focus-caption-right"),
+  focusInfoBlock: document.querySelector("#focus-info-block"),
+  focusApproxPin: document.querySelector("#focus-approx-pin"),
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
@@ -1871,12 +1875,16 @@ function renderFocusImage() {
   if (els.focusHeader) {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
-  // 方案 B: the INFORMATION grid sits in the LEFT aside (next to the image);
-  // the paragraph/photo flow scrolls below the image+info row.
-  if (els.focusAsideInfo) {
-    els.focusAsideInfo.innerHTML = renderFocusInfo(item);
+  // Two-column detail (v105): LEFT = header(A) + information(C) + D1 (paragraphs
+  // + 插图); RIGHT = cover image(B) + D2 (补充 / 细节 photos).
+  if (els.focusInfoBlock) {
+    els.focusInfoBlock.innerHTML = renderFocusInfo(item);
   }
-  els.focusCaption.innerHTML = renderFocusArticle(item);
+  const flows = renderFocusFlows(item);
+  els.focusCaption.innerHTML = flows.left;
+  if (els.focusCaptionRight) {
+    els.focusCaptionRight.innerHTML = flows.right;
+  }
   renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     els.focusPanel?.classList.remove("is-loading");
@@ -2030,74 +2038,121 @@ function renderFocusInfo(item) {
       </div>`;
 }
 
+// HTML for one content block (paragraph / dialogue / photo / video). Returns ""
+// for empty or unresolved blocks.
+function renderFocusBlockHtml(block, mediaByFile) {
+  if (block.type === "dialogue") {
+    // Speaker on the left, line on the right, italic + left rule (item 12).
+    const text = localize(block.text);
+    if (!text) {
+      return "";
+    }
+    return `<blockquote class="focus-dialogue">${renderDialogueLines(text)}</blockquote>`;
+  }
+  if (block.type === "text") {
+    const text = localize(block.text);
+    if (!text) {
+      return "";
+    }
+    // Each "\n" in the stored text is a paragraph break; render one <p> per
+    // paragraph so the line breaks actually show. Japanese justifies both
+    // edges, English stays left-aligned ([[text-justify-rule]]).
+    const justify = state.lang === "ja" ? " is-justify" : "";
+    return text
+      .split("\n")
+      .map((para) => para.trim())
+      .filter(Boolean)
+      .map((para) => `<p class="item-story${justify}">${escapeHtml(para)}</p>`)
+      .join("");
+  }
+  const media = mediaByFile[block.file];
+  if (!media) {
+    return "";
+  }
+  // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
+  // Per role (item 8): 插图 shows nothing; 细节 shows title (if any) + id, no
+  // time; 补充 shows title + id + time.
+  const caption =
+    media.role === "illustration"
+      ? ""
+      : media.role === "detail"
+        ? [media.title, media.id].filter(Boolean).join(", ")
+        : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+  // Videos render as an inline player (controls, no enlarge).
+  if (isVideoFile(media.file)) {
+    return `<figure class="focus-photo focus-video-fig">
+        <video class="focus-video" controls preload="metadata" playsinline src="${escapeHtml(media.src)}"></video>
+        ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+      </figure>`;
+  }
+  // Supplement/detail photos can be enlarged; illustrations cannot (#12).
+  const expandable = media.role !== "illustration";
+  const expandAttrs = expandable ? ` data-expandable="1" data-media-file="${escapeHtml(media.file)}"` : "";
+  // Illustrations are often transparent PNGs — drop the drop-shadow so it
+  // doesn't draw a rectangular halo around the transparent edges (用户要求).
+  const figClass = media.role === "illustration" ? "focus-photo is-illustration" : "focus-photo";
+  return `<figure class="${figClass}">
+      <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
+      ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+    </figure>`;
+}
+
+// Which column a block belongs to in the two-column detail (v105):
+//   left  = text / dialogue / 插图(illustration) photos  (=> D1, under A+C)
+//   right = 补充(supplement) / 细节(detail) photos        (=> D2, under the cover)
+//   null  = the primary cover (shown separately as the big image), so skip it.
+function focusBlockLane(block, mediaByFile) {
+  if (block.type === "photo") {
+    const role = mediaByFile[block.file]?.role;
+    if (role === "primary") {
+      return null;
+    }
+    if (role === "supplement" || role === "detail") {
+      return "right";
+    }
+    return "left";
+  }
+  return "left";
+}
+
+// Split the content blocks into the left (D1) and right (D2) flows, each keeping
+// the blocks' on-disk order within its own column.
+function renderFocusFlows(item) {
+  const mediaByFile = {};
+  (item.media || []).forEach((m) => {
+    mediaByFile[m.file] = m;
+  });
+  const left = [];
+  const right = [];
+  effectiveBlocks(item).forEach((block) => {
+    const lane = focusBlockLane(block, mediaByFile);
+    if (!lane) {
+      return;
+    }
+    const html = renderFocusBlockHtml(block, mediaByFile);
+    if (!html) {
+      return;
+    }
+    (lane === "right" ? right : left).push(html);
+  });
+  return {
+    left: left.length ? `<div class="focus-caption-inner">${left.join("")}</div>` : "",
+    right: right.length ? `<div class="focus-caption-inner">${right.join("")}</div>` : "",
+  };
+}
+
+// Editor live-preview only: a single-column render of all content blocks in their
+// on-disk order (the two-column split is for the real detail page).
 function renderFocusArticle(item) {
   const mediaByFile = {};
   (item.media || []).forEach((m) => {
     mediaByFile[m.file] = m;
   });
-
   const blocksHtml = effectiveBlocks(item)
-    .map((block) => {
-      if (block.type === "dialogue") {
-        // Speaker on the left, line on the right, italic + left rule (item 12).
-        const text = localize(block.text);
-        if (!text) {
-          return "";
-        }
-        return `<blockquote class="focus-dialogue">${renderDialogueLines(text)}</blockquote>`;
-      }
-      if (block.type === "text") {
-        const text = localize(block.text);
-        if (!text) {
-          return "";
-        }
-        // Each "\n" in the stored text is a paragraph break; render one <p> per
-        // paragraph so the line breaks actually show. Japanese justifies both
-        // edges, English stays left-aligned ([[text-justify-rule]]).
-        const justify = state.lang === "ja" ? " is-justify" : "";
-        return text
-          .split("\n")
-          .map((para) => para.trim())
-          .filter(Boolean)
-          .map((para) => `<p class="item-story${justify}">${escapeHtml(para)}</p>`)
-          .join("");
-      }
-      const media = mediaByFile[block.file];
-      if (!media) {
-        return "";
-      }
-      // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
-      // Per role (item 8): 插图 shows nothing; 细节 shows title (if any) + id, no
-      // time; 补充 shows title + id + time.
-      const caption =
-        media.role === "illustration"
-          ? ""
-          : media.role === "detail"
-            ? [media.title, media.id].filter(Boolean).join(", ")
-            : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
-      // Videos render as an inline player (controls, no enlarge).
-      if (isVideoFile(media.file)) {
-        return `<figure class="focus-photo focus-video-fig">
-            <video class="focus-video" controls preload="metadata" playsinline src="${escapeHtml(media.src)}"></video>
-            ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
-          </figure>`;
-      }
-      // Supplement/detail photos can be enlarged; illustrations cannot (#12).
-      const expandable = media.role !== "illustration";
-      const expandAttrs = expandable ? ` data-expandable="1" data-media-file="${escapeHtml(media.file)}"` : "";
-      // Illustrations are often transparent PNGs — drop the drop-shadow so it
-      // doesn't draw a rectangular halo around the transparent edges (用户要求).
-      const figClass = media.role === "illustration" ? "focus-photo is-illustration" : "focus-photo";
-      return `<figure class="${figClass}">
-          <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
-          ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
-        </figure>`;
-    })
+    .filter((block) => block.type !== "photo" || mediaByFile[block.file]?.role !== "primary")
+    .map((block) => renderFocusBlockHtml(block, mediaByFile))
+    .filter(Boolean)
     .join("");
-
-  // (item 8) The submitter's words are now migrated into the content blocks
-  // above, so there's no separate quote block any more. The INFORMATION grid now
-  // lives in the left aside (renderFocusInfo), so this is just the block flow.
   return `
     <div class="focus-caption-inner">
       ${blocksHtml}
@@ -3226,13 +3281,37 @@ function selectUmbrella(id, options = {}) {
   }
 }
 
+// Re-show a marker we hid for a 模糊地址 focus (its visibility otherwise survives
+// until the next full re-render).
+function restoreBlurHiddenMarker() {
+  if (!state.blurHiddenMarkerId) {
+    return;
+  }
+  state.markers.get(state.blurHiddenMarkerId)?.setVisible(true);
+  state.blurHiddenMarkerId = null;
+}
+
 function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
-  // The real Google marker floats sharp on top of the blur, so no extra pin is
-  // drawn (用户要求 v104). Under-pin label (item 3): custom text, or the display
-  // address as fallback.
+  // T7 item 1 (v105): the real Google marker sits BELOW the blur overlay and
+  // can't be lifted above it without un-blurring the whole map. So for 模糊地址
+  // points we HIDE the real marker and draw a sharp pin on top of the blur at the
+  // same spot — one pin, floating clearly above the haze.
+  if (els.focusApproxPin) {
+    els.focusApproxPin.hidden = !item.blurApprox;
+  }
+  // Restore any previously-hidden marker, then hide this one if it's 模糊地址.
+  restoreBlurHiddenMarker();
+  if (item.blurApprox) {
+    const marker = state.markers.get(id);
+    if (marker) {
+      marker.setVisible(false);
+      state.blurHiddenMarkerId = id;
+    }
+  }
+  // Under-pin label (item 3): custom text, or the display address as fallback.
   if (els.focusApproxLabel) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
     els.focusApproxLabel.textContent = labelText;
@@ -3268,9 +3347,13 @@ function closeFocusMode(options = {}) {
   state.focusMarkerId = null;
   setFocusBlurSuppressed(false);
   closeExpandedImage();
+  restoreBlurHiddenMarker();
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
+  if (els.focusApproxPin) {
+    els.focusApproxPin.hidden = true;
+  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
   }
@@ -3731,7 +3814,11 @@ function setFocusMaskPosition() {
   const target = getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
-  // Park the under-pin approx label just below the pin (item 3).
+  // Park the floating sharp pin (tip at the point) and the under-pin label.
+  if (els.focusApproxPin) {
+    els.focusApproxPin.style.left = `${target.x}px`;
+    els.focusApproxPin.style.top = `${target.y}px`;
+  }
   if (els.focusApproxLabel) {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
@@ -4009,7 +4096,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=104", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=105", { updateViaCache: "none" });
   }
 }
 
