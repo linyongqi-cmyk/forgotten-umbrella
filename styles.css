@@ -611,6 +611,25 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   white-space: nowrap;
 }
 
+/* Map-layer switches (T8): a small check box instead of a colour swatch. */
+.map-layer-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.map-layer-row.is-on .map-layer-check {
+  background: var(--ink);
+  color: var(--panel);
+  border-color: var(--ink);
+}
+
 .panel-heading h2,
 .section-heading h2,
 .about-copy h2 {
@@ -1278,6 +1297,31 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .workspace.is-focus-mode .focus-blur {
   opacity: 1;
   pointer-events: none;
+}
+
+/* T7 模糊地址 (approximate-location) variant: a WHITE blur (vs. the normal dark
+   one) with a larger clear circle, and the "clear" circle itself keeps a light
+   white blur so the exact spot never reads sharp. Tunable — radius +50px, the
+   centre alpha controls how blurred the clear area stays. */
+.workspace.is-focus-mode.is-blur-approx .focus-blur {
+  --focus-radius: 188px;
+  --focus-feather: 48px;
+  backdrop-filter: blur(9px);
+  background: rgba(247, 246, 240, 0.55);
+  -webkit-mask-image: radial-gradient(
+    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
+    rgba(0, 0, 0, 0.2) 0 calc(var(--focus-radius) - var(--focus-feather)),
+    rgba(0, 0, 0, 0.42) calc(var(--focus-radius) - 24px),
+    rgba(0, 0, 0, 0.86) var(--focus-radius),
+    #000 calc(var(--focus-radius) + var(--focus-feather))
+  );
+  mask-image: radial-gradient(
+    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
+    rgba(0, 0, 0, 0.2) 0 calc(var(--focus-radius) - var(--focus-feather)),
+    rgba(0, 0, 0, 0.42) calc(var(--focus-radius) - 24px),
+    rgba(0, 0, 0, 0.86) var(--focus-radius),
+    #000 calc(var(--focus-radius) + var(--focus-feather))
+  );
 }
 
 .workspace.is-focus-mode.is-focus-map-active .focus-blur {
@@ -2562,6 +2606,29 @@ body.edit-mode .map-stage {
 
 .editor-sub-note {
   color: #8a948f;
+}
+
+/* T7 模糊地址 field group inside the 投稿信息 row. */
+.editor-blur-field {
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(31, 45, 45, 0.12);
+}
+
+.editor-sub-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.editor-approx-zoom {
+  width: 130px;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
 }
 
 .editor-close {

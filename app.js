@@ -51,6 +51,9 @@ const state = {
   // Map marker filter (item 6/15/16): which of the 4 colour categories show.
   markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
   markerFilterOpen: false,
+  // Map layers (T8): whole-category label/line on/off switches for the plain map.
+  mapLayersOpen: false,
+  mapCategoryOn: null, // filled from defaults + localStorage on init
   poiShown: false,
   imageExpanded: false,
   focusMediaIndex: 0,
@@ -329,6 +332,9 @@ const els = {
   mapFilter: document.querySelector("#map-filter"),
   mapFilterToggle: document.querySelector("#map-filter-toggle"),
   mapFilterPanel: document.querySelector("#map-filter-panel"),
+  mapLayers: document.querySelector("#map-layers"),
+  mapLayersToggle: document.querySelector("#map-layers-toggle"),
+  mapLayersPanel: document.querySelector("#map-layers-panel"),
   statCount: document.querySelector("#stat-count"),
   statFieldwork: document.querySelector("#stat-fieldwork"),
   statSubmissions: document.querySelector("#stat-submissions"),
@@ -351,7 +357,10 @@ init();
 
 async function init() {
   state.lang = getStoredLang();
+  // Must run after an await so the MAP_LAYER_CATEGORIES const (defined lower in
+  // the module) is past its temporal dead zone.
   state.umbrellas = await loadUmbrellaData();
+  state.mapCategoryOn = loadMapCategoryState();
   TEXTS = await loadTexts();
   state.selectedId = null;
 
@@ -600,6 +609,31 @@ function bindEvents() {
     renderMapMarkers(filteredUmbrellas());
   });
   syncMarkerFilter();
+
+  // Map layers (T8): one button expands a panel of whole-category label/line
+  // on/off switches for the plain map.
+  els.mapLayersToggle?.addEventListener("click", () => {
+    state.mapLayersOpen = !state.mapLayersOpen;
+    syncMapLayers();
+  });
+  els.mapLayersPanel?.addEventListener("click", (event) => {
+    const row = event.target.closest?.("[data-map-cat]");
+    if (!row) {
+      return;
+    }
+    const key = row.dataset.mapCat;
+    state.mapCategoryOn[key] = !state.mapCategoryOn[key];
+    try {
+      localStorage.setItem(MAP_CATEGORY_STORAGE_KEY, JSON.stringify(state.mapCategoryOn));
+    } catch {
+      /* ignore storage failure */
+    }
+    syncMapLayers();
+    if (state.googleReady && state.mapBase === "roadmap") {
+      state.map.setOptions({ styles: currentMapStyles() });
+    }
+  });
+  syncMapLayers();
 
   els.search?.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
@@ -1026,6 +1060,38 @@ function syncMarkerFilter() {
   }).join("");
 }
 
+// Render the map-layers panel (T8): a show/hide toggle per whole category. Only
+// meaningful on the plain map, so the button hides on satellite (alongside the
+// satellite labels toggle).
+function syncMapLayers() {
+  const onSatellite = state.mapBase === "satellite";
+  if (els.mapLayers) {
+    els.mapLayers.hidden = onSatellite;
+  }
+  if (onSatellite) {
+    state.mapLayersOpen = false;
+  }
+  if (els.mapLayersToggle) {
+    els.mapLayersToggle.setAttribute("aria-expanded", String(state.mapLayersOpen));
+    els.mapLayersToggle.classList.toggle("is-active", state.mapLayersOpen);
+    const hint = state.lang === "ja" ? "地図の表示要素" : "Map labels";
+    els.mapLayersToggle.setAttribute("aria-label", hint);
+    els.mapLayersToggle.setAttribute("title", hint);
+  }
+  if (!els.mapLayersPanel) {
+    return;
+  }
+  els.mapLayersPanel.hidden = !state.mapLayersOpen;
+  els.mapLayersPanel.innerHTML = MAP_LAYER_CATEGORIES.map((c) => {
+    const on = !!state.mapCategoryOn?.[c.key];
+    const label = c.labels[state.lang] || c.labels.en;
+    return `<button type="button" class="map-filter-row map-layer-row${on ? " is-on" : ""}" data-map-cat="${c.key}" role="switch" aria-checked="${on}">
+        <span class="map-layer-check">${on ? "✓" : ""}</span>
+        <span class="map-filter-label">${escapeHtml(label)}</span>
+      </button>`;
+  }).join("");
+}
+
 function syncArchiveControls() {
   els.archiveModeControls.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.archiveMode === state.archiveMode);
@@ -1320,7 +1386,7 @@ async function initGoogleMap() {
     zoomControl: false,
     clickableIcons: false,
     gestureHandling: "greedy",
-    styles: state.mapBase === "roadmap" ? mapStyles : satelliteStylesForZoom(DEFAULT_MAP_ZOOM),
+    styles: state.mapBase === "roadmap" ? roadmapStyles() : satelliteStylesForZoom(DEFAULT_MAP_ZOOM),
   });
 
   state.projectionOverlay = new google.maps.OverlayView();
@@ -1432,7 +1498,7 @@ function effectiveMapTypeId() {
 
 function currentMapStyles() {
   if (state.mapBase === "roadmap") {
-    return mapStyles;
+    return roadmapStyles();
   }
   return satelliteStylesForZoom(state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM);
 }
@@ -1482,6 +1548,8 @@ function syncMapTypeButton() {
     els.mapLabelsToggle.setAttribute("aria-label", hint);
     els.mapLabelsToggle.setAttribute("title", hint);
   }
+  // The map-layers switches only apply to the plain map (hidden on satellite).
+  syncMapLayers();
 }
 
 function loadGoogleMaps(apiKey) {
@@ -3091,6 +3159,9 @@ function selectUmbrella(id, options = {}) {
 }
 
 function focusUmbrellaOnMap(item, id) {
+  // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
+  // the exact spot stays vague.
+  els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
   setFocusMaskPosition();
   // Always re-centre: clicking the focused marker again after the map has been
   // panned/zoomed should bring the marker back to the clear circle (#5).
@@ -3123,6 +3194,7 @@ function closeFocusMode(options = {}) {
   closeExpandedImage();
   updateMarkerIcons();
   els.mapView.classList.remove("is-focus-mode");
+  els.mapView.classList.remove("is-blur-approx");
   els.focusPanel?.setAttribute("aria-hidden", "true");
   els.focusPanel?.classList.remove("is-loading");
 }
@@ -3582,7 +3654,8 @@ function animateMarkerToFocus(item) {
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
     state.map.panTo(item.coordinates);
-    state.map.setZoom(Math.max(state.map.getZoom(), FOCUS_MAP_ZOOM));
+    const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), FOCUS_MAP_ZOOM);
+    state.map.setZoom(fallbackZoom);
     return;
   }
 
@@ -3593,7 +3666,10 @@ function animateMarkerToFocus(item) {
 
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
   const startZoom = state.map.getZoom();
-  const endZoom = Math.max(startZoom, FOCUS_MAP_ZOOM);
+  // T7: a 模糊地址 point can pin a specific (usually lower) focus zoom so the
+  // location stays vague; otherwise zoom in to at least FOCUS_MAP_ZOOM.
+  const approxZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : null;
+  const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, FOCUS_MAP_ZOOM);
   const startScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng, startZoom);
   const endScreen = getFocusTargetScreenPoint();
   const startTime = performance.now();
@@ -3841,7 +3917,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=99", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=100", { updateViaCache: "none" });
   }
 }
 
@@ -4087,11 +4163,17 @@ function setupEditor() {
   contribRow.innerHTML = `
     <span>投稿信息 Submission（仅投稿伞）</span>
     <input class="editor-submitter" placeholder="投稿者署名（详情页致谢显示，可留空）" />
-    <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>`;
+    <label class="editor-sub-field"><span class="editor-sub-note">投稿时间 Submitted（只到年月日，如 2026/05/03）</span><input class="editor-submission-time" placeholder="只到年月日，如 2026/05/03" /></label>
+    <div class="editor-sub-field editor-blur-field">
+      <label class="editor-head-check editor-blur-check" title="聚焦时用白色模糊、清晰圈更大，让位置更含糊"><span>模糊地址</span><input type="checkbox" class="editor-blur-approx" /></label>
+      <label class="editor-sub-inline"><span class="editor-sub-note">聚焦缩放（留空=默认18，越小越含糊；可看右上角数字）</span><input class="editor-approx-zoom" type="number" min="3" max="21" step="1" placeholder="留空=18" /></label>
+    </div>`;
   body.appendChild(contribRow);
   editor.contribRow = contribRow;
   editor.submitter = contribRow.querySelector(".editor-submitter");
   editor.submissionTime = contribRow.querySelector(".editor-submission-time");
+  editor.blurApprox = contribRow.querySelector(".editor-blur-approx");
+  editor.approxZoom = contribRow.querySelector(".editor-approx-zoom");
   // Source toggle reveals/hides 投稿信息 and the 类型 row (contributed = no type).
   editor.sourceRadios.forEach((radio) => {
     radio.addEventListener("change", syncSourceVisibility);
@@ -5352,6 +5434,13 @@ function openEditor(id) {
   syncSourceVisibility();
   editor.submitter.value = raw.submitter || "";
   editor.submissionTime.value = formatDateOnly(raw.submissionTime) || "";
+  // T7 模糊地址 + per-point focus zoom.
+  if (editor.blurApprox) {
+    editor.blurApprox.checked = Boolean(raw.blurApprox);
+  }
+  if (editor.approxZoom) {
+    editor.approxZoom.value = raw.approxZoom === 0 || raw.approxZoom ? String(raw.approxZoom) : "";
+  }
   if (editor.remarks) {
     editor.remarks.value = raw.remarks || "";
   }
@@ -5527,6 +5616,9 @@ async function saveEditor() {
   // don't send it so the stored value is preserved untouched.
   payload.locationApprox = editor.locApprox.checked;
   payload.timeApprox = editor.timeApprox.checked;
+  // T7 模糊地址 + per-point focus zoom.
+  payload.blurApprox = editor.blurApprox ? editor.blurApprox.checked : false;
+  payload.approxZoom = editor.approxZoom && editor.approxZoom.value.trim() !== "" ? Number(editor.approxZoom.value) : "";
   payload.locationLevels = collectLevelsForSave();
   // Umbrella details only saved when the section is enabled; otherwise cleared
   // (so contributed umbrellas without details don't show object/state).
@@ -5870,10 +5962,6 @@ const mapStyles = [
     stylers: [{ color: "#e5e7dd" }],
   },
   {
-    featureType: "poi",
-    stylers: [{ visibility: "off" }],
-  },
-  {
     featureType: "road",
     elementType: "geometry",
     stylers: [{ color: "#cbd1ca" }],
@@ -5884,15 +5972,65 @@ const mapStyles = [
     stylers: [{ color: "#b8c2bc" }],
   },
   {
-    featureType: "transit",
-    stylers: [{ visibility: "off" }],
-  },
-  {
     featureType: "water",
     elementType: "geometry",
     stylers: [{ color: "#93aaa7" }],
   },
 ];
+
+// T8: whole-category on/off switches for the plain (roadmap) map. Google Maps
+// can only style by category (featureType/elementType), never a single road or
+// shop — so these are整类开关. Each appends a visibility rule on top of the base
+// styles above; defaults reproduce the old look (POI + transit hidden, road
+// names shown). State persists in localStorage. (Per-zoom-threshold show/hide is
+// also possible by swapping styles on zoom_changed — see satelliteStylesForZoom
+// — but kept simple here as plain switches.)
+const MAP_LAYER_CATEGORIES = [
+  { key: "poiLabels", labels: { ja: "店舗・地点名", en: "Place labels" }, rules: [{ featureType: "poi", elementType: "labels" }], defaultOn: false },
+  { key: "transit", labels: { ja: "駅・バス停", en: "Transit" }, rules: [{ featureType: "transit" }], defaultOn: false },
+  { key: "roadLabels", labels: { ja: "道路名", en: "Road names" }, rules: [{ featureType: "road", elementType: "labels" }], defaultOn: true },
+  { key: "roadGeometry", labels: { ja: "道路の線", en: "Roads" }, rules: [{ featureType: "road", elementType: "geometry" }], defaultOn: true },
+];
+
+const MAP_CATEGORY_STORAGE_KEY = "fu-map-layers";
+
+function loadMapCategoryState() {
+  const state0 = {};
+  MAP_LAYER_CATEGORIES.forEach((c) => {
+    state0[c.key] = c.defaultOn;
+  });
+  try {
+    const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
+    MAP_LAYER_CATEGORIES.forEach((c) => {
+      if (typeof saved[c.key] === "boolean") {
+        state0[c.key] = saved[c.key];
+      }
+    });
+  } catch {
+    /* ignore corrupt storage */
+  }
+  return state0;
+}
+
+function categoryStyleRules() {
+  const rules = [];
+  MAP_LAYER_CATEGORIES.forEach((c) => {
+    const visibility = state.mapCategoryOn?.[c.key] ? "on" : "off";
+    c.rules.forEach((r) => {
+      const rule = { featureType: r.featureType, stylers: [{ visibility }] };
+      if (r.elementType) {
+        rule.elementType = r.elementType;
+      }
+      rules.push(rule);
+    });
+  });
+  return rules;
+}
+
+// Plain-map styles = the base look + the user's category on/off choices.
+function roadmapStyles() {
+  return [...mapStyles, ...categoryStyleRules()];
+}
 
 // Applied on satellite / hybrid. We always hide the road line geometry (the
 // white lines over the imagery). POI labels (restaurants, parking, …) are

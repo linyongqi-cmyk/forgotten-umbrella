@@ -209,10 +209,15 @@ export async function saveRecord(payload) {
       record[field] = String(payload[field] ?? "").trim();
     }
   }
-  for (const field of ["locationApprox", "timeApprox"]) {
+  for (const field of ["locationApprox", "timeApprox", "blurApprox"]) {
     if (Object.prototype.hasOwnProperty.call(payload, field)) {
       record[field] = Boolean(payload[field]);
     }
+  }
+  // T7 per-point focus zoom: store as a number, or "" to clear (use default).
+  if (Object.prototype.hasOwnProperty.call(payload, "approxZoom")) {
+    const z = Number(payload.approxZoom);
+    record.approxZoom = payload.approxZoom !== "" && Number.isFinite(z) ? z : "";
   }
 
   if (Object.prototype.hasOwnProperty.call(payload, "locationCoordinates")) {
@@ -413,6 +418,8 @@ export async function createRecord(payload) {
     submitterNote: typeof payload.submitterNote === "string" ? payload.submitterNote.trim() : "",
     locationApprox: Boolean(payload.locationApprox),
     timeApprox: Boolean(payload.timeApprox),
+    blurApprox: Boolean(payload.blurApprox),
+    approxZoom: "",
     story: "",
     media: [{ id, file: filename, role: "primary", title: "", photoTime: "", story: "", legacyThumb: "" }],
   };

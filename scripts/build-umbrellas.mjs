@@ -106,6 +106,10 @@ function buildUmbrellaItem(recordPath, record) {
       remarks: record.remarks || "",
       locationApprox: Boolean(record.locationApprox),
       timeApprox: Boolean(record.timeApprox),
+      // T7: contributed umbrellas with a deliberately fuzzy location — use a
+      // special white-blur focus and an optional per-point zoom.
+      blurApprox: Boolean(record.blurApprox),
+      approxZoom: Number.isFinite(Number(record.approxZoom)) && record.approxZoom !== "" ? Number(record.approxZoom) : null,
       categoryGroup,
       category,
       thumb: primary.legacyThumb || "",
