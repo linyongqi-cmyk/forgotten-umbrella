@@ -321,6 +321,8 @@ const els = {
   focusApproxLabel: document.querySelector("#focus-approx-label"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
+  focusScroll: document.querySelector("#focus-scroll"),
+  focusScrollHint: document.querySelector("#focus-scroll-hint"),
   focusCaption: document.querySelector("#focus-caption"),
   focusInfoBlock: document.querySelector("#focus-info-block"),
   focusHeader: document.querySelector("#focus-header"),
@@ -708,7 +710,12 @@ function bindEvents() {
       setExpandedImageFrame();
       updateExpandedImageTransform();
     }
+    // The cover's real height is now known — re-check whether to show the
+    // scroll-for-more hint (#5).
+    updateFocusScrollHint();
   });
+  // Keep the scroll hint in sync as the user scrolls the detail content (#5).
+  els.focusScroll?.addEventListener("scroll", updateFocusScrollHint, { passive: true });
   els.focusImage?.addEventListener("pointerdown", startExpandedImageDrag);
   document.addEventListener("pointermove", dragExpandedImage);
   document.addEventListener("pointerup", stopExpandedImageDrag);
@@ -1887,6 +1894,22 @@ function renderFocusImage() {
     els.focusPanel?.classList.remove("is-loading");
   }
   closeExpandedImage();
+  // Defer one frame so the new content has laid out before measuring overflow (#5).
+  requestAnimationFrame(updateFocusScrollHint);
+}
+
+// #5: show the "Scroll for more" hint only when the detail content overflows the
+// scroll area AND the user hasn't reached the bottom yet. Hidden in the lightbox.
+function updateFocusScrollHint() {
+  const scroll = els.focusScroll;
+  const hint = els.focusScrollHint;
+  if (!scroll || !hint) {
+    return;
+  }
+  const overflowing = scroll.scrollHeight - scroll.clientHeight > 8;
+  const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 8;
+  const expanded = els.focusPanel?.classList.contains("is-expanded");
+  hint.hidden = !overflowing || atBottom || Boolean(expanded);
 }
 
 // Blue underlined link under the cover image, jumping to the linked point.
@@ -2000,16 +2023,12 @@ function renderFocusInfo(item) {
   const isContributed = item.submissionType === "contributed";
   const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
   const rows = [];
-  if (item.location) {
-    rows.push({ label: "place", lines: [`${approx(item.locationApprox)}${formatAddressBreaks(item.location)}`] });
-  }
+  // Fixed priority order (用户 #4, works for both own & contributed; missing rows
+  // are skipped): time → type → object → state → place → by → submitted.
   // Contributed times are rough/free-text → loose-date format; own times ISO.
   const timeText = isContributed ? formatLooseDate(item.time) : formatDateTime(item.time);
   if (timeText) {
     rows.push({ label: "time", lines: [`${approx(item.timeApprox)}${escapeHtml(timeText)}`] });
-  }
-  if (isContributed && item.submitter) {
-    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
   }
   if (!isContributed) {
     const typeValue = formatInformationType(item);
@@ -2022,6 +2041,17 @@ function renderFocusInfo(item) {
     if (item.statusLines?.length) {
       rows.push({ label: "state", lines: item.statusLines.map((l) => escapeHtml(l)) });
     }
+  }
+  if (item.location) {
+    rows.push({ label: "place", lines: [`${approx(item.locationApprox)}${formatAddressBreaks(item.location)}`] });
+  }
+  if (isContributed && item.submitter) {
+    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
+  }
+  // Submission time (用户 #4: previously not shown). English label "submitted".
+  const submittedText = formatLooseDate(item.submissionTime);
+  if (submittedText) {
+    rows.push({ label: "submitted", lines: [escapeHtml(submittedText)] });
   }
   if (!rows.length) {
     return "";
@@ -4108,7 +4138,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=109", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=110", { updateViaCache: "none" });
   }
 }
 

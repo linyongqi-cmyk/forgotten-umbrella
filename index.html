@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=109" />
+    <link rel="stylesheet" href="styles.css?v=110" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -189,13 +189,21 @@
                 <figcaption class="focus-flow" id="focus-caption"></figcaption>
               </div>
             </div>
-            <button class="focus-close" id="focus-close" type="button" aria-label="back to map" title="back to map">
-              <svg viewBox="0 0 56 30" aria-hidden="true" focusable="false">
-                <path d="M54 6H16a7 7 0 0 0-7 7v9" />
-                <path d="M3.5 17 9 23.5 14.5 17" />
-              </svg>
-              <span class="focus-close-label">Back to map</span>
-            </button>
+            <div class="focus-footer">
+              <button class="focus-close" id="focus-close" type="button" aria-label="back to map" title="back to map">
+                <svg viewBox="0 0 56 30" aria-hidden="true" focusable="false">
+                  <path d="M54 6H16a7 7 0 0 0-7 7v9" />
+                  <path d="M3.5 17 9 23.5 14.5 17" />
+                </svg>
+                <span class="focus-close-label">Back to map</span>
+              </button>
+              <div class="focus-scroll-hint" id="focus-scroll-hint" aria-hidden="true" hidden>
+                <span class="focus-scroll-hint-label">Scroll for more</span>
+                <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false">
+                  <path d="M4 4l8 6 8-6" />
+                </svg>
+              </div>
+            </div>
           </figure>
 
           <div class="focus-thumbs" id="focus-thumbs" aria-label="image thumbnails" hidden></div>
@@ -227,29 +235,31 @@
 
         <section class="about-view view" id="about-view" aria-label="about project">
           <div class="about-copy" id="about-copy"></div>
-          <div class="about-legend" id="about-legend" aria-label="map legend"></div>
-          <dl class="about-stats">
-            <div>
-              <dt id="stat-count">0</dt>
-              <dd data-i18n="aboutStatLocations">記録された地点</dd>
-            </div>
-            <div>
-              <dt id="stat-fieldwork">0</dt>
-              <dd data-i18n="aboutStatFieldwork">フィールド数</dd>
-            </div>
-            <div>
-              <dt id="stat-submissions">0</dt>
-              <dd data-i18n="aboutStatSubmissions">投稿数</dd>
-            </div>
-            <div>
-              <dt id="stat-since">2025.03</dt>
-              <dd data-i18n="aboutStatSince">記録開始</dd>
-            </div>
-          </dl>
+          <aside class="about-side">
+            <dl class="about-stats">
+              <div>
+                <dt id="stat-count">0</dt>
+                <dd data-i18n="aboutStatLocations">記録された地点</dd>
+              </div>
+              <div>
+                <dt id="stat-fieldwork">0</dt>
+                <dd data-i18n="aboutStatFieldwork">フィールド数</dd>
+              </div>
+              <div>
+                <dt id="stat-submissions">0</dt>
+                <dd data-i18n="aboutStatSubmissions">投稿数</dd>
+              </div>
+              <div>
+                <dt id="stat-since">2025.03</dt>
+                <dd data-i18n="aboutStatSince">記録開始</dd>
+              </div>
+            </dl>
+            <div class="about-legend" id="about-legend" aria-label="map legend"></div>
+          </aside>
         </section>
       </main>
     </div>
 
-    <script src="app.js?v=109" type="module"></script>
+    <script src="app.js?v=110" type="module"></script>
   </body>
 </html>

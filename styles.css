@@ -1062,10 +1062,19 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 /* Back-to-map affordance (用户要求 #6): a U-turn return arrow with a long tail and
    the arrowhead pointing DOWN, plus a "Back to map" label (always English). Sits at
    the BOTTOM-LEFT of the panel, below the scrollable content. */
+/* Footer row pinned below the scroll area: back-to-map on the left, the
+   scroll-for-more hint on the right (用户 #5). */
+.focus-footer {
+  flex-shrink: 0;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .focus-close {
   flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: 12px;
   height: 30px;
   padding: 0;
   border: 0;
@@ -1103,6 +1112,46 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
+/* Scroll-for-more hint (用户 #5): same muted style as the back button; only shown
+   when the detail content overflows and isn't scrolled to the bottom (JS toggles
+   the [hidden] attribute). The chevron bobs gently to draw the eye. */
+.focus-scroll-hint {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.focus-scroll-hint[hidden] {
+  display: none;
+}
+
+.focus-scroll-hint-label {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.focus-scroll-hint svg {
+  width: 18px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  animation: focus-scroll-bob 1.4s ease-in-out infinite;
+}
+
+@keyframes focus-scroll-bob {
+  0%, 100% { transform: translateY(-1px); }
+  50% { transform: translateY(2px); }
+}
+
 /* Single-column detail layout (v109): the cover image (B) with A1 (id/title) and
    the merged A2+C info block floating over it, then the article (D1+D2) below. */
 .focus-stage {
@@ -1114,7 +1163,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   margin-top: 14px;
 }
 
-/* A1: id(title) floating at the TOP-LEFT over the cover (用户要求 #5). */
+/* A1: id(title) floating at the TOP-LEFT over the cover (用户要求 #5). No dark
+   gradient band (用户 #2: that read as an ugly shadow) — text legibility comes from
+   a strong text-shadow on the text itself (see .focus-overlay-head/-info text). */
 .focus-overlay-head {
   position: absolute;
   top: 0;
@@ -1122,9 +1173,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   right: 0;
   z-index: 2;
   margin: 0;
-  padding: 14px 16px 26px;
+  padding: 14px 16px;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
 }
 
 /* A2 + C: place/time/info floating at the BOTTOM-LEFT over the cover, same
@@ -1135,13 +1185,19 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   right: 0;
   bottom: 0;
   z-index: 2;
-  padding: 26px 16px 14px;
+  padding: 14px 16px;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
 }
 
 .focus-overlay-info:empty {
   display: none;
+}
+
+/* Legibility without a dark band: a strong shadow on the floating overlay text. */
+.focus-overlay-head .focus-title,
+.focus-overlay-info .focus-info-label,
+.focus-overlay-info .focus-info-value p {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
 }
 
 /* The cover fills the (wide) media column at full width; the height cap is by
@@ -1149,8 +1205,13 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
    the column width while still fitting one screen (用户 v107: was too small at
    70vh/620px — a portrait got letterboxed narrower than the column). */
 .focus-image-panel #focus-image {
-  max-height: 82vh;
+  /* No height cap (用户 #3): a tall portrait used to be capped at 82vh and then
+     object-fit:contain letterboxed it, so the bottom A2+C overlay landed in the
+     transparent band BELOW the photo (text appeared "outside" the image). Now the
+     cover fills the column width at its natural height — the frame always equals the
+     photo, so the overlays sit ON the photo. Tall photos just scroll (see #5 hint). */
   width: 100%;
+  height: auto;
   object-fit: contain;
 }
 
@@ -1159,10 +1220,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: grid;
   place-items: center;
   width: 100%;
-  /* Reserve height before the image loads so the centered panel doesn't grow
-     (and visibly re-center / jump) once the photo arrives. Kept moderate so the
-     gap to the title/text stays small. */
-  min-height: clamp(280px, 48vh, 460px);
+  /* Small pre-load reservation only; the loaded image drives the real height. Dark
+     backing so any residual letterbox band (e.g. a very wide pano shorter than this)
+     is a clean matte rather than the blurred map showing through (用户 #2/#3). */
+  min-height: clamp(160px, 30vh, 300px);
+  background: #0d0d0f;
   overflow: hidden;
   border-radius: 8px;
 }
@@ -1343,7 +1405,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-image-panel.is-expanded .focus-overlay-info,
 .focus-image-panel.is-expanded #focus-caption,
 .focus-image-panel.is-expanded .focus-link,
-.focus-image-panel.is-expanded .focus-close {
+.focus-image-panel.is-expanded .focus-footer {
   display: none;
 }
 
@@ -1432,70 +1494,28 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-blur-approx-layer {
   position: absolute;
   pointer-events: none;
-  /* Centre + circle radius set by draw(). Two blur strengths: the OUTER ring is
-     fully blurred (--blur-outer), the INNER circle around the point is blurred at
-     HALF strength (--blur-inner) so the marker's immediate surroundings read a bit
-     clearer than the far vignette (用户要求 #2). Tunable: the two blur px + --cr +
-     the white/black alphas. */
+  /* Centre + circle radius set by draw(). ONE uniform blur (no two-layer split →
+     no seam, 用户要求 #1): the same `blur(6px)` the ordinary focus uses (.focus-blur),
+     so the dark vignette here matches every other marker's blur exactly. On top of
+     that single blur we paint a radial WASH only — a soft WHITE haze in the centre
+     (weaker than the dark edge) fading out to a dark vignette (≈ the normal 0.22
+     darkness) at the rim. Tunable: --blur, --cr, and the white/black alphas below. */
   --cx: 50%;
   --cy: 50%;
   --cr: 200px;
-  --blur-outer: 6px;
-  --blur-inner: 3px;
+  --blur: 6px;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  background: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    rgba(255, 255, 255, 0.16) 0,
+    rgba(255, 255, 255, 0.05) calc(var(--cr) * 0.45),
+    rgba(0, 0, 0, 0.12) calc(var(--cr) * 0.78),
+    rgba(0, 0, 0, 0.24) var(--cr),
+    rgba(0, 0, 0, 0.24) 100%
+  );
   /* smooth fade when the user pans/zooms (item 1) */
   transition: opacity 200ms ease;
-}
-
-/* OUTER ring: full blur + dark vignette, masked to EXCLUDE the inner circle. */
-.focus-blur-approx-layer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(var(--blur-outer));
-  -webkit-backdrop-filter: blur(var(--blur-outer));
-  background: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    rgba(0, 0, 0, 0) calc(var(--cr) * 0.5),
-    rgba(0, 0, 0, 0.32) var(--cr),
-    rgba(0, 0, 0, 0.32) 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    transparent 0 calc(var(--cr) * 0.5),
-    #000 calc(var(--cr) * 0.62)
-  );
-  mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    transparent 0 calc(var(--cr) * 0.5),
-    #000 calc(var(--cr) * 0.62)
-  );
-}
-
-/* INNER circle: HALF blur + white haze, masked to the inner circle only. A small
-   feather overlap with the outer mask hides the seam between the two blur levels. */
-.focus-blur-approx-layer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  backdrop-filter: blur(var(--blur-inner));
-  -webkit-backdrop-filter: blur(var(--blur-inner));
-  background: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    rgba(255, 255, 255, 0.5) 0,
-    rgba(255, 255, 255, 0.38) calc(var(--cr) * 0.5),
-    rgba(255, 255, 255, 0) calc(var(--cr) * 0.62)
-  );
-  -webkit-mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    #000 0 calc(var(--cr) * 0.5),
-    transparent calc(var(--cr) * 0.62)
-  );
-  mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    #000 0 calc(var(--cr) * 0.5),
-    transparent calc(var(--cr) * 0.62)
-  );
 }
 
 /* Item 1: while the user pans / zooms (is-focus-map-active) drop the pane blur too
@@ -2231,9 +2251,16 @@ body.edit-mode .card-edit {
   text-align: justify;
 }
 
+/* Right-hand column (用户 #6): the 4 stat boxes on top, the map legend below. */
+.about-side {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
 /* Map legend (item 15) — 4 marker colours + meaning. */
 .about-legend {
-  margin: 28px 0 0;
+  margin: 0;
   display: grid;
   gap: 8px;
 }
@@ -2263,9 +2290,7 @@ body.edit-mode .card-edit {
 .about-stats {
   display: grid;
   gap: 12px;
-  /* #6: nudge the stats column down so its top lines up with the first body
-     paragraph (just under the first section title), not the very top. */
-  margin: 43px 0 0;
+  margin: 0;
 }
 
 .about-stats div {
@@ -3734,7 +3759,9 @@ body:not(.edit-mode) .editor-add {
 
 .focus-info-label {
   flex: 0 0 auto;
-  min-width: 52px;
+  /* Wide enough for the longest label ("submitted:") so every value left-aligns in
+     one column (用户 #4). */
+  min-width: 84px;
   font-size: var(--detail-body-size);
   line-height: var(--detail-body-line);
   color: var(--ink);
