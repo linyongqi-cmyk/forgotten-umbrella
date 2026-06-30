@@ -1034,12 +1034,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   position: fixed;
   top: 50%;
   z-index: 40;
-  /* Two columns (big image left + ~400px text right). Wider than the old single
-     column so the image stays large; capped on huge screens. Right offset matches
-     the topbar so the text column right-aligns under the nav (用户 v106). */
+  /* Single column (v109): the big cover image with A1/A2/C floating over it, then
+     the article (D1+D2) below. Right offset matches the topbar so the panel
+     right-aligns under the nav. */
   right: clamp(18px, 4vw, 42px);
-  width: min(74vw, 980px);
-  min-width: 320px;
+  width: min(88vw, 560px);
+  min-width: 300px;
   margin: 0;
   opacity: 0;
   pointer-events: none;
@@ -1059,72 +1059,89 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
     transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Close affordance: a long right-pointing arrow ("collapse to the right"),
-   replacing the old × button (用户要求). It sits in the panel footer, BELOW the
-   scrollable content (outside the scroll area), aligned to the right. */
+/* Back-to-map affordance (用户要求 #6): a U-turn return arrow with a long tail and
+   the arrowhead pointing DOWN, plus a "Back to map" label (always English). Sits at
+   the BOTTOM-LEFT of the panel, below the scrollable content. */
 .focus-close {
   flex-shrink: 0;
-  align-self: flex-end;
-  margin-top: 10px;
-  width: 64px;
-  height: 28px;
+  align-self: flex-start;
+  margin-top: 12px;
+  height: 30px;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--ink);
-  opacity: 0.65;
+  opacity: 0.7;
   cursor: pointer;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .focus-close:hover {
   opacity: 1;
-  transform: translateX(4px);
+  transform: translateY(2px);
 }
 
 .focus-close svg {
-  width: 56px;
+  width: 38px;
   height: 22px;
+  flex-shrink: 0;
   fill: none;
   stroke: currentColor;
+  /* Same stroke thickness as the old arrow (用户要求 #6 C). */
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
 
-/* Two-column detail layout (用户 v106):
-   LEFT  col = B (cover image) + D2 (补充 / 细节 photos)  — the big media column
-   RIGHT col = A (id/title/place/time) + C (information) + D1 (paragraphs + 插图)
-   The right text column is sized to match the top-right nav cluster (~400px) and
-   right-aligns with it (panel right offset = topbar right offset). The two
-   columns scroll together inside .focus-scroll; the close button stays pinned
-   below. */
-.focus-cols {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
-  gap: 18px;
-  align-items: start;
+.focus-close-label {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
-.focus-col {
-  min-width: 0;
+/* Single-column detail layout (v109): the cover image (B) with A1 (id/title) and
+   the merged A2+C info block floating over it, then the article (D1+D2) below. */
+.focus-stage {
   display: flex;
   flex-direction: column;
 }
 
-.focus-info-block:not(:empty) {
-  margin-top: 8px;
+#focus-caption:not(:empty) {
+  margin-top: 14px;
 }
 
-.focus-col-text #focus-caption:not(:empty) {
-  margin-top: 8px;
+/* A1: id(title) floating at the TOP-LEFT over the cover (用户要求 #5). */
+.focus-overlay-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 14px 16px 26px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
 }
 
-.focus-col-media #focus-caption-right:not(:empty) {
-  margin-top: 12px;
+/* A2 + C: place/time/info floating at the BOTTOM-LEFT over the cover, same
+   label:value grid + alignment as the old information block (用户要求 #5). */
+.focus-overlay-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 26px 16px 14px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+}
+
+.focus-overlay-info:empty {
+  display: none;
 }
 
 /* The cover fills the (wide) media column at full width; the height cap is by
@@ -1320,20 +1337,14 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   cursor: grabbing;
 }
 
-/* #13: in the enlarged lightbox, drop all text + the close button so only the
-   photo (and the side thumbnail rail) remain. */
-/* In the lightbox only the enlarged photo remains: drop the whole left column,
-   the right-column extra photos, the link and the close button, and collapse the
-   grid to just the image column. */
-.focus-image-panel.is-expanded .focus-col-text,
-.focus-image-panel.is-expanded #focus-caption-right,
+/* In the enlarged lightbox only the photo (and the side thumbnail rail) remain:
+   drop the floating A1/A2/C overlays, the article, the link and the close button. */
+.focus-image-panel.is-expanded .focus-overlay-head,
+.focus-image-panel.is-expanded .focus-overlay-info,
+.focus-image-panel.is-expanded #focus-caption,
 .focus-image-panel.is-expanded .focus-link,
 .focus-image-panel.is-expanded .focus-close {
   display: none;
-}
-
-.focus-image-panel.is-expanded .focus-cols {
-  display: block;
 }
 
 .focus-image-panel.is-expanded .focus-scroll {
@@ -1421,21 +1432,76 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-blur-approx-layer {
   position: absolute;
   pointer-events: none;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  /* Radial wash centred on the marker (--cx/--cy set by draw()): a WHITE haze in
-     the circle around the point, fading to a DARK vignette outside — same look as
-     the old overlay. Tunable: --cr = circle size; the white/black alphas below. */
+  /* Centre + circle radius set by draw(). Two blur strengths: the OUTER ring is
+     fully blurred (--blur-outer), the INNER circle around the point is blurred at
+     HALF strength (--blur-inner) so the marker's immediate surroundings read a bit
+     clearer than the far vignette (用户要求 #2). Tunable: the two blur px + --cr +
+     the white/black alphas. */
   --cx: 50%;
   --cy: 50%;
   --cr: 200px;
+  --blur-outer: 6px;
+  --blur-inner: 3px;
+  /* smooth fade when the user pans/zooms (item 1) */
+  transition: opacity 200ms ease;
+}
+
+/* OUTER ring: full blur + dark vignette, masked to EXCLUDE the inner circle. */
+.focus-blur-approx-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(var(--blur-outer));
+  -webkit-backdrop-filter: blur(var(--blur-outer));
   background: radial-gradient(
     circle var(--cr) at var(--cx) var(--cy),
-    rgba(255, 255, 255, 0.5) 0,
-    rgba(255, 255, 255, 0.38) calc(var(--cr) * 0.55),
+    rgba(0, 0, 0, 0) calc(var(--cr) * 0.5),
     rgba(0, 0, 0, 0.32) var(--cr),
     rgba(0, 0, 0, 0.32) 100%
   );
+  -webkit-mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    transparent 0 calc(var(--cr) * 0.5),
+    #000 calc(var(--cr) * 0.62)
+  );
+  mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    transparent 0 calc(var(--cr) * 0.5),
+    #000 calc(var(--cr) * 0.62)
+  );
+}
+
+/* INNER circle: HALF blur + white haze, masked to the inner circle only. A small
+   feather overlap with the outer mask hides the seam between the two blur levels. */
+.focus-blur-approx-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  backdrop-filter: blur(var(--blur-inner));
+  -webkit-backdrop-filter: blur(var(--blur-inner));
+  background: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.38) calc(var(--cr) * 0.5),
+    rgba(255, 255, 255, 0) calc(var(--cr) * 0.62)
+  );
+  -webkit-mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    #000 0 calc(var(--cr) * 0.5),
+    transparent calc(var(--cr) * 0.62)
+  );
+  mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    #000 0 calc(var(--cr) * 0.5),
+    transparent calc(var(--cr) * 0.62)
+  );
+}
+
+/* Item 1: while the user pans / zooms (is-focus-map-active) drop the pane blur too
+   — same as the full-screen .focus-blur — so the map is sharp during interaction. */
+.workspace.is-focus-mode.is-focus-map-active .focus-blur-approx-layer {
+  opacity: 0;
 }
 
 /* In 模糊地址 mode the full-screen blur overlay is suppressed — the pane-based
@@ -1467,6 +1533,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 .focus-approx-label[hidden] {
   display: none;
+}
+
+/* Item 3: hidden until the map settles on the point (JS removes is-pending in the
+   camera animation's completion), so the text never flashes mid-pan/zoom. */
+.focus-approx-label.is-pending {
+  opacity: 0;
 }
 
 /* When the user pans/zooms (blur suppressed), fade the label out too. */

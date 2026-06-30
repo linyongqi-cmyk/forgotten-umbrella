@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=108" />
+    <link rel="stylesheet" href="styles.css?v=109" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -178,26 +178,23 @@
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
             <div class="focus-scroll" id="focus-scroll">
-              <div class="focus-cols">
-                <div class="focus-col focus-col-media">
-                  <div class="focus-image-frame">
-                    <img id="focus-image" alt="" />
-                    <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
-                  </div>
-                  <div class="focus-link" id="focus-link" hidden></div>
-                  <div class="focus-flow focus-flow-right" id="focus-caption-right"></div>
+              <div class="focus-stage">
+                <div class="focus-image-frame">
+                  <img id="focus-image" alt="" />
+                  <header class="focus-overlay-head focus-header" id="focus-header"></header>
+                  <div class="focus-overlay-info" id="focus-info-block"></div>
+                  <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
                 </div>
-                <div class="focus-col focus-col-text">
-                  <header class="focus-header" id="focus-header"></header>
-                  <div class="focus-info-block" id="focus-info-block"></div>
-                  <figcaption class="focus-flow" id="focus-caption"></figcaption>
-                </div>
+                <div class="focus-link" id="focus-link" hidden></div>
+                <figcaption class="focus-flow" id="focus-caption"></figcaption>
               </div>
             </div>
-            <button class="focus-close" id="focus-close" type="button" aria-label="close focus view" title="collapse to the right">
-              <svg viewBox="0 0 64 24" aria-hidden="true" focusable="false">
-                <path d="M2 12h56M48 4l10 8-10 8" />
+            <button class="focus-close" id="focus-close" type="button" aria-label="back to map" title="back to map">
+              <svg viewBox="0 0 56 30" aria-hidden="true" focusable="false">
+                <path d="M54 6H16a7 7 0 0 0-7 7v9" />
+                <path d="M3.5 17 9 23.5 14.5 17" />
               </svg>
+              <span class="focus-close-label">Back to map</span>
             </button>
           </figure>
 
@@ -253,6 +250,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=108" type="module"></script>
+    <script src="app.js?v=109" type="module"></script>
   </body>
 </html>

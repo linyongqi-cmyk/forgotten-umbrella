@@ -322,7 +322,6 @@ const els = {
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusCaption: document.querySelector("#focus-caption"),
-  focusCaptionRight: document.querySelector("#focus-caption-right"),
   focusInfoBlock: document.querySelector("#focus-info-block"),
   focusHeader: document.querySelector("#focus-header"),
   focusClose: document.querySelector("#focus-close"),
@@ -1876,16 +1875,13 @@ function renderFocusImage() {
   if (els.focusHeader) {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
-  // Two-column detail (v105): LEFT = header(A) + information(C) + D1 (paragraphs
-  // + 插图); RIGHT = cover image(B) + D2 (补充 / 细节 photos).
+  // Single-column detail (v109): A1 (id/title) floats top-left over the cover, the
+  // merged A2+C info block floats over it too; below the image flows D1+D2 in their
+  // original on-disk order (用户要求 #4/#5).
   if (els.focusInfoBlock) {
     els.focusInfoBlock.innerHTML = renderFocusInfo(item);
   }
-  const flows = renderFocusFlows(item);
-  els.focusCaption.innerHTML = flows.left;
-  if (els.focusCaptionRight) {
-    els.focusCaptionRight.innerHTML = flows.right;
-  }
+  els.focusCaption.innerHTML = renderFocusArticle(item);
   renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     els.focusPanel?.classList.remove("is-loading");
@@ -1976,63 +1972,66 @@ function displayUmbrellaId(item) {
   return id.replace(/_/g, " ");
 }
 
-// Fixed header (stays put while the images/text scroll): id(title), place, time.
+// A1 (v109): just id(title) + the contributed badge. Floats at the TOP-LEFT over
+// the cover image (用户要求 #5). Place / time / submitter moved into the merged
+// A2+C info block (renderFocusInfo).
 function renderFocusHeader(item) {
   const title = localize(item.title);
   const idText = displayUmbrellaId(item);
   const focusTitle = title ? `${idText}(${title})` : idText;
-  // Contributed umbrellas: show a small badge, mark approximate place/time with
-  // a "约 / approx." prefix, and credit the submitter.
-  // Badge / approx prefix / submitter credit are always ENGLISH regardless of
-  // the site language (用户要求 item 9).
+  // Badge is always ENGLISH regardless of the site language (用户要求 item 9).
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
     ? ` <span class="focus-badge">${escapeHtml(UI_TEXT.contributedBadge.en)}</span>`
     : "";
-  const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
-  const credit =
-    isContributed && item.submitter
-      ? `<p class="focus-meta focus-credit">${escapeHtml(UI_TEXT.submitterCredit.en)}: ${escapeHtml(item.submitter)}</p>`
-      : "";
-  // Contributed times are rough/free-text — use the unified loose-date format
-  // (slash separators, no stray 00:00); own times stay on the ISO formatter.
-  const timeText = isContributed ? formatLooseDate(item.time) : formatDateTime(item.time);
-  return `
-    <h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>
-    ${item.location ? `<p class="focus-meta focus-meta-address">${approx(item.locationApprox)}${formatAddressBreaks(item.location)}</p>` : ""}
-    ${timeText ? `<p class="focus-meta">${approx(item.timeApprox)}${escapeHtml(timeText)}</p>` : ""}
-    ${credit}
-  `;
+  return `<h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>`;
 }
 
 // The INFORMATION grid (type / object / state). Lives in the left aside next to
 // the cover image (方案 B). Contributed umbrellas don't show it (their category
 // is "submission(pending)" and umbrella details are usually unknown) — they rely
 // on the submitter credit + note instead (用户要求).
+// A2 + C merged (v109): place / time (+ submitter for contributed) then
+// type / object / state, all in ONE label:value grid with the same alignment
+// (用户要求 #5). Labels are always English. Floats over the cover image. Each
+// row's `lines` are already safe HTML (place/time carry approx prefix + address
+// <wbr>); type/object/state values are escaped here.
 function renderFocusInfo(item) {
-  const infoRows = [];
-  if (item.submissionType !== "contributed") {
+  const isContributed = item.submissionType === "contributed";
+  const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
+  const rows = [];
+  if (item.location) {
+    rows.push({ label: "place", lines: [`${approx(item.locationApprox)}${formatAddressBreaks(item.location)}`] });
+  }
+  // Contributed times are rough/free-text → loose-date format; own times ISO.
+  const timeText = isContributed ? formatLooseDate(item.time) : formatDateTime(item.time);
+  if (timeText) {
+    rows.push({ label: "time", lines: [`${approx(item.timeApprox)}${escapeHtml(timeText)}`] });
+  }
+  if (isContributed && item.submitter) {
+    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
+  }
+  if (!isContributed) {
     const typeValue = formatInformationType(item);
     if (typeValue) {
-      infoRows.push({ label: "type", lines: [typeValue] });
+      rows.push({ label: "type", lines: [escapeHtml(typeValue)] });
     }
     if (item.objectLines?.length) {
-      infoRows.push({ label: "object", lines: item.objectLines });
+      rows.push({ label: "object", lines: item.objectLines.map((l) => escapeHtml(l)) });
     }
     if (item.statusLines?.length) {
-      infoRows.push({ label: "state", lines: item.statusLines });
+      rows.push({ label: "state", lines: item.statusLines.map((l) => escapeHtml(l)) });
     }
   }
-  if (!infoRows.length) {
+  if (!rows.length) {
     return "";
   }
-  return `<h4 class="focus-info-heading">information</h4>
-      <div class="focus-info">
-        ${infoRows
+  return `<div class="focus-info">
+        ${rows
           .map(
             (row) => `<div class="focus-info-row">
               <span class="focus-info-label">${row.label}:</span>
-              <div class="focus-info-value">${row.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>
+              <div class="focus-info-value">${row.lines.map((line) => `<p>${line}</p>`).join("")}</div>
             </div>`,
           )
           .join("")}
@@ -2096,50 +2095,6 @@ function renderFocusBlockHtml(block, mediaByFile) {
       <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
       ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
     </figure>`;
-}
-
-// Which column a block belongs to in the two-column detail (v105):
-//   left  = text / dialogue / 插图(illustration) photos  (=> D1, under A+C)
-//   right = 补充(supplement) / 细节(detail) photos        (=> D2, under the cover)
-//   null  = the primary cover (shown separately as the big image), so skip it.
-function focusBlockLane(block, mediaByFile) {
-  if (block.type === "photo") {
-    const role = mediaByFile[block.file]?.role;
-    if (role === "primary") {
-      return null;
-    }
-    if (role === "supplement" || role === "detail") {
-      return "right";
-    }
-    return "left";
-  }
-  return "left";
-}
-
-// Split the content blocks into the left (D1) and right (D2) flows, each keeping
-// the blocks' on-disk order within its own column.
-function renderFocusFlows(item) {
-  const mediaByFile = {};
-  (item.media || []).forEach((m) => {
-    mediaByFile[m.file] = m;
-  });
-  const left = [];
-  const right = [];
-  effectiveBlocks(item).forEach((block) => {
-    const lane = focusBlockLane(block, mediaByFile);
-    if (!lane) {
-      return;
-    }
-    const html = renderFocusBlockHtml(block, mediaByFile);
-    if (!html) {
-      return;
-    }
-    (lane === "right" ? right : left).push(html);
-  });
-  return {
-    left: left.length ? `<div class="focus-caption-inner">${left.join("")}</div>` : "",
-    right: right.length ? `<div class="focus-caption-inner">${right.join("")}</div>` : "",
-  };
 }
 
 // Editor live-preview only: a single-column render of all content blocks in their
@@ -3360,10 +3315,16 @@ function focusUmbrellaOnMap(item, id) {
     hideBlurApproxOverlay();
   }
   // Under-pin label (item 3): custom text, or the display address as fallback.
+  // It starts hidden (is-pending = opacity 0) and only fades in once the map has
+  // finished animating to the point and settled (revealApproxLabel) — so the text
+  // never appears mid-pan/zoom (用户要求 #3).
   if (els.focusApproxLabel) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
     els.focusApproxLabel.textContent = labelText;
     els.focusApproxLabel.hidden = !labelText;
+    if (labelText) {
+      els.focusApproxLabel.classList.add("is-pending");
+    }
   }
   setFocusMaskPosition();
   // Always re-centre: clicking the focused marker again after the map has been
@@ -3876,6 +3837,7 @@ function animateMarkerToFocus(item) {
     state.map.panTo(item.coordinates);
     const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), FOCUS_MAP_ZOOM);
     state.map.setZoom(fallbackZoom);
+    revealApproxLabel();
     return;
   }
 
@@ -3913,6 +3875,8 @@ function animateMarkerToFocus(item) {
       state.cameraAnimationFrame = null;
       setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, endZoom, endScreen), endZoom);
       setFocusMaskPosition();
+      // Map has settled on the point — now fade the under-pin label in (item 3).
+      revealApproxLabel();
       window.setTimeout(() => {
         state.isFocusCameraAnimating = false;
       }, 80);
@@ -3989,6 +3953,13 @@ function easeInOutCubic(t) {
 
 function setFocusBlurSuppressed(isSuppressed) {
   els.mapView?.classList.toggle("is-focus-map-active", isSuppressed);
+}
+
+// Item 3: fade the under-pin 模糊地址 label in only after the map has settled on
+// the point (called from the camera animation's completion). Until then the label
+// carries `is-pending` (opacity 0) so it never flashes mid-pan/zoom.
+function revealApproxLabel() {
+  els.focusApproxLabel?.classList.remove("is-pending");
 }
 
 function getFocusTargetScreenPoint() {
@@ -4137,7 +4108,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=108", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=109", { updateViaCache: "none" });
   }
 }
 
