@@ -611,23 +611,72 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   white-space: nowrap;
 }
 
-/* Map-layer switches (T8): a small check box instead of a colour swatch. */
-.map-layer-check {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 4px;
-  border: 1px solid var(--line);
-  font-size: 10px;
-  line-height: 1;
+/* T8 dev tuning panel: one row per category = name + 自動/表示/淡化/隠す cycle +
+   zoom-threshold input. Edit-mode only. */
+#map-layers-panel {
+  max-height: 70vh;
+  overflow-y: auto;
+  min-width: 230px;
 }
 
-.map-layer-row.is-on .map-layer-check {
-  background: var(--ink);
-  color: var(--panel);
-  border-color: var(--ink);
+.map-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  font-size: 12px;
+}
+
+.map-layer-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+
+.map-layer-cycle {
+  flex: 0 0 auto;
+  width: 48px;
+  padding: 3px 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.map-layer-row[data-vis="show"] .map-layer-cycle {
+  background: #2e9e5b;
+  color: #fff;
+  border-color: #2e9e5b;
+}
+
+.map-layer-row[data-vis="fade"] .map-layer-cycle {
+  background: #d8b24a;
+  color: #1f2d2d;
+  border-color: #d8b24a;
+}
+
+.map-layer-row[data-vis="hide"] .map-layer-cycle {
+  background: #b4502f;
+  color: #fff;
+  border-color: #b4502f;
+}
+
+.map-layer-zoom {
+  flex: 0 0 auto;
+  width: 52px;
+  padding: 3px 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
 }
 
 .panel-heading h2,
@@ -1299,29 +1348,24 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
 }
 
-/* T7 模糊地址 (approximate-location) variant: a WHITE blur (vs. the normal dark
-   one) with a larger clear circle, and the "clear" circle itself keeps a light
-   white blur so the exact spot never reads sharp. Tunable — radius +50px, the
-   centre alpha controls how blurred the clear area stays. */
+/* T7 模糊地址 (approximate-location) variant: the WHOLE map stays blurred (no
+   clear hole). The outer area keeps the normal DARK blur; the enlarged circle in
+   the middle gets a gentle WHITE blur that fades out into the dark — so the
+   exact spot is never sharp. Tunable: --focus-radius = white-circle size, the
+   centre white alpha (keep it light), the dark outer alpha matches the normal
+   blur. The mask is removed so nothing reads fully clear. */
 .workspace.is-focus-mode.is-blur-approx .focus-blur {
   --focus-radius: 188px;
-  --focus-feather: 48px;
-  backdrop-filter: blur(9px);
-  background: rgba(247, 246, 240, 0.55);
-  -webkit-mask-image: radial-gradient(
+  backdrop-filter: blur(6px);
+  background: radial-gradient(
     circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(0, 0, 0, 0.2) 0 calc(var(--focus-radius) - var(--focus-feather)),
-    rgba(0, 0, 0, 0.42) calc(var(--focus-radius) - 24px),
-    rgba(0, 0, 0, 0.86) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
+    rgba(255, 255, 255, 0.16) 0,
+    rgba(255, 255, 255, 0.1) calc(var(--focus-radius) * 0.5),
+    rgba(0, 0, 0, 0.22) var(--focus-radius),
+    rgba(0, 0, 0, 0.22) 100%
   );
-  mask-image: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    rgba(0, 0, 0, 0.2) 0 calc(var(--focus-radius) - var(--focus-feather)),
-    rgba(0, 0, 0, 0.42) calc(var(--focus-radius) - 24px),
-    rgba(0, 0, 0, 0.86) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
-  );
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .workspace.is-focus-mode.is-focus-map-active .focus-blur {
@@ -2971,8 +3015,14 @@ body:not(.edit-mode) .editor-add {
 .editor-media-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
+}
+
+/* 封面 badge sits inline left of the filename; don't let the filename push it
+   away (item 7). */
+.editor-media-top .editor-media-badge {
+  flex: 0 0 auto;
 }
 
 .editor-media-badge {
@@ -3797,13 +3847,16 @@ body:not(.edit-mode) .editor-add {
 
 .focus-dialogue-line {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin: 0 0 0.25em;
   align-items: baseline;
 }
 
+/* Fixed-width speaker cell so every body starts at the same x and wrapped lines
+   hang-indent to that edge (item 8). Wide enough for 投稿者：/ Sender:. */
 .focus-dialogue-speaker {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  min-width: 4.6em;
   font-weight: 600;
   opacity: 0.85;
   white-space: nowrap;

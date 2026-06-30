@@ -53,7 +53,9 @@ const state = {
   markerFilterOpen: false,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
-  mapCategoryOn: null, // filled from defaults + localStorage on init
+  mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
+  // Zoom the map had before the current focus opened — restored on exit (item 6).
+  preFocusZoom: null,
   poiShown: false,
   imageExpanded: false,
   focusMediaIndex: 0,
@@ -360,7 +362,7 @@ async function init() {
   // Must run after an await so the MAP_LAYER_CATEGORIES const (defined lower in
   // the module) is past its temporal dead zone.
   state.umbrellas = await loadUmbrellaData();
-  state.mapCategoryOn = loadMapCategoryState();
+  state.mapCategoryState = loadMapCategoryState();
   TEXTS = await loadTexts();
   state.selectedId = null;
 
@@ -610,28 +612,38 @@ function bindEvents() {
   });
   syncMarkerFilter();
 
-  // Map layers (T8): one button expands a panel of whole-category label/line
-  // on/off switches for the plain map.
+  // Map layers (T8 dev tuning): one button (edit mode only) expands a panel of
+  // per-category 自動/表示/淡化/隠す cycle + zoom threshold, for both maps.
   els.mapLayersToggle?.addEventListener("click", () => {
     state.mapLayersOpen = !state.mapLayersOpen;
     syncMapLayers();
   });
+  // Cycle a category's visibility state (自動→表示→淡化→隠す→…).
   els.mapLayersPanel?.addEventListener("click", (event) => {
-    const row = event.target.closest?.("[data-map-cat]");
-    if (!row) {
+    const cycle = event.target.closest?.("[data-map-cycle]");
+    if (!cycle) {
       return;
     }
-    const key = row.dataset.mapCat;
-    state.mapCategoryOn[key] = !state.mapCategoryOn[key];
-    try {
-      localStorage.setItem(MAP_CATEGORY_STORAGE_KEY, JSON.stringify(state.mapCategoryOn));
-    } catch {
-      /* ignore storage failure */
-    }
+    const key = cycle.dataset.mapCycle;
+    const cur = state.mapCategoryState[key] || { vis: "auto", zoom: "" };
+    const next = MAP_VIS_CYCLE[(MAP_VIS_CYCLE.indexOf(cur.vis) + 1) % MAP_VIS_CYCLE.length];
+    state.mapCategoryState[key] = { ...cur, vis: next };
+    saveMapCategoryState();
     syncMapLayers();
-    if (state.googleReady && state.mapBase === "roadmap") {
-      state.map.setOptions({ styles: currentMapStyles() });
+    applyMapCategoryStyles();
+  });
+  // Per-category zoom threshold input (hide below this zoom; blank = none).
+  els.mapLayersPanel?.addEventListener("input", (event) => {
+    const input = event.target.closest?.("[data-map-zoom]");
+    if (!input) {
+      return;
     }
+    const key = input.dataset.mapZoom;
+    const cur = state.mapCategoryState[key] || { vis: "auto", zoom: "" };
+    const v = input.value.trim();
+    state.mapCategoryState[key] = { ...cur, zoom: v === "" ? "" : Number(v) };
+    saveMapCategoryState();
+    applyMapCategoryStyles();
   });
   syncMapLayers();
 
@@ -1064,17 +1076,17 @@ function syncMarkerFilter() {
 // meaningful on the plain map, so the button hides on satellite (alongside the
 // satellite labels toggle).
 function syncMapLayers() {
-  const onSatellite = state.mapBase === "satellite";
+  const show = Boolean(state.editMode);
   if (els.mapLayers) {
-    els.mapLayers.hidden = onSatellite;
+    els.mapLayers.hidden = !show;
   }
-  if (onSatellite) {
+  if (!show) {
     state.mapLayersOpen = false;
   }
   if (els.mapLayersToggle) {
     els.mapLayersToggle.setAttribute("aria-expanded", String(state.mapLayersOpen));
     els.mapLayersToggle.classList.toggle("is-active", state.mapLayersOpen);
-    const hint = state.lang === "ja" ? "地図の表示要素" : "Map labels";
+    const hint = state.lang === "ja" ? "地図の表示調整（編集用）" : "Map style tuning (edit)";
     els.mapLayersToggle.setAttribute("aria-label", hint);
     els.mapLayersToggle.setAttribute("title", hint);
   }
@@ -1082,13 +1094,19 @@ function syncMapLayers() {
     return;
   }
   els.mapLayersPanel.hidden = !state.mapLayersOpen;
+  if (!state.mapLayersOpen || !state.mapCategoryState) {
+    return;
+  }
   els.mapLayersPanel.innerHTML = MAP_LAYER_CATEGORIES.map((c) => {
-    const on = !!state.mapCategoryOn?.[c.key];
+    const s = state.mapCategoryState[c.key] || { vis: "auto", zoom: "" };
     const label = c.labels[state.lang] || c.labels.en;
-    return `<button type="button" class="map-filter-row map-layer-row${on ? " is-on" : ""}" data-map-cat="${c.key}" role="switch" aria-checked="${on}">
-        <span class="map-layer-check">${on ? "✓" : ""}</span>
-        <span class="map-filter-label">${escapeHtml(label)}</span>
-      </button>`;
+    const visLabel = (MAP_VIS_LABELS[s.vis] || MAP_VIS_LABELS.auto)[state.lang];
+    const zPlaceholder = state.lang === "ja" ? "閾値" : "zoom";
+    return `<div class="map-layer-row" data-vis="${s.vis}">
+        <span class="map-layer-name">${escapeHtml(label)}</span>
+        <button type="button" class="map-layer-cycle" data-map-cycle="${c.key}">${escapeHtml(visLabel)}</button>
+        <input type="number" class="map-layer-zoom" data-map-zoom="${c.key}" min="1" max="22" step="1" placeholder="${zPlaceholder}" value="${s.zoom === "" || s.zoom == null ? "" : s.zoom}" />
+      </div>`;
   }).join("");
 }
 
@@ -1386,7 +1404,7 @@ async function initGoogleMap() {
     zoomControl: false,
     clickableIcons: false,
     gestureHandling: "greedy",
-    styles: state.mapBase === "roadmap" ? roadmapStyles() : satelliteStylesForZoom(DEFAULT_MAP_ZOOM),
+    styles: currentMapStyles(),
   });
 
   state.projectionOverlay = new google.maps.OverlayView();
@@ -1496,11 +1514,24 @@ function effectiveMapTypeId() {
   return state.mapLabels ? "hybrid" : "satellite";
 }
 
+// Whether the satellite POI labels are shown at the current zoom.
+function satellitePoiShownAtCurrentZoom() {
+  const zoom = state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM;
+  const zoomedIn = zoom >= POI_REVEAL_ZOOM;
+  return POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
+}
+
+// Base styles for the active map + the T8 dev tuning overrides (both maps).
 function currentMapStyles() {
-  if (state.mapBase === "roadmap") {
-    return roadmapStyles();
+  const base = state.mapBase === "roadmap" ? mapStyles : satelliteStylesForZoom(state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM);
+  return [...base, ...categoryStyleRules()];
+}
+
+// Re-push styles to the live map (after a tuning change or threshold-crossing zoom).
+function applyMapCategoryStyles() {
+  if (state.googleReady) {
+    state.map.setOptions({ styles: currentMapStyles() });
   }
-  return satelliteStylesForZoom(state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM);
 }
 
 function applyMapType() {
@@ -1508,23 +1539,28 @@ function applyMapType() {
     state.map.setMapTypeId(effectiveMapTypeId());
     // Plain map keeps its roads; satellite/hybrid drops the road line overlay
     // and shows POI only when zoomed in.
-    state.poiShown = state.mapBase === "satellite" && currentMapStyles() === SATELLITE_STYLES_NEAR;
+    state.poiShown = state.mapBase === "satellite" && satellitePoiShownAtCurrentZoom();
     state.map.setOptions({ styles: currentMapStyles() });
   }
 }
 
-// Swap POI labels in/out as the zoom crosses the reveal threshold (satellite only).
+// Swap POI labels in/out as the zoom crosses the reveal threshold (satellite),
+// and re-apply category overrides whenever a tuning zoom threshold is in play.
 function refreshSatellitePoi() {
-  if (!state.googleReady || state.mapBase !== "satellite") {
+  if (!state.googleReady) {
     return;
   }
-  const zoomedIn = state.map.getZoom() >= POI_REVEAL_ZOOM;
-  const showPoi = POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
-  if (showPoi === state.poiShown) {
-    return;
+  if (state.mapBase === "satellite") {
+    const showPoi = satellitePoiShownAtCurrentZoom();
+    if (showPoi !== state.poiShown) {
+      state.poiShown = showPoi;
+      state.map.setOptions({ styles: currentMapStyles() });
+      return;
+    }
   }
-  state.poiShown = showPoi;
-  state.map.setOptions({ styles: currentMapStyles() });
+  if (anyCategoryHasThreshold()) {
+    applyMapCategoryStyles();
+  }
 }
 
 function syncMapTypeButton() {
@@ -1903,17 +1939,29 @@ function renderDialogueLines(text) {
     .map((line) => {
       const m = line.match(/^([^：:]{1,12})[：:]\s*(.*)$/);
       if (m) {
-        return `<p class="focus-dialogue-line"><span class="focus-dialogue-speaker">${escapeHtml(m[1])}</span><span class="focus-dialogue-body">${escapeHtml(m[2])}</span></p>`;
+        // Re-add the colon (full-width for CJK speakers, half-width otherwise);
+        // a fixed-width speaker cell (CSS) keeps every body left-aligned (item 8).
+        const speaker = m[1];
+        const colon = /[぀-ヿ㐀-鿿]/.test(speaker) ? "：" : ":";
+        return `<p class="focus-dialogue-line"><span class="focus-dialogue-speaker">${escapeHtml(speaker)}${colon}</span><span class="focus-dialogue-body">${escapeHtml(m[2])}</span></p>`;
       }
       return `<p class="focus-dialogue-line focus-dialogue-cont"><span class="focus-dialogue-body">${escapeHtml(line)}</span></p>`;
     })
     .join("");
 }
 
+// Contributed ids are stored with underscores (folder names), but the human name
+// reads with spaces — show "ZHANG ZHONGPU", not "ZHANG_ZHONGPU", to match the
+// overview's submitter column (item 2). Own (IMG_xxxx) ids keep their underscore.
+function displayUmbrellaId(item) {
+  return item?.submissionType === "contributed" ? String(item.id || "").replace(/_/g, " ") : item?.id || "";
+}
+
 // Fixed header (stays put while the images/text scroll): id(title), place, time.
 function renderFocusHeader(item) {
   const title = localize(item.title);
-  const focusTitle = title ? `${item.id}(${title})` : item.id;
+  const idText = displayUmbrellaId(item);
+  const focusTitle = title ? `${idText}(${title})` : idText;
   // Contributed umbrellas: show a small badge, mark approximate place/time with
   // a "约 / approx." prefix, and credit the submitter.
   // Badge / approx prefix / submitter credit are always ENGLISH regardless of
@@ -2539,7 +2587,8 @@ function groupContributedByCity(items) {
   items.forEach((it) => {
     const levels = Array.isArray(it.locationLevels) ? it.locationLevels : [];
     const pref = levels[0];
-    const label = JAPAN_PREFECTURES.has(pref) ? pref : state.lang === "ja" ? "海外" : "Overseas";
+    // Non-Japan always groups as English "Overseas", even in 日本語 (用户要求 item 1).
+    const label = JAPAN_PREFECTURES.has(pref) ? pref : "Overseas";
     if (!groups.has(label)) {
       groups.set(label, { key: `c-${label}`, label, items: [] });
     }
@@ -2860,7 +2909,7 @@ function renderPhotoCard(item) {
         <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
       </div>
       <div class="card-bar">
-        <span class="card-id">${escapeHtml(item.id)}</span>
+        <span class="card-id">${escapeHtml(displayUmbrellaId(item))}</span>
         ${titleHtml}
       </div>
     </article>
@@ -3132,6 +3181,12 @@ function selectUmbrella(id, options = {}) {
   state.focusMediaIndex = 0;
 
   if (options.focus) {
+    // Remember the zoom from BEFORE this focus so we can restore it on exit
+    // (item 6) — only when entering focus fresh, not re-clicking the focused one.
+    const wasFocused = els.mapView?.classList.contains("is-focus-mode");
+    if (!wasFocused && state.googleReady && state.map?.getZoom) {
+      state.preFocusZoom = Math.round(state.map.getZoom());
+    }
     state.focusMarkerId = id;
     state.suppressNextFit = true;
     collapseListPanel();
@@ -3610,9 +3665,17 @@ function dismissFocusAfterUserMapInteraction() {
 }
 
 function zoomToDefaultAroundMarker(item) {
+  // Restore the zoom the map had BEFORE the point was clicked (item 6), rounded
+  // to an integer, instead of always snapping back to DEFAULT_MAP_ZOOM.
+  const targetZoom = Number.isFinite(state.preFocusZoom) ? state.preFocusZoom : DEFAULT_MAP_ZOOM;
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
   const markerScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng);
   const startZoom = state.map.getZoom();
+  // Already at the target zoom (e.g. 模糊地址 with approxZoom = current zoom) —
+  // skip the re-centre animation so the map doesn't jitter on exit (item 5).
+  if (Math.round(startZoom) === targetZoom) {
+    return;
+  }
   const startTime = performance.now();
 
   state.isFocusCameraAnimating = true;
@@ -3621,7 +3684,7 @@ function zoomToDefaultAroundMarker(item) {
     const elapsed = now - startTime;
     const t = Math.min(elapsed / RESET_ZOOM_ANIMATION_MS, 1);
     const eased = easeInOutCubic(t);
-    const zoom = lerp(startZoom, DEFAULT_MAP_ZOOM, eased);
+    const zoom = lerp(startZoom, targetZoom, eased);
     const center = getCenterForMarkerScreenPoint(markerLatLng, zoom, markerScreen);
 
     setMapCamera(center, zoom);
@@ -3630,7 +3693,7 @@ function zoomToDefaultAroundMarker(item) {
       state.cameraAnimationFrame = requestAnimationFrame(step);
     } else {
       state.cameraAnimationFrame = null;
-      setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, DEFAULT_MAP_ZOOM, markerScreen), DEFAULT_MAP_ZOOM);
+      setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
       window.setTimeout(() => {
         state.isFocusCameraAnimating = false;
       }, 80);
@@ -3917,7 +3980,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=100", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=101", { updateViaCache: "none" });
   }
 }
 
@@ -4788,13 +4851,15 @@ function renderFlow() {
         ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
         : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
       if (isPrimary) {
+        // 封面 badge sits to the LEFT of the filename (not under the thumbnail),
+        // so the row doesn't get needlessly tall (item 7).
         row.innerHTML = `
           <div class="editor-media-thumb">
             ${mediaPreview}
-            <span class="editor-media-badge">封面</span>
           </div>
           <div class="editor-media-controls">
             <div class="editor-media-top">
+              <span class="editor-media-badge">封面</span>
               <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
             </div>
           </div>`;
@@ -5193,6 +5258,8 @@ function toggleEditMode() {
   document.body.classList.toggle("edit-mode", state.editMode);
   editor.toggle.classList.toggle("is-active", state.editMode);
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
+  // The T8 map-style tuning panel only exists in edit mode.
+  syncMapLayers();
   if (!state.editMode) {
     closeEditor();
   }
@@ -5961,6 +6028,12 @@ const mapStyles = [
     elementType: "geometry",
     stylers: [{ color: "#e5e7dd" }],
   },
+  // Default look (what end users see): POI + transit hidden, road names kept.
+  // The edit-mode tuning panel (T8) layers overrides on top of this.
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }],
+  },
   {
     featureType: "road",
     elementType: "geometry",
@@ -5972,64 +6045,124 @@ const mapStyles = [
     stylers: [{ color: "#b8c2bc" }],
   },
   {
+    featureType: "transit",
+    stylers: [{ visibility: "off" }],
+  },
+  {
     featureType: "water",
     elementType: "geometry",
     stylers: [{ color: "#93aaa7" }],
   },
 ];
 
-// T8: whole-category on/off switches for the plain (roadmap) map. Google Maps
-// can only style by category (featureType/elementType), never a single road or
-// shop — so these are整类开关. Each appends a visibility rule on top of the base
-// styles above; defaults reproduce the old look (POI + transit hidden, road
-// names shown). State persists in localStorage. (Per-zoom-threshold show/hide is
-// also possible by swapping styles on zoom_changed — see satelliteStylesForZoom
-// — but kept simple here as plain switches.)
+// T8: an edit-mode-only DEV TUNING tool for whole-category map styling (not shown
+// to end users). Google Maps can only style by category (featureType/elementType),
+// never one road/shop. Each category can be 自動/显示/淡化/隐藏 (auto = base
+// default, fade = lightened) plus an optional zoom threshold (hidden below it).
+// The choices persist in localStorage (per-machine) and apply to BOTH the plain
+// and satellite maps; end users (no localStorage, no edit mode) just get the base
+// look. The tuned values are meant to be read off and baked into mapStyles later.
 const MAP_LAYER_CATEGORIES = [
-  { key: "poiLabels", labels: { ja: "店舗・地点名", en: "Place labels" }, rules: [{ featureType: "poi", elementType: "labels" }], defaultOn: false },
-  { key: "transit", labels: { ja: "駅・バス停", en: "Transit" }, rules: [{ featureType: "transit" }], defaultOn: false },
-  { key: "roadLabels", labels: { ja: "道路名", en: "Road names" }, rules: [{ featureType: "road", elementType: "labels" }], defaultOn: true },
-  { key: "roadGeometry", labels: { ja: "道路の線", en: "Roads" }, rules: [{ featureType: "road", elementType: "geometry" }], defaultOn: true },
+  { key: "poiLabels", labels: { ja: "店舗・地点名(POI文字)", en: "POI labels" }, featureType: "poi", elementType: "labels" },
+  { key: "poiIcons", labels: { ja: "POIアイコン", en: "POI icons" }, featureType: "poi", elementType: "labels.icon" },
+  { key: "poiBusiness", labels: { ja: "店舗", en: "Businesses" }, featureType: "poi.business" },
+  { key: "poiPark", labels: { ja: "公園・緑地", en: "Parks" }, featureType: "poi.park" },
+  { key: "poiAttraction", labels: { ja: "観光地", en: "Attractions" }, featureType: "poi.attraction" },
+  { key: "roadLabels", labels: { ja: "道路名", en: "Road labels" }, featureType: "road", elementType: "labels" },
+  { key: "roadGeometry", labels: { ja: "道路の線", en: "Road lines" }, featureType: "road", elementType: "geometry" },
+  { key: "highway", labels: { ja: "高速道路", en: "Highways" }, featureType: "road.highway" },
+  { key: "transit", labels: { ja: "公共交通", en: "Transit" }, featureType: "transit" },
+  { key: "transitLabels", labels: { ja: "駅・バス停名", en: "Transit labels" }, featureType: "transit", elementType: "labels" },
+  { key: "administrative", labels: { ja: "行政界の文字", en: "Admin labels" }, featureType: "administrative", elementType: "labels" },
+  { key: "waterLabels", labels: { ja: "水域名", en: "Water labels" }, featureType: "water", elementType: "labels" },
+  { key: "landscape", labels: { ja: "地形・建物", en: "Landscape" }, featureType: "landscape", elementType: "geometry" },
 ];
 
 const MAP_CATEGORY_STORAGE_KEY = "fu-map-layers";
+const MAP_VIS_CYCLE = ["auto", "show", "fade", "hide"];
+const MAP_VIS_LABELS = {
+  auto: { ja: "自動", en: "auto" },
+  show: { ja: "表示", en: "show" },
+  fade: { ja: "淡化", en: "fade" },
+  hide: { ja: "隠す", en: "hide" },
+};
 
+// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }.
 function loadMapCategoryState() {
-  const state0 = {};
+  const out = {};
   MAP_LAYER_CATEGORIES.forEach((c) => {
-    state0[c.key] = c.defaultOn;
+    out[c.key] = { vis: "auto", zoom: "" };
   });
   try {
     const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
     MAP_LAYER_CATEGORIES.forEach((c) => {
-      if (typeof saved[c.key] === "boolean") {
-        state0[c.key] = saved[c.key];
+      const s = saved[c.key];
+      if (s && typeof s === "object") {
+        if (MAP_VIS_CYCLE.includes(s.vis)) out[c.key].vis = s.vis;
+        if (s.zoom === "" || Number.isFinite(Number(s.zoom))) out[c.key].zoom = s.zoom === "" ? "" : Number(s.zoom);
       }
     });
   } catch {
     /* ignore corrupt storage */
   }
-  return state0;
+  return out;
 }
 
+function saveMapCategoryState() {
+  try {
+    localStorage.setItem(MAP_CATEGORY_STORAGE_KEY, JSON.stringify(state.mapCategoryState));
+  } catch {
+    /* ignore storage failure */
+  }
+}
+
+// Build the style override rules from the dev tuning state. Applied on top of the
+// base styles for both maps; "auto" categories add nothing (use base) unless a
+// zoom threshold forces a hide below that zoom.
 function categoryStyleRules() {
+  const st = state.mapCategoryState;
+  if (!st) {
+    return [];
+  }
+  const zoom = state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM;
   const rules = [];
+  const push = (c, stylers) => {
+    const rule = { featureType: c.featureType, stylers };
+    if (c.elementType) {
+      rule.elementType = c.elementType;
+    }
+    rules.push(rule);
+  };
   MAP_LAYER_CATEGORIES.forEach((c) => {
-    const visibility = state.mapCategoryOn?.[c.key] ? "on" : "off";
-    c.rules.forEach((r) => {
-      const rule = { featureType: r.featureType, stylers: [{ visibility }] };
-      if (r.elementType) {
-        rule.elementType = r.elementType;
-      }
-      rules.push(rule);
-    });
+    const s = st[c.key] || { vis: "auto", zoom: "" };
+    const hasThreshold = s.zoom !== "" && Number.isFinite(Number(s.zoom));
+    const belowThreshold = hasThreshold && zoom < Number(s.zoom);
+    let vis = s.vis;
+    if (belowThreshold) {
+      vis = "hide"; // below the zoom threshold → hidden, whatever the base says
+    }
+    if (vis === "auto") {
+      return; // use the base style
+    }
+    if (vis === "show") {
+      push(c, [{ visibility: "on" }]);
+    } else if (vis === "fade") {
+      push(c, [{ visibility: "on" }, { lightness: 50 }, { gamma: 1.8 }]);
+    } else if (vis === "hide") {
+      push(c, [{ visibility: "off" }]);
+    }
   });
   return rules;
 }
 
-// Plain-map styles = the base look + the user's category on/off choices.
-function roadmapStyles() {
-  return [...mapStyles, ...categoryStyleRules()];
+// True if any category has a zoom threshold set — then styles must be re-applied
+// on zoom_changed for both maps.
+function anyCategoryHasThreshold() {
+  const st = state.mapCategoryState || {};
+  return MAP_LAYER_CATEGORIES.some((c) => {
+    const z = st[c.key]?.zoom;
+    return z !== "" && z != null && Number.isFinite(Number(z));
+  });
 }
 
 // Applied on satellite / hybrid. We always hide the road line geometry (the

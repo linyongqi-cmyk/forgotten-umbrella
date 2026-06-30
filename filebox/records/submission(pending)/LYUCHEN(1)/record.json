@@ -52,15 +52,19 @@
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": false,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "編者:これ、めっちゃシュールで面白いね。(笑)\n投稿者: ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者: 夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者: もしかして誰かの傘を拾って、そのまま…………………。\n編者: やばい、それはちょっと悪いね。(笑)\n\n[2026.04.24]\n投稿者:まだあそこにあるよ!\n編者:葉っぱも出てきたのに、まだある!\n投稿者:春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!",
+  "story": "編者：これ、めっちゃシュールで面白いね。(笑)\n投稿者：ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者：夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者：もしかして誰かの傘を拾って、そのまま…………………。\n編者：やばい、それはちょっと悪いね。(笑)\n[2026.04.24]\n投稿者：まだあそこにあるよ!\n編者：葉っぱも出てきたのに、まだある!\n投稿者：春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
       "type": "dialogue",
       "text": {
-        "ja": "編者:これ、めっちゃシュールで面白いね。(笑)\n投稿者: ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者: 夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者: もしかして誰かの傘を拾って、そのまま…………………。\n編者: やばい、それはちょっと悪いね。(笑)\n\n[2026.04.24]\n投稿者:まだあそこにあるよ!\n編者:葉っぱも出てきたのに、まだある!\n投稿者:春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!",
-        "en": "Editor: Haha, this is so absurd-it's really interesting.\nSender: It's actually hilarious. I just happened to pass by and saw an umbrella hanging on a tree. It's hard to imagine how it even got up there. Were they that drunk?\nEditor: Feels like one of those \"let's try this\" ideas someone had on the way home after drinking at night.\nSender: Maybe they picked up someone else's umbrella and then...\nEditor: Haha, that's kind of evil.\n\n[2026.04.24]\nSender: It's still there!\nEditor: Even though the leaves have started to grow in, it's still hanging on!\nSender: Looks like we'll be able to document it through all four seasons. I can't believe it was hanging on such a tiny branch. It's so resilient. It really is a miracle umbrella!"
+        "ja": "編者：これ、めっちゃシュールで面白いね。(笑)\n投稿者：ほんとに笑えるよね。たまたま通りかかったら、木に傘が引っかかってて。どうやって掛けたのか想像つかない。そんなに飲んだのかな。\n編者：夜中に飲んで帰る途中で、誰かの「ノリでやってみよう」っていうチャレンジっぽい感じするね。\n投稿者：もしかして誰かの傘を拾って、そのまま…………………。\n編者：やばい、それはちょっと悪いね。(笑)\n[2026.04.24]\n投稿者：まだあそこにあるよ!\n編者：葉っぱも出てきたのに、まだある!\n投稿者：春夏秋冬で記録できそうだね。こんな細い枝に掛かってたんだ。めっちゃ逞しい。奇跡の傘だね!!",
+        "en": "Editor: Haha, this is so absurd-it's really interesting.\nSender: It's actually hilarious. I just happened to pass by and saw an umbrella hanging on a tree. It's hard to imagine how it even got up there. Were they that drunk?\nEditor: Feels like one of those \"let's try this\" ideas someone had on the way home after drinking at night.\nSender: Maybe they picked up someone else's umbrella and then...\nEditor: Haha, that's kind of evil.\n[2026.04.24]\nSender: It's still there!\nEditor: Even though the leaves have started to grow in, it's still hanging on!\nSender: Looks like we'll be able to document it through all four seasons. I can't believe it was hanging on such a tiny branch. It's so resilient. It really is a miracle umbrella!"
       }
     },
     {
