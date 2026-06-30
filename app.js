@@ -51,8 +51,9 @@ const state = {
   // Map marker filter (item 6/15/16): which of the 4 colour categories show.
   markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
   markerFilterOpen: false,
-  // Marker hidden behind a 模糊地址 focus (we draw a sharp pin on top instead).
-  blurHiddenMarkerId: null,
+  // Id of the marker focused with 模糊地址 (we hide it and draw a sharp pin on the
+  // blur instead; while the user pans/zooms the blur is off so we re-show it).
+  blurApproxFocusId: null,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
@@ -3281,14 +3282,23 @@ function selectUmbrella(id, options = {}) {
   }
 }
 
-// Re-show a marker we hid for a 模糊地址 focus (its visibility otherwise survives
-// until the next full re-render).
-function restoreBlurHiddenMarker() {
-  if (!state.blurHiddenMarkerId) {
+// Show/hide the real marker that's standing in for a 模糊地址 focus. Hidden while
+// the blur (+ sharp fake pin) is showing; shown while the user pans/zooms (blur
+// off) so there's always a visible marker that tracks the map.
+function setBlurApproxMarkerHidden(hidden) {
+  if (!state.blurApproxFocusId) {
     return;
   }
-  state.markers.get(state.blurHiddenMarkerId)?.setVisible(true);
-  state.blurHiddenMarkerId = null;
+  state.markers.get(state.blurApproxFocusId)?.setVisible(!hidden);
+}
+
+// Fully release the 模糊地址 stand-in: re-show the real marker and forget it.
+function restoreBlurHiddenMarker() {
+  if (!state.blurApproxFocusId) {
+    return;
+  }
+  state.markers.get(state.blurApproxFocusId)?.setVisible(true);
+  state.blurApproxFocusId = null;
 }
 
 function focusUmbrellaOnMap(item, id) {
@@ -3305,11 +3315,8 @@ function focusUmbrellaOnMap(item, id) {
   // Restore any previously-hidden marker, then hide this one if it's 模糊地址.
   restoreBlurHiddenMarker();
   if (item.blurApprox) {
-    const marker = state.markers.get(id);
-    if (marker) {
-      marker.setVisible(false);
-      state.blurHiddenMarkerId = id;
-    }
+    state.blurApproxFocusId = id;
+    setBlurApproxMarkerHidden(true);
   }
   // Under-pin label (item 3): custom text, or the display address as fallback.
   if (els.focusApproxLabel) {
@@ -3948,6 +3955,10 @@ function easeInOutCubic(t) {
 
 function setFocusBlurSuppressed(isSuppressed) {
   els.mapView?.classList.toggle("is-focus-map-active", isSuppressed);
+  // While the blur is suppressed (user panning/zooming) the sharp fake pin fades
+  // out (CSS) and would no longer track the map, so re-show the REAL marker; hide
+  // it again (fake pin returns) once the blur is back. No-op for non-模糊 focus.
+  setBlurApproxMarkerHidden(!isSuppressed);
 }
 
 function getFocusTargetScreenPoint() {
@@ -4096,7 +4107,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=105", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=106", { updateViaCache: "none" });
   }
 }
 
