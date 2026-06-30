@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=110" />
+    <link rel="stylesheet" href="styles.css?v=111" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -183,6 +183,13 @@
                   <img id="focus-image" alt="" />
                   <header class="focus-overlay-head focus-header" id="focus-header"></header>
                   <div class="focus-overlay-info" id="focus-info-block"></div>
+                  <button class="focus-zoom-hint" id="focus-zoom-hint" type="button" aria-label="enlarge image" title="enlarge image">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <circle cx="10.5" cy="10.5" r="6.5" />
+                      <path d="m15.5 15.5 4.5 4.5" />
+                      <path d="M10.5 7.5v6M7.5 10.5h6" />
+                    </svg>
+                  </button>
                   <div class="focus-expanded-caption" id="focus-expanded-caption" hidden></div>
                 </div>
                 <div class="focus-link" id="focus-link" hidden></div>
@@ -260,6 +267,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=110" type="module"></script>
+    <script src="app.js?v=111" type="module"></script>
   </body>
 </html>

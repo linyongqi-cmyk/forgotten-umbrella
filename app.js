@@ -323,6 +323,7 @@ const els = {
   focusImage: document.querySelector("#focus-image"),
   focusScroll: document.querySelector("#focus-scroll"),
   focusScrollHint: document.querySelector("#focus-scroll-hint"),
+  focusZoomHint: document.querySelector("#focus-zoom-hint"),
   focusCaption: document.querySelector("#focus-caption"),
   focusInfoBlock: document.querySelector("#focus-info-block"),
   focusHeader: document.querySelector("#focus-header"),
@@ -700,6 +701,13 @@ function bindEvents() {
   els.focusImage?.addEventListener("click", (event) => {
     event.stopPropagation();
     // Already expanded? a click there is just for panning — don't re-open.
+    if (!state.imageExpanded) {
+      openExpandedImage();
+    }
+  });
+  // Magnifier hint (用户 #5): same action as clicking the photo — enlarge it.
+  els.focusZoomHint?.addEventListener("click", (event) => {
+    event.stopPropagation();
     if (!state.imageExpanded) {
       openExpandedImage();
     }
@@ -2002,10 +2010,11 @@ function renderFocusHeader(item) {
   const title = localize(item.title);
   const idText = displayUmbrellaId(item);
   const focusTitle = title ? `${idText}(${title})` : idText;
-  // Badge is always ENGLISH regardless of the site language (用户要求 item 9).
+  // 用户 #6: mark a contributed umbrella with a small stroked person icon (same line
+  // style as the magnifier / back-to-map controls) instead of the old text pill.
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
-    ? ` <span class="focus-badge">${escapeHtml(UI_TEXT.contributedBadge.en)}</span>`
+    ? ` <span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></svg></span>`
     : "";
   return `<h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>`;
 }
@@ -2024,7 +2033,7 @@ function renderFocusInfo(item) {
   const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
   const rows = [];
   // Fixed priority order (用户 #4, works for both own & contributed; missing rows
-  // are skipped): time → type → object → state → place → by → submitted.
+  // are skipped): time → type → object → state → place → submitted → by.
   // Contributed times are rough/free-text → loose-date format; own times ISO.
   const timeText = isContributed ? formatLooseDate(item.time) : formatDateTime(item.time);
   if (timeText) {
@@ -2045,13 +2054,14 @@ function renderFocusInfo(item) {
   if (item.location) {
     rows.push({ label: "place", lines: [`${approx(item.locationApprox)}${formatAddressBreaks(item.location)}`] });
   }
-  if (isContributed && item.submitter) {
-    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
-  }
-  // Submission time (用户 #4: previously not shown). English label "submitted".
+  // Submission time (用户 #4: previously not shown, sits just before "by").
+  // English label "submitted".
   const submittedText = formatLooseDate(item.submissionTime);
   if (submittedText) {
     rows.push({ label: "submitted", lines: [escapeHtml(submittedText)] });
+  }
+  if (isContributed && item.submitter) {
+    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
   }
   if (!rows.length) {
     return "";
@@ -4138,7 +4148,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=110", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=111", { updateViaCache: "none" });
   }
 }
 

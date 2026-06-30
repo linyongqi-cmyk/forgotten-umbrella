@@ -1193,11 +1193,49 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: none;
 }
 
+/* Magnifier hint at the cover's TOP-RIGHT (用户 #5): same muted stroke style as the
+   back-to-map / scroll-for-more controls. Clicking it enlarges the photo (so does
+   clicking the photo itself). */
+.focus-zoom-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.75;
+  cursor: zoom-in;
+  display: grid;
+  place-items: center;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.focus-zoom-hint:hover {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.focus-zoom-hint svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
+
 /* Legibility without a dark band: a strong shadow on the floating overlay text. */
 .focus-overlay-head .focus-title,
 .focus-overlay-info .focus-info-label,
 .focus-overlay-info .focus-info-value p {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.7);
+  /* Softer than before (用户 #3: the black was too heavy). */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
 }
 
 /* The cover fills the (wide) media column at full width; the height cap is by
@@ -1403,6 +1441,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
    drop the floating A1/A2/C overlays, the article, the link and the close button. */
 .focus-image-panel.is-expanded .focus-overlay-head,
 .focus-image-panel.is-expanded .focus-overlay-info,
+.focus-image-panel.is-expanded .focus-zoom-hint,
 .focus-image-panel.is-expanded #focus-caption,
 .focus-image-panel.is-expanded .focus-link,
 .focus-image-panel.is-expanded .focus-footer {
@@ -1494,28 +1533,53 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-blur-approx-layer {
   position: absolute;
   pointer-events: none;
-  /* Centre + circle radius set by draw(). ONE uniform blur (no two-layer split →
-     no seam, 用户要求 #1): the same `blur(6px)` the ordinary focus uses (.focus-blur),
-     so the dark vignette here matches every other marker's blur exactly. On top of
-     that single blur we paint a radial WASH only — a soft WHITE haze in the centre
-     (weaker than the dark edge) fading out to a dark vignette (≈ the normal 0.22
-     darkness) at the rim. Tunable: --blur, --cr, and the white/black alphas below. */
+  /* 用户要求 #1: the white centre should be blurred LESS than the dark rim, but with
+     NO visible seam between them. The trick is ADDITIVE blur with a feathered mask
+     instead of two mutually-exclusive masks (which left a hard edge):
+       • this base layer blurs the WHOLE viewport a tiny --blur-inner (1px) and paints
+         the radial colour wash (a brighter white haze in the centre → dark vignette);
+       • the ::after layer adds MORE blur (--blur-outer) ONLY toward the rim, via a
+         soft gradient mask whose alpha ramps up gradually — so the extra blur fades
+         in smoothly (centre ≈ 1px, rim ≈ 1px+6px ≈ the normal 6px) with no seam.
+     Tunable: the two --blur values, --cr, and the white/black alphas. */
   --cx: 50%;
   --cy: 50%;
   --cr: 200px;
-  --blur: 6px;
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
+  --blur-inner: 1px;
+  --blur-outer: 6px;
+  backdrop-filter: blur(var(--blur-inner));
+  -webkit-backdrop-filter: blur(var(--blur-inner));
   background: radial-gradient(
     circle var(--cr) at var(--cx) var(--cy),
-    rgba(255, 255, 255, 0.16) 0,
-    rgba(255, 255, 255, 0.05) calc(var(--cr) * 0.45),
-    rgba(0, 0, 0, 0.12) calc(var(--cr) * 0.78),
+    rgba(255, 255, 255, 0.3) 0,
+    rgba(255, 255, 255, 0.16) calc(var(--cr) * 0.42),
+    rgba(0, 0, 0, 0.08) calc(var(--cr) * 0.72),
     rgba(0, 0, 0, 0.24) var(--cr),
     rgba(0, 0, 0, 0.24) 100%
   );
   /* smooth fade when the user pans/zooms (item 1) */
   transition: opacity 200ms ease;
+}
+
+/* Extra blur ADDED toward the rim (stacks on the 1px base). The gradient mask ramps
+   its alpha from 0 at ~0.4·cr to full at the rim, so the blur strength rises
+   gradually — no seam between the clear centre and the blurry edge (用户 #1). */
+.focus-blur-approx-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(var(--blur-outer));
+  -webkit-backdrop-filter: blur(var(--blur-outer));
+  -webkit-mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    transparent 0 calc(var(--cr) * 0.4),
+    #000 var(--cr)
+  );
+  mask-image: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    transparent 0 calc(var(--cr) * 0.4),
+    #000 var(--cr)
+  );
 }
 
 /* Item 1: while the user pans / zooms (is-focus-map-active) drop the pane blur too
@@ -1584,6 +1648,13 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .workspace.is-focus-mode .focus-image-panel.is-loading {
   opacity: 0;
   pointer-events: none;
+  /* 用户 #2: hide INSTANTLY (no 900ms fade-out) while the cover loads. A slow
+     contributed/模糊地址 image used to load while the panel was still partly visible,
+     so the frame grew from its short pre-load size up to the full photo height — the
+     image "appeared lower, then jumped up ~0.5s later". Snapping to 0 keeps the panel
+     invisible until the photo is ready, then it fades in (base transition) at full
+     size — no reflow. */
+  transition: none;
 }
 
 .workspace.is-focus-mode .focus-image-panel.is-expanded {
@@ -4000,20 +4071,24 @@ body:not(.edit-mode) .editor-add {
   max-width: 100%;
 }
 
-/* Contributed-umbrella detail bits: a small "投稿" pill next to the title, an
-   italic submitter credit, and the submitter's quoted note in the body. They
-   inherit the surrounding text colour (white on the detail page). */
+/* Contributed-umbrella mark (用户 #6): a small stroked person icon beside the title
+   (same line style as the other detail controls), replacing the old text pill. */
 .focus-header .focus-badge {
-  display: inline-block;
+  display: inline-flex;
   vertical-align: middle;
   margin-left: 8px;
-  padding: 1px 8px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.62em;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  opacity: 0.85;
+  opacity: 0.8;
+}
+
+.focus-header .focus-badge svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
 
 .focus-header .focus-credit {
