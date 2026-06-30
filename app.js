@@ -54,6 +54,7 @@ const state = {
   // OverlayView that blurs the map BELOW the marker pane for 模糊地址 focus (so the
   // real marker stays sharp on top — no fake pin). Created lazily once the map is.
   blurOverlay: null,
+  blurOverlayCenter: null, // {lat,lng} of the focused point, to centre the radial wash
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
@@ -3314,6 +3315,15 @@ function ensureBlurOverlay() {
     div.style.top = `${top}px`;
     div.style.width = `${Math.abs(ne.x - sw.x) + pad * 2}px`;
     div.style.height = `${Math.abs(ne.y - sw.y) + pad * 2}px`;
+    // Centre the white-circle/dark-vignette radial on the focused marker.
+    const center = state.blurOverlayCenter;
+    if (center) {
+      const c = projection.fromLatLngToDivPixel(
+        new google.maps.LatLng(center.lat, center.lng),
+      );
+      div.style.setProperty("--cx", `${c.x - left}px`);
+      div.style.setProperty("--cy", `${c.y - top}px`);
+    }
   };
   overlay.onRemove = function onRemove() {
     this._div?.remove();
@@ -3322,8 +3332,10 @@ function ensureBlurOverlay() {
   state.blurOverlay = overlay;
 }
 
-function showBlurApproxOverlay() {
+function showBlurApproxOverlay(item) {
   ensureBlurOverlay();
+  // Remember the focus point so draw() can centre the radial wash on the marker.
+  state.blurOverlayCenter = item?.coordinates || null;
   if (state.blurOverlay && state.blurOverlay.getMap() !== state.map) {
     state.blurOverlay.setMap(state.map);
   }
@@ -3343,7 +3355,7 @@ function focusUmbrellaOnMap(item, id) {
   // (showBlurApproxOverlay), so the real marker stays sharp on top — no fake pin,
   // nothing hidden. Plain focus keeps the full-screen .focus-blur (clear circle).
   if (item.blurApprox) {
-    showBlurApproxOverlay();
+    showBlurApproxOverlay(item);
   } else {
     hideBlurApproxOverlay();
   }
@@ -4125,7 +4137,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=107", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=108", { updateViaCache: "none" });
   }
 }
 

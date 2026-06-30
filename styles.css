@@ -1423,7 +1423,19 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  background: rgba(244, 241, 234, 0.34);
+  /* Radial wash centred on the marker (--cx/--cy set by draw()): a WHITE haze in
+     the circle around the point, fading to a DARK vignette outside — same look as
+     the old overlay. Tunable: --cr = circle size; the white/black alphas below. */
+  --cx: 50%;
+  --cy: 50%;
+  --cr: 200px;
+  background: radial-gradient(
+    circle var(--cr) at var(--cx) var(--cy),
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.38) calc(var(--cr) * 0.55),
+    rgba(0, 0, 0, 0.32) var(--cr),
+    rgba(0, 0, 0, 0.32) 100%
+  );
 }
 
 /* In 模糊地址 mode the full-screen blur overlay is suppressed — the pane-based
@@ -1439,7 +1451,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-approx-label {
   position: fixed;
   z-index: 31;
-  transform: translate(-50%, 22px);
+  transform: translate(-50%, 30px);
   max-width: 42vw;
   color: #fff;
   font-size: 13px;
