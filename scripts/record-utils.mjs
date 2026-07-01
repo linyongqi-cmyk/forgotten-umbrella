@@ -100,7 +100,9 @@ export function stringifyRecordWithComments(record) {
     lines.push('      // 这张媒体自己的说明文字。');
     lines.push(`      "story": ${JSON.stringify(item.story ?? "")},`);
     lines.push('      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。');
-    lines.push(`      "legacyThumb": ${JSON.stringify(item.legacyThumb ?? "")}`);
+    lines.push(`      "legacyThumb": ${JSON.stringify(item.legacyThumb ?? "")},`);
+    lines.push('      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。');
+    lines.push(`      "crop": ${JSON.stringify(item.crop ?? null)}`);
     lines.push(`    }${suffix}`);
   });
 
@@ -157,6 +159,7 @@ export async function mergeRecordMediaWithFolder(recordPath, record) {
       photoTime: item.photoTime ?? (isPrimary ? record.photoTime || "" : ""),
       story: item.story ?? "",
       legacyThumb: item.legacyThumb ?? "",
+      crop: item.crop ?? null,
     };
   });
 

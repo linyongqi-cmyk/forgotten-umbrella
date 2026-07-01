@@ -265,8 +265,32 @@ function applyMediaMetadata(existing, incoming) {
         photoTime: typeof item.photoTime === "string" ? item.photoTime : prev.photoTime || "",
         story: typeof item.story === "string" ? item.story : prev.story || "",
         legacyThumb: prev.legacyThumb || "",
+        // 非破坏性裁剪；editor 传 null/对象，缺省沿用旧值。
+        crop: Object.prototype.hasOwnProperty.call(item, "crop") ? sanitizeCrop(item.crop) : prev.crop ?? null,
       };
     });
+}
+
+// Crop = { aspect, scale, posX, posY } or null (原图). Numbers are clamped.
+const CROP_ASPECTS = new Set(["1:1", "4:3", "3:4", "16:9", "9:16", "3:2", "2:3"]);
+function sanitizeCrop(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const aspect = CROP_ASPECTS.has(value.aspect) ? value.aspect : "free";
+  const scale = Number.isFinite(value.scale) ? Math.min(4, Math.max(1, value.scale)) : 1;
+  const posX = Number.isFinite(value.posX) ? Math.min(100, Math.max(0, value.posX)) : 50;
+  const posY = Number.isFinite(value.posY) ? Math.min(100, Math.max(0, value.posY)) : 50;
+  // No real crop (original aspect, no zoom, centered) → store null to keep records clean.
+  if (aspect === "free" && scale === 1 && posX === 50 && posY === 50) {
+    return null;
+  }
+  const out = { aspect, scale, posX, posY };
+  // "free" keeps the natural aspect ratio so the site can render the crop box.
+  if (aspect === "free" && Number.isFinite(value.ar) && value.ar > 0) {
+    out.ar = value.ar;
+  }
+  return out;
 }
 
 function sanitizeFilename(name) {

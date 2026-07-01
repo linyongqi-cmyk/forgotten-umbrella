@@ -76,6 +76,8 @@ function buildUmbrellaItem(recordPath, record) {
       title: entry.title || "",
       photoTime: entry.photoTime || "",
       story: entry.story || "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null = 原图。
+      crop: entry.crop || null,
     };
   });
 

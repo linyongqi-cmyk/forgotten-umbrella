@@ -56,7 +56,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-19T20:21:56+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -135,7 +136,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:05:01+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "________",
@@ -145,7 +147,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -211,7 +214,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-02T19:14:13+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -273,7 +277,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -338,7 +343,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-04-18T11:28:17+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -419,7 +425,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-24T13:31:24+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -429,7 +436,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -484,7 +492,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T12:55:31+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -544,7 +553,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T14:07:30+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_6899",
@@ -554,7 +564,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-10-16T14:07:52+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -619,7 +630,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-20T12:47:17+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -684,7 +696,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-11-27T15:38:06+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -784,7 +797,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8056",
@@ -794,7 +808,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-25T16:59:36+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -865,7 +880,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-05T16:14:10+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -951,7 +967,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-10T21:09:54+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -961,7 +978,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1029,7 +1047,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-23T19:49:52+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1102,7 +1121,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-06-10T20:32:08+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1170,7 +1190,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-07-21T15:20:55+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1250,7 +1271,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T12:11:33+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "______",
@@ -1260,7 +1282,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1330,7 +1353,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:01:17+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_6868",
@@ -1340,7 +1364,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-10-16T13:01:22+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1406,7 +1431,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:07:38+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1480,7 +1506,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:32:22+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_6890",
@@ -1490,7 +1517,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-10-16T13:32:34+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1555,7 +1583,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-23T16:10:25+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1620,7 +1649,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-31T14:30:40+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1694,7 +1724,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-11-18T14:51:57+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_7108",
@@ -1704,7 +1735,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-11-18T14:52:02+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_7109",
@@ -1714,7 +1746,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-11-18T14:52:07+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1779,7 +1812,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-15T14:39:39+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1844,7 +1878,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-27T14:34:20+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1925,7 +1960,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-03-08T17:19:42+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "________",
@@ -1935,7 +1971,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -1997,7 +2034,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-24T18:14:04+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2063,7 +2101,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-27T16:11:45+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2128,7 +2167,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-01T17:17:16+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2198,7 +2238,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-30T13:48:01+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8684",
@@ -2208,7 +2249,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2278,7 +2320,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-01T21:08:44+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8745",
@@ -2288,7 +2331,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "2026-05-05T11:38:46+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2368,7 +2412,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-11T09:22:22+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -2378,7 +2423,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2440,7 +2486,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-11T09:31:55+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2507,7 +2554,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-11T12:39:11+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2568,7 +2616,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-19T22:57:09+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2632,7 +2681,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-05-22T11:04:20+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2697,7 +2747,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-07-04T14:36:19+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2767,7 +2818,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-07-22T17:21:47+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2847,7 +2899,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T15:30:58+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -2857,7 +2910,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2922,7 +2976,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T15:36:24+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -2987,7 +3042,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-10T15:52:02+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3055,7 +3111,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T12:41:33+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3120,7 +3177,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-16T13:08:38+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3226,7 +3284,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-25T21:54:34+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8245",
@@ -3236,7 +3295,8 @@
         "role": "supplement",
         "title": "DYA 1",
         "photoTime": "2026-03-10T20:15:42+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8538",
@@ -3246,7 +3306,8 @@
         "role": "supplement",
         "title": "DYA 43",
         "photoTime": "2026-04-21T00:51:15+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8621",
@@ -3256,7 +3317,8 @@
         "role": "supplement",
         "title": "DYA 46",
         "photoTime": "2026-04-24T18:25:04+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8657",
@@ -3266,7 +3328,8 @@
         "role": "supplement",
         "title": "DYA 49",
         "photoTime": "2026-04-27T19:15:39+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8685",
@@ -3276,7 +3339,8 @@
         "role": "supplement",
         "title": "DYA 52",
         "photoTime": "2026-04-30T15:58:09+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8703",
@@ -3286,7 +3350,8 @@
         "role": "supplement",
         "title": "DYA 53",
         "photoTime": "2026-05-01T00:53:27+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3354,7 +3419,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-25T16:53:03+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3424,7 +3490,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-28T10:56:51+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8665",
@@ -3434,7 +3501,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "2026-04-28T10:57:23+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3499,7 +3567,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-01T17:20:15+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3576,7 +3645,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-01T20:40:21+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -3586,7 +3656,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3666,7 +3737,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-08-11T18:01:07+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -3676,7 +3748,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3753,7 +3826,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-03T15:51:10+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -3763,7 +3837,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3843,7 +3918,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-07T13:22:30+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -3853,7 +3929,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3930,7 +4007,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T21:19:54+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -3995,7 +4073,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-19T22:54:34+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4057,7 +4136,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-23T10:25:30+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4140,7 +4220,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-25T17:13:48+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8639",
@@ -4150,7 +4231,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2026-04-25T17:14:00+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4215,7 +4297,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-05-22T16:20:11+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4280,7 +4363,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-08-11T18:21:23+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4346,7 +4430,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-08T08:56:20+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4416,7 +4501,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-01T11:55:13+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_6780",
@@ -4426,7 +4512,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2025-10-09T15:34:53+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4499,7 +4586,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-25T22:08:09+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8060",
@@ -4509,7 +4597,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2026-02-25T22:07:53+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4577,7 +4666,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-03-14T11:37:35+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4652,7 +4742,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-15T17:19:22+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4717,7 +4808,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-23T18:06:43+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4801,7 +4893,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-05-04T03:58:20+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -4811,7 +4904,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "IMG_8725",
@@ -4821,7 +4915,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "2026-05-01T20:33:46+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4898,7 +4993,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-03-03T17:39:15+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -4977,7 +5073,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-09-11T21:47:18+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -4987,7 +5084,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5049,7 +5147,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T12:13:40+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5126,7 +5225,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2025-10-09T14:53:10+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "_______",
@@ -5136,7 +5236,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5202,7 +5303,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-02-25T22:36:28+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5276,7 +5378,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-03-05T16:13:55+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5356,7 +5459,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "2026-04-10T16:33:32+09:00",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "________",
@@ -5366,7 +5470,8 @@
         "role": "illustration",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5453,7 +5558,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_2",
@@ -5463,7 +5569,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_3",
@@ -5473,7 +5580,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_4",
@@ -5483,7 +5591,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_5",
@@ -5493,7 +5602,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_6",
@@ -5503,7 +5613,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "LYUCHEN_1_7",
@@ -5513,7 +5624,8 @@
         "role": "supplement",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5576,7 +5688,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -5636,7 +5749,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "ZHANG_ZHONGPU_1_2",
@@ -5646,7 +5760,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "ZHANG_ZHONGPU_1_3",
@@ -5656,7 +5771,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5711,7 +5827,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -5762,7 +5879,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -5821,7 +5939,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -5872,7 +5991,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -5935,7 +6055,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -5986,7 +6107,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -6047,7 +6169,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -6112,7 +6235,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       },
       {
         "id": "rednote_9732476585_1_2",
@@ -6122,7 +6246,8 @@
         "role": "detail",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6173,7 +6298,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6224,7 +6350,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6275,7 +6402,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6326,7 +6454,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6377,7 +6506,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": [
@@ -6432,7 +6562,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6491,7 +6622,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6542,7 +6674,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6601,7 +6734,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []
@@ -6660,7 +6794,8 @@
         "role": "primary",
         "title": "",
         "photoTime": "",
-        "story": ""
+        "story": "",
+        "crop": null
       }
     ],
     "locationLevels": []

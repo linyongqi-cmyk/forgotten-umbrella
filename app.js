@@ -2102,6 +2102,35 @@ function renderFocusInfo(item) {
       </div>`;
 }
 
+// Non-destructive crop (用户 #8): a media's `crop` = { aspect, scale, posX, posY }
+// (or null = original). Returns inline styles to display just the cropped region —
+// pure CSS, so the original file is never touched. Fixed aspect = aspect-ratio box +
+// object-fit:cover; "free" keeps the natural aspect and just zooms/pans. null = none.
+function cropStyles(crop) {
+  if (!crop || typeof crop !== "object") {
+    return null;
+  }
+  const scale = Number.isFinite(crop.scale) ? crop.scale : 1;
+  const posX = Number.isFinite(crop.posX) ? crop.posX : 50;
+  const posY = Number.isFinite(crop.posY) ? crop.posY : 50;
+  const origin = `${posX}% ${posY}%`;
+  // The crop box aspect: a fixed "w:h", or (for "free") the stored natural ratio ar.
+  let arCss = null;
+  if (crop.aspect && crop.aspect !== "free" && /^\d+:\d+$/.test(crop.aspect)) {
+    const [w, h] = crop.aspect.split(":");
+    arCss = `${w}/${h}`;
+  } else if (Number.isFinite(crop.ar) && crop.ar > 0) {
+    arCss = String(crop.ar);
+  }
+  if (arCss) {
+    return {
+      wrap: `aspect-ratio:${arCss};`,
+      img: `width:100%;height:100%;object-fit:cover;object-position:${posX}% ${posY}%;transform:scale(${scale});transform-origin:${origin};`,
+    };
+  }
+  return { wrap: "", img: `width:100%;height:auto;transform:scale(${scale});transform-origin:${origin};` };
+}
+
 // HTML for one content block (paragraph / dialogue / photo / video). Returns ""
 // for empty or unresolved blocks.
 function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
@@ -2172,8 +2201,12 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
   const zoomBtn = expandable
     ? `<button class="focus-photo-zoom" type="button" aria-label="enlarge image" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/><path d="M10.5 7.5v6M7.5 10.5h6"/></svg></button>`
     : "";
+  // 用户 #8: show the (non-destructive) cropped region if this media has a crop.
+  const cs = cropStyles(media.crop);
+  const imgTag = `<img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async" style="${cs ? cs.img : ""}"${expandAttrs} />`;
+  const mediaHtml = cs ? `<div class="media-crop" style="${cs.wrap}">${imgTag}</div>` : imgTag;
   return `<figure class="${figClass}">
-      <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
+      ${mediaHtml}
       ${zoomBtn}
       ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
     </figure>`;
@@ -4288,7 +4321,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=116", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=117", { updateViaCache: "none" });
   }
 }
 
@@ -4821,6 +4854,7 @@ function buildPreviewDraft() {
     title: p.title,
     photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
     src: p.src || p.thumb || "",
+    crop: p.crop || null, // 用户 #8: live-preview the crop.
   }));
   const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   const blocks = flow
@@ -4999,6 +5033,7 @@ function photoItem(media) {
     timeOverride: "",
     thumb: media.thumb || media.src || "",
     src: media.src || "",
+    crop: media.crop || null, // 用户 #8: non-destructive crop.
   };
 }
 
@@ -5192,15 +5227,26 @@ function renderFlow() {
       // 用户 #8 (fig5): a bare <video> thumbnail shows the browser's picture-in-picture
       // / play overlay on hover, which covered the crop/delete buttons. disable PiP +
       // remote playback, and CSS makes the thumbnail video non-interactive.
+      // 用户 #8: show the current crop on the thumbnail (image files only; video crop
+      // isn't offered). The crop button (⤢) floats on the thumbnail's bottom-left.
+      const isImg = !isVideoFile(item.file);
+      const c = item.crop;
+      const thumbCropStyle = isImg && c
+        ? `object-position:${c.posX ?? 50}% ${c.posY ?? 50}%;transform:scale(${c.scale ?? 1});transform-origin:${c.posX ?? 50}% ${c.posY ?? 50}%;`
+        : "";
       const mediaPreview = isVideoFile(item.file)
         ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline disablepictureinpicture disableremoteplayback></video>`
-        : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
+        : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" style="${thumbCropStyle}" />`;
+      const cropBtn = isImg
+        ? `<button type="button" class="editor-media-crop${c ? " is-active" : ""}" data-fact="crop" title="裁剪（不改原文件）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></button>`
+        : "";
       if (isPrimary) {
         // 封面 badge sits to the LEFT of the filename (not under the thumbnail),
         // so the row doesn't get needlessly tall (item 7).
         row.innerHTML = `
           <div class="editor-media-thumb">
             ${mediaPreview}
+            ${cropBtn}
           </div>
           <div class="editor-media-controls">
             <div class="editor-media-top">
@@ -5218,6 +5264,7 @@ function renderFlow() {
           <div class="editor-media-thumb">
             ${mediaPreview}
             <button type="button" class="editor-media-del" data-fact="del-photo" title="删除图片">✕</button>
+            ${cropBtn}
             ${roleSelect}
           </div>
           <div class="editor-media-controls">
@@ -5277,7 +5324,136 @@ function onFlowAction(action, index) {
     afterFlowEdit();
   } else if (action === "del-photo") {
     deleteMediaFile(item.file);
+  } else if (action === "crop") {
+    openCropModal(index);
   }
+}
+
+// 用户 #8: non-destructive crop editor. Pick an aspect (原图/free + standard ratios),
+// drag to pan, slider to zoom. Saves { aspect, scale, posX, posY, (ar for free) } onto
+// the flow item — the original file is never touched; only the site display changes.
+const CROP_ASPECT_OPTIONS = [
+  ["free", "原图"],
+  ["1:1", "1:1"],
+  ["4:3", "4:3"],
+  ["3:4", "3:4"],
+  ["16:9", "16:9"],
+  ["9:16", "9:16"],
+];
+function openCropModal(index) {
+  const item = (editor.flow || [])[index];
+  if (!item || isVideoFile(item.file)) {
+    return;
+  }
+  const draft = item.crop
+    ? { aspect: item.crop.aspect || "free", scale: item.crop.scale || 1, posX: item.crop.posX ?? 50, posY: item.crop.posY ?? 50 }
+    : { aspect: "free", scale: 1, posX: 50, posY: 50 };
+  const overlay = document.createElement("div");
+  overlay.className = "crop-modal";
+  overlay.innerHTML = `
+    <div class="crop-modal-inner">
+      <div class="crop-stage" id="crop-stage">
+        <img class="crop-img" id="crop-img" src="${escapeHtml(item.src || item.thumb || "")}" alt="" draggable="false" />
+      </div>
+      <div class="crop-ratios">${CROP_ASPECT_OPTIONS.map(([v, l]) => `<button type="button" data-aspect="${v}">${l}</button>`).join("")}</div>
+      <label class="crop-zoom-row">缩放<input type="range" class="crop-zoom" min="1" max="4" step="0.01" value="${draft.scale}"></label>
+      <p class="crop-hint">拖动图片调整位置；裁剪只影响网站显示，不改本地文件，可随时「还原原图」。</p>
+      <div class="crop-actions">
+        <button type="button" class="crop-reset">还原原图</button>
+        <button type="button" class="crop-cancel">取消</button>
+        <button type="button" class="crop-save">保存</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const stage = overlay.querySelector("#crop-stage");
+  const img = overlay.querySelector("#crop-img");
+  let naturalAR = 1;
+  const apply = () => {
+    let arNum;
+    if (draft.aspect !== "free") {
+      const [w, h] = draft.aspect.split(":");
+      arNum = Number(w) / Number(h);
+    } else {
+      arNum = naturalAR;
+    }
+    // Explicit px dims (not aspect-ratio) so a tall/wide crop always fits the box.
+    const inner = overlay.querySelector(".crop-modal-inner");
+    const maxW = Math.min((inner?.clientWidth || 360) - 32, 360);
+    const maxH = window.innerHeight * 0.52;
+    let W = maxW;
+    let H = W / arNum;
+    if (H > maxH) {
+      H = maxH;
+      W = H * arNum;
+    }
+    stage.style.width = `${Math.round(W)}px`;
+    stage.style.height = `${Math.round(H)}px`;
+    img.style.cssText = `width:100%;height:100%;object-fit:cover;object-position:${draft.posX}% ${draft.posY}%;transform:scale(${draft.scale});transform-origin:${draft.posX}% ${draft.posY}%;`;
+    overlay.querySelectorAll("[data-aspect]").forEach((b) => b.classList.toggle("is-active", b.dataset.aspect === draft.aspect));
+  };
+  const onReady = () => {
+    naturalAR = (img.naturalWidth || 1) / (img.naturalHeight || 1);
+    apply();
+  };
+  if (img.complete && img.naturalWidth) {
+    onReady();
+  } else {
+    img.onload = onReady;
+  }
+  overlay.querySelectorAll("[data-aspect]").forEach((b) => b.addEventListener("click", () => {
+    draft.aspect = b.dataset.aspect;
+    apply();
+  }));
+  overlay.querySelector(".crop-zoom").addEventListener("input", (e) => {
+    draft.scale = parseFloat(e.target.value);
+    apply();
+  });
+  let dragging = null;
+  stage.addEventListener("pointerdown", (e) => {
+    dragging = { x: e.clientX, y: e.clientY, px: draft.posX, py: draft.posY };
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!dragging) {
+      return;
+    }
+    const r = stage.getBoundingClientRect();
+    const dx = ((e.clientX - dragging.x) / r.width) * 100;
+    const dy = ((e.clientY - dragging.y) / r.height) * 100;
+    draft.posX = Math.min(100, Math.max(0, dragging.px - dx));
+    draft.posY = Math.min(100, Math.max(0, dragging.py - dy));
+    apply();
+  });
+  const endDrag = () => {
+    dragging = null;
+  };
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  const close = () => overlay.remove();
+  overlay.querySelector(".crop-cancel").addEventListener("click", close);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      close();
+    }
+  });
+  overlay.querySelector(".crop-reset").addEventListener("click", () => {
+    item.crop = null;
+    afterFlowEdit();
+    close();
+  });
+  overlay.querySelector(".crop-save").addEventListener("click", () => {
+    if (draft.aspect === "free" && draft.scale === 1 && draft.posX === 50 && draft.posY === 50) {
+      item.crop = null;
+    } else {
+      const out = { aspect: draft.aspect, scale: draft.scale, posX: draft.posX, posY: draft.posY };
+      if (draft.aspect === "free") {
+        out.ar = naturalAR;
+      }
+      item.crop = out;
+    }
+    afterFlowEdit();
+    close();
+  });
 }
 
 // Re-render the content list, mark unsaved (item 13) + refresh preview (item 10).
@@ -6064,6 +6240,7 @@ async function saveEditor() {
     title: p.title,
     // Blank time box keeps the stored/EXIF time; a typed override replaces it (item 15).
     photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
+    crop: p.crop || null, // 用户 #8: non-destructive crop.
   }));
   const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   payload.blocks = (editor.flow || [])

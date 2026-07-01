@@ -3243,6 +3243,119 @@ body:not(.edit-mode) .editor-add {
   color-scheme: light;
 }
 
+/* 用户 #8: crop editor modal. */
+.crop-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(20, 26, 25, 0.6);
+  color-scheme: light;
+}
+
+.crop-modal-inner {
+  width: min(92vw, 420px);
+  max-height: 92vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  color: #1f2d2d;
+}
+
+.crop-stage {
+  align-self: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+  touch-action: none;
+  cursor: grab;
+}
+
+.crop-stage:active {
+  cursor: grabbing;
+}
+
+.crop-img {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.crop-ratios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crop-ratios button {
+  flex: 1;
+  min-width: 48px;
+  padding: 6px 8px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 8px;
+  background: #f4f3ed;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.crop-ratios button.is-active {
+  background: #3a6f62;
+  color: #fff;
+  border-color: #3a6f62;
+}
+
+.crop-zoom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.crop-zoom-row input {
+  flex: 1;
+}
+
+.crop-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #8a8f88;
+}
+
+.crop-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crop-actions button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.crop-reset {
+  margin-right: auto;
+  color: #b4502f;
+}
+
+.crop-save {
+  background: #3a6f62;
+  color: #fff;
+  border-color: #3a6f62;
+}
+
 .editor-create-dialog[hidden] {
   display: none;
 }
@@ -3692,6 +3805,40 @@ body:not(.edit-mode) .editor-add {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* 用户 #8: crop button on the thumbnail's BOTTOM-LEFT corner (fig4). */
+.editor-media-crop {
+  position: absolute;
+  bottom: -7px;
+  left: -7px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 50%;
+  background: #fff;
+  color: #3a6f62;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.editor-media-crop svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.editor-media-crop.is-active {
+  background: #3a6f62;
+  color: #fff;
+}
+
 .editor-media-del:hover {
   background: #b4502f;
   color: #fff;
@@ -3896,6 +4043,18 @@ body:not(.edit-mode) .editor-add {
   cursor: default;
   transform: none;
   border-radius: 8px;
+}
+
+/* 用户 #8: non-destructive crop wrapper — shows only the cropped region (styles set
+   inline from cropStyles()); the underlying file is never changed. */
+.media-crop {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.media-crop img {
+  display: block;
+  border-radius: 0;
 }
 
 /* Inline video player — muted by default with a big centre play button; native
