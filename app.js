@@ -639,9 +639,10 @@ function bindEvents() {
       return;
     }
     const key = cycle.dataset.mapCycle;
-    const cur = state.mapCategoryState[key] || { vis: "auto", zoom: "" };
+    const set = activeMapCategoryState();
+    const cur = set[key] || { vis: "auto", zoom: "" };
     const next = MAP_VIS_CYCLE[(MAP_VIS_CYCLE.indexOf(cur.vis) + 1) % MAP_VIS_CYCLE.length];
-    state.mapCategoryState[key] = { ...cur, vis: next };
+    set[key] = { ...cur, vis: next };
     saveMapCategoryState();
     syncMapLayers();
     applyMapCategoryStyles();
@@ -653,9 +654,10 @@ function bindEvents() {
       return;
     }
     const key = input.dataset.mapZoom;
-    const cur = state.mapCategoryState[key] || { vis: "auto", zoom: "" };
+    const set = activeMapCategoryState();
+    const cur = set[key] || { vis: "auto", zoom: "" };
     const v = input.value.trim();
-    state.mapCategoryState[key] = { ...cur, zoom: v === "" ? "" : Number(v) };
+    set[key] = { ...cur, zoom: v === "" ? "" : Number(v) };
     saveMapCategoryState();
     applyMapCategoryStyles();
   });
@@ -1117,9 +1119,9 @@ function syncMarkerFilter() {
   }).join("");
 }
 
-// Render the map-layers panel (T8): a show/hide toggle per whole category. Only
-// meaningful on the plain map, so the button hides on satellite (alongside the
-// satellite labels toggle).
+// Render the map-layers panel (T8): a per-category 自動/表示/淡化/隠す cycle + zoom
+// threshold. Available on both maps in edit mode; it edits the set for whichever map
+// is currently showing (普通/卫星 分开两套), shown in the panel header.
 function syncMapLayers() {
   const show = Boolean(state.editMode);
   if (els.mapLayers) {
@@ -1142,8 +1144,16 @@ function syncMapLayers() {
   if (!state.mapLayersOpen || !state.mapCategoryState) {
     return;
   }
-  els.mapLayersPanel.innerHTML = MAP_LAYER_CATEGORIES.map((c) => {
-    const s = state.mapCategoryState[c.key] || { vis: "auto", zoom: "" };
+  const set = activeMapCategoryState();
+  // Header tells you WHICH map's set you're editing (the two are independent).
+  const onRoadmap = state.mapBase === "roadmap";
+  const mapName = onRoadmap
+    ? state.lang === "ja" ? "普通地図" : "Plain map"
+    : state.lang === "ja" ? "衛星地図" : "Satellite map";
+  const heading = state.lang === "ja" ? `表示調整：${mapName}` : `Tuning: ${mapName}`;
+  const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}</div>`;
+  els.mapLayersPanel.innerHTML = headerHtml + MAP_LAYER_CATEGORIES.map((c) => {
+    const s = set[c.key] || { vis: "auto", zoom: "" };
     const label = c.labels[state.lang] || c.labels.en;
     const visLabel = (MAP_VIS_LABELS[s.vis] || MAP_VIS_LABELS.auto)[state.lang];
     const zPlaceholder = state.lang === "ja" ? "閾値" : "zoom";
@@ -3516,6 +3526,9 @@ function openFocusMode() {
   setFocusBlurSuppressed(false);
   els.mapView.classList.add("is-focus-mode");
   els.focusPanel?.setAttribute("aria-hidden", "false");
+  // 用户: opening a marker's detail always starts at the top (main image) — never
+  // carry over the scroll position from a previously-viewed detail page.
+  els.focusScroll?.scrollTo({ top: 0 });
   setFocusMaskPosition();
 }
 
@@ -4393,7 +4406,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=118", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=119", { updateViaCache: "none" });
   }
 }
 
@@ -5765,32 +5778,24 @@ function populateWards(city) {
   }
 }
 
-// Picking a prefecture auto-selects the first city (and its first ward).
+// Picking a prefecture opens the city dropdown (empty) for the user to choose — it
+// does NOT auto-pick a city. Auto-picking the first one silently fabricated a wrong
+// value (e.g. Tokyo → "Chiyoda Ward" the user never chose), which looked like the
+// next level was "stuck" and got saved as a wrong city (用户 bug).
 function onLevel2Change() {
   const pref = editor.prefByLabel?.[editor.lvl2.value];
   editor.lvl3.value = "";
   editor.lvl4.value = "";
-  populateCities(pref);
-  if (pref && pref.cities.length) {
-    const firstCity = pref.cities[0];
-    editor.lvl3.value = levelLabel(firstCity);
-    populateWards(firstCity);
-    if (firstCity.wards.length) {
-      editor.lvl4.value = levelLabel(firstCity.wards[0]);
-    }
-  } else {
-    populateWards(null);
-  }
+  populateCities(pref); // shows the (empty) city dropdown when a prefecture is set
+  populateWards(null); // ward stays hidden until a city that has wards is picked
 }
 
-// Picking a city auto-selects its first ward.
+// Picking a city opens the ward dropdown (empty) only if that city has wards — it
+// does NOT auto-pick a ward.
 function onLevel3Change() {
   const city = editor.cityByLabel?.[editor.lvl3.value];
   editor.lvl4.value = "";
   populateWards(city);
-  if (city && city.wards.length) {
-    editor.lvl4.value = levelLabel(city.wards[0]);
-  }
 }
 
 // Populate the level controls from a record's stored locationLevels (romaji).
@@ -5808,13 +5813,23 @@ function hydrateLevels(raw) {
     editor.lvl1.value = "japan";
     editor.lvl2.value = levelLabel(pref);
     onLevel2Change();
-    const city = pref.cities.find((c) => c.en === levels[1]);
-    if (city) {
-      editor.lvl3.value = levelLabel(city);
-      onLevel3Change();
-      const ward = city.wards.find((w) => w.en === levels[2]);
-      if (ward) {
-        editor.lvl4.value = levelLabel(ward);
+    // A stored "unknown" at the city level (Tokyo → unknown) reloads as the literal
+    // "unknown" pick; otherwise match the real city/ward.
+    if (String(levels[1] || "").toLowerCase() === "unknown") {
+      editor.lvl3.value = "unknown";
+    } else {
+      const city = pref.cities.find((c) => c.en === levels[1]);
+      if (city) {
+        editor.lvl3.value = levelLabel(city);
+        onLevel3Change();
+        if (String(levels[2] || "").toLowerCase() === "unknown") {
+          editor.lvl4.value = "unknown";
+        } else {
+          const ward = city.wards.find((w) => w.en === levels[2]);
+          if (ward) {
+            editor.lvl4.value = levelLabel(ward);
+          }
+        }
       }
     }
   } else if (levels.length) {
@@ -5827,6 +5842,13 @@ function hydrateLevels(raw) {
   onLevel1Change();
 }
 
+// A level input reading literally "unknown" (the last option in every dropdown) is a
+// real, saved value meaning "known this far, unsure below" — NOT dropped (用户: unknown
+// 要能正常保存). A blank sub-level is simply omitted.
+function isUnknownLevel(value) {
+  return String(value || "").trim().toLowerCase() === "unknown";
+}
+
 function collectLevelsForSave() {
   const mode = editor.lvl1.value;
   if (mode === "unknown") {
@@ -5837,17 +5859,26 @@ function collectLevelsForSave() {
     return text ? [text] : [];
   }
   const out = [];
-  const pref = editor.prefByLabel?.[editor.lvl2.value];
+  const v2 = editor.lvl2.value.trim();
+  const pref = editor.prefByLabel?.[v2];
   if (pref) {
     out.push(pref.en);
-    const city = editor.cityByLabel?.[editor.lvl3.value];
+    const v3 = editor.lvl3.value.trim();
+    const city = editor.cityByLabel?.[v3];
     if (city) {
       out.push(city.en);
-      const ward = editor.wardByLabel?.[editor.lvl4.value];
+      const v4 = editor.lvl4.value.trim();
+      const ward = editor.wardByLabel?.[v4];
       if (ward) {
         out.push(ward.en);
+      } else if (!editor.lvl4.hidden && isUnknownLevel(v4)) {
+        out.push("unknown"); // ward explicitly unknown
       }
+    } else if (isUnknownLevel(v3)) {
+      out.push("unknown"); // city explicitly unknown
     }
+  } else if (isUnknownLevel(v2)) {
+    out.push("unknown"); // prefecture explicitly unknown (same as lvl1 = Unknown)
   }
   return out;
 }
@@ -6669,9 +6700,10 @@ const mapStyles = [
 // to end users). Google Maps can only style by category (featureType/elementType),
 // never one road/shop. Each category can be 自動/显示/淡化/隐藏 (auto = base
 // default, fade = lightened) plus an optional zoom threshold (hidden below it).
-// The choices persist in localStorage (per-machine) and apply to BOTH the plain
-// and satellite maps; end users (no localStorage, no edit mode) just get the base
-// look. The tuned values are meant to be read off and baked into mapStyles later.
+// The choices persist in localStorage (per-machine) as TWO independent sets — the
+// plain map and the satellite map each keep their own (用户); editing the one you're
+// looking at never touches the other. End users (no localStorage, no edit mode) just
+// get the base look. Tuned values are meant to be read off + baked into mapStyles.
 const MAP_LAYER_CATEGORIES = [
   { key: "poiLabels", labels: { ja: "店舗・地点名(POI文字)", en: "POI labels" }, featureType: "poi", elementType: "labels" },
   { key: "poiIcons", labels: { ja: "POIアイコン", en: "POI icons" }, featureType: "poi", elementType: "labels.icon" },
@@ -6697,25 +6729,60 @@ const MAP_VIS_LABELS = {
   hide: { ja: "隠す", en: "hide" },
 };
 
-// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }.
-function loadMapCategoryState() {
+// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }. The tuning
+// is kept as TWO independent sets — one for the plain map, one for the satellite map
+// (用户: 普通/卫星 分开两套筛选) — so editing one never changes the other.
+function defaultMapCategorySet() {
   const out = {};
   MAP_LAYER_CATEGORIES.forEach((c) => {
     out[c.key] = { vis: "auto", zoom: "" };
   });
+  return out;
+}
+
+function mergeMapCategorySet(target, saved) {
+  if (!saved || typeof saved !== "object") {
+    return target;
+  }
+  MAP_LAYER_CATEGORIES.forEach((c) => {
+    const s = saved[c.key];
+    if (s && typeof s === "object") {
+      if (MAP_VIS_CYCLE.includes(s.vis)) target[c.key].vis = s.vis;
+      if (s.zoom === "" || Number.isFinite(Number(s.zoom))) target[c.key].zoom = s.zoom === "" ? "" : Number(s.zoom);
+    }
+  });
+  return target;
+}
+
+function loadMapCategoryState() {
+  const out = { roadmap: defaultMapCategorySet(), satellite: defaultMapCategorySet() };
   try {
     const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
-    MAP_LAYER_CATEGORIES.forEach((c) => {
-      const s = saved[c.key];
-      if (s && typeof s === "object") {
-        if (MAP_VIS_CYCLE.includes(s.vis)) out[c.key].vis = s.vis;
-        if (s.zoom === "" || Number.isFinite(Number(s.zoom))) out[c.key].zoom = s.zoom === "" ? "" : Number(s.zoom);
-      }
-    });
+    // New format: { roadmap:{...}, satellite:{...} }. Old (flat) format: category
+    // keys at the top level — migrate it onto BOTH maps so nothing is lost.
+    if (saved.roadmap || saved.satellite) {
+      mergeMapCategorySet(out.roadmap, saved.roadmap);
+      mergeMapCategorySet(out.satellite, saved.satellite);
+    } else {
+      mergeMapCategorySet(out.roadmap, saved);
+      mergeMapCategorySet(out.satellite, saved);
+    }
   } catch {
     /* ignore corrupt storage */
   }
   return out;
+}
+
+// The tuning set for whichever map is currently showing (edits target this one).
+function activeMapCategoryState() {
+  const base = state.mapBase === "roadmap" ? "roadmap" : "satellite";
+  if (!state.mapCategoryState) {
+    return defaultMapCategorySet();
+  }
+  if (!state.mapCategoryState[base]) {
+    state.mapCategoryState[base] = defaultMapCategorySet();
+  }
+  return state.mapCategoryState[base];
 }
 
 function saveMapCategoryState() {
@@ -6730,10 +6797,10 @@ function saveMapCategoryState() {
 // base styles for both maps; "auto" categories add nothing (use base) unless a
 // zoom threshold forces a hide below that zoom.
 function categoryStyleRules() {
-  const st = state.mapCategoryState;
-  if (!st) {
+  if (!state.mapCategoryState) {
     return [];
   }
+  const st = activeMapCategoryState();
   const zoom = state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM;
   const rules = [];
   const push = (c, stylers) => {

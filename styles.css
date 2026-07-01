@@ -619,6 +619,15 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   min-width: 230px;
 }
 
+.map-layer-head {
+  padding: 2px 4px 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .map-layer-row {
   display: flex;
   align-items: center;
