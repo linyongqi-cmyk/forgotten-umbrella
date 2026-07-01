@@ -261,7 +261,7 @@ function renderLegend() {
     `<h3 class="about-legend-title">${heading}</h3>` +
     MARKER_CATEGORIES.map(
       (cat) =>
-        `<div class="about-legend-row"><span class="about-legend-swatch" style="background:${MARKER_COLORS[cat]}"></span><span>${escapeHtml(MARKER_LABELS[cat])}</span></div>`,
+        `<div class="about-legend-row"><span class="about-legend-swatch" style="background:${MARKER_COLORS[cat]}"></span><span>${escapeHtml(markerLabel(cat))}</span></div>`,
     ).join("");
 }
 
@@ -751,13 +751,27 @@ function bindEvents() {
     }
   });
   els.focusPanel?.addEventListener("wheel", handleExpandedImageWheel, { passive: false });
-  // Click a supplement/detail photo in the article to enlarge it (#12).
+  // Click a supplement/detail photo (or its magnifier hint) in the article to
+  // enlarge it (#1/#12); click a video's big play button to start it muted (#7).
   els.focusCaption?.addEventListener("click", (event) => {
-    const img = event.target.closest?.("img[data-expandable]");
-    if (!img) {
+    const playBtn = event.target.closest?.(".focus-video-play");
+    if (playBtn) {
+      const fig = playBtn.closest(".focus-video-fig");
+      const video = fig?.querySelector("video");
+      if (video) {
+        // Other videos stop; this one plays (muted — user unmutes via controls #7).
+        pauseFocusVideos();
+        fig.classList.add("is-playing");
+        video.controls = true;
+        video.play?.();
+      }
       return;
     }
-    const file = img.getAttribute("data-media-file");
+    const zoomTarget = event.target.closest?.("img[data-expandable], .focus-photo-zoom");
+    if (!zoomTarget) {
+      return;
+    }
+    const file = zoomTarget.getAttribute("data-media-file");
     const index = (state.focusMediaList || []).findIndex((m) => m.file === file);
     if (index >= 0) {
       expandImageAt(index);
@@ -1086,7 +1100,7 @@ function syncMarkerFilter() {
     const on = state.markerFilter[cat] !== false;
     return `<button type="button" class="map-filter-row${on ? " is-on" : ""}" data-marker-cat="${cat}">
         <span class="map-filter-swatch" style="background:${MARKER_COLORS[cat]}"></span>
-        <span class="map-filter-label">${escapeHtml(MARKER_LABELS[cat])}</span>
+        <span class="map-filter-label">${escapeHtml(markerLabel(cat))}</span>
       </button>`;
   }).join("");
 }
@@ -1811,11 +1825,11 @@ function renderMapMarkers(items) {
   state.markers.forEach((marker) => marker.setMap(null));
   state.markers.clear();
 
-  // Hide categories switched off in the map filter (item 6/15/16). In edit mode
-  // show everything so points stay editable regardless of the filter.
+  // Hide categories switched off in the map filter (item 6/15/16). 用户 #3: the
+  // filter now applies in edit mode too, so you can narrow the map while editing.
   items
     .filter(hasCoordinates)
-    .filter((item) => state.editMode || state.markerFilter[markerCategory(item)] !== false)
+    .filter((item) => state.markerFilter[markerCategory(item)] !== false)
     .forEach((item) => {
     const category = markerCategory(item);
     const marker = new google.maps.Marker({
@@ -1936,8 +1950,10 @@ function renderFocusLink(item) {
   }
   const t = localize(target.title);
   const label = t ? `${target.id}（${t}）` : target.id;
+  // 用户 #6: a horizontal chain-link icon (same stroke weight as back-to-map),
+  // not an arrow; the text is a brighter, more legible blue (see .focus-link-a).
   els.focusLink.hidden = false;
-  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}">→ ${escapeHtml(label)}</a>`;
+  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}"><svg class="focus-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 12h6"/><path d="M8.5 7.5H7a4.5 4.5 0 0 0 0 9h1.5"/><path d="M15.5 7.5H17a4.5 4.5 0 0 1 0 9h-1.5"/></svg><span>${escapeHtml(label)}</span></a>`;
 }
 
 // The detail page body: an ordered flow of paragraphs and photos. Falls back
@@ -2080,7 +2096,7 @@ function renderFocusInfo(item) {
 
 // HTML for one content block (paragraph / dialogue / photo / video). Returns ""
 // for empty or unresolved blocks.
-function renderFocusBlockHtml(block, mediaByFile) {
+function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
   if (block.type === "dialogue") {
     // Speaker on the left, line on the right, italic + left rule (item 12).
     const text = localize(block.text);
@@ -2111,18 +2127,28 @@ function renderFocusBlockHtml(block, mediaByFile) {
   }
   // Caption "title, ID, time" (title omitted when empty), small + right-aligned.
   // Per role (item 8): 插图 shows nothing; 细节 shows title (if any) + id, no
-  // time; 补充 shows title + id + time.
+  // time; 补充 shows title + id + time. 用户 #12: a CONTRIBUTED umbrella hides the
+  // id (filename) on 补充/细节 (own umbrellas keep it as before).
+  const showId = !opts.isContributed;
+  const idPart = showId ? media.id : null;
   const caption =
     media.role === "illustration"
       ? ""
       : media.role === "detail"
-        ? [media.title, media.id].filter(Boolean).join(", ")
-        : [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
-  // Videos render as an inline player (controls, no enlarge).
+        ? [media.title, idPart].filter(Boolean).join(", ")
+        : [media.title, idPart, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+  // Videos render as an inline player. 用户 #7: muted by default with a big centre
+  // play button (native controls only appear once playing, so #13's persistent
+  // progress bar no longer overlaps the caption). #9: also enlargeable.
   if (isVideoFile(media.file)) {
     return `<figure class="focus-photo focus-video-fig">
-        <video class="focus-video" controls preload="metadata" playsinline src="${escapeHtml(media.src)}"></video>
-        ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+        <div class="focus-video-wrap">
+          <video class="focus-video" muted playsinline preload="metadata" data-media-file="${escapeHtml(media.file)}" src="${escapeHtml(media.src)}"></video>
+          <button class="focus-video-play" type="button" aria-label="play video">
+            <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30"/><path d="M26 21l18 11-18 11z"/></svg>
+          </button>
+        </div>
+        ${caption ? `<figcaption class="focus-video-cap">${escapeHtml(caption)}</figcaption>` : ""}
       </figure>`;
   }
   // Supplement/detail photos can be enlarged; illustrations cannot (#12).
@@ -2131,8 +2157,13 @@ function renderFocusBlockHtml(block, mediaByFile) {
   // Illustrations are often transparent PNGs — drop the drop-shadow so it
   // doesn't draw a rectangular halo around the transparent edges (用户要求).
   const figClass = media.role === "illustration" ? "focus-photo is-illustration" : "focus-photo";
+  // 用户 #1: a magnifier hint (same style as the cover's) on enlargeable photos.
+  const zoomBtn = expandable
+    ? `<button class="focus-photo-zoom" type="button" aria-label="enlarge image" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/><path d="M10.5 7.5v6M7.5 10.5h6"/></svg></button>`
+    : "";
   return `<figure class="${figClass}">
       <img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async"${expandAttrs} />
+      ${zoomBtn}
       ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
     </figure>`;
 }
@@ -2144,9 +2175,10 @@ function renderFocusArticle(item) {
   (item.media || []).forEach((m) => {
     mediaByFile[m.file] = m;
   });
+  const opts = { isContributed: item.submissionType === "contributed" };
   const blocksHtml = effectiveBlocks(item)
     .filter((block) => block.type !== "photo" || mediaByFile[block.file]?.role !== "primary")
-    .map((block) => renderFocusBlockHtml(block, mediaByFile))
+    .map((block) => renderFocusBlockHtml(block, mediaByFile, opts))
     .filter(Boolean)
     .join("");
   return `
@@ -3395,6 +3427,7 @@ function closeFocusMode(options = {}) {
   state.focusPositionedId = null;
   state.focusMarkerId = null;
   setFocusBlurSuppressed(false);
+  pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
   hideBlurApproxOverlay();
   updateMarkerIcons();
@@ -3405,6 +3438,20 @@ function closeFocusMode(options = {}) {
   }
   els.focusPanel?.setAttribute("aria-hidden", "true");
   els.focusPanel?.classList.remove("is-loading");
+}
+
+// #10: pause + reset any playing inline video in the detail panel. Called when the
+// detail page closes or when an image is enlarged, so a video never keeps playing
+// (with sound) behind the scenes.
+function pauseFocusVideos() {
+  els.focusPanel?.querySelectorAll("video").forEach((video) => {
+    if (!video.paused) {
+      video.pause();
+    }
+    // Drop the native controls + restore the big play button overlay.
+    video.controls = false;
+    video.closest(".focus-video-fig")?.classList.remove("is-playing");
+  });
 }
 
 // Media that can be enlarged: cover + supplement + detail, but never illustrations.
@@ -3427,6 +3474,8 @@ function expandImageAt(index) {
   if (!els.focusPanel || !els.focusImage || !list.length) {
     return;
   }
+  // #10: enlarging an image should stop any inline video that was playing.
+  pauseFocusVideos();
   state.expandedIndex = Math.min(Math.max(index, 0), list.length - 1);
   state.imageExpanded = true;
   els.focusPanel.classList.add("is-expanded");
@@ -4050,14 +4099,20 @@ const MARKER_COLORS = {
   "contrib-story": "#1f6b3a",
   contrib: "#2e9e5b",
 };
-const MARKER_CATEGORIES = ["own-title", "own", "contrib-story", "contrib"];
-// English labels for the map filter + About legend (always English, item 3/9/15).
+// Order for the legend + filter (用户 #5): Fieldwork, Fieldwork·titled, Contributed,
+// Contributed·story.
+const MARKER_CATEGORIES = ["own", "own-title", "contrib", "contrib-story"];
+// Bilingual labels (用户 #5: Japanese in a Japanese system) for the map filter +
+// About legend.
 const MARKER_LABELS = {
-  "own-title": "Fieldwork · titled",
-  own: "Fieldwork",
-  "contrib-story": "Contributed · story",
-  contrib: "Contributed",
+  own: { en: "Fieldwork", ja: "フィールド" },
+  "own-title": { en: "Fieldwork · titled", ja: "フィールド・題名あり" },
+  contrib: { en: "Contributed", ja: "投稿" },
+  "contrib-story": { en: "Contributed · story", ja: "投稿・物語" },
 };
+function markerLabel(cat) {
+  return localize(MARKER_LABELS[cat]);
+}
 
 function itemHasStory(item) {
   return Boolean(item?.story && String(item.story).trim());
@@ -4148,7 +4203,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=112", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=113", { updateViaCache: "none" });
   }
 }
 
@@ -4969,9 +5024,9 @@ function renderFlow() {
         .map(
           (ln, li) => `
         <div class="editor-dlg-line" data-li="${li}">
+          ${item.lines.length > 1 ? `<button type="button" class="editor-dlg-del editor-media-del" data-li="${li}" title="删除这句">✕</button>` : ""}
           <div class="editor-dlg-line-head">
             ${speakerSelect(ln.speaker)}
-            <button type="button" class="editor-dlg-del" data-li="${li}" title="删除这句" ${item.lines.length <= 1 ? "disabled" : ""}>✕</button>
           </div>
           <textarea class="editor-dlg-ja" placeholder="日本語">${escapeHtml(ln.ja || "")}</textarea>
           <textarea class="editor-dlg-en" placeholder="English">${escapeHtml(ln.en || "")}</textarea>
@@ -4999,7 +5054,7 @@ function renderFlow() {
         lineEl.querySelector(".editor-dlg-en").addEventListener("input", (event) => {
           ln.en = event.target.value;
         });
-        lineEl.querySelector(".editor-dlg-del").addEventListener("click", () => {
+        lineEl.querySelector(".editor-dlg-del")?.addEventListener("click", () => {
           if (item.lines.length > 1) {
             item.lines.splice(li, 1);
             afterFlowEdit();
@@ -5025,8 +5080,11 @@ function renderFlow() {
       const showFile = !isIllustration;
       const showTitle = !isPrimary && !isIllustration;
       const showTime = item.role === "supplement";
+      // 用户 #8 (fig5): a bare <video> thumbnail shows the browser's picture-in-picture
+      // / play overlay on hover, which covered the crop/delete buttons. disable PiP +
+      // remote playback, and CSS makes the thumbnail video non-interactive.
       const mediaPreview = isVideoFile(item.file)
-        ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline></video>`
+        ? `<video src="${escapeHtml(item.src || "")}" muted preload="metadata" playsinline disablepictureinpicture disableremoteplayback></video>`
         : `<img src="${escapeHtml(item.thumb || item.src || "")}" alt="" loading="lazy" />`;
       if (isPrimary) {
         // 封面 badge sits to the LEFT of the filename (not under the thumbnail),
@@ -5274,7 +5332,12 @@ function levelLabel(item) {
 }
 
 function fillDatalist(datalist, items) {
-  datalist.innerHTML = items.map((item) => `<option value="${escapeHtml(levelLabel(item))}"></option>`).join("");
+  // 用户 #2: an "unknown" pick at every level (some contributed umbrellas can't give
+  // an exact prefecture/city/ward). Picking it just stores "unknown" for that level;
+  // it matches no child, so deeper levels stay hidden.
+  datalist.innerHTML =
+    `<option value="unknown"></option>` +
+    items.map((item) => `<option value="${escapeHtml(levelLabel(item))}"></option>`).join("");
 }
 
 async function loadAreas() {
@@ -6139,13 +6202,15 @@ function syncFlagCheckbox(active) {
 }
 
 // The "待改" checkbox saves immediately and recolours the map without a full
-// reload. Checked = a single yellow flag; unchecked = no flag.
+// reload. Checked recolours the pin (用户 #4): 自拍伞 → BLACK, 投稿伞 → WHITE;
+// unchecked = no flag.
 async function onFlagToggle() {
   const id = state.editingId;
   if (!id) {
     return;
   }
-  const color = editor.flagToggle?.checked ? "yellow" : "";
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  const color = editor.flagToggle?.checked ? (isContributedItem(item) ? "white" : "black") : "";
   if (editor.remarksRow) {
     editor.remarksRow.hidden = !editor.flagToggle?.checked;
   }
@@ -6155,7 +6220,6 @@ async function onFlagToggle() {
     if (raw) {
       raw.editFlag = color;
     }
-    const item = state.umbrellas.find((entry) => entry.id === id);
     if (item) {
       item.editFlag = color;
     }

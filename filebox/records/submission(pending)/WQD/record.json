@@ -19,7 +19,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "2024.10",
   // 手动标题。没有就保持空字符串。
-  "title": {"ja":"","en":""},
+  "title": {"ja":"傘ではないけど","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -48,14 +48,20 @@
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": true,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": false,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": "",
+  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
+  "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "投稿者:私の写真ちょっとテーマから外れてるかもしれない。\n編者:いや、これもすごく面白いよ。直接傘は写ってないけど、この掲示の向こうにたくさん傘があるのが想像できるし、全然外れてないと思う。\n投稿者:そうそう、そのときこの写真すごく気に入ってて。あそこ、ほんとにかわいい傘がたくさんあったんだ。",
+  "story": "投稿者：私の写真ちょっとテーマから外れてるかもしれない。\n編者：いや、これもすごく面白いよ。直接傘は写ってないけど、この掲示の向こうにたくさん傘があるのが想像できるし、全然外れてないと思う。\n投稿者：そうそう、そのときこの写真すごく気に入ってて。あそこ、ほんとにかわいい傘がたくさんあったんだ。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
       "type": "dialogue",
       "text": {
-        "ja": "投稿者:私の写真ちょっとテーマから外れてるかもしれない。\n編者:いや、これもすごく面白いよ。直接傘は写ってないけど、この掲示の向こうにたくさん傘があるのが想像できるし、全然外れてないと思う。\n投稿者:そうそう、そのときこの写真すごく気に入ってて。あそこ、ほんとにかわいい傘がたくさんあったんだ。",
+        "ja": "投稿者：私の写真ちょっとテーマから外れてるかもしれない。\n編者：いや、これもすごく面白いよ。直接傘は写ってないけど、この掲示の向こうにたくさん傘があるのが想像できるし、全然外れてないと思う。\n投稿者：そうそう、そのときこの写真すごく気に入ってて。あそこ、ほんとにかわいい傘がたくさんあったんだ。",
         "en": "Sender: My submission might be a bit off-topic\nEditor: No. I think it's actually really interesting. Even though there's no umbrella in the photo, you can imagine there are a bunch of them behind that sign. I don't think it's off-topic at all.\nSender: Yeah, exactly. I really liked that photo at the time. There were a lot of really cute umbrellas there."
       }
     }
@@ -80,4 +86,3 @@
     }
   ]
 }
-

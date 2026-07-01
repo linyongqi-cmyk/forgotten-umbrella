@@ -1332,14 +1332,29 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-link-a {
-  color: #2f6fe0;
+  /* Brighter, easier-to-read blue (用户 #6, was #2f6fe0). */
+  color: #5aa2ff;
   text-decoration: underline;
   font-size: 13px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .focus-link-a:hover {
-  color: #1f55c0;
+  color: #8bc0ff;
+}
+
+.focus-link-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .focus-info-heading {
@@ -3593,6 +3608,12 @@ body:not(.edit-mode) .editor-add {
   border-radius: 6px;
 }
 
+/* #8 (fig5): the thumbnail video is just a still preview — no hover controls / PiP
+   overlay stealing clicks from the delete/crop buttons that float over it. */
+.editor-media-thumb video {
+  pointer-events: none;
+}
+
 /* Role dropdown stretches to the full thumbnail width (item 7). */
 .editor-media-thumb .editor-flow-role {
   width: 100%;
@@ -3650,6 +3671,7 @@ body:not(.edit-mode) .editor-add {
 /* Each line stacks vertically (speaker + delete on top, then ja, then en) so
    the textareas stay full-width even in a narrow editor column (item 9). */
 .editor-dlg-line {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -3698,20 +3720,13 @@ body:not(.edit-mode) .editor-add {
   border-style: dashed;
 }
 
+/* 用户 #11: each dialogue line's delete button is a round ✕ floating on the line's
+   TOP-LEFT corner (same look as the thumbnail delete), so it no longer hides behind
+   the up/down/× column on the right. It reuses .editor-media-del for the round look
+   and just flips to the left corner. */
 .editor-dlg-del {
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  border: 1px solid rgba(31, 45, 45, 0.2);
-  border-radius: 6px;
-  background: #f4f3ed;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.editor-dlg-del:disabled {
-  opacity: 0.35;
-  cursor: default;
+  left: -7px;
+  right: auto;
 }
 
 .editor-dlg-add {
@@ -3782,8 +3797,8 @@ body:not(.edit-mode) .editor-add {
   border-radius: 8px;
 }
 
-/* Inline video player (own + contributed umbrellas) — same width/rounding as a
-   detail photo, but it shows native controls and can't be enlarged. */
+/* Inline video player — muted by default with a big centre play button; native
+   controls only appear once it's playing (用户 #7/#13). */
 .focus-video {
   display: block;
   width: 100%;
@@ -3792,9 +3807,96 @@ body:not(.edit-mode) .editor-add {
   background: #000;
 }
 
+.focus-video-wrap {
+  position: relative;
+}
+
+/* Big centre play button over the video (用户 #7). Hidden once playing. */
+.focus-video-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 68px;
+  height: 68px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.focus-video-play svg {
+  width: 68px;
+  height: 68px;
+  fill: rgba(0, 0, 0, 0.45);
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.focus-video-play svg path {
+  fill: #fff;
+  stroke: none;
+}
+
+.focus-video-play:hover {
+  transform: scale(1.06);
+}
+
+.focus-video-fig.is-playing .focus-video-play {
+  display: none;
+}
+
+/* #13: the video's caption sits at the TOP-right so it never collides with the
+   native controls / progress bar along the bottom. */
+.focus-video-cap {
+  top: 12px;
+  bottom: auto !important;
+}
+
 /* Supplement/detail photos are clickable to enlarge (#12); illustrations aren't. */
 .focus-photo img[data-expandable] {
   cursor: zoom-in;
+}
+
+/* 用户 #1: magnifier hint at the top-right of an enlargeable article photo — same
+   muted stroke style as the cover's #focus-zoom-hint. */
+.focus-photo-zoom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  opacity: 0.85;
+  cursor: zoom-in;
+  display: grid;
+  place-items: center;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.focus-photo-zoom:hover {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.focus-photo-zoom svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
 
 /* Illustrations are usually transparent PNGs — kill the inherited drop-shadow so
