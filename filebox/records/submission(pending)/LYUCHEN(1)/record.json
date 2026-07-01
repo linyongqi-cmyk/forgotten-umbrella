@@ -33,7 +33,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "",
+  "editFlag": "white",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -47,7 +47,7 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "",
+  "remarks": "修改标题",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
@@ -122,7 +122,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "03.29",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。
@@ -140,7 +140,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "03.29",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。
@@ -158,7 +158,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "04.24",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。
@@ -176,7 +176,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "04.24",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。
@@ -194,7 +194,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "04.24",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。
@@ -212,7 +212,7 @@
       // 角色。建议使用 primary、detail、illustration。
       "role": "supplement",
       // 这张媒体自己的标题。没有就保持空字符串。
-      "title": "",
+      "title": "05.02",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "",
       // 这张媒体自己的说明文字。

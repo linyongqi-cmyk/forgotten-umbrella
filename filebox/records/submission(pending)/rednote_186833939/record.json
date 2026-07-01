@@ -6,7 +6,10 @@
   // 手动填写的展示地址。
   "locationText": "Kawaguchi City, Saitama",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [],
+  "locationLevels": [
+    "Saitama",
+    "Kawaguchi City"
+  ],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
@@ -29,7 +32,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "",
+  "editFlag": "white",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -43,19 +46,25 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "",
+  "remarks": "加标题",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": true,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": 15,
+  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
+  "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
+  "story": "投稿者：忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
       "type": "dialogue",
       "text": {
-        "ja": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
+        "ja": "投稿者：忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
         "en": "Sender: It might not be a forgotten umbrella, but it's a heart"
       }
     }
@@ -76,8 +85,9 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null
     }
   ]
 }
-

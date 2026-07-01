@@ -5533,14 +5533,14 @@
         "file": "LYUCHEN_1_7.jpg"
       }
     ],
-    "editFlag": "",
+    "editFlag": "white",
     "linkedId": "",
     "submissionType": "contributed",
     "submitter": "LYUCHEN",
     "submissionChannel": "",
     "submissionTime": "2026/04/23",
     "submitterNote": "",
-    "remarks": "",
+    "remarks": "修改标题",
     "locationApprox": true,
     "timeApprox": false,
     "blurApprox": false,
@@ -5572,7 +5572,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_2.mp4",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_2.mp4",
         "role": "supplement",
-        "title": "",
+        "title": "03.29",
         "photoTime": "",
         "story": "",
         "crop": null
@@ -5583,7 +5583,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_3.jpg",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_3.jpg",
         "role": "supplement",
-        "title": "",
+        "title": "03.29",
         "photoTime": "",
         "story": "",
         "crop": {
@@ -5599,7 +5599,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_4.mp4",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_4.mp4",
         "role": "supplement",
-        "title": "",
+        "title": "04.24",
         "photoTime": "",
         "story": "",
         "crop": null
@@ -5610,7 +5610,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_5.jpg",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_5.jpg",
         "role": "supplement",
-        "title": "",
+        "title": "04.24",
         "photoTime": "",
         "story": "",
         "crop": {
@@ -5626,7 +5626,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_6.jpg",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_6.jpg",
         "role": "supplement",
-        "title": "",
+        "title": "04.24",
         "photoTime": "",
         "story": "",
         "crop": {
@@ -5642,7 +5642,7 @@
         "src": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_7.jpg",
         "thumb": "filebox/records/submission(pending)/LYUCHEN(1)/LYUCHEN_1_7.jpg",
         "role": "supplement",
-        "title": "",
+        "title": "05.02",
         "photoTime": "",
         "story": "",
         "crop": null
@@ -5808,8 +5808,8 @@
     "time": "2025.05.02",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.71,
-      "lng": 139.8132
+      "lat": 35.71037306136483,
+      "lng": 139.81347263865752
     },
     "locationText": "Oshiage Station, Sumida City, Tokyo",
     "title": {
@@ -5851,7 +5851,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Sumida Ward"
+    ]
   },
   {
     "id": "LIU_SIJIA",
@@ -5860,10 +5863,10 @@
     "time": "2026.04.21",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6256,
-      "lng": 140.1037
+      "lat": 35.622679448574345,
+      "lng": 140.10371790523527
     },
-    "locationText": "Nishi-Chiba Station, Inage Ward, Chiba City, Chiba",
+    "locationText": "Nishi-Chiba Station, Chuo Ward, Chiba City, Chiba",
     "title": {
       "ja": "",
       "en": ""
@@ -5903,7 +5906,11 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "rednote_1164552325(1)",
@@ -5912,8 +5919,8 @@
     "time": "2024.06.13",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6967,
-      "lng": 139.8146
+      "lat": 35.69778965995902,
+      "lng": 139.8139904269472
     },
     "locationText": "Kinshicho Station, Sumida City, Tokyo",
     "title": {
@@ -5963,7 +5970,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Sumida Ward"
+    ]
   },
   {
     "id": "ZHANG_ZHONGPU(2)",
@@ -6040,28 +6050,28 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "story": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
+    "story": "投稿者：忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
     "blocks": [
       {
         "type": "dialogue",
         "text": {
-          "ja": "投稿者:忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
+          "ja": "投稿者：忘れられた傘じゃないかもしれないけど、これ、ハートですね♥",
           "en": "Sender: It might not be a forgotten umbrella, but it's a heart"
         }
       }
     ],
-    "editFlag": "",
+    "editFlag": "white",
     "linkedId": "",
     "submissionType": "contributed",
     "submitter": "@rednote/186833939",
     "submissionChannel": "",
     "submissionTime": "2026/04/21",
     "submitterNote": "",
-    "remarks": "",
+    "remarks": "加标题",
     "locationApprox": true,
     "timeApprox": false,
-    "blurApprox": false,
-    "approxZoom": null,
+    "blurApprox": true,
+    "approxZoom": 15,
     "blurLabel": "",
     "categoryGroup": "pending",
     "category": "submission",
@@ -6079,7 +6089,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Saitama",
+      "Kawaguchi City"
+    ]
   },
   {
     "id": "rednote_2352131487",
@@ -6204,8 +6217,8 @@
     "time": "2026.03.26",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.7289,
-      "lng": 139.717
+      "lat": 35.72981551527222,
+      "lng": 139.71703348572612
     },
     "locationText": "under the elevated roadway, Higashi-Ikebukuro, Toshima City, Tokyo",
     "title": {
@@ -6216,12 +6229,12 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "story": "投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
+    "story": "投稿者：この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
     "blocks": [
       {
         "type": "dialogue",
         "text": {
-          "ja": "投稿者:この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
+          "ja": "投稿者：この傘、すごく惹かれるものがあったので、帰ってからこれをもとに絵を描いてみました。",
           "en": "Sender: I really felt a vibe from this umbrella, so I actually went home and did a painting based on it."
         }
       },
@@ -6264,13 +6277,16 @@
         "src": "filebox/records/submission(pending)/rednote_9732476585/rednote_9732476585_1_2.jpg",
         "thumb": "filebox/records/submission(pending)/rednote_9732476585/rednote_9732476585_1_2.jpg",
         "role": "detail",
-        "title": "",
+        "title": "作者の絵",
         "photoTime": "",
         "story": "",
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Toshima Ward"
+    ]
   },
   {
     "id": "aaa(1)",
@@ -6407,9 +6423,9 @@
     "remarks": "",
     "locationApprox": true,
     "timeApprox": false,
-    "blurApprox": false,
-    "approxZoom": null,
-    "blurLabel": "",
+    "blurApprox": true,
+    "approxZoom": 14,
+    "blurLabel": "inside a Keio Line train",
     "categoryGroup": "pending",
     "category": "submission",
     "thumb": "",
@@ -6426,7 +6442,9 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo"
+    ]
   },
   {
     "id": "LYUCHEN(2)",
@@ -6435,10 +6453,10 @@
     "time": "2026.04.28, 11:47",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6256,
-      "lng": 140.102
+      "lat": 35.62521536786192,
+      "lng": 140.10113590677668
     },
-    "locationText": "under the railway bridge near Nishi-Chiba Station (Chuo-Sobu Line), Inage Ward, Chiba",
+    "locationText": "under the railway bridge near Nishi-Chiba Station (Chuo-Sobu Line), Chuo Ward, Chiba",
     "title": {
       "ja": "",
       "en": ""
@@ -6478,7 +6496,11 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Chiba",
+      "Chiba City",
+      "Chuo Ward"
+    ]
   },
   {
     "id": "aaa(2)",
@@ -6595,8 +6617,8 @@
     "time": "2026.02.08, 20:21",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6997,
-      "lng": 139.7647
+      "lat": 35.702146080568085,
+      "lng": 139.9726983946448
     },
     "locationText": "inside a JR Chuo-Sobu Line (Local Service)",
     "title": {
@@ -6607,12 +6629,12 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "story": "投稿者:あの日、雨なのに傘を持ってなくて。電車に乗ったら、すごく新しくて高級そうな傘を見つけて、正直、拾って帰りたいなーって思っちゃいました。",
+    "story": "投稿者：あの日、雨なのに傘を持ってなくて。電車に乗ったら、すごく新しくて高級そうな傘を見つけて、正直、拾って帰りたいなーって思っちゃいました。",
     "blocks": [
       {
         "type": "dialogue",
         "text": {
-          "ja": "投稿者:あの日、雨なのに傘を持ってなくて。電車に乗ったら、すごく新しくて高級そうな傘を見つけて、正直、拾って帰りたいなーって思っちゃいました。",
+          "ja": "投稿者：あの日、雨なのに傘を持ってなくて。電車に乗ったら、すごく新しくて高級そうな傘を見つけて、正直、拾って帰りたいなーって思っちゃいました。",
           "en": "Sender: It was raining that day and I didn't have an umbrella. When I got on, I saw this brand-new, really premium-looking umbrella, and I was so tempted to just take it home lol"
         }
       }
@@ -6627,8 +6649,8 @@
     "remarks": "",
     "locationApprox": true,
     "timeApprox": false,
-    "blurApprox": false,
-    "approxZoom": null,
+    "blurApprox": true,
+    "approxZoom": 14,
     "blurLabel": "",
     "categoryGroup": "pending",
     "category": "submission",
@@ -6646,7 +6668,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Chiyoda Ward"
+    ]
   },
   {
     "id": "rednote_26215291992",
@@ -6655,8 +6680,8 @@
     "time": "2026.04.25, 08:20",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.7126,
-      "lng": 139.7038
+      "lat": 35.71318164694851,
+      "lng": 139.70362833862305
     },
     "locationText": "Takadanobaba Station Square, Shinjuku City, Tokyo",
     "title": {
@@ -6698,7 +6723,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Shinjuku Ward"
+    ]
   },
   {
     "id": "rednote_sanponimabi",
@@ -6707,8 +6735,8 @@
     "time": "2026.05.08, around 18:00",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6852,
-      "lng": 139.6983
+      "lat": 35.684762206126244,
+      "lng": 139.6938321088971
     },
     "locationText": "Bunka Fashion College, Yoyogi, Shibuya City, Tokyo",
     "title": {
@@ -6719,26 +6747,26 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "story": "投稿者:今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。",
+    "story": "投稿者：今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。",
     "blocks": [
       {
         "type": "dialogue",
         "text": {
-          "ja": "投稿者:今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。",
+          "ja": "投稿者：今日、学校帰りに撮った。雨が降りそうだったけど結局降らなくて、そのまま忘れられたのかも。持ち手も壊れてたし、画で飛ばされてきた可能性もある。もしかしたら「第一現場」じゃないかもしれない。",
           "en": "Sender: I took this after school today. It looked like it was going to rain but never did, so I guess the owner just forgot it. The handle is broken too, so maybe it was blown here by the wind. Where I found it might not ever be the \"original scene\""
         }
       }
     ],
-    "editFlag": "",
+    "editFlag": "white",
     "linkedId": "",
     "submissionType": "contributed",
     "submitter": "@rednote/sanponimabi",
     "submissionChannel": "",
     "submissionTime": "2026/05/08",
     "submitterNote": "",
-    "remarks": "",
+    "remarks": "加标题",
     "locationApprox": true,
-    "timeApprox": false,
+    "timeApprox": true,
     "blurApprox": false,
     "approxZoom": null,
     "blurLabel": "",
@@ -6758,7 +6786,10 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Shibuya Ward"
+    ]
   },
   {
     "id": "rednote_1164552325(2)",
@@ -6767,8 +6798,8 @@
     "time": "2024.06.14",
     "photoCoordinates": null,
     "locationCoordinates": {
-      "lat": 35.6975,
-      "lng": 139.8135
+      "lat": 35.69854994263066,
+      "lng": 139.81509332451313
     },
     "locationText": "public restroom in a park, Kinshicho area, Sumida City, Tokyo",
     "title": {
@@ -6779,12 +6810,12 @@
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
-    "story": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
+    "story": "投稿者：この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者：バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者：次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者：この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者：そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
     "blocks": [
       {
         "type": "dialogue",
         "text": {
-          "ja": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
+          "ja": "投稿者：この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者：バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者：次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者：この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者：そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
           "en": "Sender: How about this umbrella? For a while, I was really into taking photos of umbrellas forgotten in street corners.\nEditor: Oh, that's perfect Haha, looks exactly like what you'd see after a typhoon.\nSender: The next day, I found another beautiful umbrella inside a public restroom at the park.\nEditor: This one looks pretty high-end. I bet the owner was devastated to lose it\nSender: Totally. I saw it was still there when I passed the park on the bus, so the second time I went by, I just took it home. It's been put to good use ever since! (Laughs)"
         }
       }
@@ -6818,6 +6849,9 @@
         "crop": null
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Tokyo",
+      "Sumida Ward"
+    ]
   }
 ]

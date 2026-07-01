@@ -6,13 +6,16 @@
   // 手动填写的展示地址。
   "locationText": "public restroom in a park, Kinshicho area, Sumida City, Tokyo",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [],
+  "locationLevels": [
+    "Tokyo",
+    "Sumida Ward"
+  ],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 35.6975,
-    "lng": 139.8135
+    "lat": 35.69854994263066,
+    "lng": 139.81509332451313
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",
@@ -48,14 +51,20 @@
   "locationApprox": true,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": false,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": "",
+  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
+  "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
+  "story": "投稿者：この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者：バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者：次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者：この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者：そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
       "type": "dialogue",
       "text": {
-        "ja": "投稿者:この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者:バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者:次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者: この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者:そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
+        "ja": "投稿者：この傘、投稿しても大丈夫かな?一時期、道端に忘れられた傘を撮るのにハマってたんだ。\n編者：バッチリだね! これ台風の日の傘って感じだね(笑)\n投稿者：次の日、公園の公衆トイレでもう一本きれいな傘を見つけたんだ。\n編者：この傘、なんか高級そうだね。持ち主、きっとショックだったと思う。\n投稿者：そうそう。帰りに公園を通ったらまだあって、2回目に見たときにそのまま持ち帰って、今まで使ってるよ(笑)",
         "en": "Sender: How about this umbrella? For a while, I was really into taking photos of umbrellas forgotten in street corners.\nEditor: Oh, that's perfect Haha, looks exactly like what you'd see after a typhoon.\nSender: The next day, I found another beautiful umbrella inside a public restroom at the park.\nEditor: This one looks pretty high-end. I bet the owner was devastated to lose it\nSender: Totally. I saw it was still there when I passed the park on the bus, so the second time I went by, I just took it home. It's been put to good use ever since! (Laughs)"
       }
     }
@@ -76,8 +85,9 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null
     }
   ]
 }
-
