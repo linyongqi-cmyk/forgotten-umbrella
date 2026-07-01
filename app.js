@@ -729,6 +729,7 @@ function bindEvents() {
   els.focusExpandedVideo?.addEventListener("loadedmetadata", () => {
     if (state.imageExpanded && !els.focusExpandedVideo.hidden) {
       setExpandedImageFrame();
+      els.focusPanel?.classList.remove("is-media-sizing"); // #3: reveal once sized
     }
   });
   els.focusImage?.addEventListener("pointerdown", startExpandedImageDrag);
@@ -2121,12 +2122,14 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
     // paragraph so the line breaks actually show. Japanese justifies both
     // edges, English stays left-aligned ([[text-justify-rule]]).
     const justify = state.lang === "ja" ? " is-justify" : "";
-    return text
+    const paras = text
       .split("\n")
       .map((para) => para.trim())
       .filter(Boolean)
       .map((para) => `<p class="item-story${justify}">${escapeHtml(para)}</p>`)
       .join("");
+    // 用户 #7: paragraphs get a white left rule, like the dialogue block.
+    return `<div class="focus-text-block">${paras}</div>`;
   }
   const media = mediaByFile[block.file];
   if (!media) {
@@ -3556,11 +3559,17 @@ function loadExpandedImage() {
       els.focusExpandedVideo.src = media.src;
     }
     updateExpandedCaption(media);
+    // 用户 #3: don't reveal the box until we know the video's size, otherwise it
+    // flashes at the wrong (stale) size/position for ~0.5s before metadata loads.
     if (els.focusExpandedVideo.videoWidth > 0) {
+      els.focusPanel?.classList.remove("is-media-sizing");
       setExpandedImageFrame();
+    } else {
+      els.focusPanel?.classList.add("is-media-sizing");
     }
     return;
   }
+  els.focusPanel?.classList.remove("is-media-sizing");
   if (els.focusExpandedVideo) {
     els.focusExpandedVideo.pause?.();
     els.focusExpandedVideo.hidden = true;
@@ -3627,10 +3636,11 @@ function renderFocusThumbs() {
   els.focusThumbs.hidden = false;
   els.focusThumbs.innerHTML = list
     .map((m, i) => {
-      // #9: a video thumb uses a muted <video> frame (an <img> can't show an mp4)
-      // with a small play badge; photos use their thumbnail.
-      const inner = isVideoFile(m.file) && !m.thumb
-        ? `<video src="${escapeHtml(m.src)}" muted preload="metadata" playsinline disablepictureinpicture></video><span class="focus-thumb-play" aria-hidden="true"></span>`
+      // 用户 #2: a video thumb ALWAYS uses a muted <video> (an <img> can't show an
+      // mp4 — a stale/invalid thumb made it render a broken image). "#t=0.1" seeks a
+      // first frame so the poster isn't black. A small play badge sits on top.
+      const inner = isVideoFile(m.file)
+        ? `<video src="${escapeHtml(m.src)}#t=0.1" muted preload="metadata" playsinline disablepictureinpicture></video><span class="focus-thumb-play" aria-hidden="true"></span>`
         : `<img src="${escapeHtml(m.thumb || m.src)}" alt="" loading="lazy" decoding="async" />`;
       return `<button type="button" class="focus-thumb ${i === state.expandedIndex ? "is-active" : ""}" data-thumb-index="${i}" aria-label="media ${i + 1}">${inner}</button>`;
     })
@@ -3732,6 +3742,7 @@ function closeExpandedImage() {
   state.flipResize = false;
   els.focusPanel?.classList.remove("is-expanded");
   els.focusPanel?.classList.remove("is-video-expanded");
+  els.focusPanel?.classList.remove("is-media-sizing");
   els.mapView?.classList.remove("is-image-expanded");
   document.body.classList.remove("is-image-expanded");
   // #9: leaving the lightbox stops + hides the enlarged video, restores the image.
@@ -4277,7 +4288,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=115", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=116", { updateViaCache: "none" });
   }
 }
 
@@ -5111,13 +5122,20 @@ function renderFlow() {
         </div>`,
         )
         .join("");
+      // 用户 #6: the 「对话」 tag sits on TOP (above the lines), not down the left
+      // side. 用户 #5: a ▾/▸ fold button (like paragraphs) collapses the whole block.
+      const dlgFoldGlyph = item.collapsed ? "▸" : "▾";
       row.innerHTML = `
-        <span class="editor-block-tag">对话</span>
-        <div class="editor-dlg">
-          ${linesHtml}
-          <button type="button" class="editor-dlg-add">＋ 添加一句</button>
+        <div class="editor-dlg-col">
+          <span class="editor-block-tag">对话</span>
+          <div class="editor-dlg${item.collapsed ? " is-collapsed" : ""}">
+            ${linesHtml}
+            <button type="button" class="editor-dlg-add">＋ 添加一句</button>
+            ${item.collapsed ? `<div class="editor-dlg-folded">（已折叠 ${item.lines.length} 句）</div>` : ""}
+          </div>
         </div>
         <div class="editor-block-buttons editor-block-buttons-vertical">
+          <button type="button" data-fact="fold-text" title="折叠/展开">${dlgFoldGlyph}</button>
           ${moveButtons}
           <button type="button" data-fact="del-text" title="删除整段">✕</button>
         </div>`;
