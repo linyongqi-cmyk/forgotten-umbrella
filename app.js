@@ -321,6 +321,7 @@ const els = {
   focusApproxLabel: document.querySelector("#focus-approx-label"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
+  focusExpandedVideo: document.querySelector("#focus-expanded-video"),
   focusScroll: document.querySelector("#focus-scroll"),
   focusScrollHint: document.querySelector("#focus-scroll-hint"),
   focusZoomHint: document.querySelector("#focus-zoom-hint"),
@@ -724,6 +725,12 @@ function bindEvents() {
   });
   // Keep the scroll hint in sync as the user scrolls the detail content (#5).
   els.focusScroll?.addEventListener("scroll", updateFocusScrollHint, { passive: true });
+  // #9: once the enlarged video knows its dimensions, size the lightbox box to it.
+  els.focusExpandedVideo?.addEventListener("loadedmetadata", () => {
+    if (state.imageExpanded && !els.focusExpandedVideo.hidden) {
+      setExpandedImageFrame();
+    }
+  });
   els.focusImage?.addEventListener("pointerdown", startExpandedImageDrag);
   document.addEventListener("pointermove", dragExpandedImage);
   document.addEventListener("pointerup", stopExpandedImageDrag);
@@ -2136,7 +2143,7 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
       ? ""
       : media.role === "detail"
         ? [media.title, idPart].filter(Boolean).join(", ")
-        : [media.title, idPart, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+        : [media.title, idPart, formatMediaCaptionTime(media)].filter(Boolean).join(", ");
   // Videos render as an inline player. 用户 #7: muted by default with a big centre
   // play button (native controls only appear once playing, so #13's persistent
   // progress bar no longer overlaps the caption). #9: also enlargeable.
@@ -2147,6 +2154,7 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
           <button class="focus-video-play" type="button" aria-label="play video">
             <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30"/><path d="M26 21l18 11-18 11z"/></svg>
           </button>
+          <button class="focus-photo-zoom" type="button" aria-label="enlarge video" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/><path d="M10.5 7.5v6M7.5 10.5h6"/></svg></button>
         </div>
         ${caption ? `<figcaption class="focus-video-cap">${escapeHtml(caption)}</figcaption>` : ""}
       </figure>`;
@@ -3461,10 +3469,10 @@ function pauseFocusVideos() {
   });
 }
 
-// Media that can be enlarged: cover + supplement + detail, but never illustrations.
+// Media that can be enlarged: cover + supplement + detail (photos AND videos, 用户
+// #9), but never illustrations.
 function getExpandableMedia(item) {
-  // Only still images can be enlarged — exclude illustrations and videos.
-  return (item?.media || []).filter((m) => m.role !== "illustration" && !isVideoFile(m.file));
+  return (item?.media || []).filter((m) => m.role !== "illustration");
 }
 
 // Entry point from clicking the cover image — expand at the cover's position.
@@ -3499,7 +3507,7 @@ function expandImageAt(index) {
 // Preload every enlargeable photo so switching between them is instant (#2b).
 function preloadExpandableImages() {
   (state.focusMediaList || []).forEach((m) => {
-    if (m.src) {
+    if (m.src && !isVideoFile(m.file)) {
       const img = new Image();
       img.src = m.src;
     }
@@ -3526,15 +3534,42 @@ function switchExpandedImage(delta) {
   showExpandedImageAt(state.expandedIndex + delta);
 }
 
-// Swap the enlarged image to the current expandedIndex (used on open + switch).
+// Swap the enlarged media to the current expandedIndex (used on open + switch).
+// 用户 #9: the enlarged media can be a VIDEO (shown in a <video controls>, sized by
+// its own dimensions, no pan/zoom) as well as a photo.
 function loadExpandedImage() {
   const media = (state.focusMediaList || [])[state.expandedIndex];
-  if (!media || !els.focusImage) {
+  if (!media) {
     return;
   }
   state.imageZoom = 1;
   state.imagePanX = 0;
   state.imagePanY = 0;
+  const isVideo = isVideoFile(media.file);
+  els.focusPanel?.classList.toggle("is-video-expanded", isVideo);
+  if (isVideo && els.focusExpandedVideo) {
+    if (els.focusImage) {
+      els.focusImage.hidden = true;
+    }
+    els.focusExpandedVideo.hidden = false;
+    if (els.focusExpandedVideo.getAttribute("src") !== media.src) {
+      els.focusExpandedVideo.src = media.src;
+    }
+    updateExpandedCaption(media);
+    if (els.focusExpandedVideo.videoWidth > 0) {
+      setExpandedImageFrame();
+    }
+    return;
+  }
+  if (els.focusExpandedVideo) {
+    els.focusExpandedVideo.pause?.();
+    els.focusExpandedVideo.hidden = true;
+    els.focusExpandedVideo.removeAttribute("src");
+  }
+  if (!els.focusImage) {
+    return;
+  }
+  els.focusImage.hidden = false;
   els.focusImage.src = media.src;
   updateExpandedCaption(media);
   // If the image is already cached the "load" listener won't fire, so size now.
@@ -3557,13 +3592,23 @@ function mediaDisplayTime(media) {
   return "";
 }
 
+// A media caption time with a stray midnight clock removed (用户: date-only times
+// were showing a wrong "00:00"). Real clock times are kept.
+function formatMediaCaptionTime(media) {
+  return String(formatDateTime(mediaDisplayTime(media))).replace(/\s+0?0:00(?::00)?$/, "");
+}
+
 // Corner caption on the enlarged photo: "title, id, time" — same content/style
 // as a detail-page photo caption; shown for every photo incl. the cover (#3).
+// 用户 #2: a CONTRIBUTED umbrella hides the filename (id) here too (same rule as the
+// article photos), and the stray "00:00" is stripped.
 function updateExpandedCaption(media) {
   if (!els.focusExpandedCaption) {
     return;
   }
-  const text = [media.title, media.id, formatDateTime(mediaDisplayTime(media))].filter(Boolean).join(", ");
+  const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
+  const idPart = item?.submissionType === "contributed" ? null : media.id;
+  const text = [media.title, idPart, formatMediaCaptionTime(media)].filter(Boolean).join(", ");
   els.focusExpandedCaption.textContent = text;
   els.focusExpandedCaption.hidden = !text;
 }
@@ -3581,12 +3626,14 @@ function renderFocusThumbs() {
   }
   els.focusThumbs.hidden = false;
   els.focusThumbs.innerHTML = list
-    .map(
-      (m, i) => `
-        <button type="button" class="focus-thumb ${i === state.expandedIndex ? "is-active" : ""}" data-thumb-index="${i}" aria-label="image ${i + 1}">
-          <img src="${escapeHtml(m.thumb || m.src)}" alt="" loading="lazy" decoding="async" />
-        </button>`,
-    )
+    .map((m, i) => {
+      // #9: a video thumb uses a muted <video> frame (an <img> can't show an mp4)
+      // with a small play badge; photos use their thumbnail.
+      const inner = isVideoFile(m.file) && !m.thumb
+        ? `<video src="${escapeHtml(m.src)}" muted preload="metadata" playsinline disablepictureinpicture></video><span class="focus-thumb-play" aria-hidden="true"></span>`
+        : `<img src="${escapeHtml(m.thumb || m.src)}" alt="" loading="lazy" decoding="async" />`;
+      return `<button type="button" class="focus-thumb ${i === state.expandedIndex ? "is-active" : ""}" data-thumb-index="${i}" aria-label="media ${i + 1}">${inner}</button>`;
+    })
     .join("");
   positionFocusThumbs();
 }
@@ -3684,8 +3731,18 @@ function closeExpandedImage() {
   state.imageDragStart = null;
   state.flipResize = false;
   els.focusPanel?.classList.remove("is-expanded");
+  els.focusPanel?.classList.remove("is-video-expanded");
   els.mapView?.classList.remove("is-image-expanded");
   document.body.classList.remove("is-image-expanded");
+  // #9: leaving the lightbox stops + hides the enlarged video, restores the image.
+  if (els.focusExpandedVideo) {
+    els.focusExpandedVideo.pause?.();
+    els.focusExpandedVideo.hidden = true;
+    els.focusExpandedVideo.removeAttribute("src");
+  }
+  if (els.focusImage) {
+    els.focusImage.hidden = false;
+  }
   // Drop any in-flight FLIP transform/transition so the panel returns cleanly.
   if (els.focusPanel) {
     els.focusPanel.style.transition = "";
@@ -3749,6 +3806,10 @@ function handleExpandedImageWheel(event) {
   if (!state.imageExpanded || !els.focusImage) {
     return;
   }
+  // #9: no pan/zoom for an enlarged video (it fits the box + uses its own controls).
+  if (els.focusExpandedVideo && !els.focusExpandedVideo.hidden) {
+    return;
+  }
 
   event.preventDefault();
   const delta = event.deltaY < 0 ? 0.14 : -0.14;
@@ -3762,8 +3823,14 @@ function setExpandedImageFrame() {
     return;
   }
 
-  const naturalWidth = els.focusImage.naturalWidth || els.focusImage.width || 1;
-  const naturalHeight = els.focusImage.naturalHeight || els.focusImage.height || 1;
+  // 用户 #9: size the box from whichever media is enlarged (video → its own dims).
+  const isVideo = els.focusExpandedVideo && !els.focusExpandedVideo.hidden;
+  const naturalWidth = isVideo
+    ? els.focusExpandedVideo.videoWidth || 16
+    : els.focusImage.naturalWidth || els.focusImage.width || 1;
+  const naturalHeight = isVideo
+    ? els.focusExpandedVideo.videoHeight || 9
+    : els.focusImage.naturalHeight || els.focusImage.height || 1;
   const ratio = naturalWidth / naturalHeight;
   const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.8);
   const maxHeight = window.innerHeight * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.9);
@@ -4210,7 +4277,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=114", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=115", { updateViaCache: "none" });
   }
 }
 
@@ -5031,7 +5098,11 @@ function renderFlow() {
         .map(
           (ln, li) => `
         <div class="editor-dlg-line" data-li="${li}">
-          ${item.lines.length > 1 ? `<button type="button" class="editor-dlg-del editor-media-del" data-li="${li}" title="删除这句">✕</button>` : ""}
+          <div class="editor-dlg-line-tools">
+            ${item.lines.length > 1 ? `<button type="button" class="editor-dlg-del" data-li="${li}" title="删除这句">✕</button>` : ""}
+            <button type="button" class="editor-dlg-up" data-li="${li}" title="上移这句" ${li === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" class="editor-dlg-down" data-li="${li}" title="下移这句" ${li === item.lines.length - 1 ? "disabled" : ""}>↓</button>
+          </div>
           <div class="editor-dlg-line-head">
             ${speakerSelect(ln.speaker)}
           </div>
@@ -5064,6 +5135,19 @@ function renderFlow() {
         lineEl.querySelector(".editor-dlg-del")?.addEventListener("click", () => {
           if (item.lines.length > 1) {
             item.lines.splice(li, 1);
+            afterFlowEdit();
+          }
+        });
+        // 用户 #4: reorder a single line up/down (was append-only).
+        lineEl.querySelector(".editor-dlg-up")?.addEventListener("click", () => {
+          if (li > 0) {
+            [item.lines[li - 1], item.lines[li]] = [item.lines[li], item.lines[li - 1]];
+            afterFlowEdit();
+          }
+        });
+        lineEl.querySelector(".editor-dlg-down")?.addEventListener("click", () => {
+          if (li < item.lines.length - 1) {
+            [item.lines[li + 1], item.lines[li]] = [item.lines[li], item.lines[li + 1]];
             afterFlowEdit();
           }
         });
@@ -5339,12 +5423,13 @@ function levelLabel(item) {
 }
 
 function fillDatalist(datalist, items) {
-  // 用户 #2: an "unknown" pick at every level (some contributed umbrellas can't give
-  // an exact prefecture/city/ward). Picking it just stores "unknown" for that level;
-  // it matches no child, so deeper levels stay hidden.
+  // 用户 #2/#3: an "unknown" pick at every level (some contributed umbrellas can't
+  // give an exact prefecture/city/ward), listed LAST at the bottom of the dropdown.
+  // Picking it just stores "unknown" for that level; it matches no child, so deeper
+  // levels stay hidden.
   datalist.innerHTML =
-    `<option value="unknown"></option>` +
-    items.map((item) => `<option value="${escapeHtml(levelLabel(item))}"></option>`).join("");
+    items.map((item) => `<option value="${escapeHtml(levelLabel(item))}"></option>`).join("") +
+    `<option value="unknown"></option>`;
 }
 
 async function loadAreas() {

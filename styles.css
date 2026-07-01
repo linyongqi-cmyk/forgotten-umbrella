@@ -1332,9 +1332,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-link-a {
-  /* Brighter, easier-to-read blue (用户 #6, was #2f6fe0). */
-  color: #5aa2ff;
-  text-decoration: underline;
+  /* 用户: default white text, no underline (just the chain icon marks it a link). */
+  color: #fff;
+  text-decoration: none;
   font-size: 13px;
   cursor: pointer;
   display: inline-flex;
@@ -1343,7 +1343,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-link-a:hover {
-  color: #8bc0ff;
+  opacity: 0.8;
 }
 
 .focus-link-icon {
@@ -1452,6 +1452,28 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   cursor: grabbing;
 }
 
+/* #9: the enlarged video (never the img) — fill the box, contain (never crop), and
+   keep the browser controls usable (no drag-to-pan). */
+.focus-expanded-video {
+  display: none;
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+}
+
+.focus-image-panel.is-expanded .focus-expanded-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Toggle between the enlarged image and the enlarged video. */
+#focus-image[hidden],
+.focus-expanded-video[hidden] {
+  display: none !important;
+}
+
 /* In the enlarged lightbox only the photo (and the side thumbnail rail) remain:
    drop the floating A1/A2/C overlays, the article, the link and the close button. */
 .focus-image-panel.is-expanded .focus-overlay-head,
@@ -1520,11 +1542,31 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   cursor: pointer;
 }
 
-.focus-thumb img {
+.focus-thumb img,
+.focus-thumb video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
+}
+
+/* #9: little play triangle badge on a video thumbnail. */
+.focus-thumb {
+  position: relative;
+}
+
+.focus-thumb-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 12px;
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
 }
 
 .focus-thumb.is-active {
@@ -3675,10 +3717,47 @@ body:not(.edit-mode) .editor-add {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 5px;
+  /* Extra left padding = a gutter for the per-line delete/up/down tools (用户 #4). */
+  padding: 5px 5px 5px 28px;
   border: 1px solid rgba(31, 45, 45, 0.14);
   border-radius: 6px;
   background: #faf9f4;
+}
+
+/* Per-line tool column in the left gutter: delete (✕) on top, then up/down to
+   reorder single lines (用户 #4). */
+.editor-dlg-line-tools {
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.editor-dlg-line-tools button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 50%;
+  background: #fff;
+  color: #6a6f68;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+
+.editor-dlg-line-tools .editor-dlg-del {
+  color: #b4502f;
+}
+
+.editor-dlg-line-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .editor-dlg-line-head {
@@ -3718,15 +3797,6 @@ body:not(.edit-mode) .editor-add {
 
 .editor-dlg-en {
   border-style: dashed;
-}
-
-/* 用户 #11: each dialogue line's delete button is a round ✕ floating on the line's
-   TOP-LEFT corner (same look as the thumbnail delete), so it no longer hides behind
-   the up/down/× column on the right. It reuses .editor-media-del for the round look
-   and just flips to the left corner. */
-.editor-dlg-del {
-  left: -7px;
-  right: auto;
 }
 
 .editor-dlg-add {
