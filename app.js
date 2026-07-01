@@ -2962,6 +2962,9 @@ const CARD_ICON_ILLUSTRATION =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>';
 const CARD_ICON_TEXT =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="2.6" rx="1.3"/><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"/><rect x="4" y="16.4" width="10" height="2.6" rx="1.3"/></svg>';
+// 用户: shown on a card's bottom-right corner when the record has a video.
+const CARD_ICON_VIDEO =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M10 9.5l5 2.5-5 2.5z"/></svg>';
 
 // A record "has text" if any of its content blocks is a non-empty paragraph
 // (blocks store {ja,en}); fall back to the legacy joined story string.
@@ -2992,6 +2995,10 @@ function renderPhotoCard(item) {
   }
   if (recordHasText(item)) {
     badges.push(`<span class="card-badge" title="有文本">${CARD_ICON_TEXT}</span>`);
+  }
+  // 用户: a video logo when the record carries a video clip.
+  if (media.some((m) => isVideoFile(m.file))) {
+    badges.push(`<span class="card-badge" title="有视频">${CARD_ICON_VIDEO}</span>`);
   }
 
   const cardTitle = localize(item.title);
@@ -4203,7 +4210,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=113", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=114", { updateViaCache: "none" });
   }
 }
 
