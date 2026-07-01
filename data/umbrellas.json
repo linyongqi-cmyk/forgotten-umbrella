@@ -5559,7 +5559,12 @@
         "title": "",
         "photoTime": "",
         "story": "",
-        "crop": null
+        "crop": {
+          "aspect": "3:4",
+          "scale": 1,
+          "posX": 73.96267361111111,
+          "posY": 0
+        }
       },
       {
         "id": "LYUCHEN_1_2",
@@ -5581,7 +5586,12 @@
         "title": "",
         "photoTime": "",
         "story": "",
-        "crop": null
+        "crop": {
+          "aspect": "3:4",
+          "scale": 1,
+          "posX": 47.79188368055556,
+          "posY": 0
+        }
       },
       {
         "id": "LYUCHEN_1_4",
@@ -5603,7 +5613,12 @@
         "title": "",
         "photoTime": "",
         "story": "",
-        "crop": null
+        "crop": {
+          "aspect": "3:4",
+          "scale": 1,
+          "posX": 45.90711805555556,
+          "posY": 30.94482421875
+        }
       },
       {
         "id": "LYUCHEN_1_6",
@@ -5614,7 +5629,12 @@
         "title": "",
         "photoTime": "",
         "story": "",
-        "crop": null
+        "crop": {
+          "aspect": "3:4",
+          "scale": 1,
+          "posX": 39.48784722222222,
+          "posY": 0
+        }
       },
       {
         "id": "LYUCHEN_1_7",

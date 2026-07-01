@@ -533,6 +533,10 @@ function normalizeMedia(item) {
     title: entry.title || "",
     photoTime: entry.photoTime || "",
     story: entry.story || "",
+    // 用户 #8: carry the non-destructive crop through so the public detail page,
+    // the cover and the lightbox can all show the cropped region (was dropped here,
+    // which is why crop only ever showed in the editor's live preview).
+    crop: entry.crop || null,
   }));
 
   if (!normalized.some((entry) => entry.role === "primary") && normalized[0]) {
@@ -1909,6 +1913,8 @@ function renderFocusImage() {
   els.focusPanel?.classList.add("is-loading");
   els.focusImage.src = cover?.src || item.image;
   els.focusImage.alt = localize(item.title) || item.id;
+  // 用户 #8: the cover shows its cropped region too (was only in the editor preview).
+  applyFocusCrop(cover?.crop);
   if (els.focusHeader) {
     els.focusHeader.innerHTML = renderFocusHeader(item);
   }
@@ -2129,6 +2135,56 @@ function cropStyles(crop) {
     };
   }
   return { wrap: "", img: `width:100%;height:auto;transform:scale(${scale});transform-origin:${origin};` };
+}
+
+// The crop box's numeric aspect ratio (w/h) for a FIXED-aspect crop, else null
+// ("free"/none keep the image's own aspect). Used to size the enlarged lightbox
+// box to the cropped shape rather than the original file's shape (用户 #8).
+function cropAspectRatioNumber(crop) {
+  if (!crop || typeof crop !== "object") {
+    return null;
+  }
+  if (crop.aspect && crop.aspect !== "free" && /^\d+:\d+$/.test(crop.aspect)) {
+    const [w, h] = crop.aspect.split(":");
+    return Number(w) / Number(h);
+  }
+  return null;
+}
+
+// Apply (or clear) a non-destructive crop on the SHARED #focus-image element — used
+// for both the detail-page cover and the lightbox, which reuse the same <img> (用户
+// #8). Unlike the article photos (which wrap the img in their own .media-crop box),
+// here we crop by turning the frame into the crop's aspect box + object-fit:cover on
+// the img, and folding the crop's own zoom into the --crop-scale var (so the
+// lightbox's pan/zoom still multiplies cleanly on top).
+function applyFocusCrop(crop) {
+  const frame = els.focusImageFrame;
+  const img = els.focusImage;
+  if (!frame || !img) {
+    return;
+  }
+  if (!crop || typeof crop !== "object") {
+    frame.classList.remove("is-cropped", "is-crop-free");
+    frame.style.removeProperty("--crop-ar");
+    img.style.removeProperty("--crop-x");
+    img.style.removeProperty("--crop-y");
+    img.style.setProperty("--crop-scale", "1");
+    return;
+  }
+  const posX = Number.isFinite(crop.posX) ? crop.posX : 50;
+  const posY = Number.isFinite(crop.posY) ? crop.posY : 50;
+  const scale = Number.isFinite(crop.scale) ? crop.scale : 1;
+  const ar = cropAspectRatioNumber(crop);
+  frame.classList.add("is-cropped");
+  frame.classList.toggle("is-crop-free", ar === null);
+  if (ar !== null) {
+    frame.style.setProperty("--crop-ar", String(ar));
+  } else {
+    frame.style.removeProperty("--crop-ar");
+  }
+  img.style.setProperty("--crop-x", `${posX}%`);
+  img.style.setProperty("--crop-y", `${posY}%`);
+  img.style.setProperty("--crop-scale", String(scale));
 }
 
 // HTML for one content block (paragraph / dialogue / photo / video). Returns ""
@@ -3495,7 +3551,10 @@ function closeFocusMode(options = {}) {
 // detail page closes or when an image is enlarged, so a video never keeps playing
 // (with sound) behind the scenes.
 function pauseFocusVideos() {
-  els.focusPanel?.querySelectorAll("video").forEach((video) => {
+  // Only the INLINE article videos (.focus-video) — NOT the enlarged lightbox video
+  // (#focus-expanded-video). It used to grab every <video> in the panel and strip its
+  // controls, which left the just-enlarged video with no controls to play (用户 bug).
+  els.focusPanel?.querySelectorAll("video.focus-video").forEach((video) => {
     if (!video.paused) {
       video.pause();
     }
@@ -3584,10 +3643,12 @@ function loadExpandedImage() {
   const isVideo = isVideoFile(media.file);
   els.focusPanel?.classList.toggle("is-video-expanded", isVideo);
   if (isVideo && els.focusExpandedVideo) {
+    applyFocusCrop(null); // videos aren't cropped — reset the frame/img crop styles.
     if (els.focusImage) {
       els.focusImage.hidden = true;
     }
     els.focusExpandedVideo.hidden = false;
+    els.focusExpandedVideo.controls = true; // ensure it's playable (用户 bug fix).
     if (els.focusExpandedVideo.getAttribute("src") !== media.src) {
       els.focusExpandedVideo.src = media.src;
     }
@@ -3613,6 +3674,9 @@ function loadExpandedImage() {
   }
   els.focusImage.hidden = false;
   els.focusImage.src = media.src;
+  // 用户 #8: enlarge the CROPPED region, not the full original (the box is sized to
+  // the crop's aspect in setExpandedImageFrame; pan/zoom multiplies on --crop-scale).
+  applyFocusCrop(media.crop);
   updateExpandedCaption(media);
   // If the image is already cached the "load" listener won't fire, so size now.
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
@@ -3814,6 +3878,9 @@ function closeExpandedImage() {
   if (cover && els.focusImage && !els.focusImage.src.endsWith(cover.src)) {
     els.focusImage.src = cover.src || item.image;
   }
+  // 用户 #8: restore the cover's crop (the lightbox may have shown a differently-
+  // cropped supplement/detail photo or a video).
+  applyFocusCrop(cover?.crop);
   // ...then scroll the detail page to the photo you were just viewing, so you land
   // where you left off rather than being yanked back to the top (#2).
   if (wasExpanded && viewedMedia) {
@@ -3875,7 +3942,12 @@ function setExpandedImageFrame() {
   const naturalHeight = isVideo
     ? els.focusExpandedVideo.videoHeight || 9
     : els.focusImage.naturalHeight || els.focusImage.height || 1;
-  const ratio = naturalWidth / naturalHeight;
+  // 用户 #8: a fixed-aspect crop makes the enlarged box the CROPPED shape (object-fit
+  // cover then shows the cropped region); "free"/no crop keeps the file's own shape.
+  const cropAr = isVideo
+    ? null
+    : cropAspectRatioNumber((state.focusMediaList || [])[state.expandedIndex]?.crop);
+  const ratio = cropAr || naturalWidth / naturalHeight;
   const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.8);
   const maxHeight = window.innerHeight * (window.matchMedia("(max-width: 820px)").matches ? 0.86 : 0.9);
   let width = maxHeight * ratio;
@@ -4321,7 +4393,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=117", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=118", { updateViaCache: "none" });
   }
 }
 
