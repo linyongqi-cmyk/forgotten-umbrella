@@ -2036,17 +2036,10 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-approx-label-text {
   fill: #fff;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 300;
   letter-spacing: 0.02em;
   text-anchor: middle;
   dominant-baseline: middle;
-  /* 用户 2：圆环文字在发白的模糊卫星图上看不清——描边加深加实(黑 0.72)，再叠一层柔和
-     投影(SVG text 用 drop-shadow filter，CSS text-shadow 对 SVG 无效)，深底浅底都托得住。 */
-  paint-order: stroke fill;
-  stroke: rgba(0, 0, 0, 0.72);
-  stroke-width: 3.6px;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 1px 2.5px rgba(0, 0, 0, 0.65));
 }
 
 /* Item 3: hidden until the map settles on the point (JS removes is-pending in the
