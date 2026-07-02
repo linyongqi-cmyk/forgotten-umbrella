@@ -78,6 +78,7 @@ const state = {
   imageDragStart: null,
   ignoreFocusCloseUntil: 0,
   isFocusCameraAnimating: false,
+  focusImageReadyFrame: 0,
   languageMenuOpen: false,
   lang: "ja",
   editMode: false,
@@ -1350,7 +1351,7 @@ function updateFocusApproxLabelGeometry() {
   const extraRotation = distance < 0 ? 180 : 0;
   const path = els.focusApproxLabel.querySelector("#focus-approx-label-path");
   if (path) {
-    path.setAttribute("d", `M ${radius} 0 A ${radius} ${radius} 0 1 1 ${-radius} 0 A ${radius} ${radius} 0 1 1 ${radius} 0`);
+    path.setAttribute("d", `M ${radius} 0 A ${radius} ${radius} 0 1 0 ${-radius} 0 A ${radius} ${radius} 0 1 0 ${radius} 0`);
   }
   els.focusApproxLabel.style.setProperty("--label-rotate", `${(Number.isFinite(rotation) ? rotation : 0) + extraRotation}deg`);
 }
@@ -2321,9 +2322,6 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
-      if (state.isFocusCameraAnimating || els.mapView?.classList.contains("is-focus-mode")) {
-        return;
-      }
       const it = liveItem();
       if (it) {
         marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
@@ -2370,7 +2368,15 @@ function finalizeFocusImageLoad() {
   }
   if (!state.imageExpanded) {
     els.focusImageFrame?.classList.remove("is-cover-reserved");
-    els.focusPanel?.classList.remove("is-loading");
+    if (state.focusImageReadyFrame) {
+      cancelAnimationFrame(state.focusImageReadyFrame);
+    }
+    state.focusImageReadyFrame = requestAnimationFrame(() => {
+      state.focusImageReadyFrame = requestAnimationFrame(() => {
+        state.focusImageReadyFrame = 0;
+        els.focusPanel?.classList.remove("is-loading");
+      });
+    });
   }
   updateFocusScrollHint();
 }
@@ -3961,6 +3967,10 @@ function closeFocusMode(options = {}) {
   }
   els.focusPanel?.setAttribute("aria-hidden", "true");
   els.focusPanel?.classList.remove("is-loading");
+  if (state.focusImageReadyFrame) {
+    cancelAnimationFrame(state.focusImageReadyFrame);
+    state.focusImageReadyFrame = 0;
+  }
   els.focusImageFrame?.classList.remove("is-cover-reserved");
 }
 
@@ -4814,7 +4824,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=123", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=124", { updateViaCache: "none" });
   }
 }
 
@@ -7450,12 +7460,7 @@ const MAP_LAYER_CATEGORIES = [
   { key: "highway", labels: { ja: "高速道路", en: "Highways" }, featureType: "road.highway" },
   { key: "transit", labels: { ja: "公共交通", en: "Transit" }, featureType: "transit" },
   { key: "transitLabels", labels: { ja: "駅・バス停名", en: "Transit labels" }, featureType: "transit", elementType: "labels" },
-  { key: "administrative", labels: { ja: "行政文字(全体)", en: "Admin labels (all)" }, featureType: "administrative", elementType: "labels" },
-  { key: "adminCountry", labels: { ja: "国名", en: "Country labels" }, featureType: "administrative.country", elementType: "labels" },
-  { key: "adminProvince", labels: { ja: "都道府県名", en: "Prefecture labels" }, featureType: "administrative.province", elementType: "labels" },
-  { key: "adminLocality", labels: { ja: "市町村名", en: "City / town labels" }, featureType: "administrative.locality", elementType: "labels" },
-  { key: "adminNeighborhood", labels: { ja: "町名・地区名", en: "Neighborhood labels" }, featureType: "administrative.neighborhood", elementType: "labels" },
-  { key: "adminLandParcel", labels: { ja: "街区・地番", en: "Land parcel labels" }, featureType: "administrative.land_parcel", elementType: "labels" },
+  { key: "administrative", labels: { ja: "行政文字", en: "Admin labels" }, featureType: "administrative", elementType: "labels" },
   { key: "waterLabels", labels: { ja: "水域名", en: "Water labels" }, featureType: "water", elementType: "labels" },
   { key: "landscape", labels: { ja: "地形・建物", en: "Landscape" }, featureType: "landscape", elementType: "geometry" },
 ];
@@ -7493,11 +7498,6 @@ function defaultSat2Set() {
     "roadLabels",
     "transitLabels",
     "administrative",
-    "adminCountry",
-    "adminProvince",
-    "adminLocality",
-    "adminNeighborhood",
-    "adminLandParcel",
     "waterLabels",
   ].forEach((k) => {
     if (out[k]) {

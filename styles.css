@@ -1233,7 +1233,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   --expanded-frame-width: 520px;
   --expanded-frame-height: 680px;
   position: fixed;
-  top: 50%;
+  top: clamp(72px, 8vh, 96px);
   z-index: 40;
   /* Single column (v109): the big cover image with A1/A2/C floating over it, then
      the article (D1+D2) below. Right offset matches the topbar so the panel
@@ -1249,8 +1249,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   align-items: stretch;
   overflow-x: visible;
   overflow-y: auto;
-  max-height: 84vh;
-  transform: translate(28px, -50%);
+  max-height: calc(100vh - clamp(72px, 8vh, 96px) - 28px);
+  transform: translateX(28px);
   /* Only opacity/transform animate (both GPU-composited). Width/height are NOT
      transitioned: animating them forces a layout on every frame, which was the
      visible jank when expanding and when switching between differently-sized
@@ -1910,11 +1910,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .workspace.is-focus-mode .focus-image-panel {
   opacity: 1;
   pointer-events: auto;
-  transform: translate(0, -50%);
+  transform: translateX(0);
 }
 
 .workspace.is-focus-mode .focus-image-panel.is-loading {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   /* 用户 #2: hide INSTANTLY (no 900ms fade-out) while the cover loads. A slow
      contributed/模糊地址 image used to load while the panel was still partly visible,
@@ -1926,6 +1927,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .workspace.is-focus-mode .focus-image-panel.is-expanded {
+  top: 50%;
   transform: translate(-50%, -50%);
 }
 
