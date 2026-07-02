@@ -385,23 +385,10 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   background: rgba(197, 79, 53, 0.08);
 }
 
-/* 用户 T11: the active language is marked with a check + bold so you can tell which
-   language system is currently on. */
+/* 用户 T11 (v121): the active language is simply BOLD — the ✓ mark was removed on
+   request. */
 .language-menu button.is-active {
-  font-weight: 600;
-}
-
-.language-menu button.is-active::before {
-  content: "✓";
-  margin-right: 6px;
   font-weight: 700;
-}
-
-.language-menu button:not(.is-active)::before {
-  content: "";
-  margin-right: 6px;
-  display: inline-block;
-  width: 1ch;
 }
 
 .view {
@@ -713,9 +700,10 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   background: #b4502f;
 }
 
+/* 用户 #4: two threshold boxes per row now（から/まで）, so each is a bit narrower. */
 .map-layer-zoom {
   flex: 0 0 auto;
-  width: 52px;
+  width: 46px;
   padding: 3px 4px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -1349,6 +1337,20 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   object-position: var(--crop-x, 50%) var(--crop-y, 50%);
   transform-origin: var(--crop-x, 50%) var(--crop-y, 50%);
 }
+/* 用户 T3 (v121) BUG FIX: for a fixed/自由 aspect crop the frame gets its height from
+   `aspect-ratio` (a 2:1 box on a 4:3 photo = 560×279). But the frame is display:grid
+   / place-items:center, and a replaced <img> with its own intrinsic ratio IGNORES
+   height:100% against that aspect-ratio-derived track — it fell back to its natural
+   height (560×420), so object-fit:cover saw a same-AR box and did NO cropping; the
+   frame just clipped the top. Result: the detail cover showed a different region than
+   the crop-modal preview. Taking the img OUT of grid flow (absolute inset:0) forces it
+   to fill the definite frame box, so object-fit:cover crops exactly like the modal.
+   The 原图/free crop (is-crop-free, aspect-ratio:auto) is EXCLUDED — there the frame
+   needs the in-flow image to supply its height. */
+.focus-image-frame.is-cropped:not(.is-crop-free) #focus-image {
+  position: absolute;
+  inset: 0;
+}
 /* In the lightbox the frame is sized explicitly (JS), so the cover object-fit wins
    there too — keep the object-position focal point. */
 .focus-image-panel.is-expanded .focus-image-frame.is-cropped #focus-image {
@@ -1661,14 +1663,14 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
 }
 
-/* T7 模糊地址 (v107, ROOT-CAUSE fix): the blur is no longer a full-screen overlay
-   on top of the map (which buried the marker). Instead a blur element is injected
-   INTO a Google Maps pane that sits BELOW the marker pane (an OverlayView in
-   `overlayLayer`). So the real marker renders SHARP on top of the blurred map with
-   no fake pin and no hiding. This `.focus-blur-approx-layer` is that pane element;
-   it's sized/positioned by JS (draw()) to cover the viewport and tracks the map on
-   pan/zoom. Tunable: backdrop blur px = blur strength, background rgba = white
-   filter strength. */
+/* T7 模糊地址 (v121): a blur element injected INTO a Google Maps pane — now the
+   `floatPane`, which sits ABOVE the marker panes. Its backdrop blur therefore
+   softens the map AND every pin in one wash (the same harmonious look as the
+   normal focus blur); a sharp clone of the focused pin
+   (.focus-blur-approx-pin, appended by JS) rides on top of the layer so the
+   selected point stays crisp. The layer is sized/positioned by JS (draw()) to
+   cover the viewport and tracks the map on pan/zoom. Tunable: backdrop blur px =
+   blur strength, background rgba = white filter strength. */
 .focus-blur-approx-layer {
   position: absolute;
   pointer-events: none;
@@ -1721,8 +1723,27 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   );
 }
 
+/* The sharp clone of the focused (blue) pin, drawn above the blur. Geometry must
+   match markerIcon(): size 24×30 × scale 1.55, anchor (12,26) × 1.55 — the
+   translate puts that anchor point exactly on (--cx, --cy), i.e. the marker's
+   lat/lng pixel. z-index lifts it above the ::after blur pass so it never gets
+   re-blurred. It fades/hides together with the layer (opacity is inherited), so
+   while the user pans/zooms the REAL sharp marker below simply shows through. */
+.focus-blur-approx-pin {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  z-index: 1;
+  width: 37.2px;
+  height: 46.5px;
+  transform: translate(-18.6px, -40.3px);
+  pointer-events: none;
+}
+
 /* Item 1: while the user pans / zooms (is-focus-map-active) drop the pane blur too
-   — same as the full-screen .focus-blur — so the map is sharp during interaction. */
+   — same as the full-screen .focus-blur — so the map is sharp during interaction.
+   The pin clone hides with it (it's a child), and since the pins themselves keep
+   their normal icons now, everything on screen is back to the normal sharp state. */
 .workspace.is-focus-mode.is-focus-map-active .focus-blur-approx-layer {
   opacity: 0;
 }
@@ -4409,14 +4430,22 @@ body:not(.edit-mode) .editor-add {
   position: fixed;
   left: 0;
   top: 0;
-  height: 100%;
+  /* 用户: preview 高度收到 40vh，把下面的空间让给「修改记录」面板；内容字号也
+     整体调小（见 --detail-*-size 覆写 + .item-story/.focus-dialogue 覆写）。 */
+  height: 40vh;
   width: var(--preview-w);
   box-sizing: border-box;
-  padding: 16px;
+  padding: 12px 14px;
   /* Always light mode (用户要求) — keeps the rendered detail preview readable. */
   color-scheme: light;
+  /* 预览内容整体缩小一档（用户: 对话/段落字号太大）。 */
+  --detail-title-size: 15px;
+  --detail-meta-size: 10px;
+  --detail-body-size: 11px;
+  --detail-caption-size: 10px;
   background: #f4f3ed;
   border-right: 1px solid rgba(31, 45, 45, 0.18);
+  border-bottom: 1px solid rgba(31, 45, 45, 0.18);
   box-shadow: 10px 0 30px rgba(31, 45, 45, 0.18);
   transform: translateX(-100%);
   transition: transform 0.22s ease;
@@ -4431,6 +4460,151 @@ body:not(.edit-mode) .editor-add {
 
 .editor-preview::-webkit-scrollbar {
   display: none;
+}
+
+/* 用户「修改记录」面板：预览栏下方，同宽，占剩余高度。只在编辑模式显示。 */
+.editor-history {
+  position: fixed;
+  left: 0;
+  top: 40vh;
+  bottom: 0;
+  width: var(--preview-w);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  color-scheme: light;
+  background: #efeee7;
+  border-right: 1px solid rgba(31, 45, 45, 0.18);
+  box-shadow: 10px 0 30px rgba(31, 45, 45, 0.14);
+  z-index: 1289;
+  color: #1f2d2d;
+}
+
+.editor-history[hidden] {
+  display: none;
+}
+
+.editor-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid rgba(31, 45, 45, 0.14);
+}
+
+.editor-history-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.editor-history-clear {
+  font-size: 11px;
+  color: #8a5a4a;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  background: transparent;
+  cursor: pointer;
+}
+
+.editor-history-clear:hover {
+  background: rgba(197, 79, 53, 0.08);
+}
+
+.editor-history-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 10px 14px;
+  scrollbar-width: thin;
+}
+
+.editor-history-empty {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6b7470;
+  text-align: center;
+  margin: 24px 8px;
+}
+
+.editor-history-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.editor-history-row:hover {
+  background: #fbfaf5;
+  border-color: rgba(31, 45, 45, 0.14);
+}
+
+.editor-history-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.editor-history-badge.is-create {
+  background: #2f8f4e;
+}
+
+.editor-history-badge.is-modify {
+  background: #c58a2f;
+}
+
+.editor-history-badge.is-delete {
+  background: #b4502f;
+}
+
+.editor-history-row.is-delete .editor-history-label {
+  text-decoration: line-through;
+  color: #97706a;
+}
+
+.editor-history-label {
+  font-size: 12px;
+  line-height: 1.3;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-history-time {
+  font-size: 10px;
+  color: #8b938e;
+  white-space: nowrap;
+}
+
+.editor-history-undo {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  background: #fff;
+  color: #1f2d2d;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editor-history-undo:hover:not(:disabled) {
+  background: #b4502f;
+  border-color: #b4502f;
+  color: #fff;
+}
+
+.editor-history-undo:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .editor-preview-cover img {
@@ -4461,10 +4635,20 @@ body:not(.edit-mode) .editor-add {
 
 .editor-preview .item-detail,
 .editor-preview .item-story {
-  font-size: 13px;
-  line-height: 1.5;
+  /* 用户: 预览里的段落文字太大 → 调小。 */
+  font-size: 11px;
+  line-height: 1.45;
   color: #1f2d2d;
   margin: 0;
+}
+
+/* 用户: 预览里的对话文字也太大 → 一并调小（详情页真身不受影响）。 */
+.editor-preview .focus-dialogue,
+.editor-preview .focus-dialogue-line,
+.editor-preview .focus-dialogue-body,
+.editor-preview .focus-dialogue-speaker {
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .editor-preview .focus-photo {

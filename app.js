@@ -651,17 +651,20 @@ function bindEvents() {
     syncMapLayers();
     applyMapCategoryStyles();
   });
-  // Per-category zoom threshold input (hide below this zoom; blank = none).
+  // Per-category zoom threshold inputs (用户 #4: min = show from this zoom, max =
+  // hide again past this zoom; blank = no limit on that side).
   els.mapLayersPanel?.addEventListener("input", (event) => {
-    const input = event.target.closest?.("[data-map-zoom]");
+    const input = event.target.closest?.("[data-map-zoom], [data-map-zoom-max]");
     if (!input) {
       return;
     }
-    const key = input.dataset.mapZoom;
+    const isMax = input.dataset.mapZoomMax != null;
+    const key = isMax ? input.dataset.mapZoomMax : input.dataset.mapZoom;
     const set = activeMapCategoryState();
-    const cur = set[key] || { vis: "auto", zoom: "" };
+    const cur = set[key] || { vis: "auto", zoom: "", zoomMax: "" };
     const v = input.value.trim();
-    set[key] = { ...cur, zoom: v === "" ? "" : Number(v) };
+    const num = v === "" ? "" : Number(v);
+    set[key] = isMax ? { ...cur, zoomMax: num } : { ...cur, zoom: num };
     saveMapCategoryState();
     applyMapCategoryStyles();
   });
@@ -1159,21 +1162,28 @@ function syncMapLayers() {
   }[key];
   const heading = state.lang === "ja" ? `表示調整：${mapName}` : `Tuning: ${mapName}`;
   const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}</div>`;
-  const zPlaceholder = state.lang === "ja" ? "閾値" : "zoom";
+  // 用户 #4: TWO zoom thresholds per category — visible from `zoom` (ズーム≥min で
+  // 表示) up to `zoomMax` (max を超えたら再び非表示). Blank = no limit on that side.
+  const zMinPlaceholder = state.lang === "ja" ? "から" : "min";
+  const zMaxPlaceholder = state.lang === "ja" ? "まで" : "max";
+  const zMinHint = state.lang === "ja" ? "このズーム以上で表示（空欄=制限なし）" : "Visible from this zoom (blank = no limit)";
+  const zMaxHint = state.lang === "ja" ? "このズームを超えたら隠す（空欄=制限なし）" : "Hidden past this zoom (blank = no limit)";
   // 用户 T7: each category shows a ROW of 4 single-select buttons (自動/表示/淡化/隠す)
   // instead of one cycling button.
   els.mapLayersPanel.innerHTML = headerHtml + MAP_LAYER_CATEGORIES.map((c) => {
-    const s = set[c.key] || { vis: "auto", zoom: "" };
+    const s = set[c.key] || { vis: "auto", zoom: "", zoomMax: "" };
     const label = c.labels[state.lang] || c.labels.en;
     const segs = MAP_VIS_CYCLE.map((v) => {
       const vLabel = (MAP_VIS_LABELS[v] || MAP_VIS_LABELS.auto)[state.lang];
       const active = s.vis === v ? " is-active" : "";
       return `<button type="button" class="map-layer-seg${active}" data-map-set="${c.key}" data-map-vis="${v}">${escapeHtml(vLabel)}</button>`;
     }).join("");
+    const zVal = (z) => (z === "" || z == null ? "" : z);
     return `<div class="map-layer-row" data-vis="${s.vis}">
         <span class="map-layer-name">${escapeHtml(label)}</span>
         <div class="map-layer-segs">${segs}</div>
-        <input type="number" class="map-layer-zoom" data-map-zoom="${c.key}" min="1" max="22" step="1" placeholder="${zPlaceholder}" value="${s.zoom === "" || s.zoom == null ? "" : s.zoom}" />
+        <input type="number" class="map-layer-zoom" data-map-zoom="${c.key}" min="1" max="22" step="1" placeholder="${zMinPlaceholder}" title="${zMinHint}" value="${zVal(s.zoom)}" />
+        <input type="number" class="map-layer-zoom" data-map-zoom-max="${c.key}" min="1" max="22" step="1" placeholder="${zMaxPlaceholder}" title="${zMaxHint}" value="${zVal(s.zoomMax)}" />
       </div>`;
   }).join("");
 }
@@ -1854,29 +1864,59 @@ function renderMapMarkers(items) {
     return;
   }
 
-  state.markers.forEach((marker) => marker.setMap(null));
-  state.markers.clear();
-
   // Hide categories switched off in the map filter (item 6/15/16). 用户 #3: the
   // filter now applies in edit mode too, so you can narrow the map while editing.
-  items
+  const visible = items
     .filter(hasCoordinates)
-    .filter((item) => state.markerFilter[markerCategory(item)] !== false)
-    .forEach((item) => {
-    const category = markerCategory(item);
+    .filter((item) => state.markerFilter[markerCategory(item)] !== false);
+  const visibleIds = new Set(visible.map((item) => item.id));
+
+  // Markers are UPDATED in place, never torn down + recreated wholesale: a full
+  // rebuild blanked every pin for a frame, so clicking a pin made it blink/jump
+  // right as the focus animation started (用户 T1/T3). Only pins that actually
+  // disappeared (filtered out / deleted) are removed.
+  state.markers.forEach((marker, id) => {
+    if (!visibleIds.has(id)) {
+      marker.setMap(null);
+      state.markers.delete(id);
+    }
+  });
+
+  visible.forEach((item) => {
+    const icon = markerIcon(item.id === state.focusMarkerId, flagColorFor(item), markerCategory(item));
+    const existing = state.markers.get(item.id);
+    if (existing) {
+      const pos = existing.getPosition();
+      if (!pos || pos.lat() !== item.coordinates.lat || pos.lng() !== item.coordinates.lng) {
+        existing.setPosition(item.coordinates);
+      }
+      existing.setIcon(icon);
+      existing.setZIndex(markerZIndex(item));
+      if (existing.getDraggable() !== state.editMode) {
+        existing.setDraggable(state.editMode);
+      }
+      return;
+    }
+
+    const id = item.id;
     const marker = new google.maps.Marker({
       map: state.map,
       position: item.coordinates,
-      title: item.id,
-      icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category),
+      title: id,
+      icon,
+      // Explicit, latitude-based z-order: overlapping pins (e.g. 8680 / aaa(1))
+      // must never swap front-to-back while zooming — with no explicit zIndex the
+      // renderer re-derives stacking during zoom and close pairs flicker (用户 T3).
+      zIndex: markerZIndex(item),
       draggable: state.editMode,
       // 用户 T3: render each marker as its own DOM element (not the shared sprite
-      // canvas). The canvas renderer z-fights overlapping pins while zooming, which
-      // made close pairs (e.g. 8680 / aaa(1)) flicker front-to-back. Individual
-      // elements paint in a stable order, so no flicker.
+      // canvas), which also z-fought overlapping pins while zooming.
       optimized: false,
     });
 
+    // Handlers look the item up fresh by id — the marker now outlives data edits
+    // (in-place updates above), so a captured `item` object could go stale.
+    const liveItem = () => state.umbrellas.find((entry) => entry.id === id);
     marker.addListener("click", (event) => {
       event.domEvent?.stopPropagation?.();
       // A drag often fires a trailing click — ignore it so it can't reopen the
@@ -1885,50 +1925,42 @@ function renderMapMarkers(items) {
         return;
       }
       if (state.editMode) {
-        openEditor(item.id);
+        openEditor(id);
         return;
       }
       state.ignoreFocusCloseUntil = performance.now() + 180;
       // #5: clicking the already-focused marker again (after panning/zooming it
       // out of the clear circle) re-centres it instead of doing nothing.
-      if (state.focusMarkerId === item.id) {
+      if (state.focusMarkerId === id) {
         state.focusPositionedId = null;
       }
-      selectUmbrella(item.id, { focus: true });
+      selectUmbrella(id, { focus: true });
     });
     marker.addListener("dragend", (event) => {
       state.suppressMarkerClickUntil = performance.now() + 500;
       const lat = event.latLng?.lat();
       const lng = event.latLng?.lng();
       if (typeof lat === "number" && typeof lng === "number") {
-        onMarkerDragged(item.id, { lat, lng });
+        onMarkerDragged(id, { lat, lng });
       }
     });
     marker.addListener("mouseover", () => {
-      // 用户 T2: don't un-blur a non-focused pin on hover while a 模糊地址 point is
-      // focused (that would defeat the blur).
-      if (blurApproxFocusId() && item.id !== blurApproxFocusId()) {
-        return;
+      const it = liveItem();
+      if (it) {
+        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
       }
-      marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
     marker.addListener("mouseout", () => {
-      if (blurApproxFocusId() && item.id !== blurApproxFocusId()) {
-        return;
+      const it = liveItem();
+      if (it) {
+        marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
       }
-      marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
-    state.markers.set(item.id, marker);
+    state.markers.set(id, marker);
   });
 
   if (state.suppressNextFit) {
     state.suppressNextFit = false;
-  }
-
-  // 用户 T2: if markers were rebuilt while a 模糊地址 point is focused, re-apply the
-  // blur styling (rebuild resets every pin to its normal sharp icon).
-  if (blurApproxFocusId()) {
-    updateMarkerIcons();
   }
 }
 
@@ -3459,10 +3491,22 @@ function selectUmbrella(id, options = {}) {
   }
 }
 
-// Lazily build the 模糊地址 blur OverlayView. Its div lives in the `overlayLayer`
-// pane (below the marker panes), so the map blurs but the marker stays SHARP on
-// top — the real root-cause fix, no fake pin (用户 v107). draw() keeps the div
-// covering the visible map, so it tracks pan/zoom.
+// The focused pin, redrawn sharp ON TOP of the 模糊地址 blur layer. Must match
+// markerIcon() exactly: same path, isActive blue, scale 1.55 (24×30 → 37.2×46.5),
+// stroke 2.1px screen (2.1 / 1.55 in path units), anchor (12,26)×1.55 = (18.6,40.3)
+// — the CSS transform on .focus-blur-approx-pin encodes that anchor.
+const FOCUS_PIN_SVG =
+  '<svg width="37.2" height="46.5" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z" ' +
+  'fill="#1f8bb8" stroke="#ffffff" stroke-width="1.35"/></svg>';
+
+// Lazily build the 模糊地址 blur OverlayView. 用户 T2 (v121): its div now lives in
+// the `floatPane` — ABOVE the marker panes — so its backdrop blur softens the map
+// AND every pin in one wash (the same harmonious look as the normal focus blur;
+// the old per-pin blurred SVG icons looked pasted-on). Only the focused pin must
+// stay sharp, so a pixel-perfect clone of it (FOCUS_PIN_SVG) is drawn on top of
+// the layer at the same anchor. draw() keeps the div covering the visible map, so
+// it tracks pan/zoom.
 function ensureBlurOverlay() {
   if (state.blurOverlay || !state.googleReady || !window.google?.maps) {
     return;
@@ -3471,10 +3515,14 @@ function ensureBlurOverlay() {
   overlay.onAdd = function onAdd() {
     const div = document.createElement("div");
     div.className = "focus-blur-approx-layer";
+    const pin = document.createElement("div");
+    pin.className = "focus-blur-approx-pin";
+    pin.innerHTML = FOCUS_PIN_SVG;
+    div.appendChild(pin);
     this._div = div;
-    // overlayLayer is BELOW markerLayer / overlayMouseTarget (where the markers
-    // render), so markers paint on top of this blur and stay crisp.
-    this.getPanes().overlayLayer.appendChild(div);
+    // floatPane sits above markerLayer / overlayMouseTarget, so the pins render
+    // UNDER the blur and get blurred together with the map.
+    this.getPanes().floatPane.appendChild(div);
   };
   overlay.draw = function draw() {
     const div = this._div;
@@ -3528,16 +3576,16 @@ function focusUmbrellaOnMap(item, id) {
   // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
   // the exact spot stays vague.
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
-  // T7 item 1 (v107): the blur for 模糊地址 lives in a map pane BELOW the markers
-  // (showBlurApproxOverlay), so the real marker stays sharp on top — no fake pin,
-  // nothing hidden. Plain focus keeps the full-screen .focus-blur (clear circle).
+  // T2 (v121): the 模糊地址 blur lives in the floatPane ABOVE the markers, so the
+  // map and every other pin blur together; a sharp clone of the focused pin is
+  // drawn on top of the layer. Plain focus keeps the full-screen .focus-blur
+  // (clear circle).
   if (item.blurApprox) {
     showBlurApproxOverlay(item);
   } else {
     hideBlurApproxOverlay();
   }
-  // 用户 T2: (re)apply the "only the focused pin is sharp, others blurred" styling now
-  // that the is-blur-approx class + focus id are set.
+  // Turn the focused pin blue (and re-stack it on top) without a full rebuild.
   updateMarkerIcons();
   // Under-pin label (item 3): custom text, or the display address as fallback.
   // It starts hidden (is-pending = opacity 0) and only fades in once the map has
@@ -3586,10 +3634,9 @@ function closeFocusMode(options = {}) {
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
   hideBlurApproxOverlay();
-  // 用户 T2: drop is-blur-approx BEFORE updateMarkerIcons so it restores every pin to
-  // its sharp icon (otherwise blurApproxFocusId still saw the class and re-blurred).
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
+  // Restore the just-unfocused pin to its normal (non-blue) icon.
   updateMarkerIcons();
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
@@ -4365,49 +4412,25 @@ function itemHasTitle(item) {
 }
 
 function updateMarkerIcons() {
-  // 用户 T2: while a 模糊地址 point is focused, every OTHER marker is blurred so it
-  // can't reveal the vague location — only the focused pin stays sharp.
-  const blurId = blurApproxFocusId();
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    if (blurId && id !== blurId) {
-      marker.setIcon(blurredMarkerIcon(markerCategory(item)));
-      marker.setZIndex(1);
-      return;
-    }
     marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
-    marker.setZIndex(id === blurId ? 10000 : null);
+    marker.setZIndex(markerZIndex(item));
   });
 }
 
-// The id of the currently-focused 模糊地址 point, or null when none is focused (so
-// markers render normally). Drives the "only the selected pin is sharp" blur (T2).
-function blurApproxFocusId() {
-  if (!els.mapView?.classList.contains("is-blur-approx")) {
-    return null;
+// Explicit, stable z-order for every pin: south pins in front (Google's own
+// convention), the focused pin above everything. With NO explicit zIndex the
+// renderer re-derives stacking while zooming, so overlapping pins (8680 / aaa(1))
+// flickered front-to-back (用户 T3). A fixed number per pin can never swap.
+function markerZIndex(item) {
+  if (!item || !hasCoordinates(item)) {
+    return 1;
   }
-  const id = state.focusMarkerId || state.selectedId;
-  const item = state.umbrellas.find((entry) => entry.id === id);
-  return item?.blurApprox ? id : null;
-}
-
-// A soft, blurred version of the pin (Google symbol icons can't take a blur filter,
-// so this is a data-URI SVG with feGaussianBlur). Used for the non-selected markers
-// when a 模糊地址 point is focused (用户 T2). Its white stroke keeps it legible over
-// both the light (centre) and dark (edge) parts of the blur wash.
-function blurredMarkerIcon(category) {
-  const color = MARKER_COLORS[category] || MARKER_COLORS.own;
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50" viewBox="0 0 24 30">` +
-    `<defs><filter id="fb" x="-70%" y="-70%" width="240%" height="240%">` +
-    `<feGaussianBlur stdDeviation="1.7"/></filter></defs>` +
-    `<path filter="url(#fb)" d="M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z" ` +
-    `fill="${color}" stroke="#ffffff" stroke-width="2.1" opacity="0.82"/></svg>`;
-  return {
-    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    scaledSize: new google.maps.Size(40, 50),
-    anchor: new google.maps.Point(20, 43),
-  };
+  if (item.id === state.focusMarkerId) {
+    return 10000000;
+  }
+  return Math.max(1, Math.round((90 - item.coordinates.lat) * 100000));
 }
 
 function markerIcon(isActive, flagColor, category) {
@@ -4471,7 +4494,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=120", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=121", { updateViaCache: "none" });
   }
 }
 
@@ -4857,7 +4880,8 @@ function setupEditor() {
   buildCreateDialog();
   populateCategorySelects();
 
-  // Live detail-page preview shown on the left while editing.
+  // Live detail-page preview shown on the left while editing. Its height was
+  // reduced to ~40vh (用户) so the 修改记录 (edit-history) panel can sit below it.
   const preview = document.createElement("aside");
   preview.className = "editor-preview";
   preview.setAttribute("aria-label", "detail preview");
@@ -4865,6 +4889,26 @@ function setupEditor() {
   document.body.appendChild(preview);
   editor.preview = preview;
   editor.previewInner = preview.querySelector(".editor-preview-inner");
+
+  // 用户「修改记录」: a per-marker edit-history panel BELOW the preview. Visible in
+  // edit mode; lists the last 50 markers you created / modified / deleted, each with
+  // a 撤回 (undo all of that marker's changes) button; clicking a row re-opens that
+  // marker for editing (or restores it if it was deleted).
+  const history = document.createElement("aside");
+  history.className = "editor-history";
+  history.setAttribute("aria-label", "edit history");
+  history.innerHTML = `
+    <div class="editor-history-head">
+      <span class="editor-history-title">修改记录</span>
+      <button type="button" class="editor-history-clear" title="清空修改记录列表（不影响已保存的数据）">清空</button>
+    </div>
+    <div class="editor-history-list"></div>`;
+  document.body.appendChild(history);
+  editor.history = history;
+  editor.historyList = history.querySelector(".editor-history-list");
+  history.querySelector(".editor-history-clear").addEventListener("click", clearEditHistory);
+  editor.historyList.addEventListener("click", onEditHistoryClick);
+  syncEditHistory();
 
   // Local-only zoom readout, top-right edge (item 6) — never on the live site
   // since setupEditor only runs when IS_LOCAL.
@@ -6007,6 +6051,7 @@ function toggleEditMode() {
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
   // The T8 map-style tuning panel only exists in edit mode.
   syncMapLayers();
+  syncEditHistory(); // 用户「修改记录」面板也只在编辑模式显示
   if (!state.editMode) {
     closeEditor();
   }
@@ -6493,6 +6538,8 @@ async function saveEditor() {
     }
     // The dragged position is now persisted; drop the pending copy.
     delete state.pendingCoords[id];
+    // 用户「修改记录」: log this edit (keeps the pre-edit snapshot for 撤回).
+    recordEditHistory(id, "modify", { previous: result.previous, label: historyLabelFor(id, result.previous) });
     // Reload the freshly-rebuilt database and re-render with edit mode intact.
     state.umbrellas = await loadUmbrellaData();
     render();
@@ -6603,6 +6650,8 @@ async function onCreateRecord(event) {
       createPayload.timeApprox = true;
     }
     const result = await apiPost("/api/create-record", createPayload);
+    // 用户「修改记录」: log the new marker (撤回 = delete it).
+    recordEditHistory(result.id, "create", { label: result.id });
     state.umbrellas = await loadUmbrellaData();
     if (!state.editMode) {
       toggleEditMode();
@@ -6742,17 +6791,257 @@ async function deleteCurrentRecord() {
   if (!id) {
     return;
   }
-  if (!window.confirm(`确定删除整条标点「${id}」？此操作会删除它的文件夹和所有图片，无法撤销。`)) {
+  if (!window.confirm(`确定删除整条标点「${id}」？\n（可在左下角「修改记录」里点「撤回」把它恢复回来。）`)) {
     return;
   }
   try {
-    await apiPost("/api/delete-record", { id });
-    closeEditor();
+    const label = historyLabelFor(id, getRawById(id));
+    const result = await apiPost("/api/delete-record", { id });
+    // 用户「修改记录」: log the deletion (撤回 = restore from trash via trashKey).
+    recordEditHistory(id, "delete", { record: result.record, trashKey: result.trashKey, label });
+    closeEditor({ force: true });
     state.umbrellas = await loadUmbrellaData();
     render();
-    showEditorToast("已删除标点 ✓");
+    showEditorToast("已删除标点 ✓（可在「修改记录」撤回）");
   } catch (error) {
     showEditorToast(`删除失败：${error.message}`, true);
+  }
+}
+
+// ---- 修改记录 / edit history (local-only) -----------------------------------
+// Records the last 50 markers the user created / modified / deleted, one entry per
+// marker (newest first). Each entry keeps enough to fully UNDO that marker's
+// changes: a modify keeps the raw pre-edit record (baseline) to write back; a
+// create is undone by deleting the marker; a delete is undone by restoring the
+// soft-deleted folder from filebox/.trash (trashKey). Stored in localStorage so it
+// survives reloads. 全部只在本机编辑模式出现。
+const EDIT_HISTORY_KEY = "fu-edit-history";
+const EDIT_HISTORY_MAX = 50;
+
+function loadEditHistory() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(EDIT_HISTORY_KEY) || "[]");
+    return Array.isArray(raw) ? raw.filter((e) => e && e.id && e.action) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistEditHistory() {
+  try {
+    localStorage.setItem(EDIT_HISTORY_KEY, JSON.stringify(state.editHistory || []));
+  } catch {
+    /* ignore storage failure */
+  }
+}
+
+function historyLabelFor(id, rawOrRecord) {
+  const t = rawOrRecord?.title;
+  const title = t && typeof t === "object" ? t.ja || t.en : t;
+  return title ? `${id}（${title}）` : id;
+}
+
+// Push (or update) a marker's history entry. action: "create" | "modify" | "delete".
+// extra: { previous } for modify baseline, { record, trashKey } for delete, { label }.
+function recordEditHistory(id, action, extra = {}) {
+  if (!id) {
+    return;
+  }
+  if (!Array.isArray(state.editHistory)) {
+    state.editHistory = loadEditHistory();
+  }
+  const list = state.editHistory;
+  const existing = list.find((e) => e.id === id);
+  const label = extra.label || historyLabelFor(id, extra.record || extra.previous) || id;
+  const ts = Date.now();
+
+  if (action === "modify") {
+    if (existing) {
+      // Keep the ORIGINAL pre-modification baseline (so 撤回 reverts every change),
+      // and keep a "create" action as create (undo = delete). Just bump the time.
+      existing.ts = ts;
+      existing.label = label;
+      if (existing.action === "modify" && !existing.baseline && extra.previous) {
+        existing.baseline = extra.previous;
+      }
+      moveHistoryEntryToTop(id);
+    } else {
+      list.unshift({ id, action: "modify", baseline: extra.previous || null, ts, label });
+    }
+  } else if (action === "create") {
+    removeHistoryEntry(id, { silent: true });
+    list.unshift({ id, action: "create", baseline: null, ts, label });
+  } else if (action === "delete") {
+    removeHistoryEntry(id, { silent: true });
+    list.unshift({ id, action: "delete", baseline: extra.record || null, trashKey: extra.trashKey || "", ts, label });
+  }
+
+  if (list.length > EDIT_HISTORY_MAX) {
+    list.length = EDIT_HISTORY_MAX;
+  }
+  persistEditHistory();
+  syncEditHistory();
+}
+
+function moveHistoryEntryToTop(id) {
+  const list = state.editHistory || [];
+  const idx = list.findIndex((e) => e.id === id);
+  if (idx > 0) {
+    const [entry] = list.splice(idx, 1);
+    list.unshift(entry);
+  }
+}
+
+function removeHistoryEntry(id, { silent = false } = {}) {
+  if (!Array.isArray(state.editHistory)) {
+    return;
+  }
+  const idx = state.editHistory.findIndex((e) => e.id === id);
+  if (idx >= 0) {
+    state.editHistory.splice(idx, 1);
+    if (!silent) {
+      persistEditHistory();
+      syncEditHistory();
+    }
+  }
+}
+
+function clearEditHistory() {
+  if (!(state.editHistory || []).length) {
+    return;
+  }
+  if (!window.confirm("清空「修改记录」列表？\n（只是清掉这个列表，不会改动或删除任何已保存的标点数据。）")) {
+    return;
+  }
+  state.editHistory = [];
+  persistEditHistory();
+  syncEditHistory();
+}
+
+const HISTORY_ACTION_LABELS = { create: "新增", modify: "修改", delete: "删除" };
+
+function formatHistoryTime(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000) return "刚刚";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
+  const d = new Date(ts);
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+// Show/hide (edit mode only) + re-render the history list.
+function syncEditHistory() {
+  if (!editor.history) {
+    return;
+  }
+  if (!Array.isArray(state.editHistory)) {
+    state.editHistory = loadEditHistory();
+  }
+  editor.history.hidden = !state.editMode;
+  if (!state.editMode) {
+    return;
+  }
+  renderEditHistory();
+}
+
+function renderEditHistory() {
+  if (!editor.historyList) {
+    return;
+  }
+  const list = state.editHistory || [];
+  if (!list.length) {
+    editor.historyList.innerHTML = `<p class="editor-history-empty">还没有修改记录。<br>新增 / 修改 / 删除标点后会出现在这里。</p>`;
+    return;
+  }
+  editor.historyList.innerHTML = list
+    .map((e) => {
+      const actionCls = `is-${e.action}`;
+      const actionLabel = HISTORY_ACTION_LABELS[e.action] || e.action;
+      const deleted = e.action === "delete";
+      // A modify entry can only be undone if we captured its baseline.
+      const canUndo = e.action !== "modify" || e.baseline;
+      const rowHint = deleted ? "点击恢复这个被删除的标点" : "点击重新编辑这个标点";
+      return `<div class="editor-history-row ${actionCls}" data-history-id="${escapeHtml(e.id)}" title="${rowHint}">
+          <span class="editor-history-badge ${actionCls}">${actionLabel}</span>
+          <span class="editor-history-label">${escapeHtml(e.label || e.id)}</span>
+          <span class="editor-history-time">${formatHistoryTime(e.ts)}</span>
+          <button type="button" class="editor-history-undo" data-history-undo="${escapeHtml(e.id)}"${canUndo ? "" : " disabled"}>撤回</button>
+        </div>`;
+    })
+    .join("");
+}
+
+function onEditHistoryClick(event) {
+  const undoBtn = event.target.closest?.("[data-history-undo]");
+  if (undoBtn) {
+    event.stopPropagation();
+    undoHistoryEntry(undoBtn.dataset.historyUndo);
+    return;
+  }
+  const row = event.target.closest?.("[data-history-id]");
+  if (row) {
+    reeditHistoryEntry(row.dataset.historyId);
+  }
+}
+
+// Re-open a marker from its history entry. Deleted markers must be restored first.
+async function reeditHistoryEntry(id) {
+  const entry = (state.editHistory || []).find((e) => e.id === id);
+  if (!entry) {
+    return;
+  }
+  if (entry.action === "delete") {
+    await undoHistoryEntry(id); // restore, then it's editable again
+    return;
+  }
+  if (!getRawById(id)) {
+    showEditorToast(`标点「${id}」已不存在，无法编辑`, true);
+    return;
+  }
+  closeFocusMode();
+  openEditor(id);
+  const raw = getRawById(id);
+  if (raw && hasCoordinates(raw) && state.googleReady) {
+    switchToMapView();
+    centerInEditorGap(raw.coordinates);
+  }
+}
+
+// 撤回 = undo ALL of a marker's recorded changes, then drop the history entry.
+async function undoHistoryEntry(id) {
+  const entry = (state.editHistory || []).find((e) => e.id === id);
+  if (!entry) {
+    return;
+  }
+  const kind = HISTORY_ACTION_LABELS[entry.action] || entry.action;
+  if (!window.confirm(`撤回「${entry.label || id}」的${kind}？\n${entry.action === "delete" ? "会把它恢复回地图。" : entry.action === "create" ? "会删除这个新增的标点。" : "会把它还原到修改前的样子。"}`)) {
+    return;
+  }
+  try {
+    if (entry.action === "modify") {
+      if (!entry.baseline) {
+        throw new Error("缺少还原基线，无法撤回");
+      }
+      await apiPost("/api/restore-record-data", { id, record: entry.baseline });
+    } else if (entry.action === "create") {
+      // Undo a create = delete it (soft-delete; its own trash entry isn't tracked).
+      await apiPost("/api/delete-record", { id });
+    } else if (entry.action === "delete") {
+      if (!entry.trashKey) {
+        throw new Error("缺少回收站标识，无法恢复");
+      }
+      await apiPost("/api/restore-trashed", { trashKey: entry.trashKey });
+    }
+    // If the editor is open on this marker, close it (its data just changed underfoot).
+    if (state.editingId === id) {
+      closeEditor({ force: true });
+    }
+    removeHistoryEntry(id);
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    showEditorToast(`已撤回：${entry.label || id}`);
+  } catch (error) {
+    showEditorToast(`撤回失败：${error.message}`, true);
   }
 }
 
@@ -6846,13 +7135,15 @@ const MAP_VIS_LABELS = {
   hide: { ja: "隠す", en: "hide" },
 };
 
-// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }. The tuning is
-// kept as THREE independent sets (用户 T6): 普通地图(roadmap) / 卫星1(sat1, 文字なし) /
-// 卫星2(sat2, 文字あり). Editing the one you're looking at never touches the others.
+// Each category state = { vis: auto|show|fade|hide, zoom: "" | number, zoomMax: ""
+// | number } — visible only from `zoom` up to `zoomMax` (either side blank = no
+// limit on that side, 用户 #4). The tuning is kept as THREE independent sets (用户
+// T6): 普通地图(roadmap) / 卫星1(sat1, 文字なし) / 卫星2(sat2, 文字あり). Editing
+// the one you're looking at never touches the others.
 function defaultMapCategorySet() {
   const out = {};
   MAP_LAYER_CATEGORIES.forEach((c) => {
-    out[c.key] = { vis: "auto", zoom: "" };
+    out[c.key] = { vis: "auto", zoom: "", zoomMax: "" };
   });
   return out;
 }
@@ -6879,6 +7170,7 @@ function mergeMapCategorySet(target, saved) {
     if (s && typeof s === "object") {
       if (MAP_VIS_CYCLE.includes(s.vis)) target[c.key].vis = s.vis;
       if (s.zoom === "" || Number.isFinite(Number(s.zoom))) target[c.key].zoom = s.zoom === "" ? "" : Number(s.zoom);
+      if (s.zoomMax === "" || Number.isFinite(Number(s.zoomMax))) target[c.key].zoomMax = s.zoomMax == null || s.zoomMax === "" ? "" : Number(s.zoomMax);
     }
   });
   return target;
@@ -6955,12 +7247,14 @@ function categoryStyleRules() {
     rules.push(rule);
   };
   MAP_LAYER_CATEGORIES.forEach((c) => {
-    const s = st[c.key] || { vis: "auto", zoom: "" };
-    const hasThreshold = s.zoom !== "" && Number.isFinite(Number(s.zoom));
-    const belowThreshold = hasThreshold && zoom < Number(s.zoom);
+    const s = st[c.key] || { vis: "auto", zoom: "", zoomMax: "" };
+    const min = s.zoom !== "" && Number.isFinite(Number(s.zoom)) ? Number(s.zoom) : null;
+    const max = s.zoomMax !== "" && s.zoomMax != null && Number.isFinite(Number(s.zoomMax)) ? Number(s.zoomMax) : null;
     let vis = s.vis;
-    if (belowThreshold) {
-      vis = "hide"; // below the zoom threshold → hidden, whatever the base says
+    // Outside the [min, max] zoom window → hidden, whatever the base says (用户 #4:
+    // a category can now also DISAPPEAR again past a second, upper threshold).
+    if ((min !== null && zoom < min) || (max !== null && zoom > max)) {
+      vis = "hide";
     }
     if (vis === "auto") {
       return; // use the base style
@@ -6976,13 +7270,13 @@ function categoryStyleRules() {
   return rules;
 }
 
-// True if any category has a zoom threshold set — then styles must be re-applied
-// on zoom_changed for both maps.
+// True if any category has a zoom threshold (either bound) set — then styles must
+// be re-applied on zoom_changed for both maps.
 function anyCategoryHasThreshold() {
   const st = activeMapCategoryState() || {};
   return MAP_LAYER_CATEGORIES.some((c) => {
-    const z = st[c.key]?.zoom;
-    return z !== "" && z != null && Number.isFinite(Number(z));
+    const isNum = (z) => z !== "" && z != null && Number.isFinite(Number(z));
+    return isNum(st[c.key]?.zoom) || isNum(st[c.key]?.zoomMax);
   });
 }
 

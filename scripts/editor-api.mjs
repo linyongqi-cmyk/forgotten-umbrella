@@ -23,6 +23,9 @@ import { parseExif } from "./exif.mjs";
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const recordsRoot = path.join(rootDir, "filebox", "records");
+// 用户「修改记录」撤回功能：删除的标点先移到这里（软删除），需要时可原位恢复；
+// 图片一并保留。gitignore 掉，不进仓库。
+const trashRoot = path.join(rootDir, "filebox", ".trash");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 const textsPath = path.join(rootDir, "data", "texts.json");
 
@@ -166,6 +169,9 @@ export async function saveRecord(payload) {
   }
 
   const record = await readRecordFile(recordPath);
+  // 用户「修改记录」：把改动前的完整 record.json 快照返回给前端，作为「撤回」基线
+  // （撤回时原样写回）。深拷贝，避免后续原地修改污染。
+  const previous = JSON.parse(JSON.stringify(record));
 
   for (const field of TEXT_FIELDS) {
     if (Object.prototype.hasOwnProperty.call(payload, field)) {
@@ -240,7 +246,7 @@ export async function saveRecord(payload) {
   await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
   await rebuildDatabase();
 
-  return { ok: true, id, media: merged.media };
+  return { ok: true, id, media: merged.media, previous };
 }
 
 const MEDIA_ROLES = new Set(["primary", "supplement", "detail", "illustration"]);
@@ -459,7 +465,9 @@ export async function createRecord(payload) {
   return { ok: true, id, coordinates: record.locationCoordinates, fromExif: Boolean(exif.coordinates) };
 }
 
-// Delete an entire record folder (images + record.json).
+// Delete an entire record folder — but SOFT: move it (images + record.json) into
+// filebox/.trash so the「修改记录」面板可以「撤回」把它原位恢复。返回 trashKey 和
+// 删除前的 record 数据（供前端历史条目显示）。
 export async function deleteRecord(payload) {
   const id = typeof payload?.id === "string" ? payload.id.trim() : "";
   const recordPath = id ? await findRecordPathById(id) : null;
@@ -470,9 +478,75 @@ export async function deleteRecord(payload) {
   if (recordDir === recordsRoot || !recordDir.startsWith(recordsRoot)) {
     throw new ApiError(400, "Refusing to delete outside the records folder.");
   }
-  await fs.rm(recordDir, { recursive: true, force: true });
+  const record = await readRecordFile(recordPath).catch(() => null);
+  // Remember where it came from (category/id relative path) so undo puts it back.
+  const relDir = path.relative(recordsRoot, recordDir);
+  await fs.mkdir(trashRoot, { recursive: true });
+  const trashKey = `${sanitizeTrashId(id)}__${Date.now()}`;
+  const trashDir = path.join(trashRoot, trashKey);
+  await fs.rename(recordDir, trashDir);
+  await fs.writeFile(path.join(trashRoot, `${trashKey}.meta.json`), JSON.stringify({ relDir }), "utf8");
+  await rebuildDatabase();
+  return { ok: true, id, trashKey, record };
+}
+
+// Undo a MODIFY (or a create-then-modify): overwrite the record.json with the raw
+// pre-edit snapshot the frontend kept. The folder must still exist (modify never
+// removes it). Media are re-synced with the files on disk.
+export async function restoreRecordData(payload) {
+  const id = typeof payload?.id === "string" ? payload.id.trim() : "";
+  const record = payload?.record;
+  if (!id || !record || typeof record !== "object") {
+    throw new ApiError(400, "缺少要恢复的记录数据。");
+  }
+  const recordPath = await findRecordPathById(id);
+  if (!recordPath) {
+    throw new ApiError(404, `找不到记录「${id}」，可能已被删除。`);
+  }
+  const merged = await mergeRecordMediaWithFolder(recordPath, record);
+  await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
   await rebuildDatabase();
   return { ok: true, id };
+}
+
+// Undo a DELETE: move the trashed folder back to its original category/id location.
+export async function restoreTrashed(payload) {
+  const trashKey = typeof payload?.trashKey === "string" ? payload.trashKey.trim() : "";
+  if (!/^[A-Za-z0-9._()-]+__\d+$/.test(trashKey)) {
+    throw new ApiError(400, "非法的回收站标识。");
+  }
+  const trashDir = path.join(trashRoot, trashKey);
+  const metaPath = path.join(trashRoot, `${trashKey}.meta.json`);
+  if (!(await pathExists(trashDir))) {
+    throw new ApiError(404, "回收站里找不到它（可能已恢复或被清空）。");
+  }
+  let relDir = "";
+  try {
+    relDir = JSON.parse(await fs.readFile(metaPath, "utf8"))?.relDir || "";
+  } catch {
+    /* meta missing */
+  }
+  if (!relDir) {
+    throw new ApiError(500, "缺少恢复位置信息，无法自动恢复。");
+  }
+  const targetDir = path.resolve(path.join(recordsRoot, relDir));
+  if (!targetDir.startsWith(recordsRoot)) {
+    throw new ApiError(400, "恢复路径非法。");
+  }
+  if (await pathExists(targetDir)) {
+    throw new ApiError(409, "已存在同名记录，无法恢复。");
+  }
+  await fs.mkdir(path.dirname(targetDir), { recursive: true });
+  await fs.rename(trashDir, targetDir);
+  await fs.rm(metaPath, { force: true });
+  await rebuildDatabase();
+  return { ok: true };
+}
+
+// A record id used inside a trash folder name — keep it filesystem-safe. (The id
+// itself is already constrained, but a contributed id can contain parentheses.)
+function sanitizeTrashId(id) {
+  return String(id).replace(/[^A-Za-z0-9._()-]/g, "_") || "record";
 }
 
 async function pathExists(target) {
@@ -568,6 +642,10 @@ export async function handleEditorApi(pathname, payload) {
       return createRecord(payload);
     case "/api/delete-record":
       return deleteRecord(payload);
+    case "/api/restore-record-data":
+      return restoreRecordData(payload);
+    case "/api/restore-trashed":
+      return restoreTrashed(payload);
     case "/api/move-record":
       return moveRecord(payload);
     default:
