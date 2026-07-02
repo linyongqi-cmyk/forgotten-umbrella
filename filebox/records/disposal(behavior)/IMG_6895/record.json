@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"","en":""},
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -40,7 +40,7 @@
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
-  "submissionType": "",
+  "submissionType": "own",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
   "submitter": "",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
@@ -117,9 +117,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:54:05.832Z","lat":35.638296061659155,"lon":140.12932442926947,"referenceTime":"2025-10-16T14:07:52+09:00","hourly":[{"time":"2025-10-16T14:00","code":3,"temp":24.2}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     }
   ]
 }

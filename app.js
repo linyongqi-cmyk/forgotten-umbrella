@@ -333,6 +333,7 @@ const els = {
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
   focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
+  focusWeather: document.querySelector("#focus-weather"),
   focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
   contributedContent: document.querySelector("#contributed-content"),
@@ -541,6 +542,12 @@ function normalizeMedia(item) {
     // the cover and the lightbox can all show the cropped region (was dropped here,
     // which is why crop only ever showed in the editor's live preview).
     crop: entry.crop || null,
+    // 每张图的天气 + 是否显示（否则前端拿不到，主图横轴/补充图单图例都出不来）。
+    weather: entry.weather || null,
+    showWeather:
+      typeof entry.showWeather === "boolean"
+        ? entry.showWeather
+        : (entry.role || (index === 0 ? "primary" : "detail")) === "primary",
   }));
 
   if (!normalized.some((entry) => entry.role === "primary") && normalized[0]) {
@@ -2406,6 +2413,13 @@ function renderFocusImage() {
   if (els.focusInfoBlock) {
     els.focusInfoBlock.innerHTML = renderFocusInfo(item);
   }
+  // 2.7：主图天气横轴放在主图下方（勾了「显示天气」且有天气才出现）。
+  if (els.focusWeather) {
+    const showMain = cover ? cover.showWeather !== false : true;
+    const axis = showMain ? renderFocusWeatherAxis(item.weather) : "";
+    els.focusWeather.innerHTML = axis;
+    els.focusWeather.hidden = !axis;
+  }
   els.focusCaption.innerHTML = renderFocusArticle(item);
   renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
@@ -2591,7 +2605,7 @@ function weatherIconSvg(category) {
   return open + inner + close;
 }
 
-// 把 24 小时逐时天气压成「只留头、尾、和每次变化点」的坐标（用户 T3-5）。
+// 把逐时天气压成「只留头、尾、和每次变化点」（用户 2.5：中间只放变化点图例）。
 // 例：-24h晴…-11h多云…-3h雨…0h → 只 4 个点。
 function weatherChangePoints(hourly) {
   if (!Array.isArray(hourly) || !hourly.length) {
@@ -2604,41 +2618,87 @@ function weatherChangePoints(hourly) {
     const cat = weatherCategory(h.code);
     const isEdge = i === 0 || i === last;
     if (isEdge || cat !== prevCat) {
-      pts.push({ index: i, cat, code: h.code, temp: h.temp, offset: -(last - i) });
+      pts.push({ index: i, cat, code: h.code, offset: -(last - i) });
     }
     prevCat = cat;
   });
-  // 去掉相邻重复索引（当变化点正好落在头/尾时）。
   return pts.filter((p, i) => i === 0 || p.index !== pts[i - 1].index);
 }
 
-function renderFocusWeather(item) {
-  const hourly = item?.weather?.hourly;
+// 主图天气横轴（用户 2.3/2.5/2.6/2.7）：拍摄前 24 小时，只在变化点+头尾放极简线条图标。
+// - 位置按真实时间百分比放，但强制最小间距，挨太近就往两边推开（2.3）；实在放不下就退化成等距。
+// - 不显示温度；时间只在两端显示「-24」和「now」，中间只有图例（2.5）。
+// - 图例之间用一条「和图例同样粗」的线段连接，线段只在图例之间的空隙里（图例处断开=遮挡关系，
+//   镂空图例中间不会有线穿过）（2.6）。整块放在主图下方（2.7，由 #focus-weather 承载）。
+function renderFocusWeatherAxis(weather) {
+  const hourly = weather?.hourly;
   if (!Array.isArray(hourly) || !hourly.some((h) => h && h.code !== null)) {
     return "";
   }
-  const last = hourly.length - 1;
   const points = weatherChangePoints(hourly).filter((p) => p.cat);
   if (!points.length) {
     return "";
   }
-  const marks = points
-    .map((p) => {
-      const pct = last > 0 ? (p.index / last) * 100 : 100;
+  const last = hourly.length - 1;
+
+  // 1) 真实时间 → [6,94] 的百分比（两端留 6% 边距，图标 translateX(-50%) 不出血）。
+  const LO = 6;
+  const HI = 94;
+  const spanW = HI - LO;
+  const MIN_GAP = 13; // 百分比；两个图例中心至少差 13% 才不挤（图标约占 5–8%）。
+  const tOf = (p) => (last > 0 ? LO + (p.index / last) * spanW : (LO + HI) / 2);
+
+  // 2) 强制最小间距（用户 2.3）：按真实时间从左往右贪心保留，离上一个保留点不到 MIN_GAP 的
+  //    就丢掉（把太频繁的变化合并），位置仍是真实时间——既不挤、也不会因等距而失真。
+  const kept = [];
+  points.forEach((p) => {
+    if (!kept.length || tOf(p) - kept[kept.length - 1].t >= MIN_GAP) {
+      kept.push({ p, t: tOf(p) });
+    }
+  });
+  // 一定保留最后一点（now）；若它离上一个保留点太近，就把前面的弹掉直到留够间距。
+  const lastPt = points[points.length - 1];
+  if (kept[kept.length - 1].p !== lastPt) {
+    const tl = tOf(lastPt);
+    while (kept.length > 1 && tl - kept[kept.length - 1].t < MIN_GAP) {
+      kept.pop();
+    }
+    kept.push({ p: lastPt, t: tl });
+  }
+  const pos = kept.map((k) => k.t);
+  const chosen = kept.map((k) => k.p);
+
+  // 线段：只画在相邻图例之间的空隙里（各让开半个图标宽 ~13px），实现「图例处断开」的遮挡。
+  const segs = [];
+  for (let i = 1; i < pos.length; i += 1) {
+    const wPct = pos[i] - pos[i - 1];
+    segs.push(
+      `<span class="fw-seg" style="left:calc(${pos[i - 1].toFixed(2)}% + 13px);width:calc(${wPct.toFixed(2)}% - 26px)"></span>`,
+    );
+  }
+
+  const marks = chosen
+    .map((p, i) => {
       const isNow = p.index === last;
-      const icon = weatherIconSvg(p.cat);
-      const timeLabel = p.offset === 0 ? "now" : `${p.offset}h`;
-      const tempLabel = Number.isFinite(Number(p.temp)) ? `${Math.round(p.temp)}°` : "";
-      return `<div class="fw-mark${isNow ? " is-now" : ""}" style="left:${pct.toFixed(2)}%">
-          <span class="fw-icon">${icon}</span>
-          ${tempLabel ? `<span class="fw-temp">${tempLabel}</span>` : ""}
-          <span class="fw-time">${timeLabel}</span>
+      return `<div class="fw-mark${isNow ? " is-now" : ""}" style="left:${pos[i].toFixed(2)}%">
+          <span class="fw-icon">${weatherIconSvg(p.cat)}</span>
         </div>`;
     })
     .join("");
-  return `<div class="focus-weather" aria-label="weather over the 24h before the photo">
-      <div class="fw-track"><span class="fw-line"></span>${marks}</div>
-    </div>`;
+
+  return `<div class="fw-track">${segs.join("")}${marks}</div>
+      <div class="fw-axis"><span class="fw-axis-start">-24</span><span class="fw-axis-now">now</span></div>`;
+}
+
+// 补充/细节图的单个天气图例（用户 2.4）：这张图「拍摄当时」那一点的天气，一个图标。
+// media.weather.hourly 最后一点 = 拍摄当时。没抓到或没勾「显示天气」则返回空。
+function singleWeatherIconFor(media) {
+  const hourly = media?.weather?.hourly;
+  if (!Array.isArray(hourly) || !hourly.length) {
+    return "";
+  }
+  const cat = weatherCategory(hourly[hourly.length - 1]?.code);
+  return cat ? weatherIconSvg(cat) : "";
 }
 
 function renderFocusInfo(item) {
@@ -2676,10 +2736,10 @@ function renderFocusInfo(item) {
   if (isContributed && item.submitter) {
     rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
   }
-  const weatherHtml = renderFocusWeather(item);
-  if (!rows.length && !weatherHtml) {
+  if (!rows.length) {
     return "";
   }
+  // 天气不再放在这个覆盖信息块里（2.7 已移到主图下方 #focus-weather）。
   return `<div class="focus-info">
         ${rows
           .map(
@@ -2689,7 +2749,7 @@ function renderFocusInfo(item) {
             </div>`,
           )
           .join("")}
-      </div>${weatherHtml}`;
+      </div>`;
 }
 
 // Non-destructive crop (用户 #8): a media's `crop` = { aspect, scale, posX, posY }
@@ -4244,8 +4304,10 @@ function updateExpandedCaption(media) {
   const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
   const idPart = item?.submissionType === "contributed" ? null : media.id;
   const text = [media.title, idPart, formatMediaCaptionTime(media)].filter(Boolean).join(", ");
-  els.focusExpandedCaption.textContent = text;
-  els.focusExpandedCaption.hidden = !text;
+  // 用户 2.4：勾了「显示天气」的补充/细节图，在【标题/文件名/时间】信息左边放一个「拍摄当时」的天气图例。
+  const icon = media.showWeather ? singleWeatherIconFor(media) : "";
+  els.focusExpandedCaption.innerHTML = `${icon ? `<span class="fw-single">${icon}</span>` : ""}${text ? `<span class="fw-cap-text">${escapeHtml(text)}</span>` : ""}`;
+  els.focusExpandedCaption.hidden = !text && !icon;
 }
 
 // Vertical thumbnail rail on the right; one per expandable image, active marked.
@@ -4926,7 +4988,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=127", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=128", { updateViaCache: "none" });
   }
 }
 
@@ -4999,8 +5061,6 @@ function setupEditor() {
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
-      <button type="button" class="editor-weather" title="用坐标+拍摄时间抓取「拍摄前24小时」天气">☁ 抓取天气</button>
-      <button type="button" class="editor-weather-clear" title="清空这条记录的天气">✕天气</button>
       <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点">🗑</button>
     </footer>`;
   document.body.appendChild(drawer);
@@ -5280,8 +5340,6 @@ function setupEditor() {
   drawer.querySelector(".editor-cancel").addEventListener("click", () => closeEditor());
   drawer.querySelector(".editor-save").addEventListener("click", saveEditor);
   drawer.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
-  drawer.querySelector(".editor-weather").addEventListener("click", () => fetchWeatherForRecord(false));
-  drawer.querySelector(".editor-weather-clear").addEventListener("click", () => fetchWeatherForRecord(true));
   coordRow.querySelector(".editor-coord-reset").addEventListener("click", () => {
     editor.draftCoords = null;
     updateCoordReadout(getRawById(state.editingId));
@@ -5487,6 +5545,8 @@ function buildPreviewDraft() {
     photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
     src: p.src || p.thumb || "",
     crop: p.crop || null, // 用户 #8: live-preview the crop.
+    showWeather: Boolean(p.showWeather),
+    weather: p.weather || null,
   }));
   const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   const blocks = flow
@@ -5531,6 +5591,7 @@ function renderEditorPreview() {
     <header class="focus-header">${renderFocusHeader(item)}</header>
     ${cover ? `<div class="editor-preview-cover"><img src="${escapeHtml(cover.src || item.image || "")}" alt="" /></div>` : ""}
     ${renderFocusInfo(item)}
+    ${cover && cover.showWeather !== false && cover.weather ? `<div class="focus-weather">${renderFocusWeatherAxis(cover.weather)}</div>` : ""}
     ${renderFocusArticle(item)}`;
 }
 
@@ -5666,6 +5727,10 @@ function photoItem(media) {
     thumb: media.thumb || media.src || "",
     src: media.src || "",
     crop: media.crop || null, // 用户 #8: non-destructive crop.
+    // 每张图自己的天气 + 是否显示（主图默认显示，补充/细节默认不显示）。
+    weather: media.weather || null,
+    showWeather:
+      typeof media.showWeather === "boolean" ? media.showWeather : (media.role || "detail") === "primary",
   };
 }
 
@@ -5862,6 +5927,14 @@ function renderFlow() {
       // 用户 #8: show the current crop on the thumbnail (image files only; video crop
       // isn't offered). The crop button (⤢) floats on the thumbnail's bottom-left.
       const isImg = !isVideoFile(item.file);
+      // 用户 2.2/2.4：每张图（主图/补充/细节，插图除外）都有「获取天气」按钮 +「显示天气」勾选框。
+      const hasWeather = Boolean(item.weather && item.weather.hourly && item.weather.hourly.length);
+      const weatherControls = isIllustration || isVideoFile(item.file)
+        ? ""
+        : `<div class="editor-media-weather">
+            <button type="button" class="editor-media-weather-btn${hasWeather ? " has-weather" : ""}" data-fact="weather" title="${hasWeather ? "已获取，点可重抓（先保存后抓）" : "按坐标+这张图时间抓取天气（会先保存）"}">☁ ${hasWeather ? "天气 ✓" : "获取天气"}</button>
+            <label class="editor-media-weather-show"><input type="checkbox" class="editor-media-weather-toggle"${item.showWeather ? " checked" : ""} /> 显示天气</label>
+          </div>`;
       const c = item.crop;
       const thumbCropStyle = isImg && c
         ? `object-position:${c.posX ?? 50}% ${c.posY ?? 50}%;transform:scale(${c.scale ?? 1});transform-origin:${c.posX ?? 50}% ${c.posY ?? 50}%;`
@@ -5885,6 +5958,7 @@ function renderFlow() {
               <span class="editor-media-badge">封面</span>
               <span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span>
             </div>
+            ${weatherControls}
           </div>`;
       } else {
         const roleSelect = `<select class="editor-flow-role">
@@ -5903,6 +5977,7 @@ function renderFlow() {
             ${showFile ? `<div class="editor-media-top"><span class="editor-media-file" title="${escapeHtml(item.file || "")}">${escapeHtml(item.file || "")}</span></div>` : ""}
             ${showTitle ? `<label class="editor-media-field">标题<input class="editor-flow-title" value="${escapeHtml(item.title || "")}" placeholder="默认则空白" /></label>` : ""}
             ${showTime ? `<label class="editor-media-field">时间<input class="editor-flow-time" value="${escapeHtml(item.timeOverride || "")}" placeholder="${escapeHtml(item.photoTime || "默认用照片EXIF")}" /></label>` : ""}
+            ${weatherControls}
           </div>
           <div class="editor-block-buttons editor-block-buttons-vertical">
             <button type="button" data-fact="primary" title="设为封面">★</button>
@@ -5920,6 +5995,13 @@ function renderFlow() {
         });
       }
     }
+
+    // 「显示天气」勾选框（每张图各自一个）——切换即改这张图的 showWeather，标脏 + 刷新预览。
+    row.querySelector(".editor-media-weather-toggle")?.addEventListener("change", (event) => {
+      item.showWeather = event.target.checked;
+      markEditorDirty();
+      renderEditorPreview();
+    });
 
     row.querySelectorAll("[data-fact]").forEach((btn) => {
       btn.addEventListener("click", () => onFlowAction(btn.dataset.fact, index));
@@ -5958,6 +6040,8 @@ function onFlowAction(action, index) {
     deleteMediaFile(item.file);
   } else if (action === "crop") {
     openCropModal(index);
+  } else if (action === "weather") {
+    fetchWeatherForMedia(item.id);
   }
 }
 
@@ -6947,6 +7031,7 @@ async function saveEditor() {
     // Blank time box keeps the stored/EXIF time; a typed override replaces it (item 15).
     photoTime: p.timeOverride && p.timeOverride.trim() ? p.timeOverride.trim() : p.photoTime,
     crop: p.crop || null, // 用户 #8: non-destructive crop.
+    showWeather: Boolean(p.showWeather),
   }));
   const isTextLike = (i) => i.kind === "text" || i.kind === "dialogue";
   payload.blocks = (editor.flow || [])
@@ -6994,37 +7079,28 @@ async function saveEditor() {
   }
 }
 
-// 用户 T3: 编辑器「抓取天气」按钮。用后端接口按这条记录的坐标+拍摄时间抓「拍摄前
-// 24 小时」逐时天气写回 record.json（clear=true 则清空）。抓完重载并重开编辑器。
-async function fetchWeatherForRecord(clear) {
+// 用户 2.2/2.4: 某张图的「获取天气」按钮。先保存（把当前 media/时间/showWeather 落盘），
+// 再按后端接口用「记录坐标 + 这张图时间」抓天气（主图 24h 逐时、补充/细节 只拍摄当时1点）
+// 写回该 media.weather；抓完重载并重开编辑器。
+async function fetchWeatherForMedia(mediaId) {
   const id = state.editingId;
-  if (!id) {
+  if (!id || !mediaId) {
     return;
   }
-  const btn = editor.root?.querySelector(clear ? ".editor-weather-clear" : ".editor-weather");
-  const original = btn?.textContent;
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = clear ? "清空中…" : "抓取中…";
+  // 先保存：这样后端读盘拿到最新时间/图片，且不会把用户刚勾的「显示天气」冲掉。
+  await saveEditor();
+  if (state.editingId !== id) {
+    return; // 保存失败或编辑器已关，别继续。
   }
   try {
-    const result = await apiPost("/api/fetch-weather", { id, clear });
+    const result = await apiPost("/api/fetch-weather", { id, mediaId });
     state.umbrellas = await loadUmbrellaData();
     render();
     openEditor(id);
-    if (clear) {
-      showEditorToast("已清空天气 ✓");
-    } else {
-      const n = result?.weather?.hourly?.filter((h) => h.code !== null).length || 0;
-      showEditorToast(`已抓取天气 ✓（${n} 小时数据）`);
-    }
+    const n = result?.weather?.hourly?.filter((h) => h.code !== null).length || 0;
+    showEditorToast(`已获取天气 ✓（${n} 点）`);
   } catch (error) {
-    showEditorToast(`${clear ? "清空" : "抓取"}天气失败：${error.message}`, true);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = original;
-    }
+    showEditorToast(`获取天气失败：${error.message}`, true);
   }
 }
 

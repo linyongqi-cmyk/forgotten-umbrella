@@ -2411,7 +2411,10 @@
       "lng": 140.12932442926947
     },
     "locationText": "parking lot in Tondai-cho, Wakaba Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "unknown",
@@ -2730,8 +2733,21 @@
         "photoTime": "2025-10-16T14:07:52+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T14:54:05.832Z",
+          "lat": 35.638296061659155,
+          "lon": 140.12932442926947,
+          "referenceTime": "2025-10-16T14:07:52+09:00",
+          "hourly": [
+            {
+              "time": "2025-10-16T14:00",
+              "code": 3,
+              "temp": 24.2
+            }
+          ]
+        },
+        "showWeather": true
       }
     ],
     "locationLevels": [

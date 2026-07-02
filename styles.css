@@ -1484,27 +1484,29 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
 }
 
-/* 天气横轴（用户 T3）：拍摄前 24 小时的天气变化，只在「变化点+头尾」放极简线条图标，
-   右端(now)=拍摄当时。整条 track 用百分比定位每个点，首/尾自动内收不出血。放在信息
-   overlay 底部，浮在封面上，所以图标/文字都加投影保证在任何底图上都看得清。 */
+/* 天气横轴（用户 2.3/2.5/2.6/2.7 v127 重画）：拍摄前 24 小时，只在「变化点+头尾」放极简
+   线条图标；不显示温度，两端只标 -24 / now；连接线和图例同样粗，且只画在图例之间的空隙里
+   （图例处断开=遮挡，镂空图例中间不会有线穿过）。整块放在主图下方（#focus-weather）。 */
 .focus-weather {
   margin-top: 12px;
-  padding-top: 4px;
+  color: var(--ink);
+}
+
+.focus-weather[hidden] {
+  display: none;
 }
 
 .focus-weather .fw-track {
   position: relative;
-  height: 52px;
-  margin: 0 6px;
+  height: 28px;
 }
 
-.focus-weather .fw-line {
+/* 连接线段：和图例同样粗（2px），只在相邻图例之间。 */
+.focus-weather .fw-seg {
   position: absolute;
-  left: 0;
-  right: 0;
   top: 13px;
   height: 0;
-  border-top: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+  border-top: 2px solid color-mix(in srgb, var(--ink) 70%, transparent);
 }
 
 .focus-weather .fw-mark {
@@ -1512,52 +1514,40 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   top: 0;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
+  justify-content: center;
   color: var(--ink);
-  white-space: nowrap;
-}
-
-/* 头尾两点贴边对齐，不越过 track 边界。 */
-.focus-weather .fw-mark:first-of-type {
-  transform: translateX(0);
-  align-items: flex-start;
-}
-
-.focus-weather .fw-mark.is-now {
-  transform: translateX(-100%);
-  align-items: flex-end;
 }
 
 .focus-weather .fw-icon {
   display: block;
-  height: 26px;
-}
-
-.focus-weather .fw-icon svg {
-  width: 24px;
-  height: 24px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
-}
-
-.focus-weather .fw-mark.is-now .fw-icon svg {
-  width: 28px;
   height: 28px;
 }
 
-.focus-weather .fw-temp {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
+.focus-weather .fw-icon svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 
-.focus-weather .fw-time {
+/* 两端时间标签：只有 -24 和 now（2.5）。 */
+.focus-weather .fw-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding: 0 2px;
   font-size: 10px;
+  letter-spacing: 0.02em;
   color: var(--muted);
-  line-height: 1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+/* 补充/细节图放大时，标题信息左边的单个天气图例（2.4）。 */
+.focus-expanded-caption .fw-single svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
 
 /* The cover fills the (wide) media column at full width; the height cap is by
@@ -3914,6 +3904,53 @@ body:not(.edit-mode) .editor-add {
   font: inherit;
 }
 
+/* 用户 2.2/2.4：每张图的「获取天气」按钮 +「显示天气」勾选框，放在这张图的修改栏里。 */
+.editor-media-weather {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.editor-media-weather-btn {
+  padding: 3px 9px;
+  border: 1px solid rgba(31, 45, 45, 0.25);
+  border-radius: 999px;
+  background: #fff;
+  color: #3a4a46;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.editor-media-weather-btn:hover {
+  background: #eef3f1;
+}
+
+/* 已抓到天气 = 绿色描边打勾态。 */
+.editor-media-weather-btn.has-weather {
+  border-color: #3f9b6d;
+  color: #2f7d55;
+  background: #eef8f1;
+}
+
+.editor-media-weather-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #4d5a56;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-media-weather-show input {
+  margin: 0;
+  cursor: pointer;
+}
+
 .editor-upload {
   display: inline-flex;
   align-items: center;
@@ -4558,6 +4595,14 @@ body:not(.edit-mode) .editor-add {
     0 1px 3px rgba(0, 0, 0, 0.78),
     0 0 2px rgba(0, 0, 0, 0.55);
   pointer-events: none;
+}
+
+/* 放大时的角标题排成一行：天气图例在左，标题/文件名/时间在右（用户 2.4）。 */
+.focus-expanded-caption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 /* INFORMATION block: label on the left, value(s) left-aligned on the right.
