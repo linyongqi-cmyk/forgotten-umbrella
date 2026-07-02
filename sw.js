@@ -1,4 +1,4 @@
-const CACHE_NAME = "forgotten-umbrella-v122";
+const CACHE_NAME = "forgotten-umbrella-v123";
 const ASSETS = [
   ".",
   "index.html",

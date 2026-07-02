@@ -58,6 +58,7 @@ const state = {
   blurAdjustOpen: false,
   blurSettings: null, // filled from defaults + localStorage lazily
   blurPreviewKind: null, // "normal" | "approx" while previewing, else null
+  focusApproxLabelText: "",
   // Zoom the map had before the current focus opened — restored on exit (item 6).
   preFocusZoom: null,
   poiShown: false,
@@ -672,8 +673,9 @@ function bindEvents() {
   });
   syncMapLayers();
 
-  // 用户 T1 (v122): a 模糊度 adjuster (edit mode only) — live sliders for the focus
-  // blur of both 普通标点 and 模糊标点, applied to CSS variables + persisted.
+  // 用户 T1 (v123): a 模糊度 adjuster that is available outside edit mode too.
+  // Opening the panel shows a live preview immediately; when a detail point is
+  // already open the sliders tune the real focus overlay in place.
   els.blurAdjustToggle?.addEventListener("click", () => {
     state.blurAdjustOpen = !state.blurAdjustOpen;
     if (!state.blurAdjustOpen) {
@@ -688,6 +690,10 @@ function bindEvents() {
     }
     const key = slider.dataset.blurKey;
     state.blurSettings[key] = Number(slider.value);
+    if (!els.mapView?.classList.contains("is-focus-mode")) {
+      const param = BLUR_PARAM_BY_KEY[key];
+      startBlurPreview(param?.group === "normal" ? "normal" : "approx");
+    }
     applyBlurSettings();
     saveBlurSettings();
     const out = els.blurAdjustPanel.querySelector(`[data-blur-out="${key}"]`);
@@ -698,6 +704,9 @@ function bindEvents() {
   els.blurAdjustPanel?.addEventListener("click", (event) => {
     const preview = event.target.closest?.("[data-blur-preview]");
     if (preview) {
+      if (els.mapView?.classList.contains("is-focus-mode")) {
+        return;
+      }
       startBlurPreview(preview.dataset.blurPreview);
       return;
     }
@@ -769,14 +778,12 @@ function bindEvents() {
     }
   });
   els.focusImage?.addEventListener("load", () => {
-    els.focusPanel?.classList.remove("is-loading");
     if (state.imageExpanded) {
       setExpandedImageFrame();
       updateExpandedImageTransform();
+    } else {
+      finalizeFocusImageLoad();
     }
-    // The cover's real height is now known — re-check whether to show the
-    // scroll-for-more hint (#5).
-    updateFocusScrollHint();
   });
   // Keep the scroll hint in sync as the user scrolls the detail content (#5).
   els.focusScroll?.addEventListener("scroll", updateFocusScrollHint, { passive: true });
@@ -1244,6 +1251,8 @@ const BLUR_PARAMS = [
   { key: "radiusA", cssVar: "--fb-radius-a", group: "approx", label: "白雾圈半径", min: 40, max: 420, step: 2, unit: "px", def: 200 },
   { key: "featherA", cssVar: "--fb-feather-a", group: "approx", label: "边缘羽化", min: 0, max: 180, step: 2, unit: "px", def: 60 },
   { key: "veilA", cssVar: "--fb-veil-a", group: "approx", label: "中心白雾浓度", min: 0, max: 0.8, step: 0.02, unit: "", def: 0.3 },
+  { key: "labelDistanceA", cssVar: "--fb-label-distance-a", group: "label", label: "文字距离中心", min: -600, max: 600, step: 5, unit: "px", def: 245 },
+  { key: "labelRotateA", cssVar: "--fb-label-rotate-a", group: "label", label: "文字旋转角度", min: -180, max: 180, step: 1, unit: "deg", def: 0 },
 ];
 const BLUR_PARAM_BY_KEY = Object.fromEntries(BLUR_PARAMS.map((p) => [p.key, p]));
 
@@ -1292,6 +1301,7 @@ function applyBlurSettings() {
     const v = state.blurSettings[p.key];
     document.documentElement.style.setProperty(p.cssVar, p.unit ? `${v}${p.unit}` : String(v));
   });
+  updateFocusApproxLabelGeometry();
 }
 
 function resetBlurSettings() {
@@ -1299,6 +1309,50 @@ function resetBlurSettings() {
   applyBlurSettings();
   saveBlurSettings();
   renderBlurAdjust();
+}
+
+function focusApproxLabelTextForPreview() {
+  return state.lang === "ja" ? "模糊標点" : "blur marker";
+}
+
+function renderFocusApproxLabel(text, { pending = false, preview = false } = {}) {
+  if (!els.focusApproxLabel) {
+    return;
+  }
+  const label = String(text || "").trim();
+  state.focusApproxLabelText = label;
+  if (!label) {
+    els.focusApproxLabel.hidden = true;
+    els.focusApproxLabel.innerHTML = "";
+    return;
+  }
+  els.focusApproxLabel.hidden = false;
+  els.focusApproxLabel.classList.toggle("is-pending", Boolean(pending));
+  els.focusApproxLabel.classList.toggle("is-preview", Boolean(preview));
+  els.focusApproxLabel.innerHTML = `
+    <svg class="focus-approx-label-svg" viewBox="-640 -640 1280 1280" aria-hidden="true" focusable="false">
+      <defs><path id="focus-approx-label-path" /></defs>
+      <text class="focus-approx-label-text">
+        <textPath href="#focus-approx-label-path" startOffset="50%">${escapeHtml(label)}</textPath>
+      </text>
+    </svg>`;
+  updateFocusApproxLabelGeometry();
+}
+
+function updateFocusApproxLabelGeometry() {
+  if (!els.focusApproxLabel || els.focusApproxLabel.hidden) {
+    return;
+  }
+  const settings = state.blurSettings || defaultBlurSettings();
+  const distance = Number(settings.labelDistanceA);
+  const rotation = Number(settings.labelRotateA);
+  const radius = Math.max(1, Math.abs(Number.isFinite(distance) ? distance : 245));
+  const extraRotation = distance < 0 ? 180 : 0;
+  const path = els.focusApproxLabel.querySelector("#focus-approx-label-path");
+  if (path) {
+    path.setAttribute("d", `M ${radius} 0 A ${radius} ${radius} 0 1 1 ${-radius} 0 A ${radius} ${radius} 0 1 1 ${radius} 0`);
+  }
+  els.focusApproxLabel.style.setProperty("--label-rotate", `${(Number.isFinite(rotation) ? rotation : 0) + extraRotation}deg`);
 }
 
 // Show the blur overlay (a chosen kind) WITHOUT opening a detail page, centred a bit
@@ -1311,6 +1365,15 @@ function startBlurPreview(kind) {
     els.focusBlur.style.setProperty("--focus-x", "58vw");
     els.focusBlur.style.setProperty("--focus-y", "46vh");
   }
+  if (state.blurPreviewKind === "approx") {
+    renderFocusApproxLabel(focusApproxLabelTextForPreview(), { preview: true });
+    if (els.focusApproxLabel) {
+      els.focusApproxLabel.style.left = "58vw";
+      els.focusApproxLabel.style.top = "46vh";
+    }
+  } else if (!els.mapView?.classList.contains("is-focus-mode")) {
+    renderFocusApproxLabel("");
+  }
   renderBlurAdjust();
 }
 
@@ -1322,6 +1385,7 @@ function stopBlurPreview() {
   // Only drop the preview classes if a real focus isn't running.
   if (!els.mapView?.classList.contains("is-focus-mode")) {
     els.mapView?.classList.remove("is-blur-approx");
+    renderFocusApproxLabel("");
   }
   els.mapView?.classList.remove("is-blur-preview");
   renderBlurAdjust();
@@ -1331,7 +1395,7 @@ function syncBlurAdjust() {
   if (!state.blurSettings) {
     state.blurSettings = loadBlurSettings();
   }
-  const show = Boolean(state.editMode);
+  const show = true;
   const wrap = document.querySelector("#blur-adjust");
   if (wrap) {
     wrap.hidden = !show;
@@ -1343,11 +1407,17 @@ function syncBlurAdjust() {
   if (els.blurAdjustToggle) {
     els.blurAdjustToggle.setAttribute("aria-expanded", String(state.blurAdjustOpen));
     els.blurAdjustToggle.classList.toggle("is-active", state.blurAdjustOpen);
+    els.blurAdjustToggle.setAttribute("aria-label", "聚焦模糊度实时调整");
+    els.blurAdjustToggle.setAttribute("title", "聚焦模糊度实时调整");
   }
   if (els.blurAdjustPanel) {
     els.blurAdjustPanel.hidden = !state.blurAdjustOpen;
   }
   if (state.blurAdjustOpen) {
+    if (!els.mapView?.classList.contains("is-focus-mode") && !state.blurPreviewKind) {
+      startBlurPreview("approx");
+      return;
+    }
     renderBlurAdjust();
   }
 }
@@ -1368,24 +1438,33 @@ function renderBlurAdjust() {
       })
       .join("");
   const previewing = state.blurPreviewKind;
+  const inFocus = els.mapView?.classList.contains("is-focus-mode");
+  const previewButton = (kind) =>
+    inFocus
+      ? ""
+      : `<button type="button" class="blur-adjust-preview${previewing === kind ? " is-on" : ""}" data-blur-preview="${kind}">查看</button>`;
   els.blurAdjustPanel.innerHTML = `
     <div class="blur-adjust-head">聚焦模糊度</div>
     <div class="blur-adjust-group">
       <div class="blur-adjust-grouphead">
         <span>普通标点</span>
-        <button type="button" class="blur-adjust-preview${previewing === "normal" ? " is-on" : ""}" data-blur-preview="normal">${previewing === "normal" ? "预览中" : "预览"}</button>
+        ${previewButton("normal")}
       </div>
       ${rows("normal")}
     </div>
     <div class="blur-adjust-group">
       <div class="blur-adjust-grouphead">
         <span>模糊标点</span>
-        <button type="button" class="blur-adjust-preview${previewing === "approx" ? " is-on" : ""}" data-blur-preview="approx">${previewing === "approx" ? "预览中" : "预览"}</button>
+        ${previewButton("approx")}
       </div>
       ${rows("approx")}
     </div>
+    <div class="blur-adjust-group">
+      <div class="blur-adjust-grouphead"><span>圆形环绕文字</span></div>
+      ${rows("label")}
+    </div>
     <div class="blur-adjust-foot">
-      ${previewing ? `<button type="button" class="blur-adjust-btn2" data-blur-stop>停止预览</button>` : `<span class="blur-adjust-hint">点「预览」看效果</span>`}
+      <span class="blur-adjust-hint">${inFocus ? "当前标点实时生效" : "打开后实时预览"}</span>
       <button type="button" class="blur-adjust-btn2" data-blur-reset>恢复默认</button>
     </div>`;
 }
@@ -2242,6 +2321,9 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
+      if (state.isFocusCameraAnimating || els.mapView?.classList.contains("is-focus-mode")) {
+        return;
+      }
       const it = liveItem();
       if (it) {
         marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
@@ -2268,6 +2350,31 @@ function isVideoFile(file) {
   return VIDEO_EXT_RE.test(String(file || ""));
 }
 
+const focusImageAspectCache = new Map();
+
+function reserveFocusCoverFrame(media) {
+  const frame = els.focusImageFrame;
+  if (!frame) {
+    return;
+  }
+  const cropAr = cropAspectRatioNumber(media?.crop);
+  const cachedAr = media?.src ? focusImageAspectCache.get(media.src) : null;
+  const ar = cropAr || cachedAr || 4 / 3;
+  frame.style.setProperty("--focus-cover-ar", String(ar));
+  frame.classList.toggle("is-cover-reserved", !cropAr);
+}
+
+function finalizeFocusImageLoad() {
+  if (els.focusImage?.naturalWidth > 0 && els.focusImage?.naturalHeight > 0 && els.focusImage.src) {
+    focusImageAspectCache.set(els.focusImage.src, els.focusImage.naturalWidth / els.focusImage.naturalHeight);
+  }
+  if (!state.imageExpanded) {
+    els.focusImageFrame?.classList.remove("is-cover-reserved");
+    els.focusPanel?.classList.remove("is-loading");
+  }
+  updateFocusScrollHint();
+}
+
 function renderFocusImage() {
   const item = state.umbrellas.find((entry) => entry.id === state.selectedId);
   if (!item || !els.focusImage || !els.focusCaption) {
@@ -2279,6 +2386,7 @@ function renderFocusImage() {
   state.focusMediaList = getExpandableMedia(item);
 
   els.focusPanel?.classList.add("is-loading");
+  reserveFocusCoverFrame(cover);
   els.focusImage.src = cover?.src || item.image;
   els.focusImage.alt = localize(item.title) || item.id;
   // 用户 #8: the cover shows its cropped region too (was only in the editor preview).
@@ -2295,7 +2403,7 @@ function renderFocusImage() {
   els.focusCaption.innerHTML = renderFocusArticle(item);
   renderFocusLink(item);
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
-    els.focusPanel?.classList.remove("is-loading");
+    finalizeFocusImageLoad();
   }
   closeExpandedImage();
   // Defer one frame so the new content has laid out before measuring overflow (#5).
@@ -3808,11 +3916,7 @@ function focusUmbrellaOnMap(item, id) {
   // never appears mid-pan/zoom (用户要求 #3).
   if (els.focusApproxLabel) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
-    els.focusApproxLabel.textContent = labelText;
-    els.focusApproxLabel.hidden = !labelText;
-    if (labelText) {
-      els.focusApproxLabel.classList.add("is-pending");
-    }
+    renderFocusApproxLabel(labelText, { pending: Boolean(labelText) });
   }
   setFocusMaskPosition();
   // Always re-centre: clicking the focused marker again after the map has been
@@ -3853,10 +3957,11 @@ function closeFocusMode(options = {}) {
   // Restore the just-unfocused pin to its normal (non-blue) icon.
   updateMarkerIcons();
   if (els.focusApproxLabel) {
-    els.focusApproxLabel.hidden = true;
+    renderFocusApproxLabel("");
   }
   els.focusPanel?.setAttribute("aria-hidden", "true");
   els.focusPanel?.classList.remove("is-loading");
+  els.focusImageFrame?.classList.remove("is-cover-reserved");
 }
 
 // #10: pause + reset any playing inline video in the detail panel. Called when the
@@ -4424,6 +4529,7 @@ function setFocusMaskPosition() {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
   }
+  updateFocusApproxLabelGeometry();
 }
 
 function animateMarkerToFocus(item) {
@@ -4708,7 +4814,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=122", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=123", { updateViaCache: "none" });
   }
 }
 
@@ -7344,7 +7450,12 @@ const MAP_LAYER_CATEGORIES = [
   { key: "highway", labels: { ja: "高速道路", en: "Highways" }, featureType: "road.highway" },
   { key: "transit", labels: { ja: "公共交通", en: "Transit" }, featureType: "transit" },
   { key: "transitLabels", labels: { ja: "駅・バス停名", en: "Transit labels" }, featureType: "transit", elementType: "labels" },
-  { key: "administrative", labels: { ja: "行政界の文字", en: "Admin labels" }, featureType: "administrative", elementType: "labels" },
+  { key: "administrative", labels: { ja: "行政文字(全体)", en: "Admin labels (all)" }, featureType: "administrative", elementType: "labels" },
+  { key: "adminCountry", labels: { ja: "国名", en: "Country labels" }, featureType: "administrative.country", elementType: "labels" },
+  { key: "adminProvince", labels: { ja: "都道府県名", en: "Prefecture labels" }, featureType: "administrative.province", elementType: "labels" },
+  { key: "adminLocality", labels: { ja: "市町村名", en: "City / town labels" }, featureType: "administrative.locality", elementType: "labels" },
+  { key: "adminNeighborhood", labels: { ja: "町名・地区名", en: "Neighborhood labels" }, featureType: "administrative.neighborhood", elementType: "labels" },
+  { key: "adminLandParcel", labels: { ja: "街区・地番", en: "Land parcel labels" }, featureType: "administrative.land_parcel", elementType: "labels" },
   { key: "waterLabels", labels: { ja: "水域名", en: "Water labels" }, featureType: "water", elementType: "labels" },
   { key: "landscape", labels: { ja: "地形・建物", en: "Landscape" }, featureType: "landscape", elementType: "geometry" },
 ];
@@ -7376,7 +7487,19 @@ function defaultMapCategorySet() {
 // back on. 卫星1 keeps every category "auto" → stays clean/label-free.
 function defaultSat2Set() {
   const out = defaultMapCategorySet();
-  ["poiLabels", "poiIcons", "roadLabels", "transitLabels", "administrative", "waterLabels"].forEach((k) => {
+  [
+    "poiLabels",
+    "poiIcons",
+    "roadLabels",
+    "transitLabels",
+    "administrative",
+    "adminCountry",
+    "adminProvince",
+    "adminLocality",
+    "adminNeighborhood",
+    "adminLandParcel",
+    "waterLabels",
+  ].forEach((k) => {
     if (out[k]) {
       out[k].vis = "show";
     }
