@@ -632,17 +632,21 @@ function bindEvents() {
     state.mapLayersOpen = !state.mapLayersOpen;
     syncMapLayers();
   });
-  // Cycle a category's visibility state (自動→表示→淡化→隠す→…).
+  // 用户 T7: pick a category's visibility from a row of 4 single-select buttons
+  // (自動/表示/淡化/隠す) instead of cycling one button.
   els.mapLayersPanel?.addEventListener("click", (event) => {
-    const cycle = event.target.closest?.("[data-map-cycle]");
-    if (!cycle) {
+    const seg = event.target.closest?.("[data-map-set]");
+    if (!seg) {
       return;
     }
-    const key = cycle.dataset.mapCycle;
+    const key = seg.dataset.mapSet;
+    const vis = seg.dataset.mapVis;
+    if (!MAP_VIS_CYCLE.includes(vis)) {
+      return;
+    }
     const set = activeMapCategoryState();
     const cur = set[key] || { vis: "auto", zoom: "" };
-    const next = MAP_VIS_CYCLE[(MAP_VIS_CYCLE.indexOf(cur.vis) + 1) % MAP_VIS_CYCLE.length];
-    set[key] = { ...cur, vis: next };
+    set[key] = { ...cur, vis };
     saveMapCategoryState();
     syncMapLayers();
     applyMapCategoryStyles();
@@ -1145,21 +1149,30 @@ function syncMapLayers() {
     return;
   }
   const set = activeMapCategoryState();
-  // Header tells you WHICH map's set you're editing (the two are independent).
-  const onRoadmap = state.mapBase === "roadmap";
-  const mapName = onRoadmap
-    ? state.lang === "ja" ? "普通地図" : "Plain map"
-    : state.lang === "ja" ? "衛星地図" : "Satellite map";
+  // Header tells you WHICH set you're editing — 普通/卫星1(文字なし)/卫星2(文字あり) —
+  // since all three are independent (用户 T6/T7).
+  const key = activeMapBaseKey();
+  const mapName = {
+    roadmap: state.lang === "ja" ? "普通地図" : "Plain map",
+    sat1: state.lang === "ja" ? "衛星①（文字なし）" : "Satellite 1 (no labels)",
+    sat2: state.lang === "ja" ? "衛星②（文字あり）" : "Satellite 2 (labels)",
+  }[key];
   const heading = state.lang === "ja" ? `表示調整：${mapName}` : `Tuning: ${mapName}`;
   const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}</div>`;
+  const zPlaceholder = state.lang === "ja" ? "閾値" : "zoom";
+  // 用户 T7: each category shows a ROW of 4 single-select buttons (自動/表示/淡化/隠す)
+  // instead of one cycling button.
   els.mapLayersPanel.innerHTML = headerHtml + MAP_LAYER_CATEGORIES.map((c) => {
     const s = set[c.key] || { vis: "auto", zoom: "" };
     const label = c.labels[state.lang] || c.labels.en;
-    const visLabel = (MAP_VIS_LABELS[s.vis] || MAP_VIS_LABELS.auto)[state.lang];
-    const zPlaceholder = state.lang === "ja" ? "閾値" : "zoom";
+    const segs = MAP_VIS_CYCLE.map((v) => {
+      const vLabel = (MAP_VIS_LABELS[v] || MAP_VIS_LABELS.auto)[state.lang];
+      const active = s.vis === v ? " is-active" : "";
+      return `<button type="button" class="map-layer-seg${active}" data-map-set="${c.key}" data-map-vis="${v}">${escapeHtml(vLabel)}</button>`;
+    }).join("");
     return `<div class="map-layer-row" data-vis="${s.vis}">
         <span class="map-layer-name">${escapeHtml(label)}</span>
-        <button type="button" class="map-layer-cycle" data-map-cycle="${c.key}">${escapeHtml(visLabel)}</button>
+        <div class="map-layer-segs">${segs}</div>
         <input type="number" class="map-layer-zoom" data-map-zoom="${c.key}" min="1" max="22" step="1" placeholder="${zPlaceholder}" value="${s.zoom === "" || s.zoom == null ? "" : s.zoom}" />
       </div>`;
   }).join("");
@@ -1245,6 +1258,12 @@ function syncLanguageMenu() {
   els.languageToggle?.setAttribute("aria-expanded", String(state.languageMenuOpen));
   if (els.languageMenu) {
     els.languageMenu.hidden = !state.languageMenuOpen;
+    // 用户 T11: mark the current language so you can tell which one is active.
+    els.languageMenu.querySelectorAll("[data-lang]").forEach((btn) => {
+      const isActive = btn.dataset.lang.startsWith("en") ? state.lang === "en" : state.lang === "ja";
+      btn.classList.toggle("is-active", isActive);
+      btn.setAttribute("aria-current", isActive ? "true" : "false");
+    });
   }
 }
 
@@ -1550,8 +1569,11 @@ function toggleMapType() {
   syncMapTypeButton();
 }
 
-// Secondary toggle (only meaningful on satellite): text labels on/off, which is
-// the difference between Google's "satellite" and "hybrid" map types.
+// Secondary toggle (only on satellite): switches between 卫星1 (文字なし, the clean
+// label-free default) and 卫星2 (文字あり). 用户 T6: these are now two INDEPENDENT
+// filter sets, both rendered on the "hybrid" map type — the labels are turned on/off
+// per-category by each set, not by swapping the Google map type. So the filter system
+// can control text in 卫星1 too.
 function toggleMapLabels() {
   if (!state.googleReady) {
     return;
@@ -1559,26 +1581,25 @@ function toggleMapLabels() {
   state.mapLabels = !state.mapLabels;
   applyMapType();
   syncMapTypeButton();
+  syncMapLayers(); // the panel now edits the sat1/sat2 set that just became active
 }
 
-// The actual Google map type id derived from the base + labels state.
+// The actual Google map type id. 用户 T6: satellite always uses "hybrid" so the label
+// layer EXISTS and can be shown/hidden per-category by the filter (the plain
+// "satellite" type has no label layer, so 卫星1 could never reveal text). The clean
+// look of 卫星1 comes from the base style hiding all labels, not from the map type.
 function effectiveMapTypeId() {
   if (state.mapBase === "roadmap") {
     return "roadmap";
   }
-  return state.mapLabels ? "hybrid" : "satellite";
+  return "hybrid";
 }
 
-// Whether the satellite POI labels are shown at the current zoom.
-function satellitePoiShownAtCurrentZoom() {
-  const zoom = state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM;
-  const zoomedIn = zoom >= POI_REVEAL_ZOOM;
-  return POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
-}
-
-// Base styles for the active map + the T8 dev tuning overrides (both maps).
+// Base styles for the active map + the per-set category overrides. 用户 T5: the
+// satellite base hides EVERY label (and the road lines) so nothing leaks through when
+// all filters are off; the category set then layers specific labels back on top.
 function currentMapStyles() {
-  const base = state.mapBase === "roadmap" ? mapStyles : satelliteStylesForZoom(state.map?.getZoom?.() ?? DEFAULT_MAP_ZOOM);
+  const base = state.mapBase === "roadmap" ? mapStyles : SATELLITE_BASE_STYLES;
   return [...base, ...categoryStyleRules()];
 }
 
@@ -1592,26 +1613,15 @@ function applyMapCategoryStyles() {
 function applyMapType() {
   if (state.googleReady) {
     state.map.setMapTypeId(effectiveMapTypeId());
-    // Plain map keeps its roads; satellite/hybrid drops the road line overlay
-    // and shows POI only when zoomed in.
-    state.poiShown = state.mapBase === "satellite" && satellitePoiShownAtCurrentZoom();
     state.map.setOptions({ styles: currentMapStyles() });
   }
 }
 
-// Swap POI labels in/out as the zoom crosses the reveal threshold (satellite),
-// and re-apply category overrides whenever a tuning zoom threshold is in play.
+// Re-apply styles as the zoom changes, but only when the active set actually uses a
+// per-category zoom threshold (so we don't call setOptions on every zoom frame).
 function refreshSatellitePoi() {
   if (!state.googleReady) {
     return;
-  }
-  if (state.mapBase === "satellite") {
-    const showPoi = satellitePoiShownAtCurrentZoom();
-    if (showPoi !== state.poiShown) {
-      state.poiShown = showPoi;
-      state.map.setOptions({ styles: currentMapStyles() });
-      return;
-    }
   }
   if (anyCategoryHasThreshold()) {
     applyMapCategoryStyles();
@@ -1860,6 +1870,11 @@ function renderMapMarkers(items) {
       title: item.id,
       icon: markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category),
       draggable: state.editMode,
+      // 用户 T3: render each marker as its own DOM element (not the shared sprite
+      // canvas). The canvas renderer z-fights overlapping pins while zooming, which
+      // made close pairs (e.g. 8680 / aaa(1)) flicker front-to-back. Individual
+      // elements paint in a stable order, so no flicker.
+      optimized: false,
     });
 
     marker.addListener("click", (event) => {
@@ -1890,9 +1905,17 @@ function renderMapMarkers(items) {
       }
     });
     marker.addListener("mouseover", () => {
+      // 用户 T2: don't un-blur a non-focused pin on hover while a 模糊地址 point is
+      // focused (that would defeat the blur).
+      if (blurApproxFocusId() && item.id !== blurApproxFocusId()) {
+        return;
+      }
       marker.setIcon(hoverMarkerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
     marker.addListener("mouseout", () => {
+      if (blurApproxFocusId() && item.id !== blurApproxFocusId()) {
+        return;
+      }
       marker.setIcon(markerIcon(item.id === state.focusMarkerId, flagColorFor(item), category));
     });
     state.markers.set(item.id, marker);
@@ -1900,6 +1923,12 @@ function renderMapMarkers(items) {
 
   if (state.suppressNextFit) {
     state.suppressNextFit = false;
+  }
+
+  // 用户 T2: if markers were rebuilt while a 模糊地址 point is focused, re-apply the
+  // blur styling (rebuild resets every pin to its normal sharp icon).
+  if (blurApproxFocusId()) {
+    updateMarkerIcons();
   }
 }
 
@@ -2147,9 +2176,9 @@ function cropStyles(crop) {
   return { wrap: "", img: `width:100%;height:auto;transform:scale(${scale});transform-origin:${origin};` };
 }
 
-// The crop box's numeric aspect ratio (w/h) for a FIXED-aspect crop, else null
-// ("free"/none keep the image's own aspect). Used to size the enlarged lightbox
-// box to the cropped shape rather than the original file's shape (用户 #8).
+// The crop box's numeric aspect ratio (w/h) for a FIXED-aspect crop or a "自由/custom"
+// crop (its chosen ratio is stored in `ar`), else null ("free"=原图 keeps the image's
+// own aspect). Used to size the enlarged lightbox box to the cropped shape (用户 #8/T4).
 function cropAspectRatioNumber(crop) {
   if (!crop || typeof crop !== "object") {
     return null;
@@ -2157,6 +2186,10 @@ function cropAspectRatioNumber(crop) {
   if (crop.aspect && crop.aspect !== "free" && /^\d+:\d+$/.test(crop.aspect)) {
     const [w, h] = crop.aspect.split(":");
     return Number(w) / Number(h);
+  }
+  // 用户 T4: 自由比例 stores its box ratio in `ar` (aspect === "custom").
+  if (crop.aspect === "custom" && Number.isFinite(crop.ar) && crop.ar > 0) {
+    return crop.ar;
   }
   return null;
 }
@@ -3055,7 +3088,7 @@ function renderArchiveGroup(group) {
           <p>${group.items.length} item</p>
         </div>
         <button class="archive-group-toggle" type="button" data-group-toggle="${group.key}" aria-label="${collapsed ? "expand" : "collapse"}">
-          <span aria-hidden="true">${collapsed ? "\u25be" : "\u2014"}</span>
+          <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="${collapsed ? "M4 4l8 6 8-6" : "M4 10l8-6 8 6"}" /></svg>
         </button>
       </div>
       <div class="archive-group-body">
@@ -3503,6 +3536,9 @@ function focusUmbrellaOnMap(item, id) {
   } else {
     hideBlurApproxOverlay();
   }
+  // 用户 T2: (re)apply the "only the focused pin is sharp, others blurred" styling now
+  // that the is-blur-approx class + focus id are set.
+  updateMarkerIcons();
   // Under-pin label (item 3): custom text, or the display address as fallback.
   // It starts hidden (is-pending = opacity 0) and only fades in once the map has
   // finished animating to the point and settled (revealApproxLabel) — so the text
@@ -3550,9 +3586,11 @@ function closeFocusMode(options = {}) {
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
   hideBlurApproxOverlay();
-  updateMarkerIcons();
+  // 用户 T2: drop is-blur-approx BEFORE updateMarkerIcons so it restores every pin to
+  // its sharp icon (otherwise blurApproxFocusId still saw the class and re-blurred).
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
+  updateMarkerIcons();
   if (els.focusApproxLabel) {
     els.focusApproxLabel.hidden = true;
   }
@@ -3831,7 +3869,11 @@ function recenterFocusedMarker() {
   setFocusMaskPosition();
 
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
-  const markerScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng);
+  // 用户 T1: use the projection (consistent bulb-centre convention) rather than the
+  // marker's DOM rect. The DOM rect used a different vertical convention, so its start
+  // point didn't match getCenterForMarkerScreenPoint — the first animation frame
+  // placed the pin low, then it "snapped" back. Projection = no jump.
+  const markerScreen = getLatLngScreenPoint(markerLatLng);
   const target = getFocusTargetScreenPoint();
   const drift = Math.hypot(markerScreen.x - target.x, markerScreen.y - target.y);
   if (drift > 24) {
@@ -4074,7 +4116,11 @@ function zoomToDefaultAroundMarker(item) {
   // to an integer, instead of always snapping back to DEFAULT_MAP_ZOOM.
   const targetZoom = Number.isFinite(state.preFocusZoom) ? state.preFocusZoom : DEFAULT_MAP_ZOOM;
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
-  const markerScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng);
+  // 用户 T1: use the projection (consistent bulb-centre convention) rather than the
+  // marker's DOM rect. The DOM rect used a different vertical convention, so its start
+  // point didn't match getCenterForMarkerScreenPoint — the first animation frame
+  // placed the pin low, then it "snapped" back. Projection = no jump.
+  const markerScreen = getLatLngScreenPoint(markerLatLng);
   const startZoom = state.map.getZoom();
   // Already at the target zoom (e.g. 模糊地址 with approxZoom = current zoom) —
   // skip the re-centre animation so the map doesn't jitter on exit (item 5).
@@ -4144,7 +4190,7 @@ function animateMarkerToFocus(item) {
   // location stays vague; otherwise zoom in to at least FOCUS_MAP_ZOOM.
   const approxZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : null;
   const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, FOCUS_MAP_ZOOM);
-  const startScreen = getMarkerButtonScreenPoint(item) ?? getLatLngScreenPoint(markerLatLng, startZoom);
+  const startScreen = getLatLngScreenPoint(markerLatLng, startZoom); // 用户 T1: see recenter note
   const endScreen = getFocusTargetScreenPoint();
   const startTime = performance.now();
 
@@ -4177,26 +4223,6 @@ function animateMarkerToFocus(item) {
 
   state.isFocusCameraAnimating = true;
   state.cameraAnimationFrame = requestAnimationFrame(step);
-}
-
-function getMarkerButtonScreenPoint(item) {
-  if (!item?.id) {
-    return null;
-  }
-
-  const escapedTitle = window.CSS?.escape ? CSS.escape(item.id) : item.id.replace(/"/g, '\\"');
-  const markerElement = els.mapCanvas.querySelector(`[title="${escapedTitle}"]`);
-  const markerRect = markerElement?.getBoundingClientRect();
-  const mapRect = els.mapCanvas.getBoundingClientRect();
-
-  if (!markerRect || markerRect.width === 0 || markerRect.height === 0) {
-    return null;
-  }
-
-  return {
-    x: markerRect.left - mapRect.left + markerRect.width / 2,
-    y: markerRect.top - mapRect.top + markerRect.height / 2,
-  };
 }
 
 function setMapCamera(center, zoom) {
@@ -4339,10 +4365,49 @@ function itemHasTitle(item) {
 }
 
 function updateMarkerIcons() {
+  // 用户 T2: while a 模糊地址 point is focused, every OTHER marker is blurred so it
+  // can't reveal the vague location — only the focused pin stays sharp.
+  const blurId = blurApproxFocusId();
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
+    if (blurId && id !== blurId) {
+      marker.setIcon(blurredMarkerIcon(markerCategory(item)));
+      marker.setZIndex(1);
+      return;
+    }
     marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
+    marker.setZIndex(id === blurId ? 10000 : null);
   });
+}
+
+// The id of the currently-focused 模糊地址 point, or null when none is focused (so
+// markers render normally). Drives the "only the selected pin is sharp" blur (T2).
+function blurApproxFocusId() {
+  if (!els.mapView?.classList.contains("is-blur-approx")) {
+    return null;
+  }
+  const id = state.focusMarkerId || state.selectedId;
+  const item = state.umbrellas.find((entry) => entry.id === id);
+  return item?.blurApprox ? id : null;
+}
+
+// A soft, blurred version of the pin (Google symbol icons can't take a blur filter,
+// so this is a data-URI SVG with feGaussianBlur). Used for the non-selected markers
+// when a 模糊地址 point is focused (用户 T2). Its white stroke keeps it legible over
+// both the light (centre) and dark (edge) parts of the blur wash.
+function blurredMarkerIcon(category) {
+  const color = MARKER_COLORS[category] || MARKER_COLORS.own;
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50" viewBox="0 0 24 30">` +
+    `<defs><filter id="fb" x="-70%" y="-70%" width="240%" height="240%">` +
+    `<feGaussianBlur stdDeviation="1.7"/></filter></defs>` +
+    `<path filter="url(#fb)" d="M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z" ` +
+    `fill="${color}" stroke="#ffffff" stroke-width="2.1" opacity="0.82"/></svg>`;
+  return {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+    scaledSize: new google.maps.Size(40, 50),
+    anchor: new google.maps.Point(20, 43),
+  };
 }
 
 function markerIcon(isActive, flagColor, category) {
@@ -4406,7 +4471,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=119", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=120", { updateViaCache: "none" });
   }
 }
 
@@ -5419,6 +5484,7 @@ function onFlowAction(action, index) {
 // the flow item — the original file is never touched; only the site display changes.
 const CROP_ASPECT_OPTIONS = [
   ["free", "原图"],
+  ["custom", "自由"],
   ["1:1", "1:1"],
   ["4:3", "4:3"],
   ["3:4", "3:4"],
@@ -5433,16 +5499,19 @@ function openCropModal(index) {
   const draft = item.crop
     ? { aspect: item.crop.aspect || "free", scale: item.crop.scale || 1, posX: item.crop.posX ?? 50, posY: item.crop.posY ?? 50 }
     : { aspect: "free", scale: 1, posX: 50, posY: 50 };
+  // 用户 T4: 自由比例 remembers its chosen box ratio (w/h) across re-opens.
+  let customAR = item.crop && item.crop.aspect === "custom" && Number.isFinite(item.crop.ar) ? item.crop.ar : null;
   const overlay = document.createElement("div");
   overlay.className = "crop-modal";
   overlay.innerHTML = `
     <div class="crop-modal-inner">
       <div class="crop-stage" id="crop-stage">
         <img class="crop-img" id="crop-img" src="${escapeHtml(item.src || item.thumb || "")}" alt="" draggable="false" />
+        <span class="crop-resize-handle" id="crop-resize" aria-hidden="true" hidden></span>
       </div>
       <div class="crop-ratios">${CROP_ASPECT_OPTIONS.map(([v, l]) => `<button type="button" data-aspect="${v}">${l}</button>`).join("")}</div>
       <label class="crop-zoom-row">缩放<input type="range" class="crop-zoom" min="1" max="4" step="0.01" value="${draft.scale}"></label>
-      <p class="crop-hint">拖动图片调整位置；裁剪只影响网站显示，不改本地文件，可随时「还原原图」。</p>
+      <p class="crop-hint">拖动图片调整位置；「自由」比例可拖右下角把手改裁剪框大小。裁剪只影响网站显示，不改本地文件，可随时「还原原图」。</p>
       <div class="crop-actions">
         <button type="button" class="crop-reset">还原原图</button>
         <button type="button" class="crop-cancel">取消</button>
@@ -5452,10 +5521,15 @@ function openCropModal(index) {
   document.body.appendChild(overlay);
   const stage = overlay.querySelector("#crop-stage");
   const img = overlay.querySelector("#crop-img");
+  const resizeHandle = overlay.querySelector("#crop-resize");
   let naturalAR = 1;
+  let lastMax = { maxW: 360, maxH: 300 }; // remembered for the free-resize handle
   const apply = () => {
+    const isCustom = draft.aspect === "custom";
     let arNum;
-    if (draft.aspect !== "free") {
+    if (isCustom) {
+      arNum = customAR || naturalAR;
+    } else if (draft.aspect !== "free") {
       const [w, h] = draft.aspect.split(":");
       arNum = Number(w) / Number(h);
     } else {
@@ -5465,6 +5539,7 @@ function openCropModal(index) {
     const inner = overlay.querySelector(".crop-modal-inner");
     const maxW = Math.min((inner?.clientWidth || 360) - 32, 360);
     const maxH = window.innerHeight * 0.52;
+    lastMax = { maxW, maxH };
     let W = maxW;
     let H = W / arNum;
     if (H > maxH) {
@@ -5475,9 +5550,17 @@ function openCropModal(index) {
     stage.style.height = `${Math.round(H)}px`;
     img.style.cssText = `width:100%;height:100%;object-fit:cover;object-position:${draft.posX}% ${draft.posY}%;transform:scale(${draft.scale});transform-origin:${draft.posX}% ${draft.posY}%;`;
     overlay.querySelectorAll("[data-aspect]").forEach((b) => b.classList.toggle("is-active", b.dataset.aspect === draft.aspect));
+    // The free-resize corner handle only appears in 自由 mode.
+    if (resizeHandle) {
+      resizeHandle.hidden = !isCustom;
+    }
+    stage.classList.toggle("is-custom", isCustom);
   };
   const onReady = () => {
     naturalAR = (img.naturalWidth || 1) / (img.naturalHeight || 1);
+    if (!customAR) {
+      customAR = naturalAR; // 自由 starts from the image's own ratio
+    }
     apply();
   };
   if (img.complete && img.naturalWidth) {
@@ -5493,8 +5576,40 @@ function openCropModal(index) {
     draft.scale = parseFloat(e.target.value);
     apply();
   });
+  // 用户 T4: 自由 mode — drag the bottom-right handle to set an arbitrary crop-box
+  // ratio. The box always refits the available area, so only the SHAPE follows the
+  // drag (width vs height), keeping it on-screen.
+  let resizing = null;
+  resizeHandle?.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = stage.getBoundingClientRect();
+    resizing = { left: rect.left, top: rect.top };
+    resizeHandle.setPointerCapture(e.pointerId);
+  });
+  resizeHandle?.addEventListener("pointermove", (e) => {
+    if (!resizing) {
+      return;
+    }
+    const W = Math.max(60, Math.min(lastMax.maxW, e.clientX - resizing.left));
+    const H = Math.max(60, Math.min(lastMax.maxH, e.clientY - resizing.top));
+    customAR = W / H;
+    draft.aspect = "custom";
+    apply();
+  });
+  const endResize = (e) => {
+    if (resizing) {
+      resizing = null;
+      resizeHandle.releasePointerCapture?.(e.pointerId);
+    }
+  };
+  resizeHandle?.addEventListener("pointerup", endResize);
+  resizeHandle?.addEventListener("pointercancel", endResize);
   let dragging = null;
   stage.addEventListener("pointerdown", (e) => {
+    if (e.target === resizeHandle) {
+      return; // the resize handle manages its own drag
+    }
     dragging = { x: e.clientX, y: e.clientY, px: draft.posX, py: draft.posY };
     stage.setPointerCapture(e.pointerId);
   });
@@ -5533,6 +5648,8 @@ function openCropModal(index) {
       const out = { aspect: draft.aspect, scale: draft.scale, posX: draft.posX, posY: draft.posY };
       if (draft.aspect === "free") {
         out.ar = naturalAR;
+      } else if (draft.aspect === "custom") {
+        out.ar = customAR || naturalAR; // 用户 T4: remember the free-form box ratio
       }
       item.crop = out;
     }
@@ -6729,13 +6846,26 @@ const MAP_VIS_LABELS = {
   hide: { ja: "隠す", en: "hide" },
 };
 
-// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }. The tuning
-// is kept as TWO independent sets — one for the plain map, one for the satellite map
-// (用户: 普通/卫星 分开两套筛选) — so editing one never changes the other.
+// Each category state = { vis: auto|show|fade|hide, zoom: "" | number }. The tuning is
+// kept as THREE independent sets (用户 T6): 普通地图(roadmap) / 卫星1(sat1, 文字なし) /
+// 卫星2(sat2, 文字あり). Editing the one you're looking at never touches the others.
 function defaultMapCategorySet() {
   const out = {};
   MAP_LAYER_CATEGORIES.forEach((c) => {
     out[c.key] = { vis: "auto", zoom: "" };
+  });
+  return out;
+}
+
+// 卫星2 defaults to showing the usual labels (this is the "文字あり" state) — because
+// the satellite base hides ALL labels, sat2 must explicitly turn the text categories
+// back on. 卫星1 keeps every category "auto" → stays clean/label-free.
+function defaultSat2Set() {
+  const out = defaultMapCategorySet();
+  ["poiLabels", "poiIcons", "roadLabels", "transitLabels", "administrative", "waterLabels"].forEach((k) => {
+    if (out[k]) {
+      out[k].vis = "show";
+    }
   });
   return out;
 }
@@ -6755,17 +6885,22 @@ function mergeMapCategorySet(target, saved) {
 }
 
 function loadMapCategoryState() {
-  const out = { roadmap: defaultMapCategorySet(), satellite: defaultMapCategorySet() };
+  const out = { roadmap: defaultMapCategorySet(), sat1: defaultMapCategorySet(), sat2: defaultSat2Set() };
   try {
     const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
-    // New format: { roadmap:{...}, satellite:{...} }. Old (flat) format: category
-    // keys at the top level — migrate it onto BOTH maps so nothing is lost.
-    if (saved.roadmap || saved.satellite) {
+    // New format: { roadmap, sat1, sat2 }. Older format: { roadmap, satellite }
+    // (satellite tuning was the labels state → migrate onto sat2). Oldest (flat)
+    // format: category keys at the top level → migrate onto roadmap + sat2.
+    if (saved.sat1 || saved.sat2) {
       mergeMapCategorySet(out.roadmap, saved.roadmap);
-      mergeMapCategorySet(out.satellite, saved.satellite);
+      mergeMapCategorySet(out.sat1, saved.sat1);
+      mergeMapCategorySet(out.sat2, saved.sat2);
+    } else if (saved.roadmap || saved.satellite) {
+      mergeMapCategorySet(out.roadmap, saved.roadmap);
+      mergeMapCategorySet(out.sat2, saved.satellite);
     } else {
       mergeMapCategorySet(out.roadmap, saved);
-      mergeMapCategorySet(out.satellite, saved);
+      mergeMapCategorySet(out.sat2, saved);
     }
   } catch {
     /* ignore corrupt storage */
@@ -6773,16 +6908,25 @@ function loadMapCategoryState() {
   return out;
 }
 
+// Which of the three sets is currently active: roadmap, or (on satellite) sat1/sat2
+// depending on the 文字 toggle (用户 T6).
+function activeMapBaseKey() {
+  if (state.mapBase === "roadmap") {
+    return "roadmap";
+  }
+  return state.mapLabels ? "sat2" : "sat1";
+}
+
 // The tuning set for whichever map is currently showing (edits target this one).
 function activeMapCategoryState() {
-  const base = state.mapBase === "roadmap" ? "roadmap" : "satellite";
+  const key = activeMapBaseKey();
   if (!state.mapCategoryState) {
-    return defaultMapCategorySet();
+    return key === "sat2" ? defaultSat2Set() : defaultMapCategorySet();
   }
-  if (!state.mapCategoryState[base]) {
-    state.mapCategoryState[base] = defaultMapCategorySet();
+  if (!state.mapCategoryState[key]) {
+    state.mapCategoryState[key] = key === "sat2" ? defaultSat2Set() : defaultMapCategorySet();
   }
-  return state.mapCategoryState[base];
+  return state.mapCategoryState[key];
 }
 
 function saveMapCategoryState() {
@@ -6835,38 +6979,19 @@ function categoryStyleRules() {
 // True if any category has a zoom threshold set — then styles must be re-applied
 // on zoom_changed for both maps.
 function anyCategoryHasThreshold() {
-  const st = state.mapCategoryState || {};
+  const st = activeMapCategoryState() || {};
   return MAP_LAYER_CATEGORIES.some((c) => {
     const z = st[c.key]?.zoom;
     return z !== "" && z != null && Number.isFinite(Number(z));
   });
 }
 
-// Applied on satellite / hybrid. We always hide the road line geometry (the
-// white lines over the imagery). POI labels (restaurants, parking, …) are
-// hidden until you zoom in close, then shown faded.
-//
-// To tune: POI_REVEAL_ZOOM is the threshold (focus-after-click zoom is 18, the
-// default city view is 14). Flip POI_SHOW_WHEN_ZOOMED_IN to invert the rule
-// (show POI when zoomed OUT instead).
-const POI_REVEAL_ZOOM = 17;
-const POI_SHOW_WHEN_ZOOMED_IN = true;
-
-const ROAD_GEOMETRY_OFF = { featureType: "road", elementType: "geometry", stylers: [{ visibility: "off" }] };
-const POI_OFF = { featureType: "poi", stylers: [{ visibility: "off" }] };
-// Google map styles can't set true label opacity, so "faded" = a softer colour
-// with a dark outline so the text stays readable over the satellite imagery.
-const POI_FADED = [
-  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#eef2f0" }] },
-  { featureType: "poi", elementType: "labels.text.stroke", stylers: [{ color: "#26302c" }, { weight: 2 }] },
-  { featureType: "poi", elementType: "labels.icon", stylers: [{ saturation: -30 }, { lightness: 5 }] },
+// The satellite base look. 用户 T5/T6: satellite always renders on the "hybrid" type
+// (so a label layer exists), and this base turns EVERY label off + hides the road
+// lines — a clean, label-free image. Nothing can leak through because the off rule is
+// featureType-agnostic (elementType:"labels" with no featureType = all features). The
+// per-category filter set (卫星1 / 卫星2) then layers specific labels back ON top.
+const SATELLITE_BASE_STYLES = [
+  { featureType: "road", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { elementType: "labels", stylers: [{ visibility: "off" }] },
 ];
-
-const SATELLITE_STYLES_FAR = [ROAD_GEOMETRY_OFF, POI_OFF];
-const SATELLITE_STYLES_NEAR = [ROAD_GEOMETRY_OFF, ...POI_FADED];
-
-function satelliteStylesForZoom(zoom) {
-  const zoomedIn = zoom >= POI_REVEAL_ZOOM;
-  const showPoi = POI_SHOW_WHEN_ZOOMED_IN ? zoomedIn : !zoomedIn;
-  return showPoi ? SATELLITE_STYLES_NEAR : SATELLITE_STYLES_FAR;
-}

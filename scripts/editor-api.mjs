@@ -277,7 +277,8 @@ function sanitizeCrop(value) {
   if (!value || typeof value !== "object") {
     return null;
   }
-  const aspect = CROP_ASPECTS.has(value.aspect) ? value.aspect : "free";
+  // "custom" = 自由比例 (user-dragged box ratio, stored in ar). "free" = 原图.
+  const aspect = value.aspect === "custom" ? "custom" : CROP_ASPECTS.has(value.aspect) ? value.aspect : "free";
   const scale = Number.isFinite(value.scale) ? Math.min(4, Math.max(1, value.scale)) : 1;
   const posX = Number.isFinite(value.posX) ? Math.min(100, Math.max(0, value.posX)) : 50;
   const posY = Number.isFinite(value.posY) ? Math.min(100, Math.max(0, value.posY)) : 50;
@@ -286,8 +287,9 @@ function sanitizeCrop(value) {
     return null;
   }
   const out = { aspect, scale, posX, posY };
-  // "free" keeps the natural aspect ratio so the site can render the crop box.
-  if (aspect === "free" && Number.isFinite(value.ar) && value.ar > 0) {
+  // "free" keeps the natural aspect ratio; "custom" keeps the chosen box ratio — both
+  // need `ar` so the site can render the crop box.
+  if ((aspect === "free" || aspect === "custom") && Number.isFinite(value.ar) && value.ar > 0) {
     out.ar = value.ar;
   }
   return out;

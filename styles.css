@@ -385,6 +385,25 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   background: rgba(197, 79, 53, 0.08);
 }
 
+/* 用户 T11: the active language is marked with a check + bold so you can tell which
+   language system is currently on. */
+.language-menu button.is-active {
+  font-weight: 600;
+}
+
+.language-menu button.is-active::before {
+  content: "✓";
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.language-menu button:not(.is-active)::before {
+  content: "";
+  margin-right: 6px;
+  display: inline-block;
+  width: 1ch;
+}
+
 .view {
   display: none;
 }
@@ -616,7 +635,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 #map-layers-panel {
   max-height: 70vh;
   overflow-y: auto;
-  min-width: 230px;
+  min-width: 288px;
 }
 
 .map-layer-head {
@@ -631,13 +650,14 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .map-layer-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 3px 4px;
+  padding: 4px;
   font-size: 12px;
 }
 
 .map-layer-name {
-  flex: 1;
+  flex: 1 1 100%;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -645,35 +665,52 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   color: var(--ink);
 }
 
-.map-layer-cycle {
-  flex: 0 0 auto;
-  width: 48px;
-  padding: 3px 4px;
+/* 用户 T7: a segmented single-select row (自動/表示/淡化/隠す). */
+.map-layer-segs {
+  display: inline-flex;
+  flex: 1 1 auto;
   border: 1px solid var(--line);
   border-radius: 6px;
+  overflow: hidden;
+}
+
+.map-layer-seg {
+  flex: 1 1 0;
+  padding: 4px 6px;
+  border: 0;
+  border-left: 1px solid var(--line);
   background: var(--panel);
   color: var(--ink);
   font: inherit;
   font-size: 11px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.map-layer-row[data-vis="show"] .map-layer-cycle {
-  background: #2e9e5b;
+.map-layer-seg:first-child {
+  border-left: 0;
+}
+
+.map-layer-seg:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.map-layer-seg.is-active {
   color: #fff;
-  border-color: #2e9e5b;
+  background: #55635e;
 }
 
-.map-layer-row[data-vis="fade"] .map-layer-cycle {
+.map-layer-seg[data-map-vis="show"].is-active {
+  background: #2e9e5b;
+}
+
+.map-layer-seg[data-map-vis="fade"].is-active {
   background: #d8b24a;
   color: #1f2d2d;
-  border-color: #d8b24a;
 }
 
-.map-layer-row[data-vis="hide"] .map-layer-cycle {
+.map-layer-seg[data-map-vis="hide"].is-active {
   background: #b4502f;
-  color: #fff;
-  border-color: #b4502f;
 }
 
 .map-layer-zoom {
@@ -840,8 +877,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .location-button.is-active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(197, 79, 53, 0.12);
+  /* 用户 T10: white selection frame (was the red accent). */
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .location-button img {
@@ -2380,8 +2418,19 @@ body.edit-mode .card-edit {
   border: 0;
   color: var(--ink);
   background: transparent;
-  font-size: 18px;
-  line-height: 1;
+  cursor: pointer;
+}
+
+/* 用户 T9: a thin, minimal chevron matching the "back to map" icon (was a mismatched
+   —/▾ glyph pair). */
+.archive-group-toggle svg {
+  width: 18px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .archive-group-body {
@@ -3320,6 +3369,26 @@ body:not(.edit-mode) .editor-add {
   display: block;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* 用户 T4: the free-form (自由) resize handle at the crop box's bottom-right corner. */
+.crop-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background:
+    linear-gradient(-45deg, transparent 45%, rgba(255, 255, 255, 0.95) 46%, rgba(255, 255, 255, 0.95) 54%, transparent 55%),
+    linear-gradient(-45deg, transparent 62%, rgba(255, 255, 255, 0.95) 63%, rgba(255, 255, 255, 0.95) 71%, transparent 72%);
+  z-index: 2;
+}
+
+.crop-stage.is-custom {
+  outline: 1px dashed rgba(255, 255, 255, 0.55);
+  outline-offset: -1px;
 }
 
 .crop-ratios {
