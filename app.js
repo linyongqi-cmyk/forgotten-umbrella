@@ -2565,9 +2565,9 @@ function weatherCategory(code) {
   if (c === 51 || c === 53 || c === 55 || c === 61 || c === 63 || c === 80 || c === 81) return "rain";
   if (c === 65 || c === 82) return "heavy-rain"; // 大雨（斜线3）
   if (c === 95 || c === 96 || c === 99) return "thunder"; // 暴雨（云+斜线+闪电）
-  // 小雪（云+雪花）：含雨夹雪(56/57/66/67)、小雪(71)、雪粒(77)、小阵雪(85)
-  if (c === 56 || c === 57 || c === 66 || c === 67 || c === 71 || c === 77 || c === 85) return "light-snow";
-  if (c === 73 || c === 75 || c === 86) return "snow"; // 大雪（只雪花）：含中雪
+  // 小雪（云+雪花）：含雨夹雪(56/57/66/67)、小雪(71)、中雪(73，用户定归入小雪)、雪粒(77)、小阵雪(85)
+  if (c === 56 || c === 57 || c === 66 || c === 67 || c === 71 || c === 73 || c === 77 || c === 85) return "light-snow";
+  if (c === 75 || c === 86) return "snow"; // 大雪（只雪花）：大雪(75)、强阵雪(86)
   return "cloudy";
 }
 
@@ -2675,7 +2675,7 @@ function weatherChangePoints(hourly) {
   return merged;
 }
 
-// 用户定：除头尾外，中间图例最多 4 个（24h 变化太频繁时图例太多很丑）。
+// 用户定：除头尾外，中间图例最多 3 个（24h 变化太频繁时图例太多很丑）。
 // 取舍规则：反复找「持续时间最短」的中间那段天气(=最不有代表性)删掉，删完若相邻两段变成同一类
 // 就合并；直到中间 ≤ maxMiddle。头(−24h)和尾(now)永远保留、位置不动。
 // points 每个点的「这段持续时长」= 下一个点的 index − 自己的 index。
@@ -2732,8 +2732,8 @@ function renderFocusWeatherAxis(weather) {
     return "";
   }
   const last = hourly.length - 1;
-  // 用户定：除头尾外中间最多 4 个图例（删最短的中间段，见 reduceWeatherPoints）。
-  const points = reduceWeatherPoints(rawPoints, hourly.length, 4);
+  // 用户定：除头尾外中间最多 3 个图例（删最短的中间段，见 reduceWeatherPoints）。
+  const points = reduceWeatherPoints(rawPoints, hourly.length, 3);
 
   // 1) 真实时间 → [6,94] 的百分比（两端留 6% 边距，图标 translateX(-50%) 不出血）。
   const LO = 6;
@@ -4147,6 +4147,27 @@ function selectUmbrella(id, options = {}) {
     openEditor(id);
     return;
   }
+
+  // 用户 bug 修复：已经在某标点的详情页时，再次点击同一个标点（不论是否平移/缩放过地图），
+  // 应该只「重新聚焦地图 + 恢复模糊」，而**详情页保持原样不动**（不回顶部、不重渲染、不重置
+  // 放大/图片索引）。之前会走下面的 render()+openFocusMode()→scrollTo(top:0)，把详情页拽回主图。
+  const reFocusingSame =
+    options.focus &&
+    state.selectedId === id &&
+    els.mapView?.classList.contains("is-focus-mode");
+  if (reFocusingSame) {
+    state.focusMarkerId = id;
+    state.suppressNextFit = true;
+    if (state.googleReady) {
+      const item = state.umbrellas.find((entry) => entry.id === id);
+      if (item) {
+        focusUmbrellaOnMap(item, id);
+      }
+    }
+    setFocusBlurSuppressed(false); // 平移/缩放后模糊被抑制过，这里恢复
+    return;
+  }
+
   state.selectedId = id;
   state.focusMediaIndex = 0;
 
@@ -5137,7 +5158,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=131", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=132", { updateViaCache: "none" });
   }
 }
 
