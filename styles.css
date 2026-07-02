@@ -16,6 +16,16 @@
   --gold: #b58b2b;
   --hover-gray: #8a8f90;
   --shadow: 0 18px 45px light-dark(rgba(24, 35, 34, 0.12), rgba(0, 0, 0, 0.32));
+  /* 聚焦模糊效果参数（v122 用户 T1，可在编辑模式「模糊度」面板实时调整并存 localStorage）。
+     -n = 普通标点，-a = 模糊标点。blur=模糊强度px，radius=清晰/白雾圈半径px，
+     feather=边缘羽化px，veil=模糊标点中心白雾浓度(0~1)。 */
+  --fb-blur-n: 6px;
+  --fb-radius-n: 138px;
+  --fb-feather-n: 34px;
+  --fb-blur-a: 7px;
+  --fb-radius-a: 200px;
+  --fb-feather-a: 60px;
+  --fb-veil-a: 0.3;
   font-family:
     "Segoe UI", "Hiragino Sans GB", "Microsoft YaHei", "Yu Gothic UI", sans-serif;
 }
@@ -528,6 +538,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   gap: 10px;
 }
 
+/* While previewing the 模糊度 (v122 T1) the full-screen blur overlay (z-30) is on;
+   lift the toolbar above it so the sliders stay crisp and clickable. */
+.workspace.is-blur-preview .map-layer-tools {
+  z-index: 40;
+}
+
 .map-layer-btn {
   display: grid;
   place-items: center;
@@ -711,6 +727,105 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   color: var(--ink);
   font: inherit;
   font-size: 11px;
+}
+
+/* 模糊度 adjuster panel (v122 T1) — reuses .map-filter-panel for the shell. */
+#blur-adjust-panel {
+  width: 250px;
+}
+
+.blur-adjust-head {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.blur-adjust-group {
+  margin-bottom: 8px;
+}
+
+.blur-adjust-grouphead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 6px 0 3px;
+}
+
+.blur-adjust-preview {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.blur-adjust-preview.is-on {
+  background: #2f6b68;
+  border-color: #2f6b68;
+  color: #fff;
+}
+
+.blur-adjust-row {
+  display: grid;
+  grid-template-columns: 68px 1fr 38px;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.blur-adjust-name {
+  font-size: 10px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blur-adjust-slider {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.blur-adjust-out {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.blur-adjust-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.blur-adjust-hint {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.blur-adjust-btn2 {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.blur-adjust-btn2:hover {
+  background: rgba(197, 79, 53, 0.08);
 }
 
 .panel-heading h2,
@@ -1022,34 +1137,82 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: none;
 }
 
+/* v122 用户 T1/T2: ONE blur system for both "普通标点" (normal) and "模糊标点"
+   (blur-approx). It's this single full-screen overlay ON TOP of the map: its
+   backdrop-filter softens everything behind it (map + all other pins), and a
+   radial mask leaves a clear/veiled circle at the focus point where the selected
+   pin shows through. No more floatPane layer + replica pin (which caused the
+   instant, un-animated look and the hover-through-the-replica bug). The two modes
+   differ ONLY in the variables below — all live-adjustable from the 模糊度 panel
+   (edit mode), and registered via @property so switching modes animates smoothly.
+     --fb-blur   backdrop blur strength (px)
+     --fb-radius clear/veil circle radius (px)   ← 白色/清晰区域半径
+     --fb-feather soft edge width (px)
+     --fb-veil   opacity AT the very centre (0 = fully clear; blur-approx raises it
+                 so even the exact spot is a bit hazy/white = vague)
+     --fb-tint   the wash colour outside the circle (white for blur-approx)
+   Defaults come from :root (--fb-*-n normal set); .is-blur-approx swaps in the
+   --fb-*-a set. */
 .focus-blur {
   color-scheme: dark;
   --focus-x: 23vw;
   --focus-y: 50vh;
-  --focus-radius: 138px;
-  --focus-feather: 34px;
+  --fb-blur: var(--fb-blur-n, 6px);
+  --fb-radius: var(--fb-radius-n, 138px);
+  --fb-feather: var(--fb-feather-n, 34px);
+  --fb-veil: 0;
+  --fb-tint: light-dark(rgba(230, 226, 216, 0.24), rgba(0, 0, 0, 0.22));
   position: fixed;
   inset: 0;
   z-index: 30;
   opacity: 0;
   pointer-events: none;
-  backdrop-filter: blur(6px);
-  background: light-dark(rgba(230, 226, 216, 0.24), rgba(0, 0, 0, 0.22));
+  backdrop-filter: blur(var(--fb-blur));
+  -webkit-backdrop-filter: blur(var(--fb-blur));
+  background: var(--fb-tint);
   -webkit-mask-image: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    transparent 0 calc(var(--focus-radius) - var(--focus-feather)),
-    rgba(0, 0, 0, 0.08) calc(var(--focus-radius) - 20px),
-    rgba(0, 0, 0, 0.82) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
+    circle at var(--focus-x) var(--focus-y),
+    rgba(0, 0, 0, var(--fb-veil)) 0,
+    rgba(0, 0, 0, var(--fb-veil)) calc(var(--fb-radius) - var(--fb-feather)),
+    #000 calc(var(--fb-radius) + var(--fb-feather))
   );
   mask-image: radial-gradient(
-    circle var(--focus-radius) at var(--focus-x) var(--focus-y),
-    transparent 0 calc(var(--focus-radius) - var(--focus-feather)),
-    rgba(0, 0, 0, 0.08) calc(var(--focus-radius) - 20px),
-    rgba(0, 0, 0, 0.82) var(--focus-radius),
-    #000 calc(var(--focus-radius) + var(--focus-feather))
+    circle at var(--focus-x) var(--focus-y),
+    rgba(0, 0, 0, var(--fb-veil)) 0,
+    rgba(0, 0, 0, var(--fb-veil)) calc(var(--fb-radius) - var(--fb-feather)),
+    #000 calc(var(--fb-radius) + var(--fb-feather))
   );
-  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    --fb-radius 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    --fb-veil 480ms ease, --fb-blur 480ms ease, background-color 480ms ease;
+}
+
+/* Registered so the mode-switch (normal ↔ 模糊地址) TRANSITIONS smoothly instead of
+   snapping (用户 T2: switching to a nearby normal pin was abrupt). */
+@property --fb-radius {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 138px;
+}
+@property --fb-veil {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --fb-blur {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 6px;
+}
+
+/* 模糊地址 (blur-approx) = same overlay, vaguer settings: bigger radius, a white
+   wash, and a non-zero centre veil so the exact spot stays hazy. */
+.workspace.is-focus-mode.is-blur-approx .focus-blur {
+  --fb-blur: var(--fb-blur-a, 7px);
+  --fb-radius: var(--fb-radius-a, 200px);
+  --fb-feather: var(--fb-feather-a, 60px);
+  --fb-veil: var(--fb-veil-a, 0.3);
+  --fb-tint: rgba(255, 255, 255, 0.5);
 }
 
 .focus-image-panel {
@@ -1663,104 +1826,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   pointer-events: none;
 }
 
-/* T7 模糊地址 (v121): a blur element injected INTO a Google Maps pane — now the
-   `floatPane`, which sits ABOVE the marker panes. Its backdrop blur therefore
-   softens the map AND every pin in one wash (the same harmonious look as the
-   normal focus blur); a sharp clone of the focused pin
-   (.focus-blur-approx-pin, appended by JS) rides on top of the layer so the
-   selected point stays crisp. The layer is sized/positioned by JS (draw()) to
-   cover the viewport and tracks the map on pan/zoom. Tunable: backdrop blur px =
-   blur strength, background rgba = white filter strength. */
-.focus-blur-approx-layer {
-  position: absolute;
+/* 模糊度 preview (v122 T1): show the blur overlay while tuning sliders, WITHOUT a
+   detail page. Same overlay, so what you see is exactly the real effect. */
+.workspace.is-blur-preview .focus-blur {
+  opacity: 1;
   pointer-events: none;
-  /* 用户要求 #1: the white centre should be blurred LESS than the dark rim, but with
-     NO visible seam between them. The trick is ADDITIVE blur with a feathered mask
-     instead of two mutually-exclusive masks (which left a hard edge):
-       • this base layer blurs the WHOLE viewport a tiny --blur-inner (1px) and paints
-         the radial colour wash (a brighter white haze in the centre → dark vignette);
-       • the ::after layer adds MORE blur (--blur-outer) ONLY toward the rim, via a
-         soft gradient mask whose alpha ramps up gradually — so the extra blur fades
-         in smoothly (centre ≈ 1px, rim ≈ 1px+6px ≈ the normal 6px) with no seam.
-     Tunable: the two --blur values, --cr, and the white/black alphas. */
-  --cx: 50%;
-  --cy: 50%;
-  --cr: 200px;
-  --blur-inner: 1px;
-  --blur-outer: 6px;
-  backdrop-filter: blur(var(--blur-inner));
-  -webkit-backdrop-filter: blur(var(--blur-inner));
-  background: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    rgba(255, 255, 255, 0.3) 0,
-    rgba(255, 255, 255, 0.16) calc(var(--cr) * 0.42),
-    rgba(0, 0, 0, 0.08) calc(var(--cr) * 0.72),
-    rgba(0, 0, 0, 0.24) var(--cr),
-    rgba(0, 0, 0, 0.24) 100%
-  );
-  /* smooth fade when the user pans/zooms (item 1) */
-  transition: opacity 200ms ease;
-}
-
-/* Extra blur ADDED toward the rim (stacks on the 1px base). The gradient mask ramps
-   its alpha from 0 at ~0.4·cr to full at the rim, so the blur strength rises
-   gradually — no seam between the clear centre and the blurry edge (用户 #1). */
-.focus-blur-approx-layer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(var(--blur-outer));
-  -webkit-backdrop-filter: blur(var(--blur-outer));
-  -webkit-mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    transparent 0 calc(var(--cr) * 0.4),
-    #000 var(--cr)
-  );
-  mask-image: radial-gradient(
-    circle var(--cr) at var(--cx) var(--cy),
-    transparent 0 calc(var(--cr) * 0.4),
-    #000 var(--cr)
-  );
-}
-
-/* The sharp clone of the focused (blue) pin, drawn above the blur. Geometry must
-   match markerIcon(): size 24×30 × scale 1.55, anchor (12,26) × 1.55 — the
-   translate puts that anchor point exactly on (--cx, --cy), i.e. the marker's
-   lat/lng pixel. z-index lifts it above the ::after blur pass so it never gets
-   re-blurred. It fades/hides together with the layer (opacity is inherited), so
-   while the user pans/zooms the REAL sharp marker below simply shows through. */
-.focus-blur-approx-pin {
-  position: absolute;
-  left: var(--cx);
-  top: var(--cy);
-  z-index: 1;
-  width: 37.2px;
-  height: 46.5px;
-  transform: translate(-18.6px, -40.3px);
-  pointer-events: none;
-}
-
-/* Item 1: while the user pans / zooms (is-focus-map-active) drop the pane blur too
-   — same as the full-screen .focus-blur — so the map is sharp during interaction.
-   The pin clone hides with it (it's a child), and since the pins themselves keep
-   their normal icons now, everything on screen is back to the normal sharp state. */
-.workspace.is-focus-mode.is-focus-map-active .focus-blur-approx-layer {
-  opacity: 0;
-}
-
-/* In 模糊地址 mode the full-screen blur overlay is suppressed — the pane-based
-   blur above does the work (so the marker stays sharp). */
-.workspace.is-focus-mode.is-blur-approx .focus-blur {
-  display: none;
-}
-
-/* 用户 #1: …EXCEPT in the enlarged lightbox. The "click the blank backdrop to go
-   back to the detail page" handler lives on .focus-blur; for a 模糊地址 point it was
-   display:none, so clicking outside the enlarged photo did nothing (you got stuck).
-   Re-show it when the image is expanded so the lightbox backdrop catches the click,
-   same as every other marker. */
-.workspace.is-focus-mode.is-blur-approx.is-image-expanded .focus-blur {
-  display: block;
 }
 
 /* T7 item 3: small text label under the pin in the blurred focus view (the rough
@@ -2356,6 +2426,20 @@ body.editor-open .archive-view {
   right: 8px;
   display: flex;
   gap: 6px;
+}
+
+/* 用户 T5 (v122): 待改 reminder dot — top-left of the card photo. */
+.card-flag-dot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e0402f;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  z-index: 2;
 }
 
 .card-badge {
@@ -4454,6 +4538,12 @@ body:not(.edit-mode) .editor-add {
   scrollbar-width: none;
 }
 
+/* 用户 T4 (v122): the preview / history split is a draggable divider — its Y is
+   --preview-split (default 40vh). Preview takes the top, history the rest. */
+.editor-preview {
+  height: var(--preview-split, 40vh);
+}
+
 .editor-preview.is-open {
   transform: translateX(0);
 }
@@ -4466,7 +4556,7 @@ body:not(.edit-mode) .editor-add {
 .editor-history {
   position: fixed;
   left: 0;
-  top: 40vh;
+  top: var(--preview-split, 40vh);
   bottom: 0;
   width: var(--preview-w);
   box-sizing: border-box;
@@ -4482,6 +4572,47 @@ body:not(.edit-mode) .editor-add {
 
 .editor-history[hidden] {
   display: none;
+}
+
+/* 用户 T4 (v122): drag handles to resize the panels like desktop windows. They only
+   exist while the editor drawer is open. Thin invisible strips with a hover tint. */
+.panel-resizer {
+  position: fixed;
+  z-index: 1310;
+  display: none;
+  background: transparent;
+  transition: background 0.12s ease;
+}
+body.editor-open .panel-resizer {
+  display: block;
+}
+.panel-resizer:hover,
+.panel-resizer.is-dragging {
+  background: rgba(197, 79, 53, 0.35);
+}
+/* Left column (preview + history) right edge — drag to change its width. */
+.panel-resizer.resizer-col {
+  left: calc(var(--preview-w) - 3px);
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+}
+/* Divider between preview (top) and history (bottom) — drag to change the split. */
+.panel-resizer.resizer-split {
+  left: 0;
+  top: calc(var(--preview-split, 40vh) - 3px);
+  width: var(--preview-w);
+  height: 6px;
+  cursor: row-resize;
+}
+/* Editor drawer left edge — drag to change the drawer width. */
+.panel-resizer.resizer-editor {
+  right: calc(var(--editor-w) - 3px);
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
 }
 
 .editor-history-head {

@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=121" />
+    <link rel="stylesheet" href="styles.css?v=122" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -133,6 +133,16 @@
                 </svg>
               </button>
               <div class="map-filter-panel" id="map-layers-panel" hidden></div>
+            </div>
+
+            <div class="map-filter" id="blur-adjust">
+              <button id="blur-adjust-toggle" class="map-layer-btn" type="button" aria-expanded="false" aria-label="聚焦模糊度调整（编辑用）" title="聚焦模糊度调整（编辑用）">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="7" />
+                  <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+                </svg>
+              </button>
+              <div class="map-filter-panel" id="blur-adjust-panel" hidden></div>
             </div>
           </div>
 
@@ -268,6 +278,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=121" type="module"></script>
+    <script src="app.js?v=122" type="module"></script>
   </body>
 </html>

@@ -51,13 +51,13 @@ const state = {
   // Map marker filter (item 6/15/16): which of the 4 colour categories show.
   markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
   markerFilterOpen: false,
-  // OverlayView that blurs the map BELOW the marker pane for 模糊地址 focus (so the
-  // real marker stays sharp on top — no fake pin). Created lazily once the map is.
-  blurOverlay: null,
-  blurOverlayCenter: null, // {lat,lng} of the focused point, to centre the radial wash
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
+  // 模糊度 adjuster (v122 T1): live focus-blur params + panel state.
+  blurAdjustOpen: false,
+  blurSettings: null, // filled from defaults + localStorage lazily
+  blurPreviewKind: null, // "normal" | "approx" while previewing, else null
   // Zoom the map had before the current focus opened — restored on exit (item 6).
   preFocusZoom: null,
   poiShown: false,
@@ -347,6 +347,8 @@ const els = {
   mapLayers: document.querySelector("#map-layers"),
   mapLayersToggle: document.querySelector("#map-layers-toggle"),
   mapLayersPanel: document.querySelector("#map-layers-panel"),
+  blurAdjustToggle: document.querySelector("#blur-adjust-toggle"),
+  blurAdjustPanel: document.querySelector("#blur-adjust-panel"),
   statCount: document.querySelector("#stat-count"),
   statFieldwork: document.querySelector("#stat-fieldwork"),
   statSubmissions: document.querySelector("#stat-submissions"),
@@ -669,6 +671,46 @@ function bindEvents() {
     applyMapCategoryStyles();
   });
   syncMapLayers();
+
+  // 用户 T1 (v122): a 模糊度 adjuster (edit mode only) — live sliders for the focus
+  // blur of both 普通标点 and 模糊标点, applied to CSS variables + persisted.
+  els.blurAdjustToggle?.addEventListener("click", () => {
+    state.blurAdjustOpen = !state.blurAdjustOpen;
+    if (!state.blurAdjustOpen) {
+      stopBlurPreview();
+    }
+    syncBlurAdjust();
+  });
+  els.blurAdjustPanel?.addEventListener("input", (event) => {
+    const slider = event.target.closest?.("[data-blur-key]");
+    if (!slider) {
+      return;
+    }
+    const key = slider.dataset.blurKey;
+    state.blurSettings[key] = Number(slider.value);
+    applyBlurSettings();
+    saveBlurSettings();
+    const out = els.blurAdjustPanel.querySelector(`[data-blur-out="${key}"]`);
+    if (out) {
+      out.textContent = formatBlurValue(key, Number(slider.value));
+    }
+  });
+  els.blurAdjustPanel?.addEventListener("click", (event) => {
+    const preview = event.target.closest?.("[data-blur-preview]");
+    if (preview) {
+      startBlurPreview(preview.dataset.blurPreview);
+      return;
+    }
+    if (event.target.closest?.("[data-blur-stop]")) {
+      stopBlurPreview();
+      return;
+    }
+    if (event.target.closest?.("[data-blur-reset]")) {
+      resetBlurSettings();
+    }
+  });
+  applyBlurSettings();
+  syncBlurAdjust();
 
   els.search?.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
@@ -1186,6 +1228,258 @@ function syncMapLayers() {
         <input type="number" class="map-layer-zoom" data-map-zoom-max="${c.key}" min="1" max="22" step="1" placeholder="${zMaxPlaceholder}" title="${zMaxHint}" value="${zVal(s.zoomMax)}" />
       </div>`;
   }).join("");
+}
+
+// ---- 模糊度 adjuster (v122 用户 T1) ------------------------------------------
+// Live sliders (edit mode) for the focus-blur of both marker kinds. Each slider
+// writes a CSS variable on :root; the .focus-blur overlay reads them, so the change
+// is instant. Values persist in localStorage. A 预览 button flips the overlay on
+// (without opening a detail page) so the user can watch while dragging.
+const BLUR_SETTINGS_KEY = "fu-blur-settings";
+const BLUR_PARAMS = [
+  { key: "blurN", cssVar: "--fb-blur-n", group: "normal", label: "模糊强度", min: 0, max: 16, step: 0.5, unit: "px", def: 6 },
+  { key: "radiusN", cssVar: "--fb-radius-n", group: "normal", label: "清晰圈半径", min: 40, max: 420, step: 2, unit: "px", def: 138 },
+  { key: "featherN", cssVar: "--fb-feather-n", group: "normal", label: "边缘羽化", min: 0, max: 140, step: 2, unit: "px", def: 34 },
+  { key: "blurA", cssVar: "--fb-blur-a", group: "approx", label: "模糊强度", min: 0, max: 16, step: 0.5, unit: "px", def: 7 },
+  { key: "radiusA", cssVar: "--fb-radius-a", group: "approx", label: "白雾圈半径", min: 40, max: 420, step: 2, unit: "px", def: 200 },
+  { key: "featherA", cssVar: "--fb-feather-a", group: "approx", label: "边缘羽化", min: 0, max: 180, step: 2, unit: "px", def: 60 },
+  { key: "veilA", cssVar: "--fb-veil-a", group: "approx", label: "中心白雾浓度", min: 0, max: 0.8, step: 0.02, unit: "", def: 0.3 },
+];
+const BLUR_PARAM_BY_KEY = Object.fromEntries(BLUR_PARAMS.map((p) => [p.key, p]));
+
+function defaultBlurSettings() {
+  const out = {};
+  BLUR_PARAMS.forEach((p) => {
+    out[p.key] = p.def;
+  });
+  return out;
+}
+
+function loadBlurSettings() {
+  const out = defaultBlurSettings();
+  try {
+    const saved = JSON.parse(localStorage.getItem(BLUR_SETTINGS_KEY) || "{}");
+    BLUR_PARAMS.forEach((p) => {
+      if (Number.isFinite(Number(saved[p.key]))) {
+        out[p.key] = Number(saved[p.key]);
+      }
+    });
+  } catch {
+    /* ignore corrupt storage */
+  }
+  return out;
+}
+
+function saveBlurSettings() {
+  try {
+    localStorage.setItem(BLUR_SETTINGS_KEY, JSON.stringify(state.blurSettings));
+  } catch {
+    /* ignore */
+  }
+}
+
+function formatBlurValue(key, value) {
+  const p = BLUR_PARAM_BY_KEY[key];
+  return p && p.unit ? `${value}${p.unit}` : String(value);
+}
+
+// Push the current settings onto :root as CSS variables (so .focus-blur updates).
+function applyBlurSettings() {
+  if (!state.blurSettings) {
+    state.blurSettings = loadBlurSettings();
+  }
+  BLUR_PARAMS.forEach((p) => {
+    const v = state.blurSettings[p.key];
+    document.documentElement.style.setProperty(p.cssVar, p.unit ? `${v}${p.unit}` : String(v));
+  });
+}
+
+function resetBlurSettings() {
+  state.blurSettings = defaultBlurSettings();
+  applyBlurSettings();
+  saveBlurSettings();
+  renderBlurAdjust();
+}
+
+// Show the blur overlay (a chosen kind) WITHOUT opening a detail page, centred a bit
+// right of the toolbar so both the sliders and the clear/white circle are visible.
+function startBlurPreview(kind) {
+  state.blurPreviewKind = kind === "approx" ? "approx" : "normal";
+  els.mapView?.classList.add("is-blur-preview");
+  els.mapView?.classList.toggle("is-blur-approx", state.blurPreviewKind === "approx");
+  if (els.focusBlur) {
+    els.focusBlur.style.setProperty("--focus-x", "58vw");
+    els.focusBlur.style.setProperty("--focus-y", "46vh");
+  }
+  renderBlurAdjust();
+}
+
+function stopBlurPreview() {
+  if (!state.blurPreviewKind) {
+    return;
+  }
+  state.blurPreviewKind = null;
+  // Only drop the preview classes if a real focus isn't running.
+  if (!els.mapView?.classList.contains("is-focus-mode")) {
+    els.mapView?.classList.remove("is-blur-approx");
+  }
+  els.mapView?.classList.remove("is-blur-preview");
+  renderBlurAdjust();
+}
+
+function syncBlurAdjust() {
+  if (!state.blurSettings) {
+    state.blurSettings = loadBlurSettings();
+  }
+  const show = Boolean(state.editMode);
+  const wrap = document.querySelector("#blur-adjust");
+  if (wrap) {
+    wrap.hidden = !show;
+  }
+  if (!show) {
+    state.blurAdjustOpen = false;
+    stopBlurPreview();
+  }
+  if (els.blurAdjustToggle) {
+    els.blurAdjustToggle.setAttribute("aria-expanded", String(state.blurAdjustOpen));
+    els.blurAdjustToggle.classList.toggle("is-active", state.blurAdjustOpen);
+  }
+  if (els.blurAdjustPanel) {
+    els.blurAdjustPanel.hidden = !state.blurAdjustOpen;
+  }
+  if (state.blurAdjustOpen) {
+    renderBlurAdjust();
+  }
+}
+
+function renderBlurAdjust() {
+  if (!els.blurAdjustPanel || !state.blurAdjustOpen) {
+    return;
+  }
+  const rows = (group) =>
+    BLUR_PARAMS.filter((p) => p.group === group)
+      .map((p) => {
+        const v = state.blurSettings[p.key];
+        return `<label class="blur-adjust-row">
+            <span class="blur-adjust-name">${p.label}</span>
+            <input type="range" class="blur-adjust-slider" data-blur-key="${p.key}" min="${p.min}" max="${p.max}" step="${p.step}" value="${v}" />
+            <output class="blur-adjust-out" data-blur-out="${p.key}">${formatBlurValue(p.key, v)}</output>
+          </label>`;
+      })
+      .join("");
+  const previewing = state.blurPreviewKind;
+  els.blurAdjustPanel.innerHTML = `
+    <div class="blur-adjust-head">聚焦模糊度</div>
+    <div class="blur-adjust-group">
+      <div class="blur-adjust-grouphead">
+        <span>普通标点</span>
+        <button type="button" class="blur-adjust-preview${previewing === "normal" ? " is-on" : ""}" data-blur-preview="normal">${previewing === "normal" ? "预览中" : "预览"}</button>
+      </div>
+      ${rows("normal")}
+    </div>
+    <div class="blur-adjust-group">
+      <div class="blur-adjust-grouphead">
+        <span>模糊标点</span>
+        <button type="button" class="blur-adjust-preview${previewing === "approx" ? " is-on" : ""}" data-blur-preview="approx">${previewing === "approx" ? "预览中" : "预览"}</button>
+      </div>
+      ${rows("approx")}
+    </div>
+    <div class="blur-adjust-foot">
+      ${previewing ? `<button type="button" class="blur-adjust-btn2" data-blur-stop>停止预览</button>` : `<span class="blur-adjust-hint">点「预览」看效果</span>`}
+      <button type="button" class="blur-adjust-btn2" data-blur-reset>恢复默认</button>
+    </div>`;
+}
+
+// ---- Resizable editor panels (v122 用户 T4) ---------------------------------
+// Three drag handles let the user resize the left column (preview + history) width,
+// the split between preview (top) and history (bottom), and the editor drawer width
+// — like desktop windows. Sizes persist in localStorage and are restored on load.
+const PANEL_SIZE_KEY = "fu-panel-sizes";
+
+function loadPanelSizes() {
+  try {
+    const s = JSON.parse(localStorage.getItem(PANEL_SIZE_KEY) || "{}");
+    return s && typeof s === "object" ? s : {};
+  } catch {
+    return {};
+  }
+}
+
+function applyPanelSizes() {
+  const s = loadPanelSizes();
+  const root = document.documentElement.style;
+  if (Number.isFinite(Number(s.previewW))) {
+    root.setProperty("--preview-w", `${s.previewW}px`);
+  }
+  if (Number.isFinite(Number(s.previewSplit))) {
+    root.setProperty("--preview-split", `${s.previewSplit}px`);
+  }
+  if (Number.isFinite(Number(s.editorW))) {
+    root.setProperty("--editor-w", `${s.editorW}px`);
+  }
+}
+
+function savePanelSize(key, value) {
+  const s = loadPanelSizes();
+  s[key] = value;
+  try {
+    localStorage.setItem(PANEL_SIZE_KEY, JSON.stringify(s));
+  } catch {
+    /* ignore */
+  }
+}
+
+function setupPanelResizers() {
+  applyPanelSizes();
+  const make = (cls) => {
+    const el = document.createElement("div");
+    el.className = `panel-resizer ${cls}`;
+    document.body.appendChild(el);
+    return el;
+  };
+  const colHandle = make("resizer-col"); // left-column width
+  const splitHandle = make("resizer-split"); // preview/history split
+  const editorHandle = make("resizer-editor"); // editor drawer width
+  const root = document.documentElement.style;
+
+  const drag = (handle, onMove) => {
+    handle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      try {
+        handle.setPointerCapture(event.pointerId);
+      } catch {
+        /* setPointerCapture can throw for synthetic pointers; drag still works */
+      }
+      handle.classList.add("is-dragging");
+      const move = (e) => onMove(e);
+      const up = (e) => {
+        handle.releasePointerCapture?.(e.pointerId);
+        handle.classList.remove("is-dragging");
+        handle.removeEventListener("pointermove", move);
+        handle.removeEventListener("pointerup", up);
+        handle.removeEventListener("pointercancel", up);
+      };
+      handle.addEventListener("pointermove", move);
+      handle.addEventListener("pointerup", up);
+      handle.addEventListener("pointercancel", up);
+    });
+  };
+
+  drag(colHandle, (e) => {
+    const w = Math.max(220, Math.min(640, e.clientX));
+    root.setProperty("--preview-w", `${w}px`);
+    savePanelSize("previewW", w);
+  });
+  drag(splitHandle, (e) => {
+    const h = Math.max(120, Math.min(window.innerHeight - 140, e.clientY));
+    root.setProperty("--preview-split", `${h}px`);
+    savePanelSize("previewSplit", h);
+  });
+  drag(editorHandle, (e) => {
+    const w = Math.max(360, Math.min(window.innerWidth * 0.75, window.innerWidth - e.clientX));
+    root.setProperty("--editor-w", `${w}px`);
+    savePanelSize("editorW", w);
+  });
 }
 
 function syncArchiveControls() {
@@ -1905,13 +2199,16 @@ function renderMapMarkers(items) {
       title: id,
       icon,
       // Explicit, latitude-based z-order: overlapping pins (e.g. 8680 / aaa(1))
-      // must never swap front-to-back while zooming — with no explicit zIndex the
-      // renderer re-derives stacking during zoom and close pairs flicker (用户 T3).
+      // must never swap front-to-back while zooming — with a DISTINCT zIndex per pin
+      // the canvas renderer draws them in a fixed order, so close pairs never flicker.
       zIndex: markerZIndex(item),
       draggable: state.editMode,
-      // 用户 T3: render each marker as its own DOM element (not the shared sprite
-      // canvas), which also z-fought overlapping pins while zooming.
-      optimized: false,
+      // 用户 T3 (v122): OPTIMIZED markers (the default) are painted on the map's own
+      // canvas, so during the focus zoom-in animation they move in perfect lockstep
+      // with the tiles. `optimized:false` DOM markers lagged the camera by a frame
+      // (Google re-projects their left/top out of sync with the tile transform),
+      // which is what made a pin visibly "drop" then settle when opened (8665/8755/
+      // 8766). The distinct zIndex above keeps the canvas order stable = no flicker.
     });
 
     // Handlers look the item up fresh by id — the marker now outlives data edits
@@ -3178,11 +3475,15 @@ function renderPhotoCard(item) {
 
   const cardTitle = localize(item.title);
   const titleHtml = cardTitle ? `<span class="card-title">${escapeHtml(cardTitle)}</span>` : "";
+  // 用户 T5 (v122): a red dot on cards flagged 待改 (editFlag). Internal reminder, so
+  // it only shows in edit mode — the same rule as the map markers' 待改 colouring.
+  const flagDot = state.editMode && item.editFlag ? `<span class="card-flag-dot" title="待改（这个标点后续需要修改）"></span>` : "";
 
   return `
     <article class="photo-card" data-id="${escapeHtml(item.id)}">
       <div class="card-photo">
         <img src="${item.thumb}" alt="${escapeHtml(item.id)}" loading="lazy" decoding="async" />
+        ${flagDot}
         ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
         <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
       </div>
@@ -3491,101 +3792,15 @@ function selectUmbrella(id, options = {}) {
   }
 }
 
-// The focused pin, redrawn sharp ON TOP of the 模糊地址 blur layer. Must match
-// markerIcon() exactly: same path, isActive blue, scale 1.55 (24×30 → 37.2×46.5),
-// stroke 2.1px screen (2.1 / 1.55 in path units), anchor (12,26)×1.55 = (18.6,40.3)
-// — the CSS transform on .focus-blur-approx-pin encodes that anchor.
-const FOCUS_PIN_SVG =
-  '<svg width="37.2" height="46.5" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg">' +
-  '<path d="M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z" ' +
-  'fill="#1f8bb8" stroke="#ffffff" stroke-width="1.35"/></svg>';
-
-// Lazily build the 模糊地址 blur OverlayView. 用户 T2 (v121): its div now lives in
-// the `floatPane` — ABOVE the marker panes — so its backdrop blur softens the map
-// AND every pin in one wash (the same harmonious look as the normal focus blur;
-// the old per-pin blurred SVG icons looked pasted-on). Only the focused pin must
-// stay sharp, so a pixel-perfect clone of it (FOCUS_PIN_SVG) is drawn on top of
-// the layer at the same anchor. draw() keeps the div covering the visible map, so
-// it tracks pan/zoom.
-function ensureBlurOverlay() {
-  if (state.blurOverlay || !state.googleReady || !window.google?.maps) {
-    return;
-  }
-  const overlay = new google.maps.OverlayView();
-  overlay.onAdd = function onAdd() {
-    const div = document.createElement("div");
-    div.className = "focus-blur-approx-layer";
-    const pin = document.createElement("div");
-    pin.className = "focus-blur-approx-pin";
-    pin.innerHTML = FOCUS_PIN_SVG;
-    div.appendChild(pin);
-    this._div = div;
-    // floatPane sits above markerLayer / overlayMouseTarget, so the pins render
-    // UNDER the blur and get blurred together with the map.
-    this.getPanes().floatPane.appendChild(div);
-  };
-  overlay.draw = function draw() {
-    const div = this._div;
-    const projection = this.getProjection();
-    const bounds = state.map?.getBounds();
-    if (!div || !projection || !bounds) {
-      return;
-    }
-    const ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
-    const sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
-    const pad = 140; // cover a little past the edges so corners never show through
-    const left = Math.min(ne.x, sw.x) - pad;
-    const top = Math.min(ne.y, sw.y) - pad;
-    div.style.left = `${left}px`;
-    div.style.top = `${top}px`;
-    div.style.width = `${Math.abs(ne.x - sw.x) + pad * 2}px`;
-    div.style.height = `${Math.abs(ne.y - sw.y) + pad * 2}px`;
-    // Centre the white-circle/dark-vignette radial on the focused marker.
-    const center = state.blurOverlayCenter;
-    if (center) {
-      const c = projection.fromLatLngToDivPixel(
-        new google.maps.LatLng(center.lat, center.lng),
-      );
-      div.style.setProperty("--cx", `${c.x - left}px`);
-      div.style.setProperty("--cy", `${c.y - top}px`);
-    }
-  };
-  overlay.onRemove = function onRemove() {
-    this._div?.remove();
-    this._div = null;
-  };
-  state.blurOverlay = overlay;
-}
-
-function showBlurApproxOverlay(item) {
-  ensureBlurOverlay();
-  // Remember the focus point so draw() can centre the radial wash on the marker.
-  state.blurOverlayCenter = item?.coordinates || null;
-  if (state.blurOverlay && state.blurOverlay.getMap() !== state.map) {
-    state.blurOverlay.setMap(state.map);
-  }
-}
-
-function hideBlurApproxOverlay() {
-  if (state.blurOverlay && state.blurOverlay.getMap()) {
-    state.blurOverlay.setMap(null);
-  }
-}
-
 function focusUmbrellaOnMap(item, id) {
-  // T7: contributed umbrellas flagged 模糊地址 get a white, larger-radius blur so
-  // the exact spot stays vague.
+  // v122 用户 T1/T2: 普通标点 and 模糊标点 now share ONE blur — the full-screen
+  // `.focus-blur` overlay (see CSS). We only toggle the mode class; the overlay's
+  // radius / white veil / blur strength swap via CSS variables, and it animates
+  // smoothly (opacity + registered @property). No floatPane layer, no replica pin
+  // (that caused the instant look + the hover-through-the-replica bug).
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
-  // T2 (v121): the 模糊地址 blur lives in the floatPane ABOVE the markers, so the
-  // map and every other pin blur together; a sharp clone of the focused pin is
-  // drawn on top of the layer. Plain focus keeps the full-screen .focus-blur
-  // (clear circle).
-  if (item.blurApprox) {
-    showBlurApproxOverlay(item);
-  } else {
-    hideBlurApproxOverlay();
-  }
-  // Turn the focused pin blue (and re-stack it on top) without a full rebuild.
+  // Turn the focused pin blue (it sits in the clear/veiled circle, sharp; the
+  // overlay softens every other pin behind it).
   updateMarkerIcons();
   // Under-pin label (item 3): custom text, or the display address as fallback.
   // It starts hidden (is-pending = opacity 0) and only fades in once the map has
@@ -3633,7 +3848,6 @@ function closeFocusMode(options = {}) {
   setFocusBlurSuppressed(false);
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
-  hideBlurApproxOverlay();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
   // Restore the just-unfocused pin to its normal (non-blue) icon.
@@ -4494,7 +4708,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=121", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=122", { updateViaCache: "none" });
   }
 }
 
@@ -4909,6 +5123,8 @@ function setupEditor() {
   history.querySelector(".editor-history-clear").addEventListener("click", clearEditHistory);
   editor.historyList.addEventListener("click", onEditHistoryClick);
   syncEditHistory();
+
+  setupPanelResizers();
 
   // Local-only zoom readout, top-right edge (item 6) — never on the live site
   // since setupEditor only runs when IS_LOCAL.
@@ -6051,6 +6267,7 @@ function toggleEditMode() {
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
   // The T8 map-style tuning panel only exists in edit mode.
   syncMapLayers();
+  syncBlurAdjust(); // 模糊度 adjuster (edit mode only)
   syncEditHistory(); // 用户「修改记录」面板也只在编辑模式显示
   if (!state.editMode) {
     closeEditor();
@@ -6350,6 +6567,7 @@ function openEditor(id) {
   // Lets the Archive page reserve space for the side panels (see #15) so cards
   // stay visible and clickable instead of being hidden under them.
   document.body.classList.add("editor-open");
+  syncEditHistory(); // 用户 T4: history panel appears with the drawer + preview
   // Freshly opened = no unsaved edits yet (item 13).
   editor.dirty = false;
 }
@@ -6384,6 +6602,7 @@ function closeEditor({ force = false } = {}) {
   editor.root?.classList.remove("is-open");
   editor.preview?.classList.remove("is-open");
   document.body.classList.remove("editor-open");
+  syncEditHistory(); // 用户 T4: history panel disappears with the drawer + preview
 }
 
 function updateCoordReadout(raw) {
@@ -6937,8 +7156,12 @@ function syncEditHistory() {
   if (!Array.isArray(state.editHistory)) {
     state.editHistory = loadEditHistory();
   }
-  editor.history.hidden = !state.editMode;
-  if (!state.editMode) {
+  // 用户 v122 T4: the 修改记录 panel is bound to the editor drawer + preview — it only
+  // shows while a record is open (editingId), and hides the moment the drawer closes,
+  // so the three appear/disappear as one unit (no more orphaned history panel).
+  const show = Boolean(state.editMode && state.editingId);
+  editor.history.hidden = !show;
+  if (!show) {
     return;
   }
   renderEditHistory();
