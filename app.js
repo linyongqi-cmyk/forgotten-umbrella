@@ -2561,8 +2561,8 @@ function weatherCategory(code) {
   if (c === 0) return "clear"; // 晴
   if (c === 1 || c === 2) return "partly"; // 多云间晴
   if (c === 3 || c === 45 || c === 48) return "cloudy"; // 阴（雾也归这里，用户定）
-  if (c === 51 || c === 53 || c === 61 || c === 80) return "light-rain"; // 小雨（斜线1）
-  if (c === 55 || c === 63 || c === 81) return "rain"; // 中雨（斜线2）
+  // 中雨（斜线2）：用户定「取消小雨归入中雨」，原小雨的 51/53/61/80 也并到这里
+  if (c === 51 || c === 53 || c === 55 || c === 61 || c === 63 || c === 80 || c === 81) return "rain";
   if (c === 65 || c === 82) return "heavy-rain"; // 大雨（斜线3）
   if (c === 95 || c === 96 || c === 99) return "thunder"; // 暴雨（云+斜线+闪电）
   // 小雪（云+雪花）：含雨夹雪(56/57/66/67)、小雪(71)、雪粒(77)、小阵雪(85)
@@ -2617,10 +2617,7 @@ function weatherIconSvg(category) {
     case "cloudy":
       inner = WEATHER_CLOUD;
       break;
-    case "light-rain": // 小雨：斜线 1 条
-      inner = `${WEATHER_CLOUD}<path d="M12 19l-1.6 3.4"/>`;
-      break;
-    case "rain": // 中雨：斜线 2 条
+    case "rain": // 中雨：斜线 2 条（用户取消小雨后，最小的雨就是它）
       inner = `${WEATHER_CLOUD}<path d="M10.5 19l-1.6 3.4M14.5 19l-1.6 3.4"/>`;
       break;
     case "heavy-rain": // 大雨：斜线 3 条
@@ -2651,7 +2648,9 @@ function weatherChangePoints(hourly) {
   const pts = [];
   let prevCat = Symbol("none");
   hourly.forEach((h, i) => {
-    const cat = weatherCategoryAt(h.code, h.time);
+    // 用户定：晴/多云间晴的「夜间版」只在 now 出现，中间不因昼夜切换分段——所以这里用不带
+    // 昼夜的基础分类 weatherCategory 划分变化段；now 点的月亮版在渲染时(renderFocusWeatherAxis)单独处理。
+    const cat = weatherCategory(h.code);
     const isEdge = i === 0 || i === last;
     if (isEdge || cat !== prevCat) {
       pts.push({ index: i, cat, code: h.code, offset: -(last - i) });
@@ -2676,6 +2675,48 @@ function weatherChangePoints(hourly) {
   return merged;
 }
 
+// 用户定：除头尾外，中间图例最多 4 个（24h 变化太频繁时图例太多很丑）。
+// 取舍规则：反复找「持续时间最短」的中间那段天气(=最不有代表性)删掉，删完若相邻两段变成同一类
+// 就合并；直到中间 ≤ maxMiddle。头(−24h)和尾(now)永远保留、位置不动。
+// points 每个点的「这段持续时长」= 下一个点的 index − 自己的 index。
+function reduceWeatherPoints(points, hourlyLen, maxMiddle) {
+  let pts = points.map((p) => ({ ...p }));
+  const collapse = (arr) => {
+    const out = [];
+    for (const p of arr) {
+      const prev = out[out.length - 1];
+      if (prev && prev.cat === p.cat) {
+        // 相邻同类合并：默认保留前一个（含头 index 0）；若后一个是尾(now)，把尾的 index 接过来，
+        // 让这段延伸到 now、尾标签仍锚在最后一点。
+        if (p.index === hourlyLen - 1) {
+          prev.index = p.index;
+          prev.code = p.code;
+          prev.offset = p.offset;
+        }
+      } else {
+        out.push(p);
+      }
+    }
+    return out;
+  };
+  pts = collapse(pts);
+  while (pts.length - 2 > maxMiddle) {
+    let minI = -1;
+    let minLen = Infinity;
+    for (let i = 1; i < pts.length - 1; i += 1) {
+      const len = pts[i + 1].index - pts[i].index; // 这段天气持续多少小时
+      if (len < minLen) {
+        minLen = len;
+        minI = i;
+      }
+    }
+    if (minI < 0) break;
+    pts.splice(minI, 1);
+    pts = collapse(pts);
+  }
+  return pts;
+}
+
 // 主图天气横轴（用户 2.3/2.5/2.6/2.7）：拍摄前 24 小时，只在变化点+头尾放极简线条图标。
 // - 位置按真实时间百分比放，但强制最小间距，挨太近就往两边推开（2.3）；实在放不下就退化成等距。
 // - 不显示温度；时间只在两端显示「-24」和「now」，中间只有图例（2.5）。
@@ -2686,11 +2727,13 @@ function renderFocusWeatherAxis(weather) {
   if (!Array.isArray(hourly) || !hourly.some((h) => h && h.code !== null)) {
     return "";
   }
-  const points = weatherChangePoints(hourly).filter((p) => p.cat);
-  if (!points.length) {
+  const rawPoints = weatherChangePoints(hourly).filter((p) => p.cat);
+  if (!rawPoints.length) {
     return "";
   }
   const last = hourly.length - 1;
+  // 用户定：除头尾外中间最多 4 个图例（删最短的中间段，见 reduceWeatherPoints）。
+  const points = reduceWeatherPoints(rawPoints, hourly.length, 4);
 
   // 1) 真实时间 → [6,94] 的百分比（两端留 6% 边距，图标 translateX(-50%) 不出血）。
   const LO = 6;
@@ -2735,8 +2778,11 @@ function renderFocusWeatherAxis(weather) {
   const marks = chosen
     .map((p, i) => {
       const isNow = p.index === last;
+      // 用户定：晴/多云间晴的夜间版（月亮）只在 now 出现——只有最后一点按拍摄当时的钟点判昼夜，
+      // 其余点一律用白天版（基础分类）。
+      const cat = isNow ? weatherCategoryAt(hourly[last].code, hourly[last].time) : p.cat;
       return `<div class="fw-mark${isNow ? " is-now" : ""}" style="left:${pos[i].toFixed(2)}%">
-          <span class="fw-icon">${weatherIconSvg(p.cat)}</span>
+          <span class="fw-icon">${weatherIconSvg(cat)}</span>
         </div>`;
     })
     .join("");
@@ -5091,7 +5137,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=130", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=131", { updateViaCache: "none" });
   }
 }
 
