@@ -160,9 +160,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:36.124Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-03-10T20:15:42+09:00","hourly":[{"time":"2026-03-10T20:00","code":1,"temp":3.1}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -183,9 +183,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:30.076Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-04-21T00:51:15+09:00","hourly":[{"time":"2026-04-21T00:00","code":55,"temp":16.9}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -206,9 +206,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:38.874Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-04-24T18:25:04+09:00","hourly":[{"time":"2026-04-24T18:00","code":3,"temp":14.4}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -229,9 +229,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:40.592Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-04-27T19:15:39+09:00","hourly":[{"time":"2026-04-27T19:00","code":0,"temp":16.7}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -252,9 +252,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:42.267Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-04-30T15:58:09+09:00","hourly":[{"time":"2026-04-30T15:00","code":53,"temp":14.6}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -275,9 +275,9 @@
       "crop": null,
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
-      "weather": null,
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T15:07:44.112Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-05-01T00:53:27+09:00","hourly":[{"time":"2026-05-01T00:00","code":63,"temp":14}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": false
+      "showWeather": true
     }
   ]
 }

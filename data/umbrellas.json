@@ -15186,8 +15186,21 @@
         "photoTime": "2026-03-10T20:15:42+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:36.124Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-03-10T20:15:42+09:00",
+          "hourly": [
+            {
+              "time": "2026-03-10T20:00",
+              "code": 1,
+              "temp": 3.1
+            }
+          ]
+        },
+        "showWeather": true
       },
       {
         "id": "IMG_8538",
@@ -15199,8 +15212,21 @@
         "photoTime": "2026-04-21T00:51:15+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:30.076Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-04-21T00:51:15+09:00",
+          "hourly": [
+            {
+              "time": "2026-04-21T00:00",
+              "code": 55,
+              "temp": 16.9
+            }
+          ]
+        },
+        "showWeather": true
       },
       {
         "id": "IMG_8621",
@@ -15212,8 +15238,21 @@
         "photoTime": "2026-04-24T18:25:04+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:38.874Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-04-24T18:25:04+09:00",
+          "hourly": [
+            {
+              "time": "2026-04-24T18:00",
+              "code": 3,
+              "temp": 14.4
+            }
+          ]
+        },
+        "showWeather": true
       },
       {
         "id": "IMG_8657",
@@ -15225,8 +15264,21 @@
         "photoTime": "2026-04-27T19:15:39+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:40.592Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-04-27T19:15:39+09:00",
+          "hourly": [
+            {
+              "time": "2026-04-27T19:00",
+              "code": 0,
+              "temp": 16.7
+            }
+          ]
+        },
+        "showWeather": true
       },
       {
         "id": "IMG_8685",
@@ -15238,8 +15290,21 @@
         "photoTime": "2026-04-30T15:58:09+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:42.267Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-04-30T15:58:09+09:00",
+          "hourly": [
+            {
+              "time": "2026-04-30T15:00",
+              "code": 53,
+              "temp": 14.6
+            }
+          ]
+        },
+        "showWeather": true
       },
       {
         "id": "IMG_8703",
@@ -15251,8 +15316,21 @@
         "photoTime": "2026-05-01T00:53:27+09:00",
         "story": "",
         "crop": null,
-        "weather": null,
-        "showWeather": false
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-02T15:07:44.112Z",
+          "lat": 34.97901667,
+          "lon": 135.76419167,
+          "referenceTime": "2026-05-01T00:53:27+09:00",
+          "hourly": [
+            {
+              "time": "2026-05-01T00:00",
+              "code": 63,
+              "temp": 14
+            }
+          ]
+        },
+        "showWeather": true
       }
     ],
     "locationLevels": [
