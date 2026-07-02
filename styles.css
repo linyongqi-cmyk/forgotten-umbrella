@@ -1484,11 +1484,13 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
 }
 
-/* 天气横轴（用户 2.3/2.5/2.6/2.7 v127 重画）：拍摄前 24 小时，只在「变化点+头尾」放极简
-   线条图标；不显示温度，两端只标 -24 / now；连接线和图例同样粗，且只画在图例之间的空隙里
-   （图例处断开=遮挡，镂空图例中间不会有线穿过）。整块放在主图下方（#focus-weather）。 */
+/* 天气横轴：拍摄前 24 小时，只在「变化点+头尾」放极简线条图标；不显示温度，两端只标
+   -24h / now；连接线和图例同样粗，且只画在图例之间的空隙里（图例处断开=遮挡）。
+   用户 2.4：放回覆盖信息块底部（图片之上），长度=图片宽度的 65%、左对齐；随覆盖信息块一起
+   在放大灯箱时隐藏（顺带满足 2.1 放大页不显示天气）。 */
 .focus-weather {
-  margin-top: 12px;
+  width: 65%;
+  margin-top: 8px;
   color: var(--ink);
 }
 
@@ -1531,23 +1533,38 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 
-/* 两端时间标签：只有 -24 和 now（2.5）。 */
+/* 两端时间标签（用户 2.2）：-24h 和 now 各自对齐到端点图例的正下方（JS 给每个标签写
+   left 百分比 = 首/尾图例的位置，这里 translateX(-50%) 让文字居中在图例下）。 */
 .focus-weather .fw-axis {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  height: 12px;
   margin-top: 2px;
-  padding: 0 2px;
   font-size: 10px;
   letter-spacing: 0.02em;
   color: var(--muted);
 }
 
-/* 补充/细节图放大时，标题信息左边的单个天气图例（2.4）。 */
-.focus-expanded-caption .fw-single svg {
+.focus-weather .fw-axis span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+/* 补充/细节图标题信息左边的单个天气图例：放大灯箱（2.4）和详情页图注（2.3）通用。 */
+.focus-expanded-caption .fw-single svg,
+.focus-photo figcaption .fw-single svg {
   display: block;
   width: 20px;
   height: 20px;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
+
+/* 图注里的天气图例不要被 .fw-cap-text 挤没：固定不收缩。 */
+.focus-photo figcaption .fw-single,
+.focus-expanded-caption .fw-single {
+  flex-shrink: 0;
 }
 
 /* The cover fills the (wide) media column at full width; the height cap is by
@@ -4597,8 +4614,10 @@ body:not(.edit-mode) .editor-add {
   pointer-events: none;
 }
 
-/* 放大时的角标题排成一行：天气图例在左，标题/文件名/时间在右（用户 2.4）。 */
-.focus-expanded-caption {
+/* 角标题排成一行：天气图例在左，标题/文件名/时间在右。放大灯箱（2.4）和详情页里补充/
+   细节图的图注（2.3）都用这个排布。 */
+.focus-expanded-caption,
+.focus-photo figcaption {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -5036,7 +5055,11 @@ body.editor-open .panel-resizer {
 }
 
 .focus-scroll {
-  flex: 1;
+  /* 用户 1.2：Back to map（在 .focus-footer 里）永远不滚动。
+     - 短内容（不溢出）：flex-basis:auto 让滚动区只占内容高度，footer 紧贴内容正下方
+       （= 图片正下方那个红框位置）。
+     - 长内容（溢出）：flex-shrink 把滚动区压到剩余高度，内部滚动，footer 固定在面板底部。 */
+  flex: 0 1 auto;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;

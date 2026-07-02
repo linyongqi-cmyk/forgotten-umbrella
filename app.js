@@ -333,7 +333,6 @@ const els = {
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
   focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
-  focusWeather: document.querySelector("#focus-weather"),
   focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
   contributedContent: document.querySelector("#contributed-content"),
@@ -2411,14 +2410,8 @@ function renderFocusImage() {
   // merged A2+C info block floats over it too; below the image flows D1+D2 in their
   // original on-disk order (用户要求 #4/#5).
   if (els.focusInfoBlock) {
+    // 主图天气横轴（用户 2.4）现在由 renderFocusInfo 直接拼在覆盖信息块底部（图片之上）。
     els.focusInfoBlock.innerHTML = renderFocusInfo(item);
-  }
-  // 2.7：主图天气横轴放在主图下方（勾了「显示天气」且有天气才出现）。
-  if (els.focusWeather) {
-    const showMain = cover ? cover.showWeather !== false : true;
-    const axis = showMain ? renderFocusWeatherAxis(item.weather) : "";
-    els.focusWeather.innerHTML = axis;
-    els.focusWeather.hidden = !axis;
   }
   els.focusCaption.innerHTML = renderFocusArticle(item);
   renderFocusLink(item);
@@ -2686,8 +2679,12 @@ function renderFocusWeatherAxis(weather) {
     })
     .join("");
 
+  // 两端时间标签（用户 2.2）：各自对齐到端点图例的正下方（不再贴容器最左/最右）。
+  // -24 改成 -24h；用第一个/最后一个图例的百分比定位，translateX(-50%) 居中在图例下。
+  const startPct = pos[0];
+  const nowPct = pos[pos.length - 1];
   return `<div class="fw-track">${segs.join("")}${marks}</div>
-      <div class="fw-axis"><span class="fw-axis-start">-24</span><span class="fw-axis-now">now</span></div>`;
+      <div class="fw-axis"><span class="fw-axis-start" style="left:${startPct.toFixed(2)}%">-24h</span><span class="fw-axis-now" style="left:${nowPct.toFixed(2)}%">now</span></div>`;
 }
 
 // 补充/细节图的单个天气图例（用户 2.4）：这张图「拍摄当时」那一点的天气，一个图标。
@@ -2736,10 +2733,15 @@ function renderFocusInfo(item) {
   if (isContributed && item.submitter) {
     rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
   }
-  if (!rows.length) {
+  // 主图天气横轴（用户 2.4）：放回覆盖信息块底部——即「图片之上」，和 v128 前的位置一样。
+  // 因为它在 .focus-overlay-info 里，放大灯箱时会随整块覆盖信息一起隐藏（顺带满足 2.1）。
+  const cover = (item.media || []).find((m) => m.role === "primary") || item.media?.[0];
+  const axis =
+    cover && cover.showWeather !== false && cover.weather ? renderFocusWeatherAxis(cover.weather) : "";
+  const weatherHtml = axis ? `<div class="focus-weather">${axis}</div>` : "";
+  if (!rows.length && !weatherHtml) {
     return "";
   }
-  // 天气不再放在这个覆盖信息块里（2.7 已移到主图下方 #focus-weather）。
   return `<div class="focus-info">
         ${rows
           .map(
@@ -2749,7 +2751,7 @@ function renderFocusInfo(item) {
             </div>`,
           )
           .join("")}
-      </div>`;
+      </div>${weatherHtml}`;
 }
 
 // Non-destructive crop (用户 #8): a media's `crop` = { aspect, scale, posX, posY }
@@ -2909,10 +2911,14 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
   const cs = cropStyles(media.crop);
   const imgTag = `<img src="${escapeHtml(media.src)}" alt="${escapeHtml(media.title || media.id || "")}" loading="lazy" decoding="async" style="${cs ? cs.img : ""}"${expandAttrs} />`;
   const mediaHtml = cs ? `<div class="media-crop" style="${cs.wrap}">${imgTag}</div>` : imgTag;
+  // 用户 2.3：补充/细节图勾了「显示天气」时，详情页图注左边也放一个「拍摄当时」的天气图例
+  // （和放大灯箱角标题里一样，之前只在放大时出现）。插图不显示。
+  const wIcon = media.role !== "illustration" && media.showWeather ? singleWeatherIconFor(media) : "";
+  const capInner = `${wIcon ? `<span class="fw-single">${wIcon}</span>` : ""}${caption ? `<span class="fw-cap-text">${escapeHtml(caption)}</span>` : ""}`;
   return `<figure class="${figClass}">
       ${mediaHtml}
       ${zoomBtn}
-      ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+      ${wIcon || caption ? `<figcaption>${capInner}</figcaption>` : ""}
     </figure>`;
 }
 
@@ -4584,11 +4590,15 @@ function flipExpandedPanel(first) {
   if (Math.abs(sx - 1) < 0.01 && Math.abs(sy - 1) < 0.01) {
     return; // same size — nothing to morph
   }
+  // 用户 1.1：放大居中在 v127 已改成 inset:0 + margin:auto（不再靠 translate(-50%,-50%)）。
+  // 这里的 FLIP 若还带 translate(-50%,-50%) 就会把面板整体挪到左上再缩回——切换不同比例
+  // 图片时那个「跳一下再缩回」的怪动画就是它。改成纯 scale（默认 transform-origin 是中心，
+  // margin:auto 已居中，从中心缩放不会偏移）。
   panel.style.transition = "none";
-  panel.style.transform = `translate(-50%, -50%) scale(${sx}, ${sy})`;
+  panel.style.transform = `scale(${sx}, ${sy})`;
   panel.getBoundingClientRect(); // commit the inverted state
   panel.style.transition = "transform 240ms cubic-bezier(0.22, 1, 0.36, 1)";
-  panel.style.transform = "translate(-50%, -50%) scale(1, 1)";
+  panel.style.transform = "scale(1, 1)";
   const clear = () => {
     panel.style.transition = "";
     panel.style.transform = "";
@@ -4988,7 +4998,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=128", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=129", { updateViaCache: "none" });
   }
 }
 
@@ -5591,7 +5601,6 @@ function renderEditorPreview() {
     <header class="focus-header">${renderFocusHeader(item)}</header>
     ${cover ? `<div class="editor-preview-cover"><img src="${escapeHtml(cover.src || item.image || "")}" alt="" /></div>` : ""}
     ${renderFocusInfo(item)}
-    ${cover && cover.showWeather !== false && cover.weather ? `<div class="focus-weather">${renderFocusWeatherAxis(cover.weather)}</div>` : ""}
     ${renderFocusArticle(item)}`;
 }
 
