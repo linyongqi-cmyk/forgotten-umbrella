@@ -2734,6 +2734,15 @@ function renderFocusWeatherAxis(weather) {
   const last = hourly.length - 1;
   // 用户定：除头尾外中间最多 3 个图例（删最短的中间段，见 reduceWeatherPoints）。
   const points = reduceWeatherPoints(rawPoints, hourly.length, 3);
+  // 24h 天气完全没变时（如 IMG_0101 全程阴），合并/collapse 逻辑会把头尾两点并成一个点，
+  // 结果 -24h 和 now 两个时间标签叠在同一位置（右端 94%）→ 文字重影发糊。这里保底：
+  // 只剩 1 个点就补回头尾两个端点（同一天气），让两端标签各归各位。
+  if (points.length === 1) {
+    const only = points[0];
+    points.length = 0;
+    points.push({ ...only, index: 0, offset: -last });
+    points.push({ ...only, index: last, offset: 0 });
+  }
 
   // 1) 真实时间 → [6,94] 的百分比（两端留 6% 边距，图标 translateX(-50%) 不出血）。
   const LO = 6;
@@ -5158,7 +5167,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=133", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=135", { updateViaCache: "none" });
   }
 }
 

@@ -95,7 +95,7 @@
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
       "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:38:16.574Z","lat":35.8077,"lon":139.724,"referenceTime":"2026.04.19, 20:11","hourly":[{"time":"2026-04-18T20:00","code":0,"temp":17.3},{"time":"2026-04-18T21:00","code":0,"temp":16.9},{"time":"2026-04-18T22:00","code":2,"temp":16.6},{"time":"2026-04-18T23:00","code":2,"temp":15.9},{"time":"2026-04-19T00:00","code":3,"temp":15.3},{"time":"2026-04-19T01:00","code":3,"temp":15},{"time":"2026-04-19T02:00","code":2,"temp":14.6},{"time":"2026-04-19T03:00","code":3,"temp":14.3},{"time":"2026-04-19T04:00","code":3,"temp":14.4},{"time":"2026-04-19T05:00","code":3,"temp":14.2},{"time":"2026-04-19T06:00","code":2,"temp":14},{"time":"2026-04-19T07:00","code":3,"temp":14.8},{"time":"2026-04-19T08:00","code":3,"temp":16.6},{"time":"2026-04-19T09:00","code":3,"temp":18.5},{"time":"2026-04-19T10:00","code":3,"temp":20.3},{"time":"2026-04-19T11:00","code":2,"temp":22},{"time":"2026-04-19T12:00","code":0,"temp":23.3},{"time":"2026-04-19T13:00","code":1,"temp":24.2},{"time":"2026-04-19T14:00","code":1,"temp":24.6},{"time":"2026-04-19T15:00","code":1,"temp":24.5},{"time":"2026-04-19T16:00","code":2,"temp":24.2},{"time":"2026-04-19T17:00","code":3,"temp":22.9},{"time":"2026-04-19T18:00","code":3,"temp":21.2},{"time":"2026-04-19T19:00","code":3,"temp":19.8},{"time":"2026-04-19T20:00","code":3,"temp":18.8}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": true
+      "showWeather": false
     }
   ]
 }

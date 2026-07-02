@@ -2035,11 +2035,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 .focus-approx-label-text {
   fill: #fff;
-  font-size: 14px;
-  font-weight: 300;
+  font-size: 13px;
+  font-weight: 400;
   letter-spacing: 0.02em;
   text-anchor: middle;
   dominant-baseline: middle;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 /* Item 3: hidden until the map settles on the point (JS removes is-pending in the

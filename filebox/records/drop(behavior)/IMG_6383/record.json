@@ -91,7 +91,7 @@
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
       "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:36:15.000Z","lat":34.73594991661396,"lon":135.49143193559428,"referenceTime":"2025-07-21T15:20:55+09:00","hourly":[{"time":"2025-07-20T15:00","code":0,"temp":32.4},{"time":"2025-07-20T16:00","code":51,"temp":32.1},{"time":"2025-07-20T17:00","code":51,"temp":31.1},{"time":"2025-07-20T18:00","code":1,"temp":29.9},{"time":"2025-07-20T19:00","code":2,"temp":28.9},{"time":"2025-07-20T20:00","code":3,"temp":28.2},{"time":"2025-07-20T21:00","code":2,"temp":28},{"time":"2025-07-20T22:00","code":1,"temp":28},{"time":"2025-07-20T23:00","code":1,"temp":27.7},{"time":"2025-07-21T00:00","code":0,"temp":27.6},{"time":"2025-07-21T01:00","code":0,"temp":27.4},{"time":"2025-07-21T02:00","code":1,"temp":27.1},{"time":"2025-07-21T03:00","code":0,"temp":26.7},{"time":"2025-07-21T04:00","code":0,"temp":26.1},{"time":"2025-07-21T05:00","code":1,"temp":25.5},{"time":"2025-07-21T06:00","code":0,"temp":25.7},{"time":"2025-07-21T07:00","code":0,"temp":27.1},{"time":"2025-07-21T08:00","code":1,"temp":28.8},{"time":"2025-07-21T09:00","code":0,"temp":30.3},{"time":"2025-07-21T10:00","code":2,"temp":32.3},{"time":"2025-07-21T11:00","code":1,"temp":33.3},{"time":"2025-07-21T12:00","code":0,"temp":34.2},{"time":"2025-07-21T13:00","code":0,"temp":34.4},{"time":"2025-07-21T14:00","code":0,"temp":34},{"time":"2025-07-21T15:00","code":2,"temp":33.7}]},
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": true
+      "showWeather": false
     }
   ]
 }
