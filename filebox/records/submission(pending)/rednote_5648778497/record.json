@@ -7,14 +7,15 @@
   "locationText": "inside a Keio Line train (Keio Railway), Tokyo",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
-    "Tokyo"
+    "Tokyo",
+    "unknown"
   ],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 35.658,
-    "lng": 139.7016
+    "lat": 35.659680985993916,
+    "lng": 139.42219610763763
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",

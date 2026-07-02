@@ -48,10 +48,37 @@
   ],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
+  // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
+  "linkedId": "",
+  // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
+  "submissionType": "",
+  // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
+  "submitter": "",
+  // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
+  "submissionChannel": "",
+  // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
+  "submissionTime": "",
+  // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
+  "submitterNote": "",
+  // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
+  "remarks": "",
+  // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
+  "locationApprox": false,
+  // 时间是否只是"大概"。true=详情页时间前加"约"。
+  "timeApprox": false,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": false,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": "",
+  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
+  "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
   "story": "",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -68,7 +95,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6643.jpg"
+      "legacyThumb": "filebox/thumbs/filebox__choice__placement(behavior)__IMG_6643.jpg",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:36:51.696Z","lat":35.63641589069489,"lon":140.11883314644874,"referenceTime":"2025-09-08T08:56:20+09:00","hourly":[{"time":"2025-09-07T08:00","code":0,"temp":26.9},{"time":"2025-09-07T09:00","code":0,"temp":27.8},{"time":"2025-09-07T10:00","code":0,"temp":28.8},{"time":"2025-09-07T11:00","code":0,"temp":29.1},{"time":"2025-09-07T12:00","code":0,"temp":29.2},{"time":"2025-09-07T13:00","code":0,"temp":29.4},{"time":"2025-09-07T14:00","code":0,"temp":29.5},{"time":"2025-09-07T15:00","code":1,"temp":29.5},{"time":"2025-09-07T16:00","code":0,"temp":29},{"time":"2025-09-07T17:00","code":0,"temp":28.4},{"time":"2025-09-07T18:00","code":0,"temp":27.4},{"time":"2025-09-07T19:00","code":0,"temp":26.7},{"time":"2025-09-07T20:00","code":0,"temp":26.4},{"time":"2025-09-07T21:00","code":0,"temp":26.2},{"time":"2025-09-07T22:00","code":0,"temp":26.1},{"time":"2025-09-07T23:00","code":0,"temp":25.8},{"time":"2025-09-08T00:00","code":0,"temp":25.6},{"time":"2025-09-08T01:00","code":0,"temp":25.4},{"time":"2025-09-08T02:00","code":0,"temp":25.3},{"time":"2025-09-08T03:00","code":0,"temp":25.2},{"time":"2025-09-08T04:00","code":0,"temp":25.2},{"time":"2025-09-08T05:00","code":0,"temp":24.6},{"time":"2025-09-08T06:00","code":0,"temp":25.3},{"time":"2025-09-08T07:00","code":1,"temp":26.5},{"time":"2025-09-08T08:00","code":1,"temp":27.8}]},
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     }
   ]
 }

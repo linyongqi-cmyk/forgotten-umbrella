@@ -43,13 +43,13 @@
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "2026/04/23",
+  "submissionTime": "2026/03/29",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
   "remarks": "修改标题",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
-  "locationApprox": true,
+  "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
   // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
@@ -94,6 +94,9 @@
       "file": "LYUCHEN_1_7.jpg"
     }
   ],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -112,7 +115,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": {"aspect":"3:4","scale":1,"posX":73.96267361111111,"posY":0}
+      "crop": {"aspect":"3:4","scale":1,"posX":73.96267361111111,"posY":0},
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:38:10.021Z","lat":35.61084601700018,"lon":140.1162789452163,"referenceTime":"2026.03.29, 20:05","hourly":[{"time":"2026-03-28T20:00","code":1,"temp":13},{"time":"2026-03-28T21:00","code":2,"temp":12.7},{"time":"2026-03-28T22:00","code":0,"temp":12.8},{"time":"2026-03-28T23:00","code":0,"temp":12.1},{"time":"2026-03-29T00:00","code":0,"temp":11.6},{"time":"2026-03-29T01:00","code":0,"temp":11.3},{"time":"2026-03-29T02:00","code":0,"temp":11.4},{"time":"2026-03-29T03:00","code":0,"temp":11.1},{"time":"2026-03-29T04:00","code":0,"temp":10.7},{"time":"2026-03-29T05:00","code":0,"temp":10.2},{"time":"2026-03-29T06:00","code":0,"temp":11},{"time":"2026-03-29T07:00","code":0,"temp":11.7},{"time":"2026-03-29T08:00","code":0,"temp":13.2},{"time":"2026-03-29T09:00","code":0,"temp":15},{"time":"2026-03-29T10:00","code":0,"temp":16.5},{"time":"2026-03-29T11:00","code":0,"temp":17.9},{"time":"2026-03-29T12:00","code":0,"temp":18.8},{"time":"2026-03-29T13:00","code":0,"temp":19.7},{"time":"2026-03-29T14:00","code":0,"temp":19.6},{"time":"2026-03-29T15:00","code":51,"temp":19.3},{"time":"2026-03-29T16:00","code":1,"temp":18},{"time":"2026-03-29T17:00","code":3,"temp":17.1},{"time":"2026-03-29T18:00","code":3,"temp":15.2},{"time":"2026-03-29T19:00","code":3,"temp":14.3},{"time":"2026-03-29T20:00","code":3,"temp":13.6}]},
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -130,7 +138,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": null
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -148,7 +161,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": {"aspect":"3:4","scale":1,"posX":47.79188368055556,"posY":0}
+      "crop": {"aspect":"3:4","scale":1,"posX":47.79188368055556,"posY":0},
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -166,7 +184,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": null
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -184,7 +207,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": {"aspect":"3:4","scale":1,"posX":45.90711805555556,"posY":30.94482421875}
+      "crop": {"aspect":"3:4","scale":1,"posX":45.90711805555556,"posY":30.94482421875},
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -202,7 +230,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": {"aspect":"3:4","scale":1,"posX":39.48784722222222,"posY":0}
+      "crop": {"aspect":"3:4","scale":1,"posX":39.48784722222222,"posY":0},
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -220,7 +253,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": null
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     }
   ]
 }

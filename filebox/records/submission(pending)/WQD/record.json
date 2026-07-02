@@ -6,13 +6,16 @@
   // 手动填写的展示地址。
   "locationText": "Gifu University, Gifu, Japan",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [],
+  "locationLevels": [
+    "Gifu",
+    "Gifu City"
+  ],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 35.4656,
-    "lng": 136.737
+    "lat": 35.46633527542779,
+    "lng": 136.73576059529512
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",
@@ -82,7 +85,9 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null
     }
   ]
 }

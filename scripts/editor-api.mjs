@@ -19,6 +19,7 @@ import {
   stringifyRecordWithComments,
 } from "./record-utils.mjs";
 import { parseExif } from "./exif.mjs";
+import { fetchWeatherData } from "./weather.mjs";
 
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -273,6 +274,15 @@ function applyMediaMetadata(existing, incoming) {
         legacyThumb: prev.legacyThumb || "",
         // 非破坏性裁剪；editor 传 null/对象，缺省沿用旧值。
         crop: Object.prototype.hasOwnProperty.call(item, "crop") ? sanitizeCrop(item.crop) : prev.crop ?? null,
+        // 天气：编辑器不回传 weather 本体（由「获取天气」接口写），保存时沿用旧值。
+        weather: prev.weather ?? null,
+        // 「显示天气」勾选框：editor 回传布尔就用它，否则沿用旧值（主图默认显示）。
+        showWeather:
+          typeof item.showWeather === "boolean"
+            ? item.showWeather
+            : typeof prev.showWeather === "boolean"
+              ? prev.showWeather
+              : role === "primary",
       };
     });
 }
@@ -460,9 +470,31 @@ export async function createRecord(payload) {
     media: [{ id, file: filename, role: "primary", title: "", photoTime: "", story: "", legacyThumb: "" }],
   };
   const merged = await mergeRecordMediaWithFolder(recordPath, record);
+  // 2.1：新建标点时自动抓主图天气（有坐标+时间才抓；抓不到不影响建卡）。
+  await tryAutoFetchPrimaryWeather(merged);
   await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
   await rebuildDatabase();
   return { ok: true, id, coordinates: record.locationCoordinates, fromExif: Boolean(exif.coordinates) };
+}
+
+// 尽力给主图抓「拍摄前 24 小时」天气，写进主图 media.weather；任何失败都吞掉（不阻断建卡）。
+async function tryAutoFetchPrimaryWeather(record) {
+  try {
+    const media = Array.isArray(record.media) ? record.media : [];
+    const primary = media.find((m) => m?.role === "primary") || media[0];
+    if (!primary) {
+      return;
+    }
+    const coords =
+      sanitizeCoordinates(record.locationCoordinates) || sanitizeCoordinates(record.photoCoordinates);
+    const refTime = String(primary.photoTime || record.time || record.photoTime || "").trim();
+    if (!coords || coords === undefined || !refTime) {
+      return;
+    }
+    primary.weather = await fetchWeatherData(coords.lat, coords.lng, refTime, { hoursBefore: 24 });
+  } catch {
+    /* 天气抓不到不影响建卡 */
+  }
 }
 
 // Delete an entire record folder — but SOFT: move it (images + record.json) into
@@ -583,6 +615,64 @@ export async function moveRecord(payload) {
   return { ok: true, id, category };
 }
 
+// 用户 T3 天气联动（v127 改成按「每张图」抓）：点某张图的「获取天气」时调用。
+// 坐标用记录级 (locationCoordinates 优先，退回 photoCoordinates)——单张图没有自己的坐标；
+// 时间用「这张图自己的 photoTime 优先，退回记录 time/photoTime」。
+// 主图抓「拍摄前 24 小时」逐时（画横轴）；补充/细节图只抓拍摄当时 1 点（单个图例）。
+// 写进 该 media.weather 再重建。payload.mediaId 指定哪张（缺省=主图）；clear 清这张。
+export async function fetchWeather(payload) {
+  const id = typeof payload?.id === "string" ? payload.id.trim() : "";
+  if (!id) {
+    throw new ApiError(400, "Missing record id.");
+  }
+  const recordPath = await findRecordPathById(id);
+  if (!recordPath) {
+    throw new ApiError(404, `No record found for id "${id}".`);
+  }
+  const record = await readRecordFile(recordPath);
+  const mediaList = Array.isArray(record.media) ? record.media : [];
+  const mediaId = typeof payload?.mediaId === "string" ? payload.mediaId.trim() : "";
+  const target = mediaId
+    ? mediaList.find((m) => m?.id === mediaId || m?.file === mediaId)
+    : mediaList.find((m) => m?.role === "primary") || mediaList[0];
+  if (!target) {
+    throw new ApiError(404, mediaId ? `找不到这张图（${mediaId}）。` : "这条记录没有图片。");
+  }
+
+  const persist = async () => {
+    const merged = await mergeRecordMediaWithFolder(recordPath, record);
+    await fs.writeFile(recordPath, stringifyRecordWithComments(merged), "utf8");
+    await rebuildDatabase();
+  };
+
+  if (payload?.clear) {
+    target.weather = null;
+    await persist();
+    return { ok: true, id, mediaId: target.id, weather: null };
+  }
+
+  const coords =
+    sanitizeCoordinates(record.locationCoordinates) || sanitizeCoordinates(record.photoCoordinates);
+  if (!coords || coords === undefined) {
+    throw new ApiError(400, "这条记录没有坐标，先在地图上给它定个位置再抓天气。");
+  }
+  const refTime = String(target.photoTime || record.time || record.photoTime || "").trim();
+  if (!refTime) {
+    throw new ApiError(400, "这张图没有拍摄时间，无法查当时的天气。");
+  }
+  const hoursBefore = target.role === "primary" ? 24 : 0;
+
+  let weather;
+  try {
+    weather = await fetchWeatherData(coords.lat, coords.lng, refTime, { hoursBefore });
+  } catch (err) {
+    throw new ApiError(502, err?.message || "抓取天气失败。");
+  }
+  target.weather = weather;
+  await persist();
+  return { ok: true, id, mediaId: target.id, weather };
+}
+
 // Save the editable UI copy (type descriptions + stats intro) to data/texts.json
 // (item 12). This is the canonical source the frontend fetches; no rebuild needed.
 function sanitizeParas(value) {
@@ -648,6 +738,8 @@ export async function handleEditorApi(pathname, payload) {
       return restoreTrashed(payload);
     case "/api/move-record":
       return moveRecord(payload);
+    case "/api/fetch-weather":
+      return fetchWeather(payload);
     default:
       throw new ApiError(404, `Unknown editor endpoint: ${pathname}`);
   }

@@ -62,6 +62,9 @@
   "story": "",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -78,7 +81,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T14:38:13.615Z","lat":34.69384007979254,"lon":135.49469416366236,"referenceTime":"2026.04.23, around 17:00","hourly":[{"time":"2026-04-22T17:00","code":3,"temp":19.6},{"time":"2026-04-22T18:00","code":3,"temp":18.7},{"time":"2026-04-22T19:00","code":3,"temp":17.9},{"time":"2026-04-22T20:00","code":3,"temp":17.5},{"time":"2026-04-22T21:00","code":3,"temp":17.8},{"time":"2026-04-22T22:00","code":3,"temp":17.7},{"time":"2026-04-22T23:00","code":3,"temp":17},{"time":"2026-04-23T00:00","code":3,"temp":16.6},{"time":"2026-04-23T01:00","code":3,"temp":16.2},{"time":"2026-04-23T02:00","code":3,"temp":15.7},{"time":"2026-04-23T03:00","code":51,"temp":15.5},{"time":"2026-04-23T04:00","code":51,"temp":15.1},{"time":"2026-04-23T05:00","code":53,"temp":14.5},{"time":"2026-04-23T06:00","code":51,"temp":14},{"time":"2026-04-23T07:00","code":51,"temp":14},{"time":"2026-04-23T08:00","code":51,"temp":14.5},{"time":"2026-04-23T09:00","code":61,"temp":14},{"time":"2026-04-23T10:00","code":61,"temp":14.6},{"time":"2026-04-23T11:00","code":61,"temp":14},{"time":"2026-04-23T12:00","code":63,"temp":14.3},{"time":"2026-04-23T13:00","code":63,"temp":14.3},{"time":"2026-04-23T14:00","code":63,"temp":14.5},{"time":"2026-04-23T15:00","code":63,"temp":14.5},{"time":"2026-04-23T16:00","code":63,"temp":14.2},{"time":"2026-04-23T17:00","code":63,"temp":13.9}]},
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     }
   ]
 }

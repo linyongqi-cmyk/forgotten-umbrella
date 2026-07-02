@@ -79,6 +79,9 @@ export function stringifyRecordWithComments(record) {
     `  "story": ${JSON.stringify(record.story ?? "")},`,
     '  // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。',
     `  "blocks": ${JSON.stringify(record.blocks ?? [], null, 2).replace(/\n/g, "\n  ")},`,
+    '  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的',
+    '  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}',
+    `  "weather": ${JSON.stringify(record.weather ?? null)},`,
     '  // 这个标点下的媒体列表。第一项通常是主图。',
     '  "media": ['
   ];
@@ -102,7 +105,12 @@ export function stringifyRecordWithComments(record) {
     lines.push('      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。');
     lines.push(`      "legacyThumb": ${JSON.stringify(item.legacyThumb ?? "")},`);
     lines.push('      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。');
-    lines.push(`      "crop": ${JSON.stringify(item.crop ?? null)}`);
+    lines.push(`      "crop": ${JSON.stringify(item.crop ?? null)},`);
+    lines.push('      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，');
+    lines.push('      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}');
+    lines.push(`      "weather": ${JSON.stringify(item.weather ?? null)},`);
+    lines.push('      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。');
+    lines.push(`      "showWeather": ${JSON.stringify(item.showWeather ?? (item.role === "primary"))}`);
     lines.push(`    }${suffix}`);
   });
 
@@ -160,6 +168,9 @@ export async function mergeRecordMediaWithFolder(recordPath, record) {
       story: item.story ?? "",
       legacyThumb: item.legacyThumb ?? "",
       crop: item.crop ?? null,
+      // 保留每张图自己的天气 + 显示开关（否则一保存就丢）。
+      weather: item.weather ?? null,
+      showWeather: typeof item.showWeather === "boolean" ? item.showWeather : isPrimary,
     };
   });
 

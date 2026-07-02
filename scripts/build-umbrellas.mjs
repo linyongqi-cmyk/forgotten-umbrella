@@ -78,8 +78,17 @@ function buildUmbrellaItem(recordPath, record) {
       story: entry.story || "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null = 原图。
       crop: entry.crop || null,
+      // 每张图自己的天气 + 是否显示（主图默认显示，补充/细节勾选才显示）。
+      weather: entry.weather && typeof entry.weather === "object" ? entry.weather : null,
+      showWeather:
+        typeof entry.showWeather === "boolean" ? entry.showWeather : entry.role === "primary",
     };
   });
+
+  // 主图天气 = 详情页主横轴用（兼容旧的 record.weather：若主图没抓过但记录级有，就沿用）。
+  const primaryWeather =
+    (primary.weather && typeof primary.weather === "object" ? primary.weather : null) ||
+    (record.weather && typeof record.weather === "object" ? record.weather : null);
 
   return {
     sourceIndex: Number.isInteger(record.sourceIndex) ? record.sourceIndex : Number.MAX_SAFE_INTEGER,
@@ -99,6 +108,7 @@ function buildUmbrellaItem(recordPath, record) {
       story: record.story || "",
       blocks: Array.isArray(record.blocks) ? record.blocks : [],
       editFlag: record.editFlag || "",
+      weather: primaryWeather,
       linkedId: record.linkedId || "",
       submissionType: record.submissionType === "contributed" ? "contributed" : "own",
       submitter: record.submitter || "",

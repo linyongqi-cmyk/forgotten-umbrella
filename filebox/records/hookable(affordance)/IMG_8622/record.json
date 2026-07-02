@@ -71,6 +71,12 @@
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
   "timeApprox": false,
+  // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
+  "blurApprox": false,
+  // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
+  "approxZoom": "",
+  // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
+  "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
   "story": "Day1: ジムの外にあるLUUP専用駐車場に落ちている「傘No.1」を確認した。\nDay2-Day42: 数回ここを通り、看板に一本の傘が掛けられているのを目にする。当初は誰かが一時的に掛けたものと考え、「忘れられた傘」とは認識していなかった。\nDay43: 再び通りかかり、傘が依然として同じ場所に掛かっているのを見つける。ようやくこれが捨てられた傘であると気づき、写真で破損箇所の細部を照合した結果、Day1に見た「傘No.1」と同一であると確認した。この傘はこうして一ヶ月以上もここに忘れ去られていたことになる。\nDay46: 看板の反対側で二本目の「傘No.2」を確認した。\nDay52: この日は一日中雨が降り、翌日まで続いた。午後の観察時、二本の傘はどちらも元のままだった。\nDay53: 雨はまだ降り続いていた。未明に通りかかると、「傘No.2」が消失しており、「傘No.1」は依然として看板に掛けられたままだった。夜間に傘が必要になった誰かが持ち去ったのだと推測される。しかし、「傘No.1」はまだそこに取り残されている。二本の傘の異なる運命。「傘No.2」は忘れられて間もなく再利用されたが、「傘No.1」はあとどれくらい忘れられ続けるのだろうか。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
@@ -107,6 +113,9 @@
       "file": "IMG_8703.jpeg"
     }
   ],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -123,7 +132,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8622.jpg"
+      "legacyThumb": "filebox/thumbs/filebox__choice__hookable(affordance)__IMG_8622.jpg",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T13:45:19.962Z","lat":34.97901667,"lon":135.76419167,"referenceTime":"2026-04-25T21:54:34+09:00","hourly":[{"time":"2026-04-24T21:00","code":3,"temp":12.1},{"time":"2026-04-24T22:00","code":3,"temp":11.7},{"time":"2026-04-24T23:00","code":3,"temp":11.6},{"time":"2026-04-25T00:00","code":3,"temp":11.3},{"time":"2026-04-25T01:00","code":3,"temp":11},{"time":"2026-04-25T02:00","code":3,"temp":10.7},{"time":"2026-04-25T03:00","code":3,"temp":10.5},{"time":"2026-04-25T04:00","code":3,"temp":10.8},{"time":"2026-04-25T05:00","code":3,"temp":10.7},{"time":"2026-04-25T06:00","code":3,"temp":10.9},{"time":"2026-04-25T07:00","code":3,"temp":12.5},{"time":"2026-04-25T08:00","code":3,"temp":15.1},{"time":"2026-04-25T09:00","code":3,"temp":16.6},{"time":"2026-04-25T10:00","code":3,"temp":18.7},{"time":"2026-04-25T11:00","code":3,"temp":19.4},{"time":"2026-04-25T12:00","code":3,"temp":20.1},{"time":"2026-04-25T13:00","code":3,"temp":20.3},{"time":"2026-04-25T14:00","code":1,"temp":20.7},{"time":"2026-04-25T15:00","code":1,"temp":20.9},{"time":"2026-04-25T16:00","code":0,"temp":20.7},{"time":"2026-04-25T17:00","code":0,"temp":19.9},{"time":"2026-04-25T18:00","code":0,"temp":18.3},{"time":"2026-04-25T19:00","code":0,"temp":16.4},{"time":"2026-04-25T20:00","code":0,"temp":15.2},{"time":"2026-04-25T21:00","code":0,"temp":14.4}]},
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -139,7 +155,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -155,7 +178,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -171,7 +201,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -187,7 +224,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -203,7 +247,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     },
     {
       // 媒体 ID。主图通常和文件夹名一致。
@@ -219,7 +270,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
     }
   ]
 }
