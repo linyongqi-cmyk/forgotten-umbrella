@@ -2540,6 +2540,107 @@ function renderFocusHeader(item) {
 // (用户要求 #5). Labels are always English. Floats over the cover image. Each
 // row's `lines` are already safe HTML (place/time carry approx prefix + address
 // <wbr>); type/object/state values are escaped here.
+// --- 天气联动 (用户 T3) --------------------------------------------------------
+// WMO 天气代码 → 我们用的粗分类（决定显示哪个极简线条图标）。
+function weatherCategory(code) {
+  if (code === null || code === undefined || !Number.isFinite(Number(code))) {
+    return null;
+  }
+  const c = Number(code);
+  if (c === 0) return "clear";
+  if (c === 1 || c === 2) return "partly";
+  if (c === 3) return "cloudy";
+  if (c === 45 || c === 48) return "fog";
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return "snow";
+  if (c >= 95) return "thunder";
+  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82)) return "rain";
+  return "cloudy";
+}
+
+// 极简线条图标（stroke=currentColor，无填充）。共用一朵云的路径，雨/雪/雷在云下加元素。
+const WEATHER_CLOUD = `<path d="M8 18h8a3.6 3.6 0 0 0 .4-7.2 4.8 4.8 0 0 0-9.2-1A3.4 3.4 0 0 0 8 18Z"/>`;
+function weatherIconSvg(category) {
+  const open = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
+  const close = `</svg>`;
+  let inner = "";
+  switch (category) {
+    case "clear":
+      inner = `<circle cx="12" cy="12" r="4.2"/><path d="M12 3.2v2.3M12 18.5v2.3M3.2 12h2.3M18.5 12h2.3M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/>`;
+      break;
+    case "partly":
+      inner = `<path d="M6.5 9.2a3.4 3.4 0 0 1 6.4-1.1"/><path d="M5 5.6l.9.9M3 10h1.3M9.6 4.3l-.6 1.1"/>${WEATHER_CLOUD}`;
+      break;
+    case "cloudy":
+      inner = WEATHER_CLOUD;
+      break;
+    case "fog":
+      inner = `${WEATHER_CLOUD}<path d="M6 21h9M8 18.6h8" opacity="0.85"/>`;
+      break;
+    case "rain":
+      inner = `${WEATHER_CLOUD}<path d="M9 20l-1 2M13 20l-1 2M17 20l-1 2"/>`;
+      break;
+    case "snow":
+      inner = `${WEATHER_CLOUD}<path d="M9 21h.01M13 21h.01M11 22.6h.01M15 22.6h.01"/>`;
+      break;
+    case "thunder":
+      inner = `${WEATHER_CLOUD}<path d="M12.5 19l-2.5 3h2l-1 2.4"/>`;
+      break;
+    default:
+      return "";
+  }
+  return open + inner + close;
+}
+
+// 把 24 小时逐时天气压成「只留头、尾、和每次变化点」的坐标（用户 T3-5）。
+// 例：-24h晴…-11h多云…-3h雨…0h → 只 4 个点。
+function weatherChangePoints(hourly) {
+  if (!Array.isArray(hourly) || !hourly.length) {
+    return [];
+  }
+  const last = hourly.length - 1;
+  const pts = [];
+  let prevCat = Symbol("none");
+  hourly.forEach((h, i) => {
+    const cat = weatherCategory(h.code);
+    const isEdge = i === 0 || i === last;
+    if (isEdge || cat !== prevCat) {
+      pts.push({ index: i, cat, code: h.code, temp: h.temp, offset: -(last - i) });
+    }
+    prevCat = cat;
+  });
+  // 去掉相邻重复索引（当变化点正好落在头/尾时）。
+  return pts.filter((p, i) => i === 0 || p.index !== pts[i - 1].index);
+}
+
+function renderFocusWeather(item) {
+  const hourly = item?.weather?.hourly;
+  if (!Array.isArray(hourly) || !hourly.some((h) => h && h.code !== null)) {
+    return "";
+  }
+  const last = hourly.length - 1;
+  const points = weatherChangePoints(hourly).filter((p) => p.cat);
+  if (!points.length) {
+    return "";
+  }
+  const marks = points
+    .map((p) => {
+      const pct = last > 0 ? (p.index / last) * 100 : 100;
+      const isNow = p.index === last;
+      const icon = weatherIconSvg(p.cat);
+      const timeLabel = p.offset === 0 ? "now" : `${p.offset}h`;
+      const tempLabel = Number.isFinite(Number(p.temp)) ? `${Math.round(p.temp)}°` : "";
+      return `<div class="fw-mark${isNow ? " is-now" : ""}" style="left:${pct.toFixed(2)}%">
+          <span class="fw-icon">${icon}</span>
+          ${tempLabel ? `<span class="fw-temp">${tempLabel}</span>` : ""}
+          <span class="fw-time">${timeLabel}</span>
+        </div>`;
+    })
+    .join("");
+  return `<div class="focus-weather" aria-label="weather over the 24h before the photo">
+      <div class="fw-track"><span class="fw-line"></span>${marks}</div>
+    </div>`;
+}
+
 function renderFocusInfo(item) {
   const isContributed = item.submissionType === "contributed";
   const approx = (flag) => (flag ? escapeHtml(UI_TEXT.approxPrefix.en) : "");
@@ -2575,7 +2676,8 @@ function renderFocusInfo(item) {
   if (isContributed && item.submitter) {
     rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
   }
-  if (!rows.length) {
+  const weatherHtml = renderFocusWeather(item);
+  if (!rows.length && !weatherHtml) {
     return "";
   }
   return `<div class="focus-info">
@@ -2587,7 +2689,7 @@ function renderFocusInfo(item) {
             </div>`,
           )
           .join("")}
-      </div>`;
+      </div>${weatherHtml}`;
 }
 
 // Non-destructive crop (用户 #8): a media's `crop` = { aspect, scale, posX, posY }
@@ -4824,7 +4926,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=125", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=127", { updateViaCache: "none" });
   }
 }
 
@@ -4897,6 +4999,8 @@ function setupEditor() {
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
+      <button type="button" class="editor-weather" title="用坐标+拍摄时间抓取「拍摄前24小时」天气">☁ 抓取天气</button>
+      <button type="button" class="editor-weather-clear" title="清空这条记录的天气">✕天气</button>
       <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点">🗑</button>
     </footer>`;
   document.body.appendChild(drawer);
@@ -5176,6 +5280,8 @@ function setupEditor() {
   drawer.querySelector(".editor-cancel").addEventListener("click", () => closeEditor());
   drawer.querySelector(".editor-save").addEventListener("click", saveEditor);
   drawer.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
+  drawer.querySelector(".editor-weather").addEventListener("click", () => fetchWeatherForRecord(false));
+  drawer.querySelector(".editor-weather-clear").addEventListener("click", () => fetchWeatherForRecord(true));
   coordRow.querySelector(".editor-coord-reset").addEventListener("click", () => {
     editor.draftCoords = null;
     updateCoordReadout(getRawById(state.editingId));
@@ -6885,6 +6991,40 @@ async function saveEditor() {
   } finally {
     saveButton.disabled = false;
     saveButton.textContent = "保存";
+  }
+}
+
+// 用户 T3: 编辑器「抓取天气」按钮。用后端接口按这条记录的坐标+拍摄时间抓「拍摄前
+// 24 小时」逐时天气写回 record.json（clear=true 则清空）。抓完重载并重开编辑器。
+async function fetchWeatherForRecord(clear) {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  const btn = editor.root?.querySelector(clear ? ".editor-weather-clear" : ".editor-weather");
+  const original = btn?.textContent;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = clear ? "清空中…" : "抓取中…";
+  }
+  try {
+    const result = await apiPost("/api/fetch-weather", { id, clear });
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    openEditor(id);
+    if (clear) {
+      showEditorToast("已清空天气 ✓");
+    } else {
+      const n = result?.weather?.hourly?.filter((h) => h.code !== null).length || 0;
+      showEditorToast(`已抓取天气 ✓（${n} 小时数据）`);
+    }
+  } catch (error) {
+    showEditorToast(`${clear ? "清空" : "抓取"}天气失败：${error.message}`, true);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
   }
 }
 

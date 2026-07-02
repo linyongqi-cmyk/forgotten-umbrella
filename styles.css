@@ -1263,11 +1263,14 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   --expanded-frame-width: 520px;
   --expanded-frame-height: 680px;
   position: fixed;
-  /* v125: 详情面板垂直居中（不再固定顶端）。内容短的横图现在停在屏幕中间；内容长
-     到超过 max-height 时面板被 max-height 卡住，居中即等于上下留等边距（顶端稳定，
-     不会下跳）。因为面板在图片加载完（去掉 is-loading）前一直 opacity:0/hidden，
-     所以以最终高度居中淡入，切换记录也不会出现"先低后跳"。 */
-  top: 50%;
+  /* v126: 详情面板固定顶端（不再垂直居中）。--focus-top 是导航栏下方一个舒服的留白，
+     所有标点都从这里往下排——短内容停在这个间距下面，长内容顶部也停在同一位置、往下
+     超出就内部滚动。这样每张标点顶部间距完全一致，不会像居中方案那样「内容越长顶部离
+     导航栏越近」（长横图差点贴到导航栏）。面板在图片加载完（去掉 is-loading）前一直
+     opacity:0/hidden，所以以最终高度淡入，切换记录不会「先低后跳」。 */
+  --focus-top: clamp(84px, 11vh, 120px);
+  --focus-bottom: clamp(24px, 4vh, 48px);
+  top: var(--focus-top);
   z-index: 40;
   /* Single column (v109): the big cover image with A1/A2/C floating over it, then
      the article (D1+D2) below. Right offset matches the topbar so the panel
@@ -1281,10 +1284,13 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  overflow-x: visible;
-  overflow-y: auto;
-  max-height: calc(100vh - clamp(96px, 12vh, 140px));
-  transform: translate(28px, -50%);
+  /* v127 详情页排布重写：容器是「固定高宽」的框（高=视口减去上下留白）。里面 .focus-scroll
+     滚动，.focus-stage 用 margin:auto 上下居中——内容比框矮就居中放，比框高就顶到上面往下滚。
+     不再随内容高度撑大容器（那会让单张横图/短内容没有可居中的空间=旧问题B），也不会因图片
+     加载后容器变高再重新定位而下跳（旧问题C）。 */
+  overflow: hidden;
+  height: calc(100vh - var(--focus-top) - var(--focus-bottom));
+  transform: translate(28px, 0);
   /* Only opacity/transform animate (both GPU-composited). Width/height are NOT
      transitioned: animating them forces a layout on every frame, which was the
      visible jank when expanding and when switching between differently-sized
@@ -1392,6 +1398,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-stage {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  /* v127: 上下 auto 外边距 = 在固定高度的 .focus-scroll 里垂直居中；一旦内容比容器高，
+     auto 外边距自动塌成 0，内容顶到上面正常往下滚（不会像 justify-content:center 那样把
+     顶部裁掉）。这就是「矮则居中、高则顶端+滚动」的实现。 */
+  margin: auto 0;
 }
 
 #focus-caption:not(:empty) {
@@ -1470,6 +1481,82 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .focus-overlay-info .focus-info-label,
 .focus-overlay-info .focus-info-value p {
   /* Softer than before (用户 #3: the black was too heavy). */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+/* 天气横轴（用户 T3）：拍摄前 24 小时的天气变化，只在「变化点+头尾」放极简线条图标，
+   右端(now)=拍摄当时。整条 track 用百分比定位每个点，首/尾自动内收不出血。放在信息
+   overlay 底部，浮在封面上，所以图标/文字都加投影保证在任何底图上都看得清。 */
+.focus-weather {
+  margin-top: 12px;
+  padding-top: 4px;
+}
+
+.focus-weather .fw-track {
+  position: relative;
+  height: 52px;
+  margin: 0 6px;
+}
+
+.focus-weather .fw-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 13px;
+  height: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.focus-weather .fw-mark {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* 头尾两点贴边对齐，不越过 track 边界。 */
+.focus-weather .fw-mark:first-of-type {
+  transform: translateX(0);
+  align-items: flex-start;
+}
+
+.focus-weather .fw-mark.is-now {
+  transform: translateX(-100%);
+  align-items: flex-end;
+}
+
+.focus-weather .fw-icon {
+  display: block;
+  height: 26px;
+}
+
+.focus-weather .fw-icon svg {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.focus-weather .fw-mark.is-now .fw-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.focus-weather .fw-temp {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.focus-weather .fw-time {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.45);
 }
 
@@ -1705,9 +1792,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-image-panel.is-expanded {
-  left: 50%;
-  right: auto;
-  top: 50%;
+  /* v127 修问题D：放大居中改用 inset:0 + margin:auto（固定宽高的框在视口正中），不再靠
+     transform:translate(-50%,-50%)。这样面板的 transform 只留给入场滑动，放大时不会用
+     900ms 慢慢从停靠位滑到画面中央（那就是原来「动画奇怪」）。放大只做一个快速淡入。 */
+  inset: 0;
+  margin: auto;
   z-index: 70;
   display: flex;
   width: var(--expanded-frame-width);
@@ -1716,7 +1805,14 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   height: var(--expanded-frame-height);
   max-height: 90vh;
   overflow: visible;
-  transform: translate(-50%, -50%);
+  transform: none;
+  transition: opacity 200ms ease;
+  animation: focus-expand-pop 200ms ease;
+}
+
+@keyframes focus-expand-pop {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
 }
 
 .focus-image-panel.is-expanded .focus-image-frame {
@@ -1944,7 +2040,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .workspace.is-focus-mode .focus-image-panel {
   opacity: 1;
   pointer-events: auto;
-  transform: translate(0, -50%);
+  transform: translate(0, 0);
 }
 
 .workspace.is-focus-mode .focus-image-panel.is-loading {
@@ -1961,8 +2057,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .workspace.is-focus-mode .focus-image-panel.is-expanded {
-  top: 50%;
-  transform: translate(-50%, -50%);
+  /* v127：焦点模式下这条特异性最高，同样用 inset:0+margin:auto 居中、transform 归零，
+     覆盖 .is-focus-mode .focus-image-panel 的 translate，放大不再滑动。 */
+  inset: 0;
+  transform: none;
+  transition: opacity 200ms ease;
 }
 
 /* In detail (focus) mode only the "show all" reset stays disabled; the top nav
@@ -2824,6 +2923,10 @@ body.edit-mode .card-edit {
     bottom: 28px;
     width: auto;
     min-width: 0;
+    /* v127：窄屏保持「底部抽屉」——高度随内容撑（不用固定高），只封顶不超过一屏。
+       内容矮时贴着底部一小块，内容多时往上长到封顶后内部滚动。 */
+    height: auto;
+    max-height: calc(100vh - var(--focus-top) - 28px);
     transform: translateY(24px);
   }
 
@@ -2833,15 +2936,13 @@ body.edit-mode .card-edit {
 
   .focus-image-panel.is-expanded,
   .workspace.is-focus-mode .focus-image-panel.is-expanded {
-    left: 50%;
-    right: auto;
-    top: 50%;
-    bottom: auto;
+    inset: 0;
     width: var(--expanded-frame-width);
     max-width: 86vw;
     height: var(--expanded-frame-height);
     max-height: 86vh;
-    transform: translate(-50%, -50%);
+    margin: auto;
+    transform: none;
   }
 
   .focus-image-panel.is-expanded .focus-image-frame {
@@ -4894,6 +4995,9 @@ body.editor-open .panel-resizer {
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
+  /* v127: 做成 flex 纵向容器，好让里面的 .focus-stage 用 margin:auto 上下居中。 */
+  display: flex;
+  flex-direction: column;
 }
 
 .focus-scroll::-webkit-scrollbar {
