@@ -1814,12 +1814,21 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   overflow: visible;
   transform: none;
   transition: opacity 200ms ease;
-  animation: focus-expand-pop 200ms ease;
+  animation: focus-expand-pop 220ms ease;
 }
 
+/* 用户 🅑：进入放大做完整淡入（0→1，不再从 0.5 起=看不出）。 */
 @keyframes focus-expand-pop {
-  from { opacity: 0.5; }
+  from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* 用户 🅑：退出放大先淡出再收起。closeExpandedImage 先加 .is-collapsing 让放大态原地
+   opacity→0（仍 is-expanded=保持大图居中不跳），~200ms 后再真正摘 is-expanded 收回详情页。 */
+.focus-image-panel.is-expanded.is-collapsing {
+  opacity: 0;
+  animation: none;
+  pointer-events: none;
 }
 
 .focus-image-panel.is-expanded .focus-image-frame {
@@ -5070,6 +5079,17 @@ body.editor-open .panel-resizer {
 
 .focus-scroll::-webkit-scrollbar {
   display: none;
+}
+
+/* 用户 🅐 方案A：短内容（不溢出，JS 加 .is-focus-short）——面板是 flex 纵向列，给滚动区
+   margin-top:auto、footer margin-bottom:auto，两个 auto 外边距把剩余空间平分到上下，于是
+   「滚动区(内容高) + footer」这一组整体垂直居中，footer 紧贴内容正下方。长内容不加这个类，
+   保持 .focus-scroll 的 flex:0 1 auto 压缩+内部滚动、footer 固定在面板底部。 */
+.focus-image-panel.is-focus-short:not(.is-expanded) .focus-scroll {
+  margin-top: auto;
+}
+.focus-image-panel.is-focus-short:not(.is-expanded) .focus-footer {
+  margin-bottom: auto;
 }
 
 .focus-header .focus-title {

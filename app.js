@@ -824,7 +824,7 @@ function bindEvents() {
       return;
     }
     if (state.imageExpanded) {
-      closeExpandedImage();
+      closeExpandedImage(true);
     }
   });
   els.focusPanel?.addEventListener("wheel", handleExpandedImageWheel, { passive: false });
@@ -1100,7 +1100,7 @@ function bindEvents() {
     }
 
     if (state.imageExpanded) {
-      closeExpandedImage();
+      closeExpandedImage(true);
       return;
     }
 
@@ -2435,6 +2435,10 @@ function updateFocusScrollHint() {
   const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 8;
   const expanded = els.focusPanel?.classList.contains("is-expanded");
   hint.hidden = !overflowing || atBottom || Boolean(expanded);
+  // 用户 🅐 方案A：短内容（不溢出）时给面板 is-focus-short —— CSS 用 flex auto 外边距把
+  //「滚动区(=内容高) + Back to map」当一个整体在固定高面板里垂直居中，footer 自然贴内容正下方。
+  // 长内容（溢出）去掉这个类：滚动区压到剩余高、内部滚动，footer 固定面板底部不随滚动。
+  els.focusPanel?.classList.toggle("is-focus-short", !overflowing && !expanded);
 }
 
 // Blue underlined link under the cover image, jumping to the linked point.
@@ -2554,43 +2558,82 @@ function weatherCategory(code) {
     return null;
   }
   const c = Number(code);
-  if (c === 0) return "clear";
-  if (c === 1 || c === 2) return "partly";
-  if (c === 3) return "cloudy";
-  if (c === 45 || c === 48) return "fog";
-  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return "snow";
-  if (c >= 95) return "thunder";
-  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82)) return "rain";
+  if (c === 0) return "clear"; // 晴
+  if (c === 1 || c === 2) return "partly"; // 多云间晴
+  if (c === 3 || c === 45 || c === 48) return "cloudy"; // 阴（雾也归这里，用户定）
+  if (c === 51 || c === 53 || c === 61 || c === 80) return "light-rain"; // 小雨（斜线1）
+  if (c === 55 || c === 63 || c === 81) return "rain"; // 中雨（斜线2）
+  if (c === 65 || c === 82) return "heavy-rain"; // 大雨（斜线3）
+  if (c === 95 || c === 96 || c === 99) return "thunder"; // 暴雨（云+斜线+闪电）
+  // 小雪（云+雪花）：含雨夹雪(56/57/66/67)、小雪(71)、雪粒(77)、小阵雪(85)
+  if (c === 56 || c === 57 || c === 66 || c === 67 || c === 71 || c === 77 || c === 85) return "light-snow";
+  if (c === 73 || c === 75 || c === 86) return "snow"; // 大雪（只雪花）：含中雪
   return "cloudy";
+}
+
+// 夜里判断：时间字符串「YYYY-MM-DDTHH:00」取小时，18:00~翌6:00 算夜。用户定：只有
+// 晴/多云间晴分昼夜（换成月亮版），其他天气不分。日本日落随季节有出入，这是近似值。
+function isNightHour(timeStr) {
+  const m = /T(\d{2}):/.exec(String(timeStr || ""));
+  if (!m) return false;
+  const h = Number(m[1]);
+  return h >= 18 || h < 6;
+}
+
+// 结合时间的分类：晴/多云间晴在夜里返回 -night 变体，其余原样。
+function weatherCategoryAt(code, timeStr) {
+  const base = weatherCategory(code);
+  if ((base === "clear" || base === "partly") && isNightHour(timeStr)) {
+    return `${base}-night`;
+  }
+  return base;
 }
 
 // 极简线条图标（stroke=currentColor，无填充）。共用一朵云的路径，雨/雪/雷在云下加元素。
 const WEATHER_CLOUD = `<path d="M8 18h8a3.6 3.6 0 0 0 .4-7.2 4.8 4.8 0 0 0-9.2-1A3.4 3.4 0 0 0 8 18Z"/>`;
+// 太阳（晴·昼）：圆+八条光线。月亮（晴·夜）：一弯新月轮廓。
+const WEATHER_SUN = `<circle cx="12" cy="12" r="4.2"/><path d="M12 3.2v2.3M12 18.5v2.3M3.2 12h2.3M18.5 12h2.3M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/>`;
+const WEATHER_MOON = `<path d="M17.6 14.4A6.6 6.6 0 1 1 9.6 6.4 5.1 5.1 0 0 0 17.6 14.4Z"/>`;
+// 多云间晴：云后露出的小太阳弧/月牙（左上角），再叠一朵云。
+const WEATHER_SUN_SMALL = `<path d="M6.5 9.2a3.4 3.4 0 0 1 6.4-1.1"/><path d="M5 5.6l.9.9M3 10h1.3M9.6 4.3l-.6 1.1"/>`;
+const WEATHER_MOON_SMALL = `<path d="M11 8.4A3.2 3.2 0 1 1 6.9 4.7 2.5 2.5 0 0 0 11 8.4Z"/>`;
 function weatherIconSvg(category) {
   const open = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
   const close = `</svg>`;
   let inner = "";
   switch (category) {
     case "clear":
-      inner = `<circle cx="12" cy="12" r="4.2"/><path d="M12 3.2v2.3M12 18.5v2.3M3.2 12h2.3M18.5 12h2.3M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/>`;
+      inner = WEATHER_SUN;
+      break;
+    case "clear-night":
+      inner = WEATHER_MOON;
       break;
     case "partly":
-      inner = `<path d="M6.5 9.2a3.4 3.4 0 0 1 6.4-1.1"/><path d="M5 5.6l.9.9M3 10h1.3M9.6 4.3l-.6 1.1"/>${WEATHER_CLOUD}`;
+      inner = `${WEATHER_SUN_SMALL}${WEATHER_CLOUD}`;
+      break;
+    case "partly-night":
+      inner = `${WEATHER_MOON_SMALL}${WEATHER_CLOUD}`;
       break;
     case "cloudy":
       inner = WEATHER_CLOUD;
       break;
-    case "fog":
-      inner = `${WEATHER_CLOUD}<path d="M6 21h9M8 18.6h8" opacity="0.85"/>`;
+    case "light-rain": // 小雨：斜线 1 条
+      inner = `${WEATHER_CLOUD}<path d="M12 19l-1.6 3.4"/>`;
       break;
-    case "rain":
-      inner = `${WEATHER_CLOUD}<path d="M9 20l-1 2M13 20l-1 2M17 20l-1 2"/>`;
+    case "rain": // 中雨：斜线 2 条
+      inner = `${WEATHER_CLOUD}<path d="M10.5 19l-1.6 3.4M14.5 19l-1.6 3.4"/>`;
       break;
-    case "snow":
-      inner = `${WEATHER_CLOUD}<path d="M9 21h.01M13 21h.01M11 22.6h.01M15 22.6h.01"/>`;
+    case "heavy-rain": // 大雨：斜线 3 条
+      inner = `${WEATHER_CLOUD}<path d="M9 19l-1.6 3.4M12.5 19l-1.6 3.4M16 19l-1.6 3.4"/>`;
       break;
-    case "thunder":
-      inner = `${WEATHER_CLOUD}<path d="M12.5 19l-2.5 3h2l-1 2.4"/>`;
+    case "thunder": // 暴雨：云 + 斜线 + 闪电
+      inner = `${WEATHER_CLOUD}<path d="M8.6 19l-1.5 3.2"/><path d="M14.6 18.4l-2.4 3.2h2.1l-1.5 3"/>`;
+      break;
+    case "light-snow": // 小雪：云 + 雪花
+      inner = `${WEATHER_CLOUD}<path d="M12 18.4v4.8M9.9 19.6l4.2 2.4M9.9 22l4.2-2.4"/>`;
+      break;
+    case "snow": // 大雪：只雪花（较大，居中）
+      inner = `<path d="M12 4.5v15M5.5 8.25l13 7.5M5.5 15.75l13-7.5"/>`;
       break;
     default:
       return "";
@@ -2608,14 +2651,29 @@ function weatherChangePoints(hourly) {
   const pts = [];
   let prevCat = Symbol("none");
   hourly.forEach((h, i) => {
-    const cat = weatherCategory(h.code);
+    const cat = weatherCategoryAt(h.code, h.time);
     const isEdge = i === 0 || i === last;
     if (isEdge || cat !== prevCat) {
       pts.push({ index: i, cat, code: h.code, offset: -(last - i) });
     }
     prevCat = cat;
   });
-  return pts.filter((p, i) => i === 0 || p.index !== pts[i - 1].index);
+  const deduped = pts.filter((p, i) => i === 0 || p.index !== pts[i - 1].index);
+  // 合并相邻同类：当最后一小时(now)的天气恰好和上一个变化点相同时，强制加进来的「尾点」
+  // 会和它前面的点撞成相邻重复（IMG_8508 的 rain@16→rain@17）。这里把连续同类并成一段，
+  // 并保留后一个的 index/code/time，让这段一直延伸到 now，尾标签仍锚在真正的最后一点。
+  const merged = [];
+  for (const p of deduped) {
+    const prev = merged[merged.length - 1];
+    if (prev && prev.cat === p.cat) {
+      prev.index = p.index;
+      prev.code = p.code;
+      prev.offset = p.offset;
+    } else {
+      merged.push({ ...p });
+    }
+  }
+  return merged;
 }
 
 // 主图天气横轴（用户 2.3/2.5/2.6/2.7）：拍摄前 24 小时，只在变化点+头尾放极简线条图标。
@@ -2641,25 +2699,29 @@ function renderFocusWeatherAxis(weather) {
   const MIN_GAP = 13; // 百分比；两个图例中心至少差 13% 才不挤（图标约占 5–8%）。
   const tOf = (p) => (last > 0 ? LO + (p.index / last) * spanW : (LO + HI) / 2);
 
-  // 2) 强制最小间距（用户 2.3）：按真实时间从左往右贪心保留，离上一个保留点不到 MIN_GAP 的
-  //    就丢掉（把太频繁的变化合并），位置仍是真实时间——既不挤、也不会因等距而失真。
-  const kept = [];
-  points.forEach((p) => {
-    if (!kept.length || tOf(p) - kept[kept.length - 1].t >= MIN_GAP) {
-      kept.push({ p, t: tOf(p) });
-    }
-  });
-  // 一定保留最后一点（now）；若它离上一个保留点太近，就把前面的弹掉直到留够间距。
-  const lastPt = points[points.length - 1];
-  if (kept[kept.length - 1].p !== lastPt) {
-    const tl = tOf(lastPt);
-    while (kept.length > 1 && tl - kept[kept.length - 1].t < MIN_GAP) {
-      kept.pop();
-    }
-    kept.push({ p: lastPt, t: tl });
+  // 2) 用户「问题X」方案：不丢点。所有变化点（`weatherChangePoints` 保证相邻天气一定不同）
+  //    全保留，只把挨太近的整体往两边推开，留出最小间距；位置不再精准=真实时间，但保证不重叠、
+  //    也不会出现相邻同图标。这样修掉了老算法「丢中间点→前后两个相同类相邻重复」的 bug。
+  const chosen = points;
+  const raw = chosen.map(tOf);
+  const n = raw.length;
+  const pos = raw.slice();
+  // 从左往右：把每个点顶到「上一个 + MIN_GAP」以外。
+  for (let i = 1; i < n; i += 1) {
+    if (pos[i] < pos[i - 1] + MIN_GAP) pos[i] = pos[i - 1] + MIN_GAP;
   }
-  const pos = kept.map((k) => k.t);
-  const chosen = kept.map((k) => k.p);
+  // 若右端顶出去了：把最后一点（now）钉回真实位置(=HI)，再从右往左回推，保证 now 始终在最右端。
+  if (n > 0 && pos[n - 1] > HI) {
+    pos[n - 1] = raw[n - 1];
+    for (let i = n - 2; i >= 0; i -= 1) {
+      if (pos[i] > pos[i + 1] - MIN_GAP) pos[i] = pos[i + 1] - MIN_GAP;
+    }
+  }
+  // 极端保险：变化太多，推开后仍越过左端 → 退化成等距（依旧保留所有点，只是位置全变均匀）。
+  if (n > 0 && pos[0] < LO) {
+    const step = n > 1 ? (HI - LO) / (n - 1) : 0;
+    for (let i = 0; i < n; i += 1) pos[i] = LO + step * i;
+  }
 
   // 线段：只画在相邻图例之间的空隙里（各让开半个图标宽 ~13px），实现「图例处断开」的遮挡。
   const segs = [];
@@ -2694,7 +2756,8 @@ function singleWeatherIconFor(media) {
   if (!Array.isArray(hourly) || !hourly.length) {
     return "";
   }
-  const cat = weatherCategory(hourly[hourly.length - 1]?.code);
+  const last = hourly[hourly.length - 1];
+  const cat = weatherCategoryAt(last?.code, last?.time);
   return cat ? weatherIconSvg(cat) : "";
 }
 
@@ -4181,6 +4244,12 @@ function expandImageAt(index) {
   }
   // #10: enlarging an image should stop any inline video that was playing.
   pauseFocusVideos();
+  // 若上一次退出的淡出还没结束，取消它并清掉淡出态，避免新放大带着 .is-collapsing 半透明。
+  if (state.collapseTimer) {
+    window.clearTimeout(state.collapseTimer);
+    state.collapseTimer = null;
+  }
+  els.focusPanel.classList.remove("is-collapsing");
   state.expandedIndex = Math.min(Math.max(index, 0), list.length - 1);
   state.imageExpanded = true;
   els.focusPanel.classList.add("is-expanded");
@@ -4427,9 +4496,32 @@ function recenterFocusedMarker() {
   }
 }
 
-function closeExpandedImage() {
+// 用户 🅑：退出放大先淡出再收起。
+// - animate=true（点遮罩/按 Esc 关闭）：先加 .is-collapsing 让大图原地 opacity→0，~200ms 后
+//   再真正收回（finalizeCloseExpanded）。这样能看到淡出，而不是瞬间跳回详情页。
+// - animate=false（切换标点、离开详情页等程序性拆除）：立即收起，不留 200ms 延迟。
+function closeExpandedImage(animate = false) {
+  const panel = els.focusPanel;
   const wasExpanded = state.imageExpanded;
   const viewedMedia = (state.focusMediaList || [])[state.expandedIndex];
+  if (animate && wasExpanded && panel?.classList.contains("is-expanded")) {
+    if (state.collapseTimer) return; // 已在淡出中，忽略重复触发
+    state.imageExpanded = false; // 立刻挡住滑动/再次点击的处理
+    panel.classList.add("is-collapsing");
+    state.collapseTimer = window.setTimeout(() => {
+      state.collapseTimer = null;
+      finalizeCloseExpanded(true, viewedMedia);
+    }, 200);
+    return;
+  }
+  if (state.collapseTimer) {
+    window.clearTimeout(state.collapseTimer);
+    state.collapseTimer = null;
+  }
+  finalizeCloseExpanded(wasExpanded, viewedMedia);
+}
+
+function finalizeCloseExpanded(wasExpanded, viewedMedia) {
   state.imageExpanded = false;
   state.imageZoom = 1;
   state.imagePanX = 0;
@@ -4439,6 +4531,7 @@ function closeExpandedImage() {
   state.imageDragStart = null;
   state.flipResize = false;
   els.focusPanel?.classList.remove("is-expanded");
+  els.focusPanel?.classList.remove("is-collapsing");
   els.focusPanel?.classList.remove("is-video-expanded");
   els.focusPanel?.classList.remove("is-media-sizing");
   els.mapView?.classList.remove("is-image-expanded");
@@ -4998,7 +5091,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=129", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=130", { updateViaCache: "none" });
   }
 }
 
