@@ -17,6 +17,8 @@ import {
   mergeRecordMediaWithFolder,
   readRecordFile,
   stringifyRecordWithComments,
+  isImageFile,
+  isVideoFile,
 } from "./record-utils.mjs";
 import { parseExif } from "./exif.mjs";
 import { fetchWeatherData } from "./weather.mjs";
@@ -338,6 +340,23 @@ function sanitizeFilename(name) {
   return base;
 }
 
+// 后端最终把关：只允许能在网页里正常显示的格式。防止 HEIC 等浏览器打不开的文件混进来
+// （HEIC 曾让整站构建崩掉）。前端也会先拦一道，这里是兜底，谁都绕不过去。
+const ALLOWED_IMAGE_HINT = "jpg / jpeg / png / webp / gif / avif";
+const ALLOWED_VIDEO_HINT = "mp4 / mov / webm / m4v";
+
+function assertImageFilename(filename) {
+  if (!isImageFile(filename)) {
+    throw new ApiError(400, `不支持的图片格式「${filename}」。主图只能是：${ALLOWED_IMAGE_HINT}（HEIC 等请先转成 jpg）。`);
+  }
+}
+
+function assertMediaFilename(filename) {
+  if (!isImageFile(filename) && !isVideoFile(filename)) {
+    throw new ApiError(400, `不支持的文件格式「${filename}」。图片：${ALLOWED_IMAGE_HINT}；视频：${ALLOWED_VIDEO_HINT}（HEIC 等请先转成 jpg）。`);
+  }
+}
+
 // A category is the whole folder name, e.g. "hookable(affordance)" or "unknown".
 function sanitizeCategory(name) {
   const raw = String(name || "unknown").trim();
@@ -376,6 +395,7 @@ export async function uploadImage(payload) {
     throw new ApiError(404, `No record found for id "${id}".`);
   }
   const filename = sanitizeFilename(payload.filename);
+  assertMediaFilename(filename); // 追加的媒体：图片或视频，其它一律拒绝
   const buffer = decodeImageData(payload.dataBase64);
   const savedImagePath = path.join(path.dirname(recordPath), filename);
   await fs.writeFile(savedImagePath, buffer);
@@ -449,6 +469,7 @@ async function nextSourceIndex() {
 // marker on the map so the user can position it.
 export async function createRecord(payload) {
   const filename = sanitizeFilename(payload.filename);
+  assertImageFilename(filename); // 新建标点的主图必须是能显示的图片格式
   const id = path.parse(filename).name;
   const category = sanitizeCategory(payload.category);
   const recordDir = path.join(recordsRoot, category, id);

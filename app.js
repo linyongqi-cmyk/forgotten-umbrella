@@ -5434,7 +5434,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=142", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=143", { updateViaCache: "none" });
   }
 }
 
@@ -5784,7 +5784,7 @@ function setupEditor() {
     <div class="editor-flow-actions">
       <button type="button" class="editor-add-para">＋ 加段落</button>
       <button type="button" class="editor-add-dialogue">＋ 对话</button>
-      <label class="editor-upload"><span>＋ 上传图片/视频</span><input type="file" accept="image/*,video/*" multiple hidden /></label>
+      <label class="editor-upload"><span>＋ 上传图片/视频</span><input type="file" accept="${UPLOAD_ACCEPT}" multiple hidden /></label>
     </div>`;
   rightCol.appendChild(contentRow);
   editor.flowList = contentRow.querySelector(".editor-flow");
@@ -5830,7 +5830,7 @@ function setupEditor() {
 
   const addInput = document.createElement("input");
   addInput.type = "file";
-  addInput.accept = "image/*";
+  addInput.accept = CREATE_ACCEPT;
   addInput.hidden = true;
   addInput.addEventListener("change", onCreateRecord);
   document.body.appendChild(addInput);
@@ -7593,6 +7593,33 @@ async function apiPost(pathname, payload) {
   return result;
 }
 
+// 允许上传的格式（和后端 record-utils / editor-api 保持一致）。HEIC 等浏览器打不开的
+// 一律拦下：前端先给友好提示，后端还会再兜底一次。
+const ALLOWED_IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
+const ALLOWED_VIDEO_EXTS = [".mp4", ".mov", ".webm", ".m4v"];
+// <input accept> 用的字符串：明确列扩展名，别用 image/*（image/* 会放进 HEIC）。
+const CREATE_ACCEPT = ALLOWED_IMAGE_EXTS.join(",");
+const UPLOAD_ACCEPT = [...ALLOWED_IMAGE_EXTS, ...ALLOWED_VIDEO_EXTS].join(",");
+
+function fileExt(name) {
+  const m = /\.[a-z0-9]+$/i.exec(String(name || ""));
+  return m ? m[0].toLowerCase() : "";
+}
+// 返回 null 表示可以传；否则返回一段中文错误提示。imageOnly=true 时只允许图片（新建主图用）。
+function mediaFormatError(file, { imageOnly } = {}) {
+  const ext = fileExt(file?.name);
+  const ok = imageOnly
+    ? ALLOWED_IMAGE_EXTS.includes(ext)
+    : ALLOWED_IMAGE_EXTS.includes(ext) || ALLOWED_VIDEO_EXTS.includes(ext);
+  if (ok) {
+    return null;
+  }
+  const imgHint = "jpg / png / webp / gif / avif";
+  return imageOnly
+    ? `不支持的图片格式「${file?.name || ""}」，只能用 ${imgHint}（HEIC 等请先转成 jpg）。`
+    : `不支持的格式「${file?.name || ""}」，图片用 ${imgHint}、视频用 mp4/mov/webm/m4v（HEIC 等请先转成 jpg）。`;
+}
+
 // Upload one or more images into the currently-open record's folder.
 async function onUploadImages(event) {
   const id = state.editingId;
@@ -7600,6 +7627,14 @@ async function onUploadImages(event) {
   event.target.value = "";
   if (!id || !files.length) {
     return;
+  }
+  // 传之前先逐个把关，有一个不合格就整批不传，直接告诉用户是哪个文件。
+  for (const file of files) {
+    const err = mediaFormatError(file);
+    if (err) {
+      showEditorToast(err, true);
+      return;
+    }
   }
   showEditorToast("上传中…");
   try {
@@ -7640,6 +7675,12 @@ async function onCreateRecord(event) {
   const file = event.target.files?.[0];
   event.target.value = "";
   if (!file) {
+    return;
+  }
+  // 新建标点的主图必须能在网页显示，先拦下 HEIC 等格式（后端还会再兜底）。
+  const formatErr = mediaFormatError(file, { imageOnly: true });
+  if (formatErr) {
+    showEditorToast(formatErr, true);
     return;
   }
   // 直接用原文件名（含扩展名）作为主图 / 标点 ID。以前这里会弹窗问是否改名——现在
