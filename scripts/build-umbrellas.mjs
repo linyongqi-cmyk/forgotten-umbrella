@@ -92,7 +92,10 @@ async function buildUmbrellaItem(recordPath, record) {
     : null;
 
   if (!primary?.file) {
-    throw new Error(`Missing primary media in ${recordPath}`);
+    // 半成品投稿（还没放进能显示的主图，或图片是浏览器不支持的 HEIC 等）不该拖垮整站构建。
+    // 跳过它、只打印警告——record.json 原样保留，等补齐主图后重建即可。
+    console.warn(`⚠️  跳过（没有可显示的主图）：${toPosix(path.relative(rootDir, recordPath))}`);
+    return null;
   }
 
   const media = await Promise.all(record.media.map(async (entry) => {
@@ -176,7 +179,10 @@ const builtItems = [];
 for (const recordFile of recordFiles) {
   const rawRecord = await readRecordFile(recordFile);
   const record = await mergeRecordMediaWithFolder(recordFile, rawRecord);
-  builtItems.push(await buildUmbrellaItem(recordFile, record));
+  const built = await buildUmbrellaItem(recordFile, record);
+  if (built) {
+    builtItems.push(built);
+  }
 }
 
 builtItems.sort((a, b) => {

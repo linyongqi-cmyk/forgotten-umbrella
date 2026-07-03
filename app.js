@@ -4091,8 +4091,13 @@ function formatInformationType(item) {
 }
 
 function normalizeLocationLevels(levels) {
+  // "unknown" 是保存值（"这级已知、下面不确定"），照常存进 record；但对外**不显示**。
+  // 这里是所有展示用地址的正规化入口，直接把 unknown 过滤掉（编辑器复原读的是 raw，不受影响）。
   return Array.isArray(levels)
-    ? levels.map((level) => String(level || "").trim()).filter(Boolean).slice(0, 3)
+    ? levels
+        .map((level) => String(level || "").trim())
+        .filter((level) => level && level.toLowerCase() !== "unknown")
+        .slice(0, 3)
     : [];
 }
 
@@ -5429,7 +5434,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=141", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=142", { updateViaCache: "none" });
   }
 }
 
@@ -7637,22 +7642,9 @@ async function onCreateRecord(event) {
   if (!file) {
     return;
   }
-  // Offer to rename the file (item 14). Blank = keep the original name. The
-  // chosen filename becomes the primary image (and thus the record's id).
-  let filename = file.name;
-  const renamed = window.prompt(
-    `是否修改图片文件名？\n留空＝保持原名「${file.name}」。\n（含扩展名，如 abc.jpg；这也会成为标点 ID）`,
-    "",
-  );
-  if (renamed && renamed.trim()) {
-    let name = renamed.trim();
-    // Keep the original extension if the user didn't type one.
-    if (!/\.[a-z0-9]+$/i.test(name)) {
-      const ext = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : "";
-      name += ext;
-    }
-    filename = name;
-  }
+  // 直接用原文件名（含扩展名）作为主图 / 标点 ID。以前这里会弹窗问是否改名——现在
+  // 「显示名 displayId」功能已经能改对外显示的 ID，不必再在这一步动真实文件名了。
+  const filename = file.name;
   showEditorToast("新增中…");
   try {
     const dataBase64 = await readFileAsDataUrl(file);
