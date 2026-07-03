@@ -6,7 +6,11 @@
   // 手动填写的展示地址。
   "locationText": "",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
-  "locationLevels": [],
+  "locationLevels": [
+    "Kyoto",
+    "Kyoto City",
+    "Minami Ward"
+  ],
   // 照片 EXIF 读取到的坐标。地图默认继续使用这里。
   "photoCoordinates": {
     "lat": 34.979866666666666,
@@ -14,8 +18,8 @@
   },
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 34.979866666666666,
-    "lng": 135.76435833333332
+    "lat": 34.979941387666315,
+    "lng": 135.76441331861813
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "2026-06-11T12:46:23+09:00",
@@ -24,7 +28,7 @@
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"","en":""},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
-  "displayId": "",
+  "displayId": "yueliang(1)",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -40,11 +44,11 @@
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "contributed",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
-  "submitter": "",
+  "submitter": "yueliang",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "",
+  "submissionTime": "2026/06/11",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。

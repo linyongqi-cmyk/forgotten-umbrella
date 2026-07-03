@@ -43428,15 +43428,15 @@
       "lng": 135.76435833333332
     },
     "locationCoordinates": {
-      "lat": 34.979866666666666,
-      "lng": 135.76435833333332
+      "lat": 34.979941387666315,
+      "lng": 135.76441331861813
     },
     "locationText": "",
     "title": {
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "yueliang(1)",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
@@ -43580,9 +43580,9 @@
     },
     "linkedId": "",
     "submissionType": "contributed",
-    "submitter": "",
+    "submitter": "yueliang",
     "submissionChannel": "",
-    "submissionTime": "",
+    "submissionTime": "2026/06/11",
     "submitterNote": "",
     "remarks": "",
     "locationApprox": true,
@@ -43742,6 +43742,10 @@
         "showWeather": true
       }
     ],
-    "locationLevels": []
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
   }
 ]
