@@ -221,6 +221,11 @@ export async function saveRecord(payload) {
     record.linkedId = typeof payload.linkedId === "string" ? payload.linkedId.trim() : "";
   }
 
+  // 对外显示名（替换页面上显示的 ID；不动文件夹/文件名，空=显示原文件名）。
+  if (Object.prototype.hasOwnProperty.call(payload, "displayId")) {
+    record.displayId = typeof payload.displayId === "string" ? payload.displayId.trim() : "";
+  }
+
   // Submission origin (own vs contributed) + contributed-only metadata.
   if (Object.prototype.hasOwnProperty.call(payload, "submissionType")) {
     record.submissionType = payload.submissionType === "contributed" ? "contributed" : "own";

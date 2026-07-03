@@ -3497,6 +3497,20 @@ body.edit-mode .map-stage {
   box-sizing: border-box;
 }
 
+/* 显示名行的「原文件」提醒：小字、灰色，真实文件名用等宽 code 标出。 */
+.editor-displayid-hint {
+  font-size: 12px;
+  color: #8a938f;
+  line-height: 1.4;
+}
+.editor-displayid-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #4d5a56;
+  background: rgba(31, 45, 45, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
 /* Checkboxes/radios must keep their natural size — the 100% above made them
    stretch full-width and squash the label (items 3/4). */
 .editor-row input[type="checkbox"],

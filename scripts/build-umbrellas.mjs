@@ -136,6 +136,7 @@ async function buildUmbrellaItem(recordPath, record) {
       locationCoordinates: normalizeCoordinates(record.locationCoordinates),
       locationText: record.locationText || "",
       title: record.title || "",
+      displayId: record.displayId || "",
       umbrellaType: record.umbrellaType || "",
       umbrellaColor: record.umbrellaColor || "",
       umbrellaCount: record.umbrellaCount || "",

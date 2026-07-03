@@ -2308,10 +2308,10 @@ function renderList(items) {
     .map(
       (item) => `
         <button class="location-button ${item.id === state.selectedId ? "is-active" : ""}" data-id="${item.id}" type="button">
-          <img src="${item.thumb}" alt="${item.id}" loading="lazy" decoding="async" />
+          <img src="${item.thumb}" alt="${escapeHtml(displayUmbrellaId(item))}" loading="lazy" decoding="async" />
           <span class="location-copy">
             <span class="location-idrow">
-              <strong>${escapeHtml(item.id)}</strong>
+              <strong>${escapeHtml(displayUmbrellaId(item))}</strong>
               ${localize(item.title) ? `<span class="location-title">${escapeHtml(localize(item.title))}</span>` : ""}
             </span>
             <span class="location-meta">
@@ -2588,7 +2588,8 @@ function renderFocusLink(item) {
     return;
   }
   const t = localize(target.title);
-  const label = t ? `${target.id}（${t}）` : target.id;
+  const targetId = displayUmbrellaId(target);
+  const label = t ? `${targetId}（${t}）` : targetId;
   // 用户 #6: a horizontal chain-link icon (same stroke weight as back-to-map),
   // not an arrow; the text is a brighter, more legible blue (see .focus-link-a).
   els.focusLink.hidden = false;
@@ -2651,6 +2652,12 @@ function renderDialogueLines(text) {
 // ids AND rednote handles (rednote_kankan) keep their underscores — those are real
 // filenames/handles, not names where the underscore replaced a space (item 1).
 function displayUmbrellaId(item) {
+  // 对外显示名（record.displayId）：填了就完全替换页面上显示的 ID，
+  // 但内部匹配/文件夹/linkedId 依旧用真实 item.id，不受影响。
+  const custom = (item?.displayId || "").trim();
+  if (custom) {
+    return custom;
+  }
   const id = item?.id || "";
   if (item?.submissionType !== "contributed" || /^rednote/i.test(id)) {
     return id;
@@ -3454,7 +3461,7 @@ function overviewRowsForItem(item) {
   // the dropdown filter (#3).
   const single = (object, objectCategory, stateValues) => ({
     ...base,
-    idLabel: item.id,
+    idLabel: displayUmbrellaId(item),
     object,
     objectCategory,
     stateValues,
@@ -3477,7 +3484,7 @@ function overviewRowsForItem(item) {
     const stateValues = normalizeStateValues(src);
     return {
       ...base,
-      idLabel: n >= 2 ? `${item.id}(${i + 1})` : item.id,
+      idLabel: n >= 2 ? `${displayUmbrellaId(item)}(${i + 1})` : displayUmbrellaId(item),
       object: statsObjectValue(u),
       objectCategory: statsObjectCategory(u),
       stateValues,
@@ -4015,7 +4022,7 @@ function renderPhotoCard(item) {
   return `
     <article class="photo-card" data-id="${escapeHtml(item.id)}">
       <div class="card-photo">
-        <img src="${item.thumb}" alt="${escapeHtml(item.id)}" loading="lazy" decoding="async" />
+        <img src="${item.thumb}" alt="${escapeHtml(displayUmbrellaId(item))}" loading="lazy" decoding="async" />
         ${flagDot}
         ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
         <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
@@ -4038,7 +4045,7 @@ function renderItemText(item, context) {
     item.statusText,
     item.story,
   ].filter(Boolean);
-  const title = item.id;
+  const title = displayUmbrellaId(item);
   const storyClass = context === "focus" ? "item-story" : "item-story is-compact";
 
   return [
@@ -5422,7 +5429,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=140", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=141", { updateViaCache: "none" });
   }
 }
 
@@ -5485,6 +5492,7 @@ function setupEditor() {
         <label class="editor-head-check editor-flag-check" title="标记此点后续需要修改（仅编辑模式地图显示）"><span>待改</span><input type="checkbox" id="editor-flag-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方填写关联标点"><span>关联</span><input type="checkbox" id="editor-linked-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
+        <label class="editor-head-check" title="勾选后在下方给这个标点起个对外显示名（不改文件夹/文件名）"><span>显示名</span><input type="checkbox" id="editor-displayid-toggle" /></label>
       </div>
       <button type="button" class="editor-close" aria-label="close">×</button>
     </header>
@@ -5554,6 +5562,20 @@ function setupEditor() {
   editor.titleJa = titleRow.querySelector(".editor-title-ja");
   editor.titleEn = titleRow.querySelector(".editor-title-en");
 
+  // ③b 显示名 Display name — 替换页面上显示的 ID，但不改文件夹/文件名。
+  // 行内始终显示「原文件：真实 ID」作为提醒，避免忘了底层文件叫什么。
+  const displayIdRow = document.createElement("div");
+  displayIdRow.className = "editor-row editor-displayid-row";
+  displayIdRow.hidden = true;
+  displayIdRow.innerHTML = `
+    <span>显示名 Display name（替换对外显示的 ID；不改文件夹/文件名）</span>
+    <input class="editor-displayid-input" placeholder="留空则显示原文件名" />
+    <small class="editor-displayid-hint">原文件（真实文件夹/文件名，不会变）：<code>—</code></small>`;
+  body.appendChild(displayIdRow);
+  editor.displayIdRow = displayIdRow;
+  editor.displayIdInput = displayIdRow.querySelector(".editor-displayid-input");
+  editor.displayIdHint = displayIdRow.querySelector(".editor-displayid-hint code");
+
   // ④ 关联标点 Linked point — gated by the 关联 checkbox in the header (item 7).
   const linkRow = document.createElement("label");
   linkRow.className = "editor-row editor-linked-row";
@@ -5574,6 +5596,10 @@ function setupEditor() {
   });
   editor.titleToggle.addEventListener("change", () => {
     titleRow.hidden = !editor.titleToggle.checked;
+  });
+  editor.displayIdToggle = drawer.querySelector("#editor-displayid-toggle");
+  editor.displayIdToggle.addEventListener("change", () => {
+    displayIdRow.hidden = !editor.displayIdToggle.checked;
   });
 
   // ⑤ Coordinates (用户要求：放在显示地址前面).
@@ -7204,7 +7230,8 @@ function populateLinkedSelect(currentId, selectedLinkedId) {
     .sort((a, b) => a.id.localeCompare(b.id))
     .forEach((entry) => {
       const t = localize(entry.title);
-      const label = t ? `${entry.id}（${t}）` : entry.id;
+      const dispId = displayUmbrellaId(entry);
+      const label = t ? `${dispId}（${t}）` : dispId;
       options.push(`<option value="${escapeHtml(entry.id)}">${escapeHtml(label)}</option>`);
     });
   editor.linkedId.innerHTML = options.join("");
@@ -7241,6 +7268,16 @@ function openEditor(id) {
   editor.titleEn.value = titleEn;
   editor.titleToggle.checked = Boolean(titleJa || titleEn);
   editor.titleRow.hidden = !editor.titleToggle.checked;
+  // 显示名：填了就在页面替换 ID；原文件名（真实 id）作为提醒始终显示在行内。
+  const displayId = (raw.displayId || "").trim();
+  if (editor.displayIdInput) {
+    editor.displayIdInput.value = raw.displayId || "";
+    editor.displayIdToggle.checked = Boolean(displayId);
+    editor.displayIdRow.hidden = !editor.displayIdToggle.checked;
+    if (editor.displayIdHint) {
+      editor.displayIdHint.textContent = id;
+    }
+  }
   // Submission origin + contributed-only fields.
   const submissionType = raw.submissionType === "contributed" ? "contributed" : "own";
   editor.sourceRadios.forEach((radio) => {
@@ -7432,6 +7469,7 @@ async function saveEditor() {
     ? { ja: editor.titleJa.value.trim(), en: editor.titleEn.value.trim() }
     : { ja: "", en: "" };
   payload.linkedId = editor.linkedToggle?.checked && editor.linkedId ? editor.linkedId.value : "";
+  payload.displayId = editor.displayIdToggle?.checked ? editor.displayIdInput.value.trim() : "";
   payload.submissionType = getEditorSource();
   payload.submitter = editor.submitter.value;
   // Submission time is stored date-only (年月日), no hour/minute (item 8).
@@ -7822,7 +7860,8 @@ function persistEditHistory() {
 function historyLabelFor(id, rawOrRecord) {
   const t = rawOrRecord?.title;
   const title = t && typeof t === "object" ? t.ja || t.en : t;
-  return title ? `${id}（${title}）` : id;
+  const dispId = (rawOrRecord?.displayId || "").trim() || id;
+  return title ? `${dispId}（${title}）` : dispId;
 }
 
 // Push (or update) a marker's history entry. action: "create" | "modify" | "delete".

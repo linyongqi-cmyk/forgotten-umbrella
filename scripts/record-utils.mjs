@@ -47,6 +47,8 @@ export function stringifyRecordWithComments(record) {
     `  "time": ${JSON.stringify(record.time ?? "")},`,
     '  // 手动标题。没有就保持空字符串。',
     `  "title": ${JSON.stringify(record.title ?? "")},`,
+    '  // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。',
+    `  "displayId": ${JSON.stringify(record.displayId ?? "")},`,
     '  // 伞的类型，例如 transparent、folding。没有就保持空字符串。',
     `  "umbrellaType": ${JSON.stringify(record.umbrellaType ?? "")},`,
     '  // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。',
