@@ -14,6 +14,9 @@ const state = {
   focusMarkerId: null,
   focusPositionedId: null,
   suppressNextFit: false,
+  // Zoom the entry animation should settle on (usually DEFAULT_MAP_ZOOM, but the
+  // 用户 task 2 fallback lands wider at CLUSTER_FALLBACK_ZOOM).
+  entryTargetZoom: null,
   cameraAnimationFrame: null,
   projectionOverlay: null,
   archiveMode: "time",
@@ -100,7 +103,10 @@ const MARKER_VISUAL_CENTER_OFFSET_Y = 20;
 const DEFAULT_MAP_CENTER = { lat: 35.681236, lng: 139.767125 };
 // Rough bounding box of Japan; geolocation only jumps to the user when inside it.
 const JAPAN_BOUNDS = { minLat: 24, maxLat: 46, minLng: 122, maxLng: 154 };
-const DEFAULT_MAP_ZOOM = 16;
+const DEFAULT_MAP_ZOOM = 15;
+// 用户 task 2: when the user is in Japan but their default-zoom screen shows no
+// markers, we drop to this wider zoom over the nearest cluster of ≥3 markers.
+const CLUSTER_FALLBACK_ZOOM = 11;
 // Floor on zoom-out: keeps the map from receding past the "whole of Japan" scale
 // (without this the user could zoom out to the whole globe).
 const MIN_MAP_ZOOM = 5;
@@ -1841,17 +1847,18 @@ function playEntryZoom() {
   state.entryZoomPlayed = true;
 
   const targetCenter = state.map.getCenter();
+  const endZoom = Number.isFinite(state.entryTargetZoom) ? state.entryTargetZoom : DEFAULT_MAP_ZOOM;
   const startTime = performance.now();
   // The map already sits at ENTRY_START_ZOOM from init, so we animate straight
-  // up to the default city zoom without snapping (no flash of the default view).
+  // up to the resolved target zoom without snapping (no flash of the default view).
   const step = (now) => {
     const t = Math.min((now - startTime) / ENTRY_ZOOM_ANIMATION_MS, 1);
     const eased = easeInOutCubic(t);
-    setMapCamera(targetCenter, lerp(ENTRY_START_ZOOM, DEFAULT_MAP_ZOOM, eased));
+    setMapCamera(targetCenter, lerp(ENTRY_START_ZOOM, endZoom, eased));
     if (t < 1) {
       requestAnimationFrame(step);
     } else {
-      setMapCamera(targetCenter, DEFAULT_MAP_ZOOM);
+      setMapCamera(targetCenter, endZoom);
     }
   };
   requestAnimationFrame(step);
@@ -1934,8 +1941,9 @@ async function initGoogleMap() {
   state.map.addListener("zoom_changed", dismissFocusAfterUserMapInteraction);
   state.map.addListener("zoom_changed", refreshSatellitePoi);
 
-  const initialCenter = await getInitialMapCenter();
-  state.map.setCenter(initialCenter);
+  const initialView = await getInitialMapCenter();
+  state.map.setCenter(initialView.center);
+  state.entryTargetZoom = initialView.zoom;
   // Pre-position at the whole-main-island scale so the very first frame the
   // user sees (when they leave the welcome screen) is already the island view;
   // playEntryZoom then zooms in. This avoids a flash of the default city view.
@@ -1963,22 +1971,93 @@ function isInsideJapan(coords) {
   );
 }
 
+// Web Mercator world coordinates in a 256px tile at zoom 0 (multiply by 2^zoom
+// for pixels). Lets us test "would this marker be on screen" purely from math,
+// without waiting for a live map to become idle.
+function latLngToWorldPoint(lat, lng) {
+  const siny = Math.min(Math.max(Math.sin((lat * Math.PI) / 180), -0.9999), 0.9999);
+  return {
+    x: 256 * (0.5 + lng / 360),
+    y: 256 * (0.5 - Math.log((1 + siny) / (1 - siny)) / (4 * Math.PI)),
+  };
+}
+
+// How many of `items` fall inside a canvasW×canvasH-pixel screen centred on
+// `center` at `zoom`. 用户 task 2: counts ALL points (筛选隐藏的也算).
+function countMarkersOnScreen(center, zoom, items, canvasW, canvasH) {
+  const scale = Math.pow(2, zoom);
+  const c = latLngToWorldPoint(center.lat, center.lng);
+  const halfW = canvasW / 2 / scale;
+  const halfH = canvasH / 2 / scale;
+  let count = 0;
+  for (const it of items) {
+    const w = latLngToWorldPoint(it.coordinates.lat, it.coordinates.lng);
+    if (Math.abs(w.x - c.x) <= halfW && Math.abs(w.y - c.y) <= halfH) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+// 用户 task 2「聚集判定」: the user is in Japan but their default-zoom screen shows
+// no markers. Find the NEAREST spot whose CLUSTER_FALLBACK_ZOOM screen holds ≥3
+// markers — try each marker as a candidate centre, keep those seeing ≥3, then
+// pick the one closest to the user. Returns null if no such cluster exists.
+function findNearestClusterCenter(userLoc, items, zoom, canvasW, canvasH) {
+  let best = null;
+  let bestDist = Infinity;
+  for (const cand of items) {
+    if (countMarkersOnScreen(cand.coordinates, zoom, items, canvasW, canvasH) >= 3) {
+      const dLat = cand.coordinates.lat - userLoc.lat;
+      const dLng = cand.coordinates.lng - userLoc.lng;
+      const dist = dLat * dLat + dLng * dLng;
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = cand.coordinates;
+      }
+    }
+  }
+  return best;
+}
+
+// User is confirmed inside Japan. Default view = their spot at DEFAULT_MAP_ZOOM.
+// But if that screen shows no markers, drop to CLUSTER_FALLBACK_ZOOM over the
+// nearest ≥3-marker cluster (用户 task 2). Falls back to Tokyo if no cluster.
+function resolveInJapanView(here) {
+  const items = state.umbrellas.filter(hasCoordinates);
+  const canvas = els.mapCanvas;
+  const canvasW = canvas?.clientWidth || window.innerWidth || 1280;
+  const canvasH = canvas?.clientHeight || window.innerHeight || 800;
+  if (countMarkersOnScreen(here, DEFAULT_MAP_ZOOM, items, canvasW, canvasH) > 0) {
+    return { center: here, zoom: DEFAULT_MAP_ZOOM };
+  }
+  const cluster = findNearestClusterCenter(here, items, CLUSTER_FALLBACK_ZOOM, canvasW, canvasH);
+  if (cluster) {
+    return { center: cluster, zoom: CLUSTER_FALLBACK_ZOOM };
+  }
+  return { center: DEFAULT_MAP_CENTER, zoom: DEFAULT_MAP_ZOOM };
+}
+
+// Resolves to { center, zoom }. Rules: (1) default Tokyo at DEFAULT_MAP_ZOOM;
+// (2) geolocation granted & inside Japan → their spot (with the task-2 fallback
+// above); (3) outside Japan / denied / timeout → Tokyo.
 function getInitialMapCenter() {
+  const fallback = { center: DEFAULT_MAP_CENTER, zoom: DEFAULT_MAP_ZOOM };
   if (!navigator.geolocation) {
-    return Promise.resolve(DEFAULT_MAP_CENTER);
+    return Promise.resolve(fallback);
   }
 
   return new Promise((resolve) => {
     let settled = false;
-    const finish = (center) => {
+    const finish = (result) => {
       if (settled) {
         return;
       }
       settled = true;
-      resolve(center);
+      resolve(result);
     };
 
-    const timeoutId = window.setTimeout(() => finish(DEFAULT_MAP_CENTER), GEOLOCATION_TIMEOUT_MS);
+    const timeoutId = window.setTimeout(() => finish(fallback), GEOLOCATION_TIMEOUT_MS);
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -1986,11 +2065,11 @@ function getInitialMapCenter() {
         const here = { lat: position.coords.latitude, lng: position.coords.longitude };
         // Only jump to the user's real position when they are inside Japan;
         // outside Japan we treat it like "no location" and fall back to Tokyo.
-        finish(isInsideJapan(here) ? here : DEFAULT_MAP_CENTER);
+        finish(isInsideJapan(here) ? resolveInJapanView(here) : fallback);
       },
       () => {
         window.clearTimeout(timeoutId);
-        finish(DEFAULT_MAP_CENTER);
+        finish(fallback);
       },
       {
         enableHighAccuracy: true,
@@ -5343,7 +5422,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=139", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=140", { updateViaCache: "none" });
   }
 }
 
