@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=138" />
+    <link rel="stylesheet" href="styles.css?v=139" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -192,6 +192,8 @@
                 <div class="focus-image-frame">
                   <img id="focus-image" alt="" />
                   <video id="focus-expanded-video" class="focus-expanded-video" playsinline controls hidden></video>
+                  <!-- 放大后后台下载原图时的进度条（左下角胶囊，无文字）。 -->
+                  <div class="focus-hires-bar" id="focus-hires-bar" aria-hidden="true"><span class="focus-hires-fill"></span></div>
                   <header class="focus-overlay-head focus-header" id="focus-header"></header>
                   <div class="focus-overlay-info" id="focus-info-block"></div>
                   <button class="focus-zoom-hint" id="focus-zoom-hint" type="button" aria-label="enlarge image" title="enlarge image">
@@ -278,6 +280,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=138" type="module"></script>
+    <script src="app.js?v=139" type="module"></script>
   </body>
 </html>

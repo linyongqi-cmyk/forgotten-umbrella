@@ -10,6 +10,10 @@
     "records:seed": "node scripts/seed-records.mjs",
     "records:build": "node scripts/build-umbrellas.mjs",
     "records:format": "node scripts/format-records.mjs",
-    "records:sync-media": "node scripts/sync-record-media.mjs"
+    "records:sync-media": "node scripts/sync-record-media.mjs",
+    "images:build": "node scripts/build-image-derivatives.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
   }
 }

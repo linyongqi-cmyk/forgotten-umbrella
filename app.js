@@ -333,6 +333,7 @@ const els = {
   focusClose: document.querySelector("#focus-close"),
   focusThumbs: document.querySelector("#focus-thumbs"),
   focusExpandedCaption: document.querySelector("#focus-expanded-caption"),
+  focusHiresBar: document.querySelector("#focus-hires-bar"),
   focusLink: document.querySelector("#focus-link"),
   archiveContent: document.querySelector("#archive-content"),
   contributedContent: document.querySelector("#contributed-content"),
@@ -545,6 +546,7 @@ function normalizeMedia(item) {
           file: item.image?.split("/").pop() || "",
           src: item.image,
           thumb: item.thumb || item.image,
+          original: item.imageOriginal || item.image,
           role: "primary",
           title: "",
           photoTime: item.photoTime || "",
@@ -557,6 +559,8 @@ function normalizeMedia(item) {
     file: entry.file || (entry.src || item.image || "").split("/").pop() || "",
     src: entry.src || item.image,
     thumb: entry.thumb || entry.src || item.thumb || item.image,
+    // 原图（放大后渐进式加载替换 src）。缺失则退回 src（视频/无生成物时）。
+    original: entry.original || item.imageOriginal || entry.src || item.image,
     role: entry.role || (index === 0 ? "primary" : "detail"),
     title: entry.title || "",
     photoTime: entry.photoTime || "",
@@ -4463,6 +4467,8 @@ function loadExpandedImage() {
     return;
   }
   els.focusImage.hidden = false;
+  // 先显示 1280 网页版（详情页多半已缓存，秒开），随后后台下原图渐进式替换。
+  cancelHiresUpgrade();
   els.focusImage.src = media.src;
   // 用户 #8: enlarge the CROPPED region, not the full original (the box is sized to
   // the crop's aspect in setExpandedImageFrame; pan/zoom multiplies on --crop-scale).
@@ -4472,6 +4478,125 @@ function loadExpandedImage() {
   if (els.focusImage.complete && els.focusImage.naturalWidth > 0) {
     setExpandedImageFrame();
     updateExpandedImageTransform();
+  }
+  upgradeExpandedToOriginal(media);
+}
+
+// 渐进式高清：放大后先显示网页版(src)，后台用 XHR 下原图(original)，边下边走左下角
+// 胶囊进度条；下完淡入替换。用户 2026-07-03 定的四条：中断/静默失败/跳过近同尺寸/最短显示。
+function upgradeExpandedToOriginal(media) {
+  cancelHiresUpgrade();
+  const img = els.focusImage;
+  const bar = els.focusHiresBar;
+  if (!img || !media || isVideoFile(media.file)) {
+    return;
+  }
+  const original = media.original;
+  // 细节3：原图就是网页版 / 没有原图 → 不用升级。
+  if (!original || original === media.src) {
+    return;
+  }
+  const token = (state.hiresToken = (state.hiresToken || 0) + 1);
+  const startedAt = performance.now();
+  if (bar) {
+    bar.classList.remove("is-done");
+    bar.classList.add("is-active");
+    setHiresProgress(0);
+  }
+  const xhr = new XMLHttpRequest();
+  state.hiresXhr = xhr;
+  xhr.open("GET", original, true);
+  xhr.responseType = "blob";
+  xhr.onprogress = (e) => {
+    if (token === state.hiresToken && e.lengthComputable) {
+      setHiresProgress(e.loaded / e.total);
+    }
+  };
+  xhr.onload = () => {
+    if (token !== state.hiresToken) {
+      return;
+    }
+    state.hiresXhr = null;
+    if (xhr.status < 200 || xhr.status >= 300 || !xhr.response) {
+      finishHiresBar(bar, false); // 细节2：静默失败，继续显示网页版
+      return;
+    }
+    setHiresProgress(1);
+    const url = URL.createObjectURL(xhr.response);
+    const pre = new Image();
+    pre.onload = () => {
+      if (token !== state.hiresToken) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      // 细节4：即使秒到 100%（缓存命中），也让胶囊至少显示 ~320ms 再淡出、再换图。
+      const wait = Math.max(0, 320 - (performance.now() - startedAt));
+      state.hiresTimer = window.setTimeout(() => {
+        state.hiresTimer = null;
+        if (token !== state.hiresToken) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        // 换成已解码好的原图 → 无空帧；再补一个轻淡入表示「变清晰了」。
+        img.src = url;
+        img.animate?.([{ opacity: 0.35 }, { opacity: 1 }], { duration: 320, easing: "ease-out" });
+        if (state.hiresObjectUrl) {
+          URL.revokeObjectURL(state.hiresObjectUrl);
+        }
+        state.hiresObjectUrl = url;
+        finishHiresBar(bar, true);
+      }, wait);
+    };
+    pre.onerror = () => {
+      URL.revokeObjectURL(url);
+      finishHiresBar(bar, false);
+    };
+    pre.src = url;
+  };
+  xhr.onerror = () => {
+    if (token === state.hiresToken) {
+      state.hiresXhr = null;
+      finishHiresBar(bar, false);
+    }
+  };
+  xhr.send();
+}
+
+function setHiresProgress(ratio) {
+  const clamped = Math.max(0, Math.min(1, ratio));
+  els.focusHiresBar?.style.setProperty("--hires-progress", String(clamped));
+}
+
+// 进度条收尾：done=true 走满再淡出；done=false（失败）直接淡出。
+function finishHiresBar(bar, done) {
+  if (!bar) {
+    return;
+  }
+  if (done) {
+    setHiresProgress(1);
+  }
+  bar.classList.remove("is-active");
+  bar.classList.toggle("is-done", Boolean(done));
+}
+
+// 取消/清理正在进行的高清升级（切图、关闭、重开时调用）。递增 token 让回调作废。
+function cancelHiresUpgrade() {
+  state.hiresToken = (state.hiresToken || 0) + 1;
+  if (state.hiresXhr) {
+    state.hiresXhr.abort(); // 细节1：切图/关闭立刻中断下载，不浪费流量
+    state.hiresXhr = null;
+  }
+  if (state.hiresTimer) {
+    window.clearTimeout(state.hiresTimer);
+    state.hiresTimer = null;
+  }
+  if (state.hiresObjectUrl) {
+    URL.revokeObjectURL(state.hiresObjectUrl);
+    state.hiresObjectUrl = null;
+  }
+  if (els.focusHiresBar) {
+    els.focusHiresBar.classList.remove("is-active", "is-done");
+    setHiresProgress(0);
   }
 }
 
@@ -4648,6 +4773,7 @@ function closeExpandedImage(animate = false) {
 }
 
 function finalizeCloseExpanded(wasExpanded, viewedMedia) {
+  cancelHiresUpgrade(); // 中断没下完的原图 + 撤销 blob（下方会把封面 src 还原成网页版）
   state.imageExpanded = false;
   state.imageZoom = 1;
   state.imagePanX = 0;
@@ -5217,7 +5343,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=138", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=139", { updateViaCache: "none" });
   }
 }
 

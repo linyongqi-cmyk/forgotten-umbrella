@@ -7,8 +7,9 @@
 「被遗忘的伞 / Forgotten Umbrella」——记录城市公共空间里被遗忘雨伞的**艺术地图网站 + 可安装 PWA**。纯前端静态站，Google Maps 标点，中/日/英三语，GitHub Pages 发布。**当前处于原型阶段**。
 
 ## 怎么跑 / 预览 / 构建
-- 必须用本地服务器（不能 `file://`）：`npm start` → http://127.0.0.1:4173/ 。无第三方依赖，不需要 `npm install`。需 Node 20+。
+- 必须用本地服务器（不能 `file://`）：`npm start` → http://127.0.0.1:4173/ 。需 Node 20+。**依赖 sharp（图片分级生成用，只本机后端跑，不影响线上静态站）——新克隆/新机器要先 `npm install`。**
 - 改了 `filebox/records/**/record.json` 后要重建：`npm run records:build`（输出 `data/umbrellas.json`）。
+- **图片分级（提速）**：每张原图旁自动生成 `NAME.thumb.webp`(400px 缩略图)+`NAME.web.webp`(1280px 网页版)，前端小图用 thumb、详情展示用 web、放大先 web 再后台下原图替换。存量批量补齐：`npm run images:build`（只新增、不动原图；`--force` 强制重生）。编辑器上传/新建图片时后端 `editor-api.mjs` 会自动生成。生成/尺寸逻辑在 `scripts/image-derivatives.mjs`（THUMB=400 q70 / WEB=1280 q78）。**注意 `.thumb.webp`/`.web.webp` 是生成物，`record-utils.mjs` 扫描文件夹时靠 `isDerivativeFile` 排除，别让它们进 media。**
 - 把所有 record.json 规范化成带中文注释格式：`npm run records:format`。
 - **本地编辑器通过 API 保存时会自动重建**，只有手改 record.json 才需要手动 build。
 - 预览用 Claude Preview MCP 的 `preview_*` 工具。`.claude/launch.json` 已配置；**Mac 上 node 写的是绝对路径**（`/Users/eiki/.local/node-vXX/bin/node`，不能用符号链接，否则预览报 spawn 失败），以后升级 Node 换了目录要回来改这行。改了 `scripts/editor-api.mjs` 后要**杀掉 node 进程重启**（它是动态 import，有缓存）——Mac 上：`pkill -f "node server.js"`。

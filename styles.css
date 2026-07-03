@@ -1614,6 +1614,40 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   min-height: 0;
 }
 
+/* 放大后后台下载原图的进度条：左下角胶囊，无文字，只有填充动画。
+   默认隐藏；.is-active 显示并按 --hires-progress(0~1) 填充；.is-done 淡出。 */
+.focus-hires-bar {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: 84px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: none;
+  z-index: 6;
+}
+.focus-hires-bar.is-active {
+  opacity: 1;
+  transform: none;
+}
+.focus-hires-bar.is-done {
+  opacity: 0;
+  transform: none;
+}
+.focus-hires-fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--hires-progress, 0) * 100%);
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.92);
+  transition: width 0.25s ease;
+}
+
 .focus-image-frame.is-cover-reserved #focus-image {
   position: absolute;
   inset: 0;

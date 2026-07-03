@@ -1,4 +1,4 @@
-const CACHE_NAME = "forgotten-umbrella-v138";
+const CACHE_NAME = "forgotten-umbrella-v139";
 const ASSETS = [
   ".",
   "index.html",
@@ -64,11 +64,17 @@ self.addEventListener("fetch", (event) => {
       requestUrl.pathname.endsWith(".avif"));
 
   if (isSameOriginImage) {
+    // 只离线缓存小体积的生成图（NAME.thumb.webp / NAME.web.webp）；几 MB 的原图
+    // （放大时才按需下载）不进缓存，避免把几百 MB 原图塞满用户设备（用户 #5）。
+    const isDerivative =
+      requestUrl.pathname.endsWith(".thumb.webp") || requestUrl.pathname.endsWith(".web.webp");
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          if (isDerivative) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
           return response;
         })
         .catch(() => caches.match(event.request)),

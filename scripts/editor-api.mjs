@@ -20,6 +20,19 @@ import {
 } from "./record-utils.mjs";
 import { parseExif } from "./exif.mjs";
 import { fetchWeatherData } from "./weather.mjs";
+import { generateDerivatives, removeDerivatives, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
+
+// 新增/替换图片后，就地生成缩略图 + 网页版 webp（失败不阻断保存，只记日志）。
+async function makeDerivatives(absImagePath) {
+  if (!isDerivableImage(absImagePath)) {
+    return;
+  }
+  try {
+    await generateDerivatives(absImagePath, { force: true });
+  } catch (err) {
+    console.error(`[derivatives] 生成失败 ${absImagePath}: ${err.message}`);
+  }
+}
 
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -359,7 +372,9 @@ export async function uploadImage(payload) {
   }
   const filename = sanitizeFilename(payload.filename);
   const buffer = decodeImageData(payload.dataBase64);
-  await fs.writeFile(path.join(path.dirname(recordPath), filename), buffer);
+  const savedImagePath = path.join(path.dirname(recordPath), filename);
+  await fs.writeFile(savedImagePath, buffer);
+  await makeDerivatives(savedImagePath); // 自动生成缩略图 + 网页版
 
   // Seed the new image's photoTime from its EXIF so supplement/detail photos
   // show their capture time too (#4). Don't overwrite an existing value.
@@ -398,11 +413,16 @@ export async function deleteImage(payload) {
   const remaining = (await fs.readdir(recordDir)).filter(
     (name) => name !== "record.json" && name !== filename,
   );
-  const stillHasImage = remaining.some((name) => /\.(jpe?g|png|webp|gif|avif)$/i.test(name));
+  // 只数真正的原图，别把 .thumb.webp / .web.webp 生成物算进去（否则删掉最后一张
+  // 原图后残留的生成物会让程序误以为还有图片）。
+  const stillHasImage = remaining.some(
+    (name) => /\.(jpe?g|png|webp|gif|avif)$/i.test(name) && !isDerivativeFile(name),
+  );
   if (!stillHasImage) {
     throw new ApiError(400, "无法删除最后一张图片：每条记录至少需要保留一张图片。");
   }
   await fs.rm(path.join(recordDir, filename), { force: true });
+  await removeDerivatives(path.join(recordDir, filename)); // 连带删掉缩略图 + 网页版
   const merged = await rewriteAndRebuild(recordPath);
   return { ok: true, id, media: merged.media };
 }
@@ -437,7 +457,9 @@ export async function createRecord(payload) {
 
   await fs.mkdir(recordDir, { recursive: true });
   const imageBuffer = decodeImageData(payload.dataBase64);
-  await fs.writeFile(path.join(recordDir, filename), imageBuffer);
+  const createdImagePath = path.join(recordDir, filename);
+  await fs.writeFile(createdImagePath, imageBuffer);
+  await makeDerivatives(createdImagePath); // 自动生成缩略图 + 网页版
 
   // Pull GPS + capture time straight out of the photo's EXIF. When the photo
   // carries a real position, drop the point there; otherwise fall back to the

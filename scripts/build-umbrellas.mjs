@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { mergeRecordMediaWithFolder, readRecordFile } from "./record-utils.mjs";
+import { derivativeNames, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
 
 const rootDir = process.cwd();
 const recordsRoot = path.join(rootDir, "filebox", "records");
@@ -8,6 +9,36 @@ const outputPath = path.join(rootDir, "data", "umbrellas.json");
 
 function toPosix(value) {
   return value.split(path.sep).join("/");
+}
+
+async function fileExists(p) {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 一张媒体对应三种前端路径：
+//   thumb    —— 400px 缩略图（列表/地图小图）
+//   src      —— 1280px 网页版（详情页展示 + 放大时先显示的图）
+//   original —— 原图（放大后后台渐进式下载，下完淡入替换 src）
+// 生成物缺失（还没 build 过图 / 视频）时优雅回退到原图。
+async function resolveMediaPaths(recordDir, file, legacyThumb) {
+  const originalRel = toPosix(path.relative(rootDir, path.join(recordDir, file)));
+  if (!isDerivableImage(file) || isDerivativeFile(file)) {
+    return { src: originalRel, thumb: legacyThumb || originalRel, original: originalRel };
+  }
+  const names = derivativeNames(file);
+  const webAbs = path.join(recordDir, names.web);
+  const thumbAbs = path.join(recordDir, names.thumb);
+  const [hasWeb, hasThumb] = await Promise.all([fileExists(webAbs), fileExists(thumbAbs)]);
+  return {
+    src: hasWeb ? toPosix(path.relative(rootDir, webAbs)) : originalRel,
+    thumb: hasThumb ? toPosix(path.relative(rootDir, thumbAbs)) : legacyThumb || originalRel,
+    original: originalRel,
+  };
 }
 
 async function getRecordFiles(dir) {
@@ -51,7 +82,7 @@ function normalizeCoordinates(value) {
   return { lat, lng };
 }
 
-function buildUmbrellaItem(recordPath, record) {
+async function buildUmbrellaItem(recordPath, record) {
   const recordDir = path.dirname(recordPath);
   const recordId = path.basename(recordDir);
   const categoryDir = path.basename(path.dirname(recordDir));
@@ -64,14 +95,14 @@ function buildUmbrellaItem(recordPath, record) {
     throw new Error(`Missing primary media in ${recordPath}`);
   }
 
-  const imagePath = path.join(recordDir, primary.file);
-  const media = record.media.map((entry) => {
-    const mediaPath = path.join(recordDir, entry.file);
+  const media = await Promise.all(record.media.map(async (entry) => {
+    const paths = await resolveMediaPaths(recordDir, entry.file, entry.legacyThumb);
     return {
       id: entry.id || path.parse(entry.file).name,
       file: entry.file,
-      src: toPosix(path.relative(rootDir, mediaPath)),
-      thumb: entry.legacyThumb || toPosix(path.relative(rootDir, mediaPath)),
+      src: paths.src,
+      thumb: paths.thumb,
+      original: paths.original,
       role: entry.role || "detail",
       title: entry.title || "",
       photoTime: entry.photoTime || "",
@@ -83,7 +114,10 @@ function buildUmbrellaItem(recordPath, record) {
       showWeather:
         typeof entry.showWeather === "boolean" ? entry.showWeather : entry.role === "primary",
     };
-  });
+  }));
+
+  // 主图（封面）也用网页版展示 + 缩略图，原图留给放大渐进式加载。
+  const primaryPaths = media.find((m) => m.file === primary.file) || media[0];
 
   // 主图天气 = 详情页主横轴用（兼容旧的 record.weather：若主图没抓过但记录级有，就沿用）。
   const primaryWeather =
@@ -94,7 +128,8 @@ function buildUmbrellaItem(recordPath, record) {
     sourceIndex: Number.isInteger(record.sourceIndex) ? record.sourceIndex : Number.MAX_SAFE_INTEGER,
     item: {
       id: recordId,
-      image: toPosix(path.relative(rootDir, imagePath)),
+      image: primaryPaths.src,
+      imageOriginal: primaryPaths.original,
       photoTime: record.photoTime || primary.photoTime || "",
       time: record.time || "",
       photoCoordinates: normalizeCoordinates(record.photoCoordinates),
@@ -127,7 +162,7 @@ function buildUmbrellaItem(recordPath, record) {
       blurLabel: record.blurLabel || "",
       categoryGroup,
       category,
-      thumb: primary.legacyThumb || "",
+      thumb: primaryPaths.thumb || primary.legacyThumb || "",
       media,
       locationLevels: normalizeLevels(record.locationLevels)
     }
@@ -140,7 +175,7 @@ const builtItems = [];
 for (const recordFile of recordFiles) {
   const rawRecord = await readRecordFile(recordFile);
   const record = await mergeRecordMediaWithFolder(recordFile, rawRecord);
-  builtItems.push(buildUmbrellaItem(recordFile, record));
+  builtItems.push(await buildUmbrellaItem(recordFile, record));
 }
 
 builtItems.sort((a, b) => {

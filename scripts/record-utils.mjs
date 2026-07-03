@@ -11,6 +11,12 @@ export function isImageFile(file) {
   return IMAGE_EXTENSIONS.has(path.extname(String(file || "")).toLowerCase());
 }
 
+// 自动生成的缩略图 / 网页版（NAME.thumb.webp / NAME.web.webp）。它们不是独立媒体，
+// 扫描文件夹同步 media 列表时必须排除，否则会被当成新照片塞进 record。
+export function isDerivativeFile(file) {
+  return /\.(thumb|web)\.webp$/i.test(String(file || ""));
+}
+
 export function isVideoFile(file) {
   return VIDEO_EXTENSIONS.has(path.extname(String(file || "")).toLowerCase());
 }
@@ -123,7 +129,12 @@ export function stringifyRecordWithComments(record) {
 export async function listRecordImageFiles(recordDir) {
   const entries = await fs.readdir(recordDir, { withFileTypes: true });
   return entries
-    .filter((entry) => entry.isFile() && MEDIA_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+    .filter(
+      (entry) =>
+        entry.isFile() &&
+        MEDIA_EXTENSIONS.has(path.extname(entry.name).toLowerCase()) &&
+        !isDerivativeFile(entry.name),
+    )
     .map((entry) => entry.name)
     .sort((a, b) => a.localeCompare(b, "en"));
 }
