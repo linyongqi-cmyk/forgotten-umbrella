@@ -5132,7 +5132,7 @@ body.editor-open .panel-resizer {
 .focus-header .focus-badge {
   display: inline-flex;
   vertical-align: middle;
-  margin-left: 8px;
+  margin-right: 8px;
   opacity: 0.8;
 }
 

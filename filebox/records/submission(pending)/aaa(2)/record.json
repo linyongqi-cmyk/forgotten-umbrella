@@ -15,8 +15,8 @@
   "photoCoordinates": null,
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 34.98571776394371,
-    "lng": 135.75846748555503
+    "lat": 34.98110403368897,
+    "lng": 135.73136051515615
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",
@@ -62,6 +62,9 @@
   "story": "",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -80,7 +83,12 @@
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
       "legacyThumb": "",
       // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
-      "crop": {"aspect":"3:4","scale":1,"posX":45.94292534722222,"posY":49.93326822916666}
+      "crop": {"aspect":"3:4","scale":1,"posX":45.94292534722222,"posY":49.93326822916666},
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     }
   ]
 }

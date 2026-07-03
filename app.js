@@ -467,13 +467,14 @@ function normalizeUmbrellaData(items) {
       const locationText = item.locationText || formatLocationLevels(locationLevels);
       const umbrellaCount = item.umbrellaCount || "";
       const umbrellaUnits = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
-      // Count=unknown: we can't describe individual umbrellas, so object and
-      // state are shown as "unknown" on the detail page rather than left blank
-      // (item 5). Otherwise build them from the units as usual.
+      // Count=unknown: we can't describe individual umbrellas. The object/state
+      // ROWS are hidden entirely on the detail page (用户要求：数量 unknown 时详情页
+      // 不显示 object/state) by leaving their line arrays empty; the *Text values
+      // stay "unknown" so search still matches. Otherwise build from units.
       const objectText = umbrellaCount === "unknown" ? "unknown" : buildObjectText(umbrellaCount, umbrellaUnits);
-      const objectLines = umbrellaCount === "unknown" ? ["unknown"] : buildObjectGroups(umbrellaCount, umbrellaUnits);
+      const objectLines = umbrellaCount === "unknown" ? [] : buildObjectGroups(umbrellaCount, umbrellaUnits);
       const statusText = umbrellaCount === "unknown" ? "unknown" : statusTextFromUnits(umbrellaUnits);
-      const statusLines = umbrellaCount === "unknown" ? ["unknown"] : statusLinesFromUnits(umbrellaUnits);
+      const statusLines = umbrellaCount === "unknown" ? [] : statusLinesFromUnits(umbrellaUnits);
       const coordinates = item.locationCoordinates || item.photoCoordinates;
       const time = item.time || item.photoTime || "";
       const prefecture = locationLevels[0] || "Unknown";
@@ -1402,7 +1403,8 @@ function syncBlurAdjust() {
   if (!state.blurSettings) {
     state.blurSettings = loadBlurSettings();
   }
-  const show = true;
+  // 编辑用模糊度按钮：只在本机出现，上线后隐藏（用户 #3）。
+  const show = IS_LOCAL;
   const wrap = document.querySelector("#blur-adjust");
   if (wrap) {
     wrap.hidden = !show;
@@ -2533,13 +2535,14 @@ function renderFocusHeader(item) {
   const title = localize(item.title);
   const idText = displayUmbrellaId(item);
   const focusTitle = title ? `${idText}(${title})` : idText;
-  // 用户: mark a contributed umbrella with a small stroked ENVELOPE icon (a received
-  // submission), same line style as the magnifier / back-to-map controls.
+  // 用户: mark a contributed umbrella with a small stroked "download-into-envelope"
+  // icon (a received submission — arrow dropping into an envelope), placed to the
+  // LEFT of the id. Same line style as the magnifier / back-to-map controls.
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
-    ? ` <span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M4 7l8 5.5L20 7"/></svg></span>`
+    ? `<span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11V20H20V11"/><path d="M4 11L12 16L20 11"/><path d="M12 3V10"/><path d="M9 7.5L12 10.5L15 7.5"/></svg></span>`
     : "";
-  return `<h3 class="focus-title">${escapeHtml(focusTitle)}${badge}</h3>`;
+  return `<h3 class="focus-title">${badge}${escapeHtml(focusTitle)}</h3>`;
 }
 
 // The INFORMATION grid (type / object / state). Lives in the left aside next to
@@ -5167,7 +5170,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=135", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=136", { updateViaCache: "none" });
   }
 }
 
