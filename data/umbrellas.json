@@ -43416,5 +43416,332 @@
       }
     ],
     "locationLevels": []
+  },
+  {
+    "id": "yueliang_1_",
+    "image": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.web.webp",
+    "imageOriginal": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.jpeg",
+    "photoTime": "2026-06-11T12:46:23+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.979866666666666,
+      "lng": 135.76435833333332
+    },
+    "locationCoordinates": {
+      "lat": 34.979866666666666,
+      "lng": 135.76435833333332
+    },
+    "locationText": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-03T18:14:15.839Z",
+      "lat": 34.979866666666666,
+      "lon": 135.76435833333332,
+      "referenceTime": "2026-06-11T12:46:23+09:00",
+      "hourly": [
+        {
+          "time": "2026-06-10T12:00",
+          "code": 0,
+          "temp": 24.5
+        },
+        {
+          "time": "2026-06-10T13:00",
+          "code": 1,
+          "temp": 25.2
+        },
+        {
+          "time": "2026-06-10T14:00",
+          "code": 1,
+          "temp": 25.3
+        },
+        {
+          "time": "2026-06-10T15:00",
+          "code": 1,
+          "temp": 25.8
+        },
+        {
+          "time": "2026-06-10T16:00",
+          "code": 1,
+          "temp": 25.2
+        },
+        {
+          "time": "2026-06-10T17:00",
+          "code": 1,
+          "temp": 24.1
+        },
+        {
+          "time": "2026-06-10T18:00",
+          "code": 0,
+          "temp": 22.7
+        },
+        {
+          "time": "2026-06-10T19:00",
+          "code": 0,
+          "temp": 20.6
+        },
+        {
+          "time": "2026-06-10T20:00",
+          "code": 2,
+          "temp": 18.9
+        },
+        {
+          "time": "2026-06-10T21:00",
+          "code": 2,
+          "temp": 18.6
+        },
+        {
+          "time": "2026-06-10T22:00",
+          "code": 2,
+          "temp": 17.2
+        },
+        {
+          "time": "2026-06-10T23:00",
+          "code": 3,
+          "temp": 16.5
+        },
+        {
+          "time": "2026-06-11T00:00",
+          "code": 3,
+          "temp": 16
+        },
+        {
+          "time": "2026-06-11T01:00",
+          "code": 2,
+          "temp": 15.9
+        },
+        {
+          "time": "2026-06-11T02:00",
+          "code": 1,
+          "temp": 15.4
+        },
+        {
+          "time": "2026-06-11T03:00",
+          "code": 1,
+          "temp": 14.7
+        },
+        {
+          "time": "2026-06-11T04:00",
+          "code": 1,
+          "temp": 14.3
+        },
+        {
+          "time": "2026-06-11T05:00",
+          "code": 2,
+          "temp": 13.9
+        },
+        {
+          "time": "2026-06-11T06:00",
+          "code": 1,
+          "temp": 15.6
+        },
+        {
+          "time": "2026-06-11T07:00",
+          "code": 0,
+          "temp": 18.6
+        },
+        {
+          "time": "2026-06-11T08:00",
+          "code": 0,
+          "temp": 20.8
+        },
+        {
+          "time": "2026-06-11T09:00",
+          "code": 2,
+          "temp": 22.4
+        },
+        {
+          "time": "2026-06-11T10:00",
+          "code": 2,
+          "temp": 24
+        },
+        {
+          "time": "2026-06-11T11:00",
+          "code": 3,
+          "temp": 25
+        },
+        {
+          "time": "2026-06-11T12:00",
+          "code": 2,
+          "temp": 25.6
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "",
+    "locationApprox": true,
+    "timeApprox": true,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.thumb.webp",
+    "media": [
+      {
+        "id": "yueliang_1_",
+        "file": "yueliang_1_.jpeg",
+        "src": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.web.webp",
+        "thumb": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.thumb.webp",
+        "original": "filebox/records/submission(pending)/yueliang_1_/yueliang_1_.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-03T18:14:15.839Z",
+          "lat": 34.979866666666666,
+          "lon": 135.76435833333332,
+          "referenceTime": "2026-06-11T12:46:23+09:00",
+          "hourly": [
+            {
+              "time": "2026-06-10T12:00",
+              "code": 0,
+              "temp": 24.5
+            },
+            {
+              "time": "2026-06-10T13:00",
+              "code": 1,
+              "temp": 25.2
+            },
+            {
+              "time": "2026-06-10T14:00",
+              "code": 1,
+              "temp": 25.3
+            },
+            {
+              "time": "2026-06-10T15:00",
+              "code": 1,
+              "temp": 25.8
+            },
+            {
+              "time": "2026-06-10T16:00",
+              "code": 1,
+              "temp": 25.2
+            },
+            {
+              "time": "2026-06-10T17:00",
+              "code": 1,
+              "temp": 24.1
+            },
+            {
+              "time": "2026-06-10T18:00",
+              "code": 0,
+              "temp": 22.7
+            },
+            {
+              "time": "2026-06-10T19:00",
+              "code": 0,
+              "temp": 20.6
+            },
+            {
+              "time": "2026-06-10T20:00",
+              "code": 2,
+              "temp": 18.9
+            },
+            {
+              "time": "2026-06-10T21:00",
+              "code": 2,
+              "temp": 18.6
+            },
+            {
+              "time": "2026-06-10T22:00",
+              "code": 2,
+              "temp": 17.2
+            },
+            {
+              "time": "2026-06-10T23:00",
+              "code": 3,
+              "temp": 16.5
+            },
+            {
+              "time": "2026-06-11T00:00",
+              "code": 3,
+              "temp": 16
+            },
+            {
+              "time": "2026-06-11T01:00",
+              "code": 2,
+              "temp": 15.9
+            },
+            {
+              "time": "2026-06-11T02:00",
+              "code": 1,
+              "temp": 15.4
+            },
+            {
+              "time": "2026-06-11T03:00",
+              "code": 1,
+              "temp": 14.7
+            },
+            {
+              "time": "2026-06-11T04:00",
+              "code": 1,
+              "temp": 14.3
+            },
+            {
+              "time": "2026-06-11T05:00",
+              "code": 2,
+              "temp": 13.9
+            },
+            {
+              "time": "2026-06-11T06:00",
+              "code": 1,
+              "temp": 15.6
+            },
+            {
+              "time": "2026-06-11T07:00",
+              "code": 0,
+              "temp": 18.6
+            },
+            {
+              "time": "2026-06-11T08:00",
+              "code": 0,
+              "temp": 20.8
+            },
+            {
+              "time": "2026-06-11T09:00",
+              "code": 2,
+              "temp": 22.4
+            },
+            {
+              "time": "2026-06-11T10:00",
+              "code": 2,
+              "temp": 24
+            },
+            {
+              "time": "2026-06-11T11:00",
+              "code": 3,
+              "temp": 25
+            },
+            {
+              "time": "2026-06-11T12:00",
+              "code": 2,
+              "temp": 25.6
+            }
+          ]
+        },
+        "showWeather": true
+      }
+    ],
+    "locationLevels": []
   }
 ]
