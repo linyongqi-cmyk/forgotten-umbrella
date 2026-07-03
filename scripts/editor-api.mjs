@@ -29,6 +29,7 @@ const recordsRoot = path.join(rootDir, "filebox", "records");
 const trashRoot = path.join(rootDir, "filebox", ".trash");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 const textsPath = path.join(rootDir, "data", "texts.json");
+const siteSettingsPath = path.join(rootDir, "data", "site-settings.json");
 
 // Plain text fields the editor is allowed to overwrite. (title is handled
 // separately because it is now bilingual { ja, en }.)
@@ -717,6 +718,60 @@ export async function saveTexts(payload) {
   return { ok: true };
 }
 
+// Save the tunable site settings (focus-blur params + the three map-label filter
+// sets) to data/site-settings.json. This is the online source of truth — the local
+// map/blur panels POST here whenever the user tweaks a slider, so tuning goes live on
+// the next push. We sanitize hard: only known keys, known vis values, numeric-or-blank
+// zoom fields, so a corrupt POST can never write surprising JSON.
+const SITE_MAP_KEYS = ["roadmap", "sat1", "sat2"];
+const SITE_CATEGORY_KEYS = [
+  "poiLabels", "poiIcons", "poiBusiness", "poiPark", "poiAttraction",
+  "roadLabels", "roadGeometry", "highway", "transit", "transitLabels",
+  "administrative", "waterLabels", "landscape",
+];
+const SITE_VIS_VALUES = ["auto", "show", "fade", "hide"];
+const SITE_BLUR_KEYS = [
+  "blurN", "radiusN", "featherN", "blurA", "radiusA", "featherA", "veilA",
+  "labelDistanceA", "labelRotateA",
+];
+
+function sanitizeZoomField(value) {
+  if (value === "" || value === null || value === undefined) {
+    return "";
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : "";
+}
+
+function sanitizeCategorySet(raw) {
+  const out = {};
+  for (const key of SITE_CATEGORY_KEYS) {
+    const c = raw && typeof raw === "object" ? raw[key] : null;
+    const vis = SITE_VIS_VALUES.includes(c?.vis) ? c.vis : "auto";
+    out[key] = { vis, zoom: sanitizeZoomField(c?.zoom), zoomMax: sanitizeZoomField(c?.zoomMax) };
+  }
+  return out;
+}
+
+export async function saveSiteSettings(payload) {
+  const blur = {};
+  const rawBlur = payload && typeof payload.blur === "object" ? payload.blur : {};
+  for (const key of SITE_BLUR_KEYS) {
+    const n = Number(rawBlur[key]);
+    if (Number.isFinite(n)) {
+      blur[key] = n;
+    }
+  }
+  const mapLayers = {};
+  const rawMap = payload && typeof payload.mapLayers === "object" ? payload.mapLayers : {};
+  for (const mapKey of SITE_MAP_KEYS) {
+    mapLayers[mapKey] = sanitizeCategorySet(rawMap[mapKey]);
+  }
+  const out = { blur, mapLayers };
+  await fs.writeFile(siteSettingsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
+  return { ok: true };
+}
+
 // Single entry point used by server.js. Returns a plain JSON-serializable object.
 export async function handleEditorApi(pathname, payload) {
   switch (pathname) {
@@ -724,6 +779,8 @@ export async function handleEditorApi(pathname, payload) {
       return saveRecord(payload);
     case "/api/save-texts":
       return saveTexts(payload);
+    case "/api/save-site-settings":
+      return saveSiteSettings(payload);
     case "/api/upload-image":
       return uploadImage(payload);
     case "/api/delete-image":

@@ -376,6 +376,7 @@ async function init() {
   // Must run after an await so the MAP_LAYER_CATEGORIES const (defined lower in
   // the module) is past its temporal dead zone.
   state.umbrellas = await loadUmbrellaData();
+  SITE_SETTINGS = await loadSiteSettings();
   state.mapCategoryState = loadMapCategoryState();
   TEXTS = await loadTexts();
   state.selectedId = null;
@@ -433,6 +434,28 @@ async function loadTexts() {
   } catch (error) {
     console.error(error);
     return { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
+  }
+}
+
+// 可调设定的「真源」（data/site-settings.json）：聚焦模糊参数 + 三张地图的文字筛选。
+// 前端启动读它当默认值（线上/别人打开就是这套）；本机在面板上调完会自动写回这个文件
+// （见 persistSiteSettings），所以调完 push 就上线，不用再手动导 localStorage。
+// null = 还没加载/加载失败，此时回退到代码里写死的 def（BLUR_PARAMS.def / hard*Set）。
+let SITE_SETTINGS = null;
+
+async function loadSiteSettings() {
+  try {
+    const response = await fetch("data/site-settings.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load data/site-settings.json: ${response.status}`);
+    }
+    const raw = await response.json();
+    const blur = raw && typeof raw.blur === "object" ? raw.blur : null;
+    const mapLayers = raw && typeof raw.mapLayers === "object" ? raw.mapLayers : null;
+    return { blur, mapLayers };
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }
 
@@ -1268,7 +1291,9 @@ const BLUR_PARAM_BY_KEY = Object.fromEntries(BLUR_PARAMS.map((p) => [p.key, p]))
 function defaultBlurSettings() {
   const out = {};
   BLUR_PARAMS.forEach((p) => {
-    out[p.key] = p.def;
+    // data/site-settings.json 里的值优先（本机调完写回的线上默认）；没有才用代码 def。
+    const fromFile = SITE_SETTINGS?.blur?.[p.key];
+    out[p.key] = Number.isFinite(Number(fromFile)) ? Number(fromFile) : p.def;
   });
   return out;
 }
@@ -1294,6 +1319,27 @@ function saveBlurSettings() {
   } catch {
     /* ignore */
   }
+  persistSiteSettings();
+}
+
+// 把当前「模糊参数 + 三张地图文字筛选」防抖写回 data/site-settings.json（真源），这样
+// 本机在面板上调完就自动进文件、push 即上线。只在本机 + 后端可用时生效；线上没有 /api，
+// 会自动跳过（面板本来就只在本机出现）。防抖 600ms，避免拖滑块时每一帧都写盘。
+let siteSettingsSaveTimer = null;
+function persistSiteSettings() {
+  if (!IS_LOCAL) {
+    return;
+  }
+  clearTimeout(siteSettingsSaveTimer);
+  siteSettingsSaveTimer = setTimeout(() => {
+    const payload = {
+      blur: state.blurSettings || defaultBlurSettings(),
+      mapLayers: state.mapCategoryState || undefined,
+    };
+    apiPost("/api/save-site-settings", payload).catch((error) => {
+      console.error("save-site-settings failed", error);
+    });
+  }, 600);
 }
 
 function formatBlurValue(key, value) {
@@ -5171,7 +5217,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=137", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=138", { updateViaCache: "none" });
   }
 }
 
@@ -7885,11 +7931,12 @@ function defaultMapCategorySet() {
   return out;
 }
 
-// 以下三套默认值 = 用户 2026-07-03 在本机三张地图上分别调好、读出 localStorage 后固化上线
-// 的值（原型期约定：本地调、读出来写进代码，让线上/别人打开也是这套观感）。改这些=改线上默认。
+// 以下三套 hard*Set = 代码里写死的回退默认值（万一 data/site-settings.json 没加载到）。
+// 正常情况下线上默认值来自 site-settings.json（本机面板调完自动写回那个文件），由
+// defaultCategorySetFor 叠加在这三套之上。改线上观感应改 site-settings.json，不必改这里。
 
 // 普通地图（roadmap）：只把 POI 文字/图标压到 zoom≥19 才出，其余保持自动。
-function defaultRoadmapSet() {
+function hardRoadmapSet() {
   const out = defaultMapCategorySet();
   out.poiLabels = { vis: "auto", zoom: 19, zoomMax: "" };
   out.poiIcons = { vis: "fade", zoom: 19, zoomMax: "" };
@@ -7897,7 +7944,7 @@ function defaultRoadmapSet() {
 }
 
 // 卫星1（sat1，文字なし）：几乎全部隐藏，只留行政名/水域名；公共交通只在 zoom 14~17.5 之间露一下。
-function defaultSat1Set() {
+function hardSat1Set() {
   const out = defaultMapCategorySet();
   [
     "poiLabels",
@@ -7922,7 +7969,7 @@ function defaultSat1Set() {
 
 // 卫星2（sat2，文字あり）：卫星底图默认藏掉所有文字，这里把常用文字类重新打开；POI 图标淡化、
 // 道路线隐藏、店铺/公园保持自动。
-function defaultSat2Set() {
+function hardSat2Set() {
   const out = defaultMapCategorySet();
   [
     "poiLabels",
@@ -7958,7 +8005,11 @@ function mergeMapCategorySet(target, saved) {
 }
 
 function loadMapCategoryState() {
-  const out = { roadmap: defaultRoadmapSet(), sat1: defaultSat1Set(), sat2: defaultSat2Set() };
+  const out = {
+    roadmap: defaultCategorySetFor("roadmap"),
+    sat1: defaultCategorySetFor("sat1"),
+    sat2: defaultCategorySetFor("sat2"),
+  };
   try {
     const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
     // New format: { roadmap, sat1, sat2 }. Older format: { roadmap, satellite }
@@ -7990,9 +8041,13 @@ function activeMapBaseKey() {
   return state.mapLabels ? "sat2" : "sat1";
 }
 
-// The default tuning set for a given map key (roadmap / sat1 / sat2).
+// The default tuning set for a given map key (roadmap / sat1 / sat2). Starts from
+// the hardcoded fallback, then overlays data/site-settings.json (the online default
+// that the local panel writes back to) so end-users see the tuned look.
 function defaultCategorySetFor(key) {
-  return key === "sat1" ? defaultSat1Set() : key === "sat2" ? defaultSat2Set() : defaultRoadmapSet();
+  const base = key === "sat1" ? hardSat1Set() : key === "sat2" ? hardSat2Set() : hardRoadmapSet();
+  const fromFile = SITE_SETTINGS?.mapLayers?.[key];
+  return fromFile ? mergeMapCategorySet(base, fromFile) : base;
 }
 
 // The tuning set for whichever map is currently showing (edits target this one).
@@ -8013,6 +8068,7 @@ function saveMapCategoryState() {
   } catch {
     /* ignore storage failure */
   }
+  persistSiteSettings();
 }
 
 // Build the style override rules from the dev tuning state. Applied on top of the

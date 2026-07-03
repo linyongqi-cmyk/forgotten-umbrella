@@ -1,0 +1,216 @@
+{
+  "blur": {
+    "blurN": 6,
+    "radiusN": 136,
+    "featherN": 36,
+    "blurA": 6,
+    "radiusA": 126,
+    "featherA": 138,
+    "veilA": 0.3,
+    "labelDistanceA": 260,
+    "labelRotateA": -135
+  },
+  "mapLayers": {
+    "roadmap": {
+      "poiLabels": {
+        "vis": "auto",
+        "zoom": 19,
+        "zoomMax": ""
+      },
+      "poiIcons": {
+        "vis": "fade",
+        "zoom": 19,
+        "zoomMax": ""
+      },
+      "poiBusiness": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiPark": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiAttraction": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadLabels": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadGeometry": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "highway": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "transit": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "transitLabels": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "administrative": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "waterLabels": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "landscape": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      }
+    },
+    "sat1": {
+      "poiLabels": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiIcons": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiBusiness": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiPark": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiAttraction": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadLabels": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadGeometry": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "highway": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "transit": {
+        "vis": "hide",
+        "zoom": 14,
+        "zoomMax": 17.5
+      },
+      "transitLabels": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "administrative": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "waterLabels": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "landscape": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      }
+    },
+    "sat2": {
+      "poiLabels": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiIcons": {
+        "vis": "fade",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiBusiness": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiPark": {
+        "vis": "auto",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "poiAttraction": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadLabels": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "roadGeometry": {
+        "vis": "hide",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "highway": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "transit": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "transitLabels": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "administrative": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "waterLabels": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      },
+      "landscape": {
+        "vis": "show",
+        "zoom": "",
+        "zoomMax": ""
+      }
+    }
+  }
+}
