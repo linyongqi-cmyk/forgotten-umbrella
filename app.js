@@ -1252,15 +1252,16 @@ function syncMapLayers() {
 // (without opening a detail page) so the user can watch while dragging.
 const BLUR_SETTINGS_KEY = "fu-blur-settings";
 const BLUR_PARAMS = [
+  // def 值 = 用户 2026-07-03 本机调好后固化上线的默认（原型期本地调、读出来写进代码）。
   { key: "blurN", cssVar: "--fb-blur-n", group: "normal", label: "模糊强度", min: 0, max: 16, step: 0.5, unit: "px", def: 6 },
-  { key: "radiusN", cssVar: "--fb-radius-n", group: "normal", label: "清晰圈半径", min: 40, max: 420, step: 2, unit: "px", def: 138 },
-  { key: "featherN", cssVar: "--fb-feather-n", group: "normal", label: "边缘羽化", min: 0, max: 140, step: 2, unit: "px", def: 34 },
-  { key: "blurA", cssVar: "--fb-blur-a", group: "approx", label: "模糊强度", min: 0, max: 16, step: 0.5, unit: "px", def: 7 },
-  { key: "radiusA", cssVar: "--fb-radius-a", group: "approx", label: "白雾圈半径", min: 40, max: 420, step: 2, unit: "px", def: 200 },
-  { key: "featherA", cssVar: "--fb-feather-a", group: "approx", label: "边缘羽化", min: 0, max: 180, step: 2, unit: "px", def: 60 },
+  { key: "radiusN", cssVar: "--fb-radius-n", group: "normal", label: "清晰圈半径", min: 40, max: 420, step: 2, unit: "px", def: 136 },
+  { key: "featherN", cssVar: "--fb-feather-n", group: "normal", label: "边缘羽化", min: 0, max: 140, step: 2, unit: "px", def: 36 },
+  { key: "blurA", cssVar: "--fb-blur-a", group: "approx", label: "模糊强度", min: 0, max: 16, step: 0.5, unit: "px", def: 6 },
+  { key: "radiusA", cssVar: "--fb-radius-a", group: "approx", label: "白雾圈半径", min: 40, max: 420, step: 2, unit: "px", def: 126 },
+  { key: "featherA", cssVar: "--fb-feather-a", group: "approx", label: "边缘羽化", min: 0, max: 180, step: 2, unit: "px", def: 138 },
   { key: "veilA", cssVar: "--fb-veil-a", group: "approx", label: "中心白雾浓度", min: 0, max: 0.8, step: 0.02, unit: "", def: 0.3 },
-  { key: "labelDistanceA", cssVar: "--fb-label-distance-a", group: "label", label: "文字距离中心", min: -600, max: 600, step: 5, unit: "px", def: 245 },
-  { key: "labelRotateA", cssVar: "--fb-label-rotate-a", group: "label", label: "文字旋转角度", min: -180, max: 180, step: 1, unit: "deg", def: 0 },
+  { key: "labelDistanceA", cssVar: "--fb-label-distance-a", group: "label", label: "文字距离中心", min: -600, max: 600, step: 5, unit: "px", def: 260 },
+  { key: "labelRotateA", cssVar: "--fb-label-rotate-a", group: "label", label: "文字旋转角度", min: -180, max: 180, step: 1, unit: "deg", def: -135 },
 ];
 const BLUR_PARAM_BY_KEY = Object.fromEntries(BLUR_PARAMS.map((p) => [p.key, p]));
 
@@ -5170,7 +5171,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=136", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=137", { updateViaCache: "none" });
   }
 }
 
@@ -7884,23 +7885,60 @@ function defaultMapCategorySet() {
   return out;
 }
 
-// 卫星2 defaults to showing the usual labels (this is the "文字あり" state) — because
-// the satellite base hides ALL labels, sat2 must explicitly turn the text categories
-// back on. 卫星1 keeps every category "auto" → stays clean/label-free.
-function defaultSat2Set() {
+// 以下三套默认值 = 用户 2026-07-03 在本机三张地图上分别调好、读出 localStorage 后固化上线
+// 的值（原型期约定：本地调、读出来写进代码，让线上/别人打开也是这套观感）。改这些=改线上默认。
+
+// 普通地图（roadmap）：只把 POI 文字/图标压到 zoom≥19 才出，其余保持自动。
+function defaultRoadmapSet() {
+  const out = defaultMapCategorySet();
+  out.poiLabels = { vis: "auto", zoom: 19, zoomMax: "" };
+  out.poiIcons = { vis: "fade", zoom: 19, zoomMax: "" };
+  return out;
+}
+
+// 卫星1（sat1，文字なし）：几乎全部隐藏，只留行政名/水域名；公共交通只在 zoom 14~17.5 之间露一下。
+function defaultSat1Set() {
   const out = defaultMapCategorySet();
   [
     "poiLabels",
     "poiIcons",
+    "poiBusiness",
+    "poiPark",
+    "poiAttraction",
     "roadLabels",
+    "roadGeometry",
+    "highway",
+    "transitLabels",
+    "landscape",
+  ].forEach((k) => {
+    if (out[k]) out[k].vis = "hide";
+  });
+  out.transit = { vis: "hide", zoom: 14, zoomMax: 17.5 };
+  ["administrative", "waterLabels"].forEach((k) => {
+    if (out[k]) out[k].vis = "show";
+  });
+  return out;
+}
+
+// 卫星2（sat2，文字あり）：卫星底图默认藏掉所有文字，这里把常用文字类重新打开；POI 图标淡化、
+// 道路线隐藏、店铺/公园保持自动。
+function defaultSat2Set() {
+  const out = defaultMapCategorySet();
+  [
+    "poiLabels",
+    "poiAttraction",
+    "roadLabels",
+    "highway",
+    "transit",
     "transitLabels",
     "administrative",
     "waterLabels",
+    "landscape",
   ].forEach((k) => {
-    if (out[k]) {
-      out[k].vis = "show";
-    }
+    if (out[k]) out[k].vis = "show";
   });
+  out.poiIcons.vis = "fade";
+  out.roadGeometry.vis = "hide";
   return out;
 }
 
@@ -7920,7 +7958,7 @@ function mergeMapCategorySet(target, saved) {
 }
 
 function loadMapCategoryState() {
-  const out = { roadmap: defaultMapCategorySet(), sat1: defaultMapCategorySet(), sat2: defaultSat2Set() };
+  const out = { roadmap: defaultRoadmapSet(), sat1: defaultSat1Set(), sat2: defaultSat2Set() };
   try {
     const saved = JSON.parse(localStorage.getItem(MAP_CATEGORY_STORAGE_KEY) || "{}");
     // New format: { roadmap, sat1, sat2 }. Older format: { roadmap, satellite }
@@ -7952,14 +7990,19 @@ function activeMapBaseKey() {
   return state.mapLabels ? "sat2" : "sat1";
 }
 
+// The default tuning set for a given map key (roadmap / sat1 / sat2).
+function defaultCategorySetFor(key) {
+  return key === "sat1" ? defaultSat1Set() : key === "sat2" ? defaultSat2Set() : defaultRoadmapSet();
+}
+
 // The tuning set for whichever map is currently showing (edits target this one).
 function activeMapCategoryState() {
   const key = activeMapBaseKey();
   if (!state.mapCategoryState) {
-    return key === "sat2" ? defaultSat2Set() : defaultMapCategorySet();
+    return defaultCategorySetFor(key);
   }
   if (!state.mapCategoryState[key]) {
-    state.mapCategoryState[key] = key === "sat2" ? defaultSat2Set() : defaultMapCategorySet();
+    state.mapCategoryState[key] = defaultCategorySetFor(key);
   }
   return state.mapCategoryState[key];
 }
