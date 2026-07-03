@@ -21,11 +21,11 @@
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "",
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
-  "time": "",
+  "time": "2026.6.7",
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"","en":""},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
-  "displayId": "yaomenyuan1",
+  "displayId": "yaomenyuan",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -45,7 +45,7 @@
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "",
+  "submissionTime": "2026/06/07",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
@@ -53,7 +53,7 @@
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
-  "timeApprox": false,
+  "timeApprox": true,
   // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
   "blurApprox": false,
   // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。
@@ -90,7 +90,7 @@
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
       "weather": null,
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": true
+      "showWeather": false
     }
   ]
 }

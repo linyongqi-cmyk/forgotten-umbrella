@@ -2235,6 +2235,7 @@ function filteredUmbrellas() {
   return state.umbrellas.filter((item) => {
     const haystack = [
       item.id,
+      item.displayId, // 对外显示名：设了就能按它搜（真实文件名 item.id 也照样能搜）
       item.location,
       item.time,
       item.type,
@@ -5434,7 +5435,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=143", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=144", { updateViaCache: "none" });
   }
 }
 

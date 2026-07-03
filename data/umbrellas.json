@@ -5269,14 +5269,14 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "Sliden",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
     "story": "",
     "blocks": [],
-    "editFlag": "black",
+    "editFlag": "",
     "weather": {
       "source": "open-meteo",
       "fetchedAt": "2026-07-02T14:36:15.000Z",
@@ -15905,7 +15905,7 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "IMG_8664",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "1",
@@ -21190,14 +21190,14 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "ygrons",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
     "umbrellaUnits": [],
     "story": "",
     "blocks": [],
-    "editFlag": "black",
+    "editFlag": "",
     "weather": {
       "source": "open-meteo",
       "fetchedAt": "2026-07-02T14:36:56.579Z",
@@ -42532,7 +42532,7 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "LYUCHEN(3)",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
@@ -42594,7 +42594,7 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "",
+    "displayId": "LYUCHEN(4)",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
@@ -42706,7 +42706,7 @@
     "image": "filebox/records/submission(pending)/yaomenyuan_3/yaomenyuan_3.web.webp",
     "imageOriginal": "filebox/records/submission(pending)/yaomenyuan_3/yaomenyuan_3.jpeg",
     "photoTime": "",
-    "time": "",
+    "time": "2026.6.7",
     "photoCoordinates": null,
     "locationCoordinates": {
       "lat": 35.00368673382598,
@@ -42717,7 +42717,7 @@
       "ja": "",
       "en": ""
     },
-    "displayId": "yaomenyuan1",
+    "displayId": "yaomenyuan",
     "umbrellaType": "",
     "umbrellaColor": "",
     "umbrellaCount": "",
@@ -42730,11 +42730,11 @@
     "submissionType": "contributed",
     "submitter": "yaomenyuan",
     "submissionChannel": "",
-    "submissionTime": "",
+    "submissionTime": "2026/06/07",
     "submitterNote": "",
     "remarks": "地图",
     "locationApprox": false,
-    "timeApprox": false,
+    "timeApprox": true,
     "blurApprox": false,
     "approxZoom": null,
     "blurLabel": "",
@@ -42754,7 +42754,7 @@
         "story": "",
         "crop": null,
         "weather": null,
-        "showWeather": true
+        "showWeather": false
       }
     ],
     "locationLevels": [
@@ -42762,660 +42762,6 @@
       "Kyoto City",
       "Nakagyo Ward"
     ]
-  },
-  {
-    "id": "yueliang_2__1",
-    "image": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.web.webp",
-    "imageOriginal": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.jpeg",
-    "photoTime": "2026-06-21T20:48:03+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.97942777777778,
-      "lng": 135.76422222222223
-    },
-    "locationCoordinates": {
-      "lat": 34.97942777777778,
-      "lng": 135.76422222222223
-    },
-    "locationText": "",
-    "title": {
-      "ja": "",
-      "en": ""
-    },
-    "displayId": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "story": "",
-    "blocks": [],
-    "editFlag": "",
-    "weather": {
-      "source": "open-meteo",
-      "fetchedAt": "2026-07-03T17:47:50.123Z",
-      "lat": 34.97942777777778,
-      "lon": 135.76422222222223,
-      "referenceTime": "2026-06-21T20:48:03+09:00",
-      "hourly": [
-        {
-          "time": "2026-06-20T20:00",
-          "code": 53,
-          "temp": 22.4
-        },
-        {
-          "time": "2026-06-20T21:00",
-          "code": 53,
-          "temp": 23.5
-        },
-        {
-          "time": "2026-06-20T22:00",
-          "code": 51,
-          "temp": 23.2
-        },
-        {
-          "time": "2026-06-20T23:00",
-          "code": 51,
-          "temp": 23.1
-        },
-        {
-          "time": "2026-06-21T00:00",
-          "code": 53,
-          "temp": 23.2
-        },
-        {
-          "time": "2026-06-21T01:00",
-          "code": 51,
-          "temp": 23.1
-        },
-        {
-          "time": "2026-06-21T02:00",
-          "code": 53,
-          "temp": 22.9
-        },
-        {
-          "time": "2026-06-21T03:00",
-          "code": 53,
-          "temp": 23.1
-        },
-        {
-          "time": "2026-06-21T04:00",
-          "code": 51,
-          "temp": 23.1
-        },
-        {
-          "time": "2026-06-21T05:00",
-          "code": 3,
-          "temp": 22.5
-        },
-        {
-          "time": "2026-06-21T06:00",
-          "code": 51,
-          "temp": 22.6
-        },
-        {
-          "time": "2026-06-21T07:00",
-          "code": 51,
-          "temp": 23.8
-        },
-        {
-          "time": "2026-06-21T08:00",
-          "code": 51,
-          "temp": 25.2
-        },
-        {
-          "time": "2026-06-21T09:00",
-          "code": 0,
-          "temp": 27.2
-        },
-        {
-          "time": "2026-06-21T10:00",
-          "code": 0,
-          "temp": 27.7
-        },
-        {
-          "time": "2026-06-21T11:00",
-          "code": 2,
-          "temp": 29.1
-        },
-        {
-          "time": "2026-06-21T12:00",
-          "code": 1,
-          "temp": 29.1
-        },
-        {
-          "time": "2026-06-21T13:00",
-          "code": 3,
-          "temp": 29.4
-        },
-        {
-          "time": "2026-06-21T14:00",
-          "code": 3,
-          "temp": 29.1
-        },
-        {
-          "time": "2026-06-21T15:00",
-          "code": 3,
-          "temp": 28.4
-        },
-        {
-          "time": "2026-06-21T16:00",
-          "code": 3,
-          "temp": 28.2
-        },
-        {
-          "time": "2026-06-21T17:00",
-          "code": 3,
-          "temp": 27.1
-        },
-        {
-          "time": "2026-06-21T18:00",
-          "code": 3,
-          "temp": 25.5
-        },
-        {
-          "time": "2026-06-21T19:00",
-          "code": 3,
-          "temp": 24.1
-        },
-        {
-          "time": "2026-06-21T20:00",
-          "code": 3,
-          "temp": 23.2
-        }
-      ]
-    },
-    "linkedId": "",
-    "submissionType": "contributed",
-    "submitter": "",
-    "submissionChannel": "",
-    "submissionTime": "",
-    "submitterNote": "",
-    "remarks": "",
-    "locationApprox": true,
-    "timeApprox": true,
-    "blurApprox": false,
-    "approxZoom": null,
-    "blurLabel": "",
-    "categoryGroup": "pending",
-    "category": "submission",
-    "thumb": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.thumb.webp",
-    "media": [
-      {
-        "id": "yueliang_2__1",
-        "file": "yueliang_2__1.jpeg",
-        "src": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.web.webp",
-        "thumb": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.thumb.webp",
-        "original": "filebox/records/submission(pending)/yueliang_2__1/yueliang_2__1.jpeg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "",
-        "story": "",
-        "crop": null,
-        "weather": {
-          "source": "open-meteo",
-          "fetchedAt": "2026-07-03T17:47:50.123Z",
-          "lat": 34.97942777777778,
-          "lon": 135.76422222222223,
-          "referenceTime": "2026-06-21T20:48:03+09:00",
-          "hourly": [
-            {
-              "time": "2026-06-20T20:00",
-              "code": 53,
-              "temp": 22.4
-            },
-            {
-              "time": "2026-06-20T21:00",
-              "code": 53,
-              "temp": 23.5
-            },
-            {
-              "time": "2026-06-20T22:00",
-              "code": 51,
-              "temp": 23.2
-            },
-            {
-              "time": "2026-06-20T23:00",
-              "code": 51,
-              "temp": 23.1
-            },
-            {
-              "time": "2026-06-21T00:00",
-              "code": 53,
-              "temp": 23.2
-            },
-            {
-              "time": "2026-06-21T01:00",
-              "code": 51,
-              "temp": 23.1
-            },
-            {
-              "time": "2026-06-21T02:00",
-              "code": 53,
-              "temp": 22.9
-            },
-            {
-              "time": "2026-06-21T03:00",
-              "code": 53,
-              "temp": 23.1
-            },
-            {
-              "time": "2026-06-21T04:00",
-              "code": 51,
-              "temp": 23.1
-            },
-            {
-              "time": "2026-06-21T05:00",
-              "code": 3,
-              "temp": 22.5
-            },
-            {
-              "time": "2026-06-21T06:00",
-              "code": 51,
-              "temp": 22.6
-            },
-            {
-              "time": "2026-06-21T07:00",
-              "code": 51,
-              "temp": 23.8
-            },
-            {
-              "time": "2026-06-21T08:00",
-              "code": 51,
-              "temp": 25.2
-            },
-            {
-              "time": "2026-06-21T09:00",
-              "code": 0,
-              "temp": 27.2
-            },
-            {
-              "time": "2026-06-21T10:00",
-              "code": 0,
-              "temp": 27.7
-            },
-            {
-              "time": "2026-06-21T11:00",
-              "code": 2,
-              "temp": 29.1
-            },
-            {
-              "time": "2026-06-21T12:00",
-              "code": 1,
-              "temp": 29.1
-            },
-            {
-              "time": "2026-06-21T13:00",
-              "code": 3,
-              "temp": 29.4
-            },
-            {
-              "time": "2026-06-21T14:00",
-              "code": 3,
-              "temp": 29.1
-            },
-            {
-              "time": "2026-06-21T15:00",
-              "code": 3,
-              "temp": 28.4
-            },
-            {
-              "time": "2026-06-21T16:00",
-              "code": 3,
-              "temp": 28.2
-            },
-            {
-              "time": "2026-06-21T17:00",
-              "code": 3,
-              "temp": 27.1
-            },
-            {
-              "time": "2026-06-21T18:00",
-              "code": 3,
-              "temp": 25.5
-            },
-            {
-              "time": "2026-06-21T19:00",
-              "code": 3,
-              "temp": 24.1
-            },
-            {
-              "time": "2026-06-21T20:00",
-              "code": 3,
-              "temp": 23.2
-            }
-          ]
-        },
-        "showWeather": true
-      }
-    ],
-    "locationLevels": []
-  },
-  {
-    "id": "yueliang_3__1",
-    "image": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.web.webp",
-    "imageOriginal": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.jpeg",
-    "photoTime": "2026-06-28T16:07:30+09:00",
-    "time": "",
-    "photoCoordinates": {
-      "lat": 34.99516666666667,
-      "lng": 135.76815833333336
-    },
-    "locationCoordinates": {
-      "lat": 34.99516666666667,
-      "lng": 135.76815833333336
-    },
-    "locationText": "",
-    "title": {
-      "ja": "",
-      "en": ""
-    },
-    "displayId": "",
-    "umbrellaType": "",
-    "umbrellaColor": "",
-    "umbrellaCount": "",
-    "umbrellaUnits": [],
-    "story": "",
-    "blocks": [],
-    "editFlag": "",
-    "weather": {
-      "source": "open-meteo",
-      "fetchedAt": "2026-07-03T17:48:39.215Z",
-      "lat": 34.99516666666667,
-      "lon": 135.76815833333336,
-      "referenceTime": "2026-06-28T16:07:30+09:00",
-      "hourly": [
-        {
-          "time": "2026-06-27T16:00",
-          "code": 3,
-          "temp": 26.2
-        },
-        {
-          "time": "2026-06-27T17:00",
-          "code": 3,
-          "temp": 24.4
-        },
-        {
-          "time": "2026-06-27T18:00",
-          "code": 3,
-          "temp": 22.9
-        },
-        {
-          "time": "2026-06-27T19:00",
-          "code": 1,
-          "temp": 21.9
-        },
-        {
-          "time": "2026-06-27T20:00",
-          "code": 1,
-          "temp": 21.1
-        },
-        {
-          "time": "2026-06-27T21:00",
-          "code": 2,
-          "temp": 22
-        },
-        {
-          "time": "2026-06-27T22:00",
-          "code": 2,
-          "temp": 21.3
-        },
-        {
-          "time": "2026-06-27T23:00",
-          "code": 1,
-          "temp": 21
-        },
-        {
-          "time": "2026-06-28T00:00",
-          "code": 2,
-          "temp": 20.9
-        },
-        {
-          "time": "2026-06-28T01:00",
-          "code": 2,
-          "temp": 20.8
-        },
-        {
-          "time": "2026-06-28T02:00",
-          "code": 2,
-          "temp": 20.6
-        },
-        {
-          "time": "2026-06-28T03:00",
-          "code": 3,
-          "temp": 20.8
-        },
-        {
-          "time": "2026-06-28T04:00",
-          "code": 63,
-          "temp": 20.4
-        },
-        {
-          "time": "2026-06-28T05:00",
-          "code": 61,
-          "temp": 20.3
-        },
-        {
-          "time": "2026-06-28T06:00",
-          "code": 51,
-          "temp": 20.4
-        },
-        {
-          "time": "2026-06-28T07:00",
-          "code": 51,
-          "temp": 20.9
-        },
-        {
-          "time": "2026-06-28T08:00",
-          "code": 51,
-          "temp": 21.6
-        },
-        {
-          "time": "2026-06-28T09:00",
-          "code": 63,
-          "temp": 22.8
-        },
-        {
-          "time": "2026-06-28T10:00",
-          "code": 51,
-          "temp": 24
-        },
-        {
-          "time": "2026-06-28T11:00",
-          "code": 51,
-          "temp": 24.8
-        },
-        {
-          "time": "2026-06-28T12:00",
-          "code": 2,
-          "temp": 24.9
-        },
-        {
-          "time": "2026-06-28T13:00",
-          "code": 3,
-          "temp": 27.6
-        },
-        {
-          "time": "2026-06-28T14:00",
-          "code": 3,
-          "temp": 27.8
-        },
-        {
-          "time": "2026-06-28T15:00",
-          "code": 3,
-          "temp": 28.2
-        },
-        {
-          "time": "2026-06-28T16:00",
-          "code": 2,
-          "temp": 28
-        }
-      ]
-    },
-    "linkedId": "",
-    "submissionType": "contributed",
-    "submitter": "",
-    "submissionChannel": "",
-    "submissionTime": "",
-    "submitterNote": "",
-    "remarks": "",
-    "locationApprox": true,
-    "timeApprox": true,
-    "blurApprox": false,
-    "approxZoom": null,
-    "blurLabel": "",
-    "categoryGroup": "pending",
-    "category": "submission",
-    "thumb": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.thumb.webp",
-    "media": [
-      {
-        "id": "yueliang_3__1",
-        "file": "yueliang_3__1.jpeg",
-        "src": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.web.webp",
-        "thumb": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.thumb.webp",
-        "original": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.jpeg",
-        "role": "primary",
-        "title": "",
-        "photoTime": "",
-        "story": "",
-        "crop": null,
-        "weather": {
-          "source": "open-meteo",
-          "fetchedAt": "2026-07-03T17:48:39.215Z",
-          "lat": 34.99516666666667,
-          "lon": 135.76815833333336,
-          "referenceTime": "2026-06-28T16:07:30+09:00",
-          "hourly": [
-            {
-              "time": "2026-06-27T16:00",
-              "code": 3,
-              "temp": 26.2
-            },
-            {
-              "time": "2026-06-27T17:00",
-              "code": 3,
-              "temp": 24.4
-            },
-            {
-              "time": "2026-06-27T18:00",
-              "code": 3,
-              "temp": 22.9
-            },
-            {
-              "time": "2026-06-27T19:00",
-              "code": 1,
-              "temp": 21.9
-            },
-            {
-              "time": "2026-06-27T20:00",
-              "code": 1,
-              "temp": 21.1
-            },
-            {
-              "time": "2026-06-27T21:00",
-              "code": 2,
-              "temp": 22
-            },
-            {
-              "time": "2026-06-27T22:00",
-              "code": 2,
-              "temp": 21.3
-            },
-            {
-              "time": "2026-06-27T23:00",
-              "code": 1,
-              "temp": 21
-            },
-            {
-              "time": "2026-06-28T00:00",
-              "code": 2,
-              "temp": 20.9
-            },
-            {
-              "time": "2026-06-28T01:00",
-              "code": 2,
-              "temp": 20.8
-            },
-            {
-              "time": "2026-06-28T02:00",
-              "code": 2,
-              "temp": 20.6
-            },
-            {
-              "time": "2026-06-28T03:00",
-              "code": 3,
-              "temp": 20.8
-            },
-            {
-              "time": "2026-06-28T04:00",
-              "code": 63,
-              "temp": 20.4
-            },
-            {
-              "time": "2026-06-28T05:00",
-              "code": 61,
-              "temp": 20.3
-            },
-            {
-              "time": "2026-06-28T06:00",
-              "code": 51,
-              "temp": 20.4
-            },
-            {
-              "time": "2026-06-28T07:00",
-              "code": 51,
-              "temp": 20.9
-            },
-            {
-              "time": "2026-06-28T08:00",
-              "code": 51,
-              "temp": 21.6
-            },
-            {
-              "time": "2026-06-28T09:00",
-              "code": 63,
-              "temp": 22.8
-            },
-            {
-              "time": "2026-06-28T10:00",
-              "code": 51,
-              "temp": 24
-            },
-            {
-              "time": "2026-06-28T11:00",
-              "code": 51,
-              "temp": 24.8
-            },
-            {
-              "time": "2026-06-28T12:00",
-              "code": 2,
-              "temp": 24.9
-            },
-            {
-              "time": "2026-06-28T13:00",
-              "code": 3,
-              "temp": 27.6
-            },
-            {
-              "time": "2026-06-28T14:00",
-              "code": 3,
-              "temp": 27.8
-            },
-            {
-              "time": "2026-06-28T15:00",
-              "code": 3,
-              "temp": 28.2
-            },
-            {
-              "time": "2026-06-28T16:00",
-              "code": 2,
-              "temp": 28
-            }
-          ]
-        },
-        "showWeather": true
-      }
-    ],
-    "locationLevels": []
   },
   {
     "id": "yueliang_1_",
@@ -43431,7 +42777,7 @@
       "lat": 34.979941387666315,
       "lng": 135.76441331861813
     },
-    "locationText": "",
+    "locationText": "monthly parking lot near Kujo Kawaramachi bus stop, Minami Ward, Kyoto",
     "title": {
       "ja": "",
       "en": ""
@@ -43585,8 +42931,8 @@
     "submissionTime": "2026/06/11",
     "submitterNote": "",
     "remarks": "",
-    "locationApprox": true,
-    "timeApprox": true,
+    "locationApprox": false,
+    "timeApprox": false,
     "blurApprox": false,
     "approxZoom": null,
     "blurLabel": "",
@@ -43746,6 +43092,687 @@
       "Kyoto",
       "Kyoto City",
       "Minami Ward"
+    ]
+  },
+  {
+    "id": "yueliang_2__2",
+    "image": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.web.webp",
+    "imageOriginal": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.jpeg",
+    "photoTime": "2026-06-21T20:48:00+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.97923611111111,
+      "lng": 135.7629861111111
+    },
+    "locationCoordinates": {
+      "lat": 34.97923611111111,
+      "lng": 135.7629861111111
+    },
+    "locationText": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "yueliang(2)",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [],
+    "editFlag": "white",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-03T18:18:01.357Z",
+      "lat": 34.97923611111111,
+      "lon": 135.7629861111111,
+      "referenceTime": "2026-06-21T20:48:00+09:00",
+      "hourly": [
+        {
+          "time": "2026-06-20T20:00",
+          "code": 53,
+          "temp": 22.4
+        },
+        {
+          "time": "2026-06-20T21:00",
+          "code": 53,
+          "temp": 23.5
+        },
+        {
+          "time": "2026-06-20T22:00",
+          "code": 51,
+          "temp": 23.2
+        },
+        {
+          "time": "2026-06-20T23:00",
+          "code": 51,
+          "temp": 23.1
+        },
+        {
+          "time": "2026-06-21T00:00",
+          "code": 53,
+          "temp": 23.2
+        },
+        {
+          "time": "2026-06-21T01:00",
+          "code": 51,
+          "temp": 23.1
+        },
+        {
+          "time": "2026-06-21T02:00",
+          "code": 53,
+          "temp": 22.9
+        },
+        {
+          "time": "2026-06-21T03:00",
+          "code": 53,
+          "temp": 23.1
+        },
+        {
+          "time": "2026-06-21T04:00",
+          "code": 51,
+          "temp": 23.1
+        },
+        {
+          "time": "2026-06-21T05:00",
+          "code": 3,
+          "temp": 22.5
+        },
+        {
+          "time": "2026-06-21T06:00",
+          "code": 51,
+          "temp": 22.6
+        },
+        {
+          "time": "2026-06-21T07:00",
+          "code": 51,
+          "temp": 23.8
+        },
+        {
+          "time": "2026-06-21T08:00",
+          "code": 51,
+          "temp": 25.2
+        },
+        {
+          "time": "2026-06-21T09:00",
+          "code": 0,
+          "temp": 27.2
+        },
+        {
+          "time": "2026-06-21T10:00",
+          "code": 0,
+          "temp": 27.7
+        },
+        {
+          "time": "2026-06-21T11:00",
+          "code": 2,
+          "temp": 29.1
+        },
+        {
+          "time": "2026-06-21T12:00",
+          "code": 1,
+          "temp": 29.1
+        },
+        {
+          "time": "2026-06-21T13:00",
+          "code": 3,
+          "temp": 29.4
+        },
+        {
+          "time": "2026-06-21T14:00",
+          "code": 3,
+          "temp": 29.1
+        },
+        {
+          "time": "2026-06-21T15:00",
+          "code": 3,
+          "temp": 28.4
+        },
+        {
+          "time": "2026-06-21T16:00",
+          "code": 3,
+          "temp": 28.2
+        },
+        {
+          "time": "2026-06-21T17:00",
+          "code": 3,
+          "temp": 27.1
+        },
+        {
+          "time": "2026-06-21T18:00",
+          "code": 3,
+          "temp": 25.5
+        },
+        {
+          "time": "2026-06-21T19:00",
+          "code": 3,
+          "temp": 24.1
+        },
+        {
+          "time": "2026-06-21T20:00",
+          "code": 3,
+          "temp": 23.2
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "yueliang",
+    "submissionChannel": "",
+    "submissionTime": "2026/06/21",
+    "submitterNote": "",
+    "remarks": "地址",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.thumb.webp",
+    "media": [
+      {
+        "id": "yueliang_2__2",
+        "file": "yueliang_2__2.jpeg",
+        "src": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.web.webp",
+        "thumb": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.thumb.webp",
+        "original": "filebox/records/submission(pending)/yueliang_2__2/yueliang_2__2.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-03T18:18:01.357Z",
+          "lat": 34.97923611111111,
+          "lon": 135.7629861111111,
+          "referenceTime": "2026-06-21T20:48:00+09:00",
+          "hourly": [
+            {
+              "time": "2026-06-20T20:00",
+              "code": 53,
+              "temp": 22.4
+            },
+            {
+              "time": "2026-06-20T21:00",
+              "code": 53,
+              "temp": 23.5
+            },
+            {
+              "time": "2026-06-20T22:00",
+              "code": 51,
+              "temp": 23.2
+            },
+            {
+              "time": "2026-06-20T23:00",
+              "code": 51,
+              "temp": 23.1
+            },
+            {
+              "time": "2026-06-21T00:00",
+              "code": 53,
+              "temp": 23.2
+            },
+            {
+              "time": "2026-06-21T01:00",
+              "code": 51,
+              "temp": 23.1
+            },
+            {
+              "time": "2026-06-21T02:00",
+              "code": 53,
+              "temp": 22.9
+            },
+            {
+              "time": "2026-06-21T03:00",
+              "code": 53,
+              "temp": 23.1
+            },
+            {
+              "time": "2026-06-21T04:00",
+              "code": 51,
+              "temp": 23.1
+            },
+            {
+              "time": "2026-06-21T05:00",
+              "code": 3,
+              "temp": 22.5
+            },
+            {
+              "time": "2026-06-21T06:00",
+              "code": 51,
+              "temp": 22.6
+            },
+            {
+              "time": "2026-06-21T07:00",
+              "code": 51,
+              "temp": 23.8
+            },
+            {
+              "time": "2026-06-21T08:00",
+              "code": 51,
+              "temp": 25.2
+            },
+            {
+              "time": "2026-06-21T09:00",
+              "code": 0,
+              "temp": 27.2
+            },
+            {
+              "time": "2026-06-21T10:00",
+              "code": 0,
+              "temp": 27.7
+            },
+            {
+              "time": "2026-06-21T11:00",
+              "code": 2,
+              "temp": 29.1
+            },
+            {
+              "time": "2026-06-21T12:00",
+              "code": 1,
+              "temp": 29.1
+            },
+            {
+              "time": "2026-06-21T13:00",
+              "code": 3,
+              "temp": 29.4
+            },
+            {
+              "time": "2026-06-21T14:00",
+              "code": 3,
+              "temp": 29.1
+            },
+            {
+              "time": "2026-06-21T15:00",
+              "code": 3,
+              "temp": 28.4
+            },
+            {
+              "time": "2026-06-21T16:00",
+              "code": 3,
+              "temp": 28.2
+            },
+            {
+              "time": "2026-06-21T17:00",
+              "code": 3,
+              "temp": 27.1
+            },
+            {
+              "time": "2026-06-21T18:00",
+              "code": 3,
+              "temp": 25.5
+            },
+            {
+              "time": "2026-06-21T19:00",
+              "code": 3,
+              "temp": 24.1
+            },
+            {
+              "time": "2026-06-21T20:00",
+              "code": 3,
+              "temp": 23.2
+            }
+          ]
+        },
+        "showWeather": true
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
+  },
+  {
+    "id": "yueliang_3__1",
+    "image": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.web.webp",
+    "imageOriginal": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.jpeg",
+    "photoTime": "2026-06-28T16:07:30+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.99516666666667,
+      "lng": 135.76815833333336
+    },
+    "locationCoordinates": {
+      "lat": 34.99515518706805,
+      "lng": 135.768172346507
+    },
+    "locationText": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "yueliang(3)",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "",
+    "umbrellaUnits": [],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "yueliang_3__3.jpeg"
+      }
+    ],
+    "editFlag": "white",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-03T18:19:21.521Z",
+      "lat": 34.99516666666667,
+      "lon": 135.76815833333336,
+      "referenceTime": "2026-06-28T16:07:30+09:00",
+      "hourly": [
+        {
+          "time": "2026-06-27T16:00",
+          "code": 3,
+          "temp": 26.2
+        },
+        {
+          "time": "2026-06-27T17:00",
+          "code": 3,
+          "temp": 24.4
+        },
+        {
+          "time": "2026-06-27T18:00",
+          "code": 3,
+          "temp": 22.9
+        },
+        {
+          "time": "2026-06-27T19:00",
+          "code": 1,
+          "temp": 21.9
+        },
+        {
+          "time": "2026-06-27T20:00",
+          "code": 1,
+          "temp": 21.1
+        },
+        {
+          "time": "2026-06-27T21:00",
+          "code": 2,
+          "temp": 22
+        },
+        {
+          "time": "2026-06-27T22:00",
+          "code": 2,
+          "temp": 21.3
+        },
+        {
+          "time": "2026-06-27T23:00",
+          "code": 1,
+          "temp": 21
+        },
+        {
+          "time": "2026-06-28T00:00",
+          "code": 2,
+          "temp": 20.9
+        },
+        {
+          "time": "2026-06-28T01:00",
+          "code": 2,
+          "temp": 20.8
+        },
+        {
+          "time": "2026-06-28T02:00",
+          "code": 2,
+          "temp": 20.6
+        },
+        {
+          "time": "2026-06-28T03:00",
+          "code": 3,
+          "temp": 20.8
+        },
+        {
+          "time": "2026-06-28T04:00",
+          "code": 63,
+          "temp": 20.4
+        },
+        {
+          "time": "2026-06-28T05:00",
+          "code": 61,
+          "temp": 20.3
+        },
+        {
+          "time": "2026-06-28T06:00",
+          "code": 51,
+          "temp": 20.4
+        },
+        {
+          "time": "2026-06-28T07:00",
+          "code": 51,
+          "temp": 20.9
+        },
+        {
+          "time": "2026-06-28T08:00",
+          "code": 51,
+          "temp": 21.6
+        },
+        {
+          "time": "2026-06-28T09:00",
+          "code": 63,
+          "temp": 22.8
+        },
+        {
+          "time": "2026-06-28T10:00",
+          "code": 51,
+          "temp": 24
+        },
+        {
+          "time": "2026-06-28T11:00",
+          "code": 51,
+          "temp": 24.8
+        },
+        {
+          "time": "2026-06-28T12:00",
+          "code": 2,
+          "temp": 24.9
+        },
+        {
+          "time": "2026-06-28T13:00",
+          "code": 3,
+          "temp": 27.6
+        },
+        {
+          "time": "2026-06-28T14:00",
+          "code": 3,
+          "temp": 27.8
+        },
+        {
+          "time": "2026-06-28T15:00",
+          "code": 3,
+          "temp": 28.2
+        },
+        {
+          "time": "2026-06-28T16:00",
+          "code": 2,
+          "temp": 28
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "contributed",
+    "submitter": "yueliang",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "地址",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "pending",
+    "category": "submission",
+    "thumb": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.thumb.webp",
+    "media": [
+      {
+        "id": "yueliang_3__1",
+        "file": "yueliang_3__1.jpeg",
+        "src": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.web.webp",
+        "thumb": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.thumb.webp",
+        "original": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__1.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-03T18:19:21.521Z",
+          "lat": 34.99516666666667,
+          "lon": 135.76815833333336,
+          "referenceTime": "2026-06-28T16:07:30+09:00",
+          "hourly": [
+            {
+              "time": "2026-06-27T16:00",
+              "code": 3,
+              "temp": 26.2
+            },
+            {
+              "time": "2026-06-27T17:00",
+              "code": 3,
+              "temp": 24.4
+            },
+            {
+              "time": "2026-06-27T18:00",
+              "code": 3,
+              "temp": 22.9
+            },
+            {
+              "time": "2026-06-27T19:00",
+              "code": 1,
+              "temp": 21.9
+            },
+            {
+              "time": "2026-06-27T20:00",
+              "code": 1,
+              "temp": 21.1
+            },
+            {
+              "time": "2026-06-27T21:00",
+              "code": 2,
+              "temp": 22
+            },
+            {
+              "time": "2026-06-27T22:00",
+              "code": 2,
+              "temp": 21.3
+            },
+            {
+              "time": "2026-06-27T23:00",
+              "code": 1,
+              "temp": 21
+            },
+            {
+              "time": "2026-06-28T00:00",
+              "code": 2,
+              "temp": 20.9
+            },
+            {
+              "time": "2026-06-28T01:00",
+              "code": 2,
+              "temp": 20.8
+            },
+            {
+              "time": "2026-06-28T02:00",
+              "code": 2,
+              "temp": 20.6
+            },
+            {
+              "time": "2026-06-28T03:00",
+              "code": 3,
+              "temp": 20.8
+            },
+            {
+              "time": "2026-06-28T04:00",
+              "code": 63,
+              "temp": 20.4
+            },
+            {
+              "time": "2026-06-28T05:00",
+              "code": 61,
+              "temp": 20.3
+            },
+            {
+              "time": "2026-06-28T06:00",
+              "code": 51,
+              "temp": 20.4
+            },
+            {
+              "time": "2026-06-28T07:00",
+              "code": 51,
+              "temp": 20.9
+            },
+            {
+              "time": "2026-06-28T08:00",
+              "code": 51,
+              "temp": 21.6
+            },
+            {
+              "time": "2026-06-28T09:00",
+              "code": 63,
+              "temp": 22.8
+            },
+            {
+              "time": "2026-06-28T10:00",
+              "code": 51,
+              "temp": 24
+            },
+            {
+              "time": "2026-06-28T11:00",
+              "code": 51,
+              "temp": 24.8
+            },
+            {
+              "time": "2026-06-28T12:00",
+              "code": 2,
+              "temp": 24.9
+            },
+            {
+              "time": "2026-06-28T13:00",
+              "code": 3,
+              "temp": 27.6
+            },
+            {
+              "time": "2026-06-28T14:00",
+              "code": 3,
+              "temp": 27.8
+            },
+            {
+              "time": "2026-06-28T15:00",
+              "code": 3,
+              "temp": 28.2
+            },
+            {
+              "time": "2026-06-28T16:00",
+              "code": 2,
+              "temp": 28
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "yueliang_3__3",
+        "file": "yueliang_3__3.jpeg",
+        "src": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__3.web.webp",
+        "thumb": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__3.thumb.webp",
+        "original": "filebox/records/submission(pending)/yueliang_3__1/yueliang_3__3.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-06-28T16:07:54+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Higashiyama Ward"
     ]
   }
 ]
