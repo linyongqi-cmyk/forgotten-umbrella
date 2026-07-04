@@ -381,6 +381,8 @@ const els = {
   languageSwitcher: document.querySelector(".language-switcher"),
   languageToggle: document.querySelector("#language-toggle"),
   languageMenu: document.querySelector("#language-menu"),
+  topbar: document.querySelector(".topbar"),
+  navToggle: document.querySelector("#nav-toggle"),
 };
 
 // The editor only ever exists on the local machine. On the published
@@ -624,8 +626,37 @@ function bindEvents() {
   syncListControls(filteredUmbrellas());
   syncSearchBox();
 
+  // 手机汉堡菜单：开/关顶栏 view-tabs 面板（桌面 .nav-toggle 不显示，这段等于没用）。
+  const closeNavMenu = () => {
+    if (!els.topbar?.classList.contains("is-nav-open")) {
+      return;
+    }
+    els.topbar.classList.remove("is-nav-open");
+    els.navToggle?.setAttribute("aria-expanded", "false");
+  };
+  els.navToggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const open = !els.topbar.classList.contains("is-nav-open");
+    els.topbar.classList.toggle("is-nav-open", open);
+    els.navToggle.setAttribute("aria-expanded", String(open));
+  });
+  // 点菜单外面收起（选了 tab / 语言由各自的 click 收起）。
+  document.addEventListener("click", (event) => {
+    if (els.topbar?.classList.contains("is-nav-open") && !els.topbar.contains(event.target)) {
+      closeNavMenu();
+    }
+  });
+  // Esc 收起。
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeNavMenu();
+    }
+  });
+
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
+      // 选了入口就收起汉堡菜单（Submit 会开新标签，也一样收起）。
+      closeNavMenu();
       const view = tab.dataset.view;
       if (!view) {
         return;
@@ -5454,7 +5485,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=148", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=149", { updateViaCache: "none" });
   }
 }
 

@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=148" />
+    <link rel="stylesheet" href="styles.css?v=149" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -48,7 +48,21 @@
 
     <div class="app-shell">
       <header class="topbar" aria-label="top navigation">
-        <nav class="view-tabs" aria-label="view switcher">
+        <button
+          class="nav-toggle"
+          id="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="view-tabs"
+          aria-label="menu"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 7h16" />
+            <path d="M4 12h16" />
+            <path d="M4 17h16" />
+          </svg>
+        </button>
+        <nav class="view-tabs" id="view-tabs" aria-label="view switcher">
           <button class="tab is-active" data-view="map" type="button">Umbrella map</button>
           <button class="tab" data-view="archive" type="button">Archive</button>
           <button class="tab" data-view="about" type="button">About</button>
@@ -289,6 +303,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=148" type="module"></script>
+    <script src="app.js?v=149" type="module"></script>
   </body>
 </html>

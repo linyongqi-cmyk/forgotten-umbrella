@@ -286,6 +286,32 @@ body.is-entered .welcome-screen {
   pointer-events: auto;
 }
 
+/* 汉堡按钮：桌面隐藏，仅窄屏（≤820）显示——见文件末尾手机适配区。 */
+.nav-toggle {
+  display: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.nav-toggle svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
 .tab,
 .chip,
 .archive-control,
@@ -2930,9 +2956,76 @@ body.edit-mode .card-edit {
     left: 12px;
   }
 
+  /* 手机导航：顶栏只留一个汉堡按钮（右上角），点开才弹出竖排菜单。 */
+  .nav-toggle {
+    display: grid;
+  }
+
   .view-tabs {
-    justify-content: space-between;
-    flex-wrap: wrap;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(220px, 66vw);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+    /* 默认收起 */
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  .topbar.is-nav-open .view-tabs {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  /* 菜单项：左对齐、占满整行，方便手指点。 */
+  .view-tabs .tab,
+  .view-tabs .language-switcher,
+  .view-tabs .language-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 12px 12px;
+  }
+
+  /* 面板有自己的浅色底，覆盖地图页把导航字变浅的规则，否则字看不见。 */
+  .view-tabs .tab,
+  .view-tabs .language-toggle,
+  body.view-map .view-tabs .tab,
+  body.view-map .view-tabs .language-toggle,
+  body.view-map.is-roadmap .view-tabs .tab,
+  body.view-map.is-roadmap .view-tabs .language-toggle {
+    color: var(--muted);
+  }
+
+  .view-tabs .tab.is-active,
+  body.view-map .view-tabs .tab.is-active,
+  body.view-map.is-roadmap .view-tabs .tab.is-active {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* 竖排里下划线动画没意义，关掉。 */
+  .view-tabs .tab::after,
+  .view-tabs .language-toggle::after {
+    display: none;
+  }
+
+  /* 语言子菜单：在竖排里直接贴着「Language」下方展开。 */
+  .view-tabs .language-menu {
+    position: static;
+    margin-top: 4px;
+    box-shadow: none;
   }
 
   .workspace.is-active {
