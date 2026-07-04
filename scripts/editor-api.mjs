@@ -58,6 +58,7 @@ const trashRoot = path.join(rootDir, "filebox", ".trash");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 const textsPath = path.join(rootDir, "data", "texts.json");
 const siteSettingsPath = path.join(rootDir, "data", "site-settings.json");
+const themePath = path.join(rootDir, "data", "theme.json");
 
 // Plain text fields the editor is allowed to overwrite. (title is handled
 // separately because it is now bilingual { ja, en }.)
@@ -779,6 +780,25 @@ export async function saveTexts(payload) {
   return { ok: true };
 }
 
+// Save the visual theme (icon stroke width + detail-page body font size/line height)
+// to data/theme.json. Only these three known numeric keys, each clamped to a safe
+// range, so a bad POST can never write surprising values.
+const THEME_CLAMP = {
+  iconStroke: { min: 1, max: 3, def: 1.8 },
+  detailBodySize: { min: 11, max: 20, def: 13 },
+  detailBodyLine: { min: 1.1, max: 2, def: 1.45 },
+};
+
+export async function saveTheme(payload) {
+  const out = {};
+  for (const [key, r] of Object.entries(THEME_CLAMP)) {
+    const n = Number(payload?.[key]);
+    out[key] = Number.isFinite(n) ? Math.min(Math.max(n, r.min), r.max) : r.def;
+  }
+  await fs.writeFile(themePath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
+  return { ok: true };
+}
+
 // Save the tunable site settings (focus-blur params + the three map-label filter
 // sets) to data/site-settings.json. This is the online source of truth — the local
 // map/blur panels POST here whenever the user tweaks a slider, so tuning goes live on
@@ -971,6 +991,8 @@ export async function handleEditorApi(pathname, payload) {
       return saveRecord(payload);
     case "/api/save-texts":
       return saveTexts(payload);
+    case "/api/save-theme":
+      return saveTheme(payload);
     case "/api/save-site-settings":
       return saveSiteSettings(payload);
     case "/api/upload-image":

@@ -401,6 +401,8 @@ async function init() {
   SITE_SETTINGS = await loadSiteSettings();
   state.mapCategoryState = loadMapCategoryState();
   TEXTS = await loadTexts();
+  THEME = await loadTheme();
+  applyTheme(THEME);
   state.selectedId = null;
 
   initWelcomeTitleLayout();
@@ -479,6 +481,60 @@ async function loadSiteSettings() {
     console.error(error);
     return null;
   }
+}
+
+// 视觉主题设定（data/theme.json）：图标线宽 + 详情页正文字号/行距。前端启动读它当默认
+// （线上/别人打开就是这套）；本机在「视觉设定」面板调完写回该文件，push 就上线。
+// 只 3 个数值，带范围钳制，避免面板传来异常值把界面调坏。
+const THEME_DEFAULTS = { iconStroke: 1.8, detailBodySize: 13, detailBodyLine: 1.45 };
+const THEME_RANGES = {
+  iconStroke: { min: 1, max: 3, step: 0.1 },
+  detailBodySize: { min: 11, max: 20, step: 1 },
+  detailBodyLine: { min: 1.1, max: 2, step: 0.05 },
+};
+let THEME = { ...THEME_DEFAULTS };
+
+function clampThemeValue(key, value) {
+  const r = THEME_RANGES[key];
+  const n = Number(value);
+  if (!r || !Number.isFinite(n)) {
+    return THEME_DEFAULTS[key];
+  }
+  return Math.min(Math.max(n, r.min), r.max);
+}
+
+function sanitizeTheme(raw) {
+  const out = { ...THEME_DEFAULTS };
+  if (raw && typeof raw === "object") {
+    for (const key of Object.keys(THEME_DEFAULTS)) {
+      if (raw[key] !== undefined) {
+        out[key] = clampThemeValue(key, raw[key]);
+      }
+    }
+  }
+  return out;
+}
+
+async function loadTheme() {
+  try {
+    const response = await fetch("data/theme.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load data/theme.json: ${response.status}`);
+    }
+    return sanitizeTheme(await response.json());
+  } catch (error) {
+    console.error(error);
+    return { ...THEME_DEFAULTS };
+  }
+}
+
+// 把主题写进 :root 的 CSS 变量（全站图标线宽 + 详情页正文字号/行距实时生效）。
+function applyTheme(theme) {
+  const t = sanitizeTheme(theme);
+  const root = document.documentElement.style;
+  root.setProperty("--icon-stroke", String(t.iconStroke));
+  root.setProperty("--detail-body-size", `${t.detailBodySize}px`);
+  root.setProperty("--detail-body-line", String(t.detailBodyLine));
 }
 
 async function loadUmbrellaData() {
@@ -5539,6 +5595,9 @@ const EDITOR_ICON_EDIT =
 const EDITOR_ICON_TEXTS =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 10h14M5 14h9M5 18h9"/></svg>';
 const EDITOR_ICON_ADD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+// 视觉设定面板按钮图标（Lucide sliders-horizontal）。
+const EDITOR_ICON_THEME =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>';
 // 收件箱（信封）图标 —— 投稿收件箱按钮。
 const EDITOR_ICON_INBOX =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
@@ -5564,6 +5623,7 @@ function setupEditor() {
   editor.toggle = toggle;
 
   setupTextsEditor();
+  setupThemeEditor();
 
   const drawer = document.createElement("aside");
   drawer.className = "editor-drawer";
@@ -7305,6 +7365,149 @@ async function saveTextsEditor() {
     render();
     closeTextsEditor();
     showEditorToast("文案已保存 ✓");
+  } catch (error) {
+    showEditorToast(`保存失败：${error.message}`, true);
+  }
+}
+
+// ---- 视觉设定: 图标线宽 + 详情页正文字号/行距 (data/theme.json) --------------
+// 本机专用。三个滑块，拖动即实时预览（改 :root 变量），保存后写回 data/theme.json，
+// 线上/别人打开也吃这套值。范围钳制在 THEME_RANGES 内。
+const themeEditor = { overlay: null };
+
+const THEME_FIELDS = [
+  { key: "iconStroke", label: "图标线宽", unit: "" },
+  { key: "detailBodySize", label: "详情正文字号", unit: "px" },
+  { key: "detailBodyLine", label: "详情正文行距", unit: "" },
+];
+
+function setupThemeEditor() {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.id = "theme-toggle";
+  btn.className = "editor-toggle theme-toggle";
+  btn.innerHTML = EDITOR_ICON_THEME;
+  btn.title = "视觉设定（图标线宽 / 详情正文字号 · 行距）";
+  btn.setAttribute("aria-label", "视觉设定");
+  btn.addEventListener("click", openThemeEditor);
+  (editor.toolbar || document.body).appendChild(btn);
+}
+
+function openThemeEditor() {
+  if (!themeEditor.overlay) {
+    buildThemeEditor();
+  }
+  fillThemeEditor();
+  themeEditor.overlay.hidden = false;
+}
+
+function closeThemeEditor() {
+  if (themeEditor.overlay) {
+    themeEditor.overlay.hidden = true;
+  }
+}
+
+function buildThemeEditor() {
+  const overlay = document.createElement("div");
+  overlay.className = "texts-editor-overlay theme-editor-overlay";
+  overlay.hidden = true;
+
+  const rows = THEME_FIELDS.map((f) => {
+    const r = THEME_RANGES[f.key];
+    return `
+      <label class="theme-row" data-theme-row="${f.key}">
+        <span class="theme-row-name">${f.label}</span>
+        <input type="range" data-theme-field="${f.key}" min="${r.min}" max="${r.max}" step="${r.step}" />
+        <output data-theme-out="${f.key}"></output>
+      </label>`;
+  }).join("");
+
+  overlay.innerHTML = `
+    <div class="texts-editor theme-editor" role="dialog" aria-label="视觉设定">
+      <header class="texts-editor-head">
+        <strong>视觉设定 — 图标线宽 / 详情正文</strong>
+        <button type="button" class="texts-editor-close" aria-label="close">×</button>
+      </header>
+      <p class="texts-editor-hint">拖动即实时预览。保存后写入 data/theme.json，线上看到的也会更新。</p>
+      <div class="texts-editor-body theme-editor-body">${rows}</div>
+      <footer class="texts-editor-actions">
+        <button type="button" class="texts-editor-save theme-editor-save">保存</button>
+        <button type="button" class="texts-editor-reset theme-editor-reset">恢复默认</button>
+        <button type="button" class="texts-editor-cancel">取消</button>
+      </footer>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  themeEditor.overlay = overlay;
+
+  // 拖动滑块：实时预览（改 :root）+ 更新数字读数，但先不写文件。
+  overlay.querySelectorAll("[data-theme-field]").forEach((input) => {
+    input.addEventListener("input", () => {
+      applyTheme(readThemeEditor());
+      updateThemeOutputs();
+    });
+  });
+  overlay.querySelector(".theme-editor-save").addEventListener("click", saveThemeEditor);
+  overlay.querySelector(".theme-editor-reset").addEventListener("click", () => {
+    setThemeEditorValues(THEME_DEFAULTS);
+    applyTheme(THEME_DEFAULTS);
+  });
+  // 取消：放弃未保存的预览，还原到已保存的 THEME。
+  overlay.querySelector(".texts-editor-cancel").addEventListener("click", () => {
+    applyTheme(THEME);
+    closeThemeEditor();
+  });
+  overlay.querySelector(".texts-editor-close").addEventListener("click", () => {
+    applyTheme(THEME);
+    closeThemeEditor();
+  });
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      applyTheme(THEME);
+      closeThemeEditor();
+    }
+  });
+}
+
+function setThemeEditorValues(theme) {
+  const t = sanitizeTheme(theme);
+  themeEditor.overlay.querySelectorAll("[data-theme-field]").forEach((input) => {
+    input.value = String(t[input.dataset.themeField]);
+  });
+  updateThemeOutputs();
+}
+
+function fillThemeEditor() {
+  setThemeEditorValues(THEME);
+}
+
+function readThemeEditor() {
+  const out = {};
+  themeEditor.overlay.querySelectorAll("[data-theme-field]").forEach((input) => {
+    out[input.dataset.themeField] = clampThemeValue(input.dataset.themeField, input.value);
+  });
+  return out;
+}
+
+function updateThemeOutputs() {
+  THEME_FIELDS.forEach((f) => {
+    const input = themeEditor.overlay.querySelector(`[data-theme-field="${f.key}"]`);
+    const out = themeEditor.overlay.querySelector(`[data-theme-out="${f.key}"]`);
+    if (input && out) {
+      out.textContent = `${input.value}${f.unit}`;
+    }
+  });
+}
+
+async function saveThemeEditor() {
+  const payload = readThemeEditor();
+  showEditorToast("保存中…");
+  try {
+    await apiPost("/api/save-theme", payload);
+    THEME = sanitizeTheme(payload);
+    applyTheme(THEME);
+    closeThemeEditor();
+    showEditorToast("视觉设定已保存 ✓");
   } catch (error) {
     showEditorToast(`保存失败：${error.message}`, true);
   }
