@@ -16,3 +16,13 @@ filebox/.trash/
 
 # Office 临时锁文件（打开 xlsx/docx 时生成）
 ~$*
+
+# Google 投稿导入的私密文件（绝不进仓库）：
+#  - google-credentials.json：从 Google Cloud 下载的 OAuth 客户端密钥
+#  - .google-token.json：首次授权后保存的登录令牌
+#  - .submissions-state.json：已导入投稿的记录（去重用）
+#  - submissions.config.json：你的表格 ID 等配置
+scripts/google-credentials.json
+scripts/.google-token.json
+scripts/.submissions-state.json
+scripts/submissions.config.json

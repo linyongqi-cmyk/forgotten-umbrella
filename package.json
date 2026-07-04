@@ -11,9 +11,12 @@
     "records:build": "node scripts/build-umbrellas.mjs",
     "records:format": "node scripts/format-records.mjs",
     "records:sync-media": "node scripts/sync-record-media.mjs",
-    "images:build": "node scripts/build-image-derivatives.mjs"
+    "images:build": "node scripts/build-image-derivatives.mjs",
+    "submissions:auth": "node scripts/google-auth.mjs",
+    "submissions:pull": "node scripts/pull-submissions.mjs"
   },
   "dependencies": {
+    "googleapis": "^144.0.0",
     "sharp": "^0.35.3"
   }
 }
