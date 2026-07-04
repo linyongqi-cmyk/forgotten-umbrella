@@ -5443,7 +5443,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=146", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=147", { updateViaCache: "none" });
   }
 }
 
@@ -7874,49 +7874,53 @@ function openInboxDetail(key) {
     <label class="editor-inbox-field"><span>地点</span><input class="ib-location" type="text" /></label>
     <label class="editor-inbox-field"><span>内容段落</span><textarea class="ib-blocks" rows="5"></textarea></label>
     <div class="editor-inbox-coords">
-      <span>坐标</span>
+      <span>坐标（可留空）</span>
       <input class="ib-lat" type="number" step="any" placeholder="纬度 lat" />
       <input class="ib-lng" type="number" step="any" placeholder="经度 lng" />
       <button type="button" class="ib-use-center">用地图中心</button>
     </div>
     <div class="editor-inbox-actions">
-      <button type="button" class="ib-import" disabled>增加为标点</button>
+      <button type="button" class="ib-import">导入并编辑</button>
       <span class="ib-status"></span>
-    </div>`;
+    </div>
+    <p class="editor-inbox-hint" style="margin:8px 0 0">署名/时间/地点/内容会先填进草稿；地址级联、伞的属性、段落图文、四个勾选框、拖动地图定坐标都在打开的编辑器里继续改。导入即生成待审核（submission pending）草稿，审核前不对外公开。</p>`;
   d.querySelector(".ib-submitter").value = sub.submitter || "";
   d.querySelector(".ib-time").value = sub.dateFound || "";
   d.querySelector(".ib-location").value = sub.location || "";
   d.querySelector(".ib-blocks").value = inboxDefaultBlocksText(sub);
-  renderInboxPhotos(sub, d.querySelector(".editor-inbox-photos"));
 
   const latEl = d.querySelector(".ib-lat");
   const lngEl = d.querySelector(".ib-lng");
   const importBtn = d.querySelector(".ib-import");
   const status = d.querySelector(".ib-status");
-  const syncEnabled = () => {
-    const lat = parseFloat(latEl.value);
-    const lng = parseFloat(lngEl.value);
-    importBtn.disabled = !(Number.isFinite(lat) && Number.isFinite(lng)) || sub.imported;
+  // 照片读到 GPS 时，主图坐标自动填进来（用户再进编辑器可拖动微调）。
+  const fillCoords = (lat, lng, { force = false } = {}) => {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return;
+    }
+    if (!force && (latEl.value.trim() || lngEl.value.trim())) {
+      return; // 用户已填就不覆盖
+    }
+    latEl.value = lat.toFixed(6);
+    lngEl.value = lng.toFixed(6);
   };
-  latEl.addEventListener("input", syncEnabled);
-  lngEl.addEventListener("input", syncEnabled);
+  renderInboxPhotos(sub, d.querySelector(".editor-inbox-photos"), fillCoords);
+
   d.querySelector(".ib-use-center").addEventListener("click", () => {
     if (state.map) {
       const c = state.map.getCenter();
-      latEl.value = c.lat().toFixed(6);
-      lngEl.value = c.lng().toFixed(6);
-      syncEnabled();
+      fillCoords(c.lat(), c.lng(), { force: true });
     }
   });
   if (sub.imported) {
+    importBtn.disabled = true;
     importBtn.textContent = "已导入";
     status.textContent = "这条已经导入过了。";
   }
   importBtn.addEventListener("click", () => doInboxImport(sub, d));
-  syncEnabled();
 }
 
-async function renderInboxPhotos(sub, container) {
+async function renderInboxPhotos(sub, container, onExifCoords) {
   const ids = [...sub.mainPhotoIds, ...sub.additionalPhotoIds];
   container.innerHTML = ids.map(() => `<div class="editor-inbox-photo is-loading">加载中…</div>`).join("");
   const slots = container.querySelectorAll(".editor-inbox-photo");
@@ -7929,10 +7933,35 @@ async function renderInboxPhotos(sub, container) {
       const res = await apiPost("/api/submissions/photo", { fileId });
       if (res.heic) {
         slot.className = "editor-inbox-photo is-heic";
-        slot.innerHTML = `<span>HEIC 照片<br>浏览器打不开<br>导入后请手动转 jpg</span>`;
-      } else {
-        slot.className = "editor-inbox-photo";
-        slot.innerHTML = `<img src="${res.dataUrl}" alt="" />`;
+        slot.innerHTML = `<span>HEIC 照片<br>浏览器打不开<br>EXIF 也读不了<br>导入后请手动转 jpg</span>`;
+        return;
+      }
+      slot.className = "editor-inbox-photo";
+      // 照片 + 它的 EXIF（拍摄时间 / GPS 坐标）。读不到就显示「无 EXIF」。
+      const exif = res.exif || {};
+      const gps = exif.coordinates;
+      const hasGps = gps && Number.isFinite(gps.lat) && Number.isFinite(gps.lng);
+      const parts = [];
+      if (exif.dateTime) {
+        parts.push(`🕑 ${escapeHtml(exif.dateTime)}`);
+      }
+      if (hasGps) {
+        parts.push(`📍 ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`);
+      }
+      const metaHtml = parts.length
+        ? `<div class="editor-inbox-photo-exif">${parts.join(" · ")}${
+            hasGps ? ` <button type="button" class="ib-photo-gps">用此坐标</button>` : ""
+          }</div>`
+        : `<div class="editor-inbox-photo-exif is-empty">无 EXIF</div>`;
+      slot.innerHTML = `<img src="${res.dataUrl}" alt="" />${metaHtml}`;
+      if (hasGps && typeof onExifCoords === "function") {
+        // 主图（第一张）的 GPS 自动填进坐标框；其它图提供「用此坐标」按钮。
+        if (i === 0) {
+          onExifCoords(gps.lat, gps.lng);
+        }
+        slot.querySelector(".ib-photo-gps")?.addEventListener("click", () => {
+          onExifCoords(gps.lat, gps.lng, { force: true });
+        });
       }
     } catch {
       slot.className = "editor-inbox-photo is-error";
@@ -7946,33 +7975,31 @@ async function doInboxImport(sub, d) {
   const status = d.querySelector(".ib-status");
   const lat = parseFloat(d.querySelector(".ib-lat").value);
   const lng = parseFloat(d.querySelector(".ib-lng").value);
+  const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
   importBtn.disabled = true;
   status.textContent = "导入中…";
   try {
     const res = await apiPost("/api/submissions/import", {
       rowKey: sub.rowKey,
-      coords: { lat, lng },
+      // 坐标可留空——进编辑器后拖动地图标记再定（功能 4）。
+      coords: hasCoords ? { lat, lng } : null,
       submitter: d.querySelector(".ib-submitter").value,
       time: d.querySelector(".ib-time").value,
       locationText: d.querySelector(".ib-location").value,
       blocksText: d.querySelector(".ib-blocks").value,
     });
     sub.imported = true;
-    importBtn.textContent = "已导入";
-    const heicNote = res.heicCount ? `（${res.heicCount} 张 HEIC 待手动转 jpg）` : "";
-    status.innerHTML = `已增加为标点：${escapeHtml(res.id)} ✓ ${heicNote} <button type="button" class="ib-open">打开编辑</button>`;
-    status.querySelector(".ib-open")?.addEventListener("click", async () => {
-      state.umbrellas = await loadUmbrellaData();
-      render();
-      closeInbox();
-      openEditor(res.id);
-      switchToMapView();
-      centerInEditorGap({ lat, lng });
-    });
-    // 后台刷新地图数据，让新标点立刻出现（即使不点「打开编辑」）。
+    // 刷新数据 → 关收件箱 → 直接打开完整编辑器继续改（地址级联/伞属性/段落/四勾选框/拖动定坐标）。
     state.umbrellas = await loadUmbrellaData();
     render();
-    renderInboxList();
+    closeInbox();
+    openEditor(res.id);
+    switchToMapView();
+    if (hasCoords) {
+      centerInEditorGap({ lat, lng });
+    }
+    const heicNote = res.heicCount ? `（${res.heicCount} 张 HEIC 待手动转 jpg）` : "";
+    showEditorToast(`已导入草稿 ${res.id}，继续编辑吧 ✓${heicNote}`);
   } catch (error) {
     status.textContent = "导入失败：" + error.message;
     importBtn.disabled = false;

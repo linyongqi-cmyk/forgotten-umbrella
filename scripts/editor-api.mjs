@@ -863,10 +863,21 @@ async function submissionsPhoto(payload) {
   const clients = await getSubmissionClients();
   const { buffer, mime, name, ext } = await fetchDrivePhoto(clients, fileId);
   if (/\.(heic|heif)$/i.test(ext)) {
+    // HEIC 浏览器打不开，也读不了 EXIF——只回占位标记。
     return { ok: true, heic: true, name, ext };
   }
   const mimeOut = mime && mime.startsWith("image/") ? mime : guessImageMime(ext);
-  return { ok: true, heic: false, name, ext, dataUrl: `data:${mimeOut};base64,${buffer.toString("base64")}` };
+  // 顺手把这张照片的 EXIF（拍摄时间 + GPS 坐标）读出来给收件箱显示（功能 2）。
+  // 投稿照片常是截图/转存，多半没有 EXIF，读不到就返回 { dateTime:"", coordinates:null }。
+  const exif = parseExif(buffer);
+  return {
+    ok: true,
+    heic: false,
+    name,
+    ext,
+    dataUrl: `data:${mimeOut};base64,${buffer.toString("base64")}`,
+    exif: { dateTime: exif.dateTime || "", coordinates: exif.coordinates || null },
+  };
 }
 
 // 把某条投稿（带用户在收件箱改过的信息+坐标）导入成正式标点。
