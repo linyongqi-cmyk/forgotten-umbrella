@@ -1134,47 +1134,46 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   box-shadow: none !important;
 }
 
+/* 「查看所有标点」原来的圆按钮已删（用户）：现在只剩右下角的「139 item」
+   计数文字，本身就是那个可点按钮（点它=显示全部标点），白色字。 */
 .map-toolbar {
   position: fixed;
   right: 28px;
-  bottom: 38px;
+  bottom: 34px;
   z-index: 5;
-  display: grid;
-  justify-items: center;
-  align-items: center;
-  gap: 5px;
-  width: 52px;
-  height: 52px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-}
-
-.map-toolbar svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .map-toolbar span {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
-  color: var(--ink);
-  text-shadow: 0 1px 8px light-dark(rgba(255, 255, 255, 0.88), rgba(0, 0, 0, 0.7));
+  color: #fff;
+  /* 白字在卫星(深)和普通(浅)底图上都要能看清，加深色描边光晕。 */
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 地图切换按钮：双层图例，中间叠一个当前地图编号（1/2/3）。 */
+.map-type-btn {
+  position: relative;
+}
+
+.map-type-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .city-map {

@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=150" />
+    <link rel="stylesheet" href="styles.css?v=151" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -121,20 +121,12 @@
           </button>
 
           <div class="map-layer-tools" id="map-layer-tools">
-            <button id="map-type-toggle" class="map-layer-btn" type="button" aria-label="switch to map" title="switch to map">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M12 3 3 7.5l9 4.5 9-4.5L12 3Z" />
-                <path d="M3 12.5 12 17l9-4.5" />
-                <path d="M3 16.5 12 21l9-4.5" />
+            <button id="map-type-toggle" class="map-layer-btn map-type-btn" type="button" aria-label="switch map" title="switch map">
+              <svg class="map-type-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M4 8.5 12 4l8 4.5" />
+                <path d="M4 15.5 12 20l8-4.5" />
               </svg>
-            </button>
-
-            <button id="map-labels-toggle" class="map-layer-btn" type="button" aria-label="toggle satellite labels" title="toggle satellite labels" hidden>
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M5 6h14" />
-                <path d="M12 6v13" />
-                <path d="M8.5 19h7" />
-              </svg>
+              <span class="map-type-num" aria-hidden="true">1</span>
             </button>
 
             <div class="map-filter" id="map-filter">
@@ -198,10 +190,6 @@
           </aside>
 
           <button id="reset-map" class="map-toolbar" type="button" aria-label="show all items" title="show all items">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="8.5" />
-                <path d="M3.5 12h17M12 3.5c2.6 2.4 4 5.3 4 8.5s-1.4 6.1-4 8.5M12 3.5c-2.6 2.4-4 5.3-4 8.5s1.4 6.1 4 8.5" />
-              </svg>
             <span id="result-count"></span>
           </button>
 
@@ -303,6 +291,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=150" type="module"></script>
+    <script src="app.js?v=151" type="module"></script>
   </body>
 </html>

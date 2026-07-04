@@ -361,7 +361,7 @@ const els = {
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
-  mapLabelsToggle: document.querySelector("#map-labels-toggle"),
+  mapTypeNum: document.querySelector(".map-type-num"),
   mapFilter: document.querySelector("#map-filter"),
   mapFilterToggle: document.querySelector("#map-filter-toggle"),
   mapFilterPanel: document.querySelector("#map-filter-panel"),
@@ -956,8 +956,7 @@ function bindEvents() {
     syncSearchBox();
   });
 
-  els.mapTypeToggle?.addEventListener("click", toggleMapType);
-  els.mapLabelsToggle?.addEventListener("click", toggleMapLabels);
+  els.mapTypeToggle?.addEventListener("click", cycleMapType);
 
   els.listSecondary?.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-list-subfilter]");
@@ -2129,30 +2128,31 @@ function getInitialMapCenter() {
   });
 }
 
-function toggleMapType() {
+// 一个按钮循环三种地图（用户要求）：卫星1(无字) → 卫星2(有字) → 普通 → 卫星1…
+// 对应 state：卫星1 = satellite+labels off；卫星2 = satellite+labels on；普通 = roadmap。
+function cycleMapType() {
   if (!state.googleReady) {
     return;
   }
-
-  // Primary toggle: 普通地图(roadmap) ↔ 卫星(satellite).
-  state.mapBase = state.mapBase === "roadmap" ? "satellite" : "roadmap";
+  if (state.mapBase === "satellite" && !state.mapLabels) {
+    state.mapLabels = true; // 卫星1 → 卫星2
+  } else if (state.mapBase === "satellite" && state.mapLabels) {
+    state.mapBase = "roadmap"; // 卫星2 → 普通
+  } else {
+    state.mapBase = "satellite"; // 普通 → 卫星1
+    state.mapLabels = false;
+  }
   applyMapType();
   syncMapTypeButton();
+  syncMapLayers(); // 编辑面板跟着切到当前那套（仅本地）
 }
 
-// Secondary toggle (only on satellite): switches between 卫星1 (文字なし, the clean
-// label-free default) and 卫星2 (文字あり). 用户 T6: these are now two INDEPENDENT
-// filter sets, both rendered on the "hybrid" map type — the labels are turned on/off
-// per-category by each set, not by swapping the Google map type. So the filter system
-// can control text in 卫星1 too.
-function toggleMapLabels() {
-  if (!state.googleReady) {
-    return;
+// 当前地图对应的图标数字：卫星1=1、卫星2=2、普通=3。
+function mapTypeNumber() {
+  if (state.mapBase === "roadmap") {
+    return 3;
   }
-  state.mapLabels = !state.mapLabels;
-  applyMapType();
-  syncMapTypeButton();
-  syncMapLayers(); // the panel now edits the sat1/sat2 set that just became active
+  return state.mapLabels ? 2 : 1;
 }
 
 // The actual Google map type id. 用户 T6: satellite always uses "hybrid" so the label
@@ -2206,19 +2206,19 @@ function syncMapTypeButton() {
   // (only takes visible effect on the map view — see CSS `.view-map.is-roadmap`).
   document.body.classList.toggle("is-roadmap", !onSatellite);
   if (els.mapTypeToggle) {
-    // Icon button now (#3) — text lives only in the tooltip. Hint describes the
-    // base you'll switch TO.
-    const hint = onSatellite ? UI_TEXT.mapHintToMap[lang] : UI_TEXT.mapHintToSatellite[lang];
-    els.mapTypeToggle.setAttribute("aria-label", hint);
-    els.mapTypeToggle.setAttribute("title", hint);
-  }
-  if (els.mapLabelsToggle) {
-    // The labels button only appears while on satellite.
-    els.mapLabelsToggle.hidden = !onSatellite;
-    els.mapLabelsToggle.classList.toggle("is-active", state.mapLabels);
-    const hint = state.mapLabels ? UI_TEXT.labelsHintHide[lang] : UI_TEXT.labelsHintShow[lang];
-    els.mapLabelsToggle.setAttribute("aria-label", hint);
-    els.mapLabelsToggle.setAttribute("title", hint);
+    // 一个按钮循环三态；图标中间显示当前地图编号（1/2/3），tooltip 说下一张。
+    const num = mapTypeNumber();
+    const nextHint =
+      num === 1
+        ? { ja: "衛星2（文字）へ", en: "To satellite 2 (labels)" }
+        : num === 2
+          ? { ja: "普通地図へ", en: "To normal map" }
+          : { ja: "衛星1へ", en: "To satellite 1" };
+    els.mapTypeToggle.setAttribute("aria-label", nextHint[lang] || nextHint.ja);
+    els.mapTypeToggle.setAttribute("title", nextHint[lang] || nextHint.ja);
+    if (els.mapTypeNum) {
+      els.mapTypeNum.textContent = String(num);
+    }
   }
   // The map-layers switches only apply to the plain map (hidden on satellite).
   syncMapLayers();
@@ -5485,7 +5485,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=150", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=151", { updateViaCache: "none" });
   }
 }
 
