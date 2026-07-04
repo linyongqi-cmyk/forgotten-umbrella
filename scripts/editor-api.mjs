@@ -23,6 +23,16 @@ import {
 import { parseExif } from "./exif.mjs";
 import { fetchWeatherData } from "./weather.mjs";
 import { generateDerivatives, removeDerivatives, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
+import {
+  loadConfig as loadSubmissionsConfig,
+  loadState as loadSubmissionsState,
+  saveState as saveSubmissionsState,
+  getClients as getSubmissionClients,
+  listSubmissions,
+  fetchDrivePhoto,
+  importSubmission,
+  markImported,
+} from "./submissions-core.mjs";
 
 // 新增/替换图片后，就地生成缩略图 + 网页版 webp（失败不阻断保存，只记日志）。
 async function makeDerivatives(absImagePath) {
@@ -820,6 +830,77 @@ export async function saveSiteSettings(payload) {
   return { ok: true };
 }
 
+// ── 投稿收件箱（只对本机）：列出 Google 表单投稿 / 预览照片 / 导入成正式标点 ──
+
+// 列出表单投稿（已导入的带 imported 标记）。
+async function submissionsList() {
+  const config = await loadSubmissionsConfig();
+  const state = await loadSubmissionsState();
+  const clients = await getSubmissionClients();
+  const { submissions, cols } = await listSubmissions(clients, config, state);
+  const recognized = Object.fromEntries(Object.entries(cols).map(([k, v]) => [k, v >= 0]));
+  return { ok: true, submissions, recognized };
+}
+
+function guessImageMime(ext) {
+  const m = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+    ".avif": "image/avif",
+  };
+  return m[String(ext || "").toLowerCase()] || "image/jpeg";
+}
+
+// 取一张投稿照片给收件箱预览：普通图片返回 base64 dataUrl；HEIC 只返回标记（前端显示占位）。
+async function submissionsPhoto(payload) {
+  const fileId = String(payload?.fileId || "").trim();
+  if (!fileId) {
+    throw new ApiError(400, "缺少 fileId。");
+  }
+  const clients = await getSubmissionClients();
+  const { buffer, mime, name, ext } = await fetchDrivePhoto(clients, fileId);
+  if (/\.(heic|heif)$/i.test(ext)) {
+    return { ok: true, heic: true, name, ext };
+  }
+  const mimeOut = mime && mime.startsWith("image/") ? mime : guessImageMime(ext);
+  return { ok: true, heic: false, name, ext, dataUrl: `data:${mimeOut};base64,${buffer.toString("base64")}` };
+}
+
+// 把某条投稿（带用户在收件箱改过的信息+坐标）导入成正式标点。
+async function submissionsImport(payload) {
+  const rowKey = String(payload?.rowKey || "").trim();
+  if (!rowKey) {
+    throw new ApiError(400, "缺少 rowKey。");
+  }
+  const config = await loadSubmissionsConfig();
+  const state = await loadSubmissionsState();
+  const clients = await getSubmissionClients();
+  const { submissions } = await listSubmissions(clients, config, state);
+  const sub = submissions.find((s) => s.rowKey === rowKey);
+  if (!sub) {
+    throw new ApiError(404, "找不到这条投稿（表格可能变过了）。");
+  }
+  if (sub.imported) {
+    throw new ApiError(409, "这条投稿已经导入过了。");
+  }
+  const c = payload?.coords;
+  const overrides = {
+    coords: c && typeof c.lat === "number" && typeof c.lng === "number" ? { lat: c.lat, lng: c.lng } : null,
+    submitter: typeof payload?.submitter === "string" ? payload.submitter : undefined,
+    time: typeof payload?.time === "string" ? payload.time : undefined,
+    locationText: typeof payload?.locationText === "string" ? payload.locationText : undefined,
+    blocksText: typeof payload?.blocksText === "string" ? payload.blocksText : undefined,
+  };
+  const meta = await importSubmission(clients, sub, overrides);
+  markImported(state, sub, meta);
+  await saveSubmissionsState(state);
+  await rebuildDatabase();
+  return { ok: true, id: meta.id, heicCount: meta.heicCount };
+}
+
 // Single entry point used by server.js. Returns a plain JSON-serializable object.
 export async function handleEditorApi(pathname, payload) {
   switch (pathname) {
@@ -845,6 +926,12 @@ export async function handleEditorApi(pathname, payload) {
       return moveRecord(payload);
     case "/api/fetch-weather":
       return fetchWeather(payload);
+    case "/api/submissions/list":
+      return submissionsList(payload);
+    case "/api/submissions/photo":
+      return submissionsPhoto(payload);
+    case "/api/submissions/import":
+      return submissionsImport(payload);
     default:
       throw new ApiError(404, `Unknown editor endpoint: ${pathname}`);
   }

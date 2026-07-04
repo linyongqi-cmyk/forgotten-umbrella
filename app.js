@@ -5443,7 +5443,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=145", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=146", { updateViaCache: "none" });
   }
 }
 
@@ -5473,6 +5473,9 @@ const EDITOR_ICON_EDIT =
 const EDITOR_ICON_TEXTS =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 10h14M5 14h9M5 18h9"/></svg>';
 const EDITOR_ICON_ADD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+// 收件箱（信封）图标 —— 投稿收件箱按钮。
+const EDITOR_ICON_INBOX =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M4 7l8 6 8-6"/></svg>';
 
 function setupEditor() {
   // The three local-only buttons (edit / 文案 / 新增) live in one fixed toolbar
@@ -5844,6 +5847,19 @@ function setupEditor() {
   addInput.addEventListener("change", onCreateRecord);
   document.body.appendChild(addInput);
   editor.addInput = addInput;
+
+  // 收件箱按钮：投稿收件箱（拉 Google 表单投稿 → 审核/定坐标 → 增加为标点）。
+  // 放在「新增」正下方（column-reverse 里 DOM 排在 add 之前 = 视觉在其下）。仅编辑模式显示。
+  const inboxButton = document.createElement("button");
+  inboxButton.type = "button";
+  inboxButton.id = "editor-inbox-btn";
+  inboxButton.className = "editor-inbox-btn";
+  inboxButton.innerHTML = EDITOR_ICON_INBOX;
+  inboxButton.title = "投稿收件箱";
+  inboxButton.setAttribute("aria-label", "投稿收件箱");
+  inboxButton.addEventListener("click", openInbox);
+  toolbar.insertBefore(inboxButton, addButton);
+  editor.inboxButton = inboxButton;
 
   buildCreateDialog();
   populateCategorySelects();
@@ -7740,6 +7756,226 @@ async function onCreateRecord(event) {
     );
   } catch (error) {
     showEditorToast(`新增失败：${error.message}`, true);
+  }
+}
+
+// ---- 投稿收件箱（仅本机）：拉 Google 表单投稿 → 审核/改信息/定坐标 → 增加为正式标点 ----
+
+const inboxState = { modal: null, listEl: null, detailEl: null, submissions: [], currentKey: null };
+
+function buildInboxModal() {
+  const modal = document.createElement("div");
+  modal.className = "editor-inbox-modal";
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="editor-inbox-card" role="dialog" aria-label="投稿收件箱">
+      <header class="editor-inbox-head">
+        <strong>投稿收件箱</strong>
+        <div class="editor-inbox-head-actions">
+          <button type="button" class="editor-inbox-refresh">刷新</button>
+          <button type="button" class="editor-inbox-close" aria-label="关闭">×</button>
+        </div>
+      </header>
+      <div class="editor-inbox-body">
+        <div class="editor-inbox-list"></div>
+        <div class="editor-inbox-detail"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  inboxState.modal = modal;
+  inboxState.listEl = modal.querySelector(".editor-inbox-list");
+  inboxState.detailEl = modal.querySelector(".editor-inbox-detail");
+  modal.querySelector(".editor-inbox-close").addEventListener("click", closeInbox);
+  modal.querySelector(".editor-inbox-refresh").addEventListener("click", loadInbox);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeInbox();
+    }
+  });
+}
+
+function openInbox() {
+  if (!inboxState.modal) {
+    buildInboxModal();
+  }
+  inboxState.modal.hidden = false;
+  loadInbox();
+}
+
+function closeInbox() {
+  if (inboxState.modal) {
+    inboxState.modal.hidden = true;
+  }
+}
+
+async function loadInbox() {
+  inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">读取中…</p>`;
+  inboxState.detailEl.innerHTML = `<p class="editor-inbox-hint">← 从左边选一条投稿</p>`;
+  inboxState.currentKey = null;
+  try {
+    const res = await apiPost("/api/submissions/list", {});
+    inboxState.submissions = res.submissions || [];
+    renderInboxList();
+  } catch (error) {
+    inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">读取失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function renderInboxList() {
+  const subs = inboxState.submissions;
+  if (subs.length === 0) {
+    inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">表单里还没有投稿。</p>`;
+    return;
+  }
+  inboxState.listEl.innerHTML = subs
+    .map((s) => {
+      const badge = s.imported ? `<span class="editor-inbox-badge">已导入</span>` : "";
+      const photos = s.mainPhotoIds.length + s.additionalPhotoIds.length;
+      const active = s.rowKey === inboxState.currentKey ? " is-active" : "";
+      const done = s.imported ? " is-imported" : "";
+      return `<button type="button" class="editor-inbox-item${active}${done}" data-key="${escapeHtml(s.rowKey)}">
+        <span class="editor-inbox-item-title">${escapeHtml(s.submitter || "(匿名)")}${badge}</span>
+        <span class="editor-inbox-item-sub">${escapeHtml(s.dateFound || "?")} · ${escapeHtml(s.location || "?")} · ${photos}📷</span>
+      </button>`;
+    })
+    .join("");
+  inboxState.listEl.querySelectorAll(".editor-inbox-item").forEach((btn) => {
+    btn.addEventListener("click", () => openInboxDetail(btn.dataset.key));
+  });
+}
+
+// 内容段落默认文字（和后端 buildBlocks 一致：观察/环境/追加メモ + 记忆天气）。
+function inboxDefaultBlocksText(sub) {
+  const parts = [];
+  [sub.observation, sub.surroundings, sub.additionalNotes].forEach((t) => {
+    if (t && t.trim()) {
+      parts.push(t.trim());
+    }
+  });
+  const w = (sub.weather || "").trim();
+  if (w && !/覚えていない|don'?t remember/i.test(w)) {
+    parts.push(`（投稿者记忆的天气 / Weather as recalled: ${w}）`);
+  }
+  return parts.join("\n\n");
+}
+
+function openInboxDetail(key) {
+  const sub = inboxState.submissions.find((s) => s.rowKey === key);
+  if (!sub) {
+    return;
+  }
+  inboxState.currentKey = key;
+  renderInboxList();
+  const d = inboxState.detailEl;
+  d.innerHTML = `
+    <div class="editor-inbox-photos"></div>
+    <label class="editor-inbox-field"><span>署名</span><input class="ib-submitter" type="text" /></label>
+    <label class="editor-inbox-field"><span>时间</span><input class="ib-time" type="text" /></label>
+    <label class="editor-inbox-field"><span>地点</span><input class="ib-location" type="text" /></label>
+    <label class="editor-inbox-field"><span>内容段落</span><textarea class="ib-blocks" rows="5"></textarea></label>
+    <div class="editor-inbox-coords">
+      <span>坐标</span>
+      <input class="ib-lat" type="number" step="any" placeholder="纬度 lat" />
+      <input class="ib-lng" type="number" step="any" placeholder="经度 lng" />
+      <button type="button" class="ib-use-center">用地图中心</button>
+    </div>
+    <div class="editor-inbox-actions">
+      <button type="button" class="ib-import" disabled>增加为标点</button>
+      <span class="ib-status"></span>
+    </div>`;
+  d.querySelector(".ib-submitter").value = sub.submitter || "";
+  d.querySelector(".ib-time").value = sub.dateFound || "";
+  d.querySelector(".ib-location").value = sub.location || "";
+  d.querySelector(".ib-blocks").value = inboxDefaultBlocksText(sub);
+  renderInboxPhotos(sub, d.querySelector(".editor-inbox-photos"));
+
+  const latEl = d.querySelector(".ib-lat");
+  const lngEl = d.querySelector(".ib-lng");
+  const importBtn = d.querySelector(".ib-import");
+  const status = d.querySelector(".ib-status");
+  const syncEnabled = () => {
+    const lat = parseFloat(latEl.value);
+    const lng = parseFloat(lngEl.value);
+    importBtn.disabled = !(Number.isFinite(lat) && Number.isFinite(lng)) || sub.imported;
+  };
+  latEl.addEventListener("input", syncEnabled);
+  lngEl.addEventListener("input", syncEnabled);
+  d.querySelector(".ib-use-center").addEventListener("click", () => {
+    if (state.map) {
+      const c = state.map.getCenter();
+      latEl.value = c.lat().toFixed(6);
+      lngEl.value = c.lng().toFixed(6);
+      syncEnabled();
+    }
+  });
+  if (sub.imported) {
+    importBtn.textContent = "已导入";
+    status.textContent = "这条已经导入过了。";
+  }
+  importBtn.addEventListener("click", () => doInboxImport(sub, d));
+  syncEnabled();
+}
+
+async function renderInboxPhotos(sub, container) {
+  const ids = [...sub.mainPhotoIds, ...sub.additionalPhotoIds];
+  container.innerHTML = ids.map(() => `<div class="editor-inbox-photo is-loading">加载中…</div>`).join("");
+  const slots = container.querySelectorAll(".editor-inbox-photo");
+  ids.forEach(async (fileId, i) => {
+    const slot = slots[i];
+    if (!slot) {
+      return;
+    }
+    try {
+      const res = await apiPost("/api/submissions/photo", { fileId });
+      if (res.heic) {
+        slot.className = "editor-inbox-photo is-heic";
+        slot.innerHTML = `<span>HEIC 照片<br>浏览器打不开<br>导入后请手动转 jpg</span>`;
+      } else {
+        slot.className = "editor-inbox-photo";
+        slot.innerHTML = `<img src="${res.dataUrl}" alt="" />`;
+      }
+    } catch {
+      slot.className = "editor-inbox-photo is-error";
+      slot.textContent = "加载失败";
+    }
+  });
+}
+
+async function doInboxImport(sub, d) {
+  const importBtn = d.querySelector(".ib-import");
+  const status = d.querySelector(".ib-status");
+  const lat = parseFloat(d.querySelector(".ib-lat").value);
+  const lng = parseFloat(d.querySelector(".ib-lng").value);
+  importBtn.disabled = true;
+  status.textContent = "导入中…";
+  try {
+    const res = await apiPost("/api/submissions/import", {
+      rowKey: sub.rowKey,
+      coords: { lat, lng },
+      submitter: d.querySelector(".ib-submitter").value,
+      time: d.querySelector(".ib-time").value,
+      locationText: d.querySelector(".ib-location").value,
+      blocksText: d.querySelector(".ib-blocks").value,
+    });
+    sub.imported = true;
+    importBtn.textContent = "已导入";
+    const heicNote = res.heicCount ? `（${res.heicCount} 张 HEIC 待手动转 jpg）` : "";
+    status.innerHTML = `已增加为标点：${escapeHtml(res.id)} ✓ ${heicNote} <button type="button" class="ib-open">打开编辑</button>`;
+    status.querySelector(".ib-open")?.addEventListener("click", async () => {
+      state.umbrellas = await loadUmbrellaData();
+      render();
+      closeInbox();
+      openEditor(res.id);
+      switchToMapView();
+      centerInEditorGap({ lat, lng });
+    });
+    // 后台刷新地图数据，让新标点立刻出现（即使不点「打开编辑」）。
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    renderInboxList();
+  } catch (error) {
+    status.textContent = "导入失败：" + error.message;
+    importBtn.disabled = false;
   }
 }
 
