@@ -628,6 +628,14 @@ function bindEvents() {
       els.views.forEach((section) => section.classList.toggle("is-active", section.id === `${view}-view`));
       document.body.classList.toggle("view-map", view === "map");
 
+      // 投稿视图：第一次点开时才真正加载嵌入的 Google 表单（懒加载，省得每次开站都拉外部内容）。
+      if (view === "submit") {
+        const frame = document.getElementById("submit-form-frame");
+        if (frame && !frame.src && frame.dataset.src) {
+          frame.src = frame.dataset.src;
+        }
+      }
+
       if (view === "map" && state.googleReady) {
         setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
       }
@@ -5435,7 +5443,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=144", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=145", { updateViaCache: "none" });
   }
 }
 

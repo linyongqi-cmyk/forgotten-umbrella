@@ -2160,8 +2160,52 @@ body.is-image-expanded .side-panel {
 }
 
 .archive-view,
-.about-view {
+.about-view,
+.submit-view {
   padding: 112px clamp(28px, 6vw, 70px) clamp(28px, 6vw, 70px);
+}
+
+/* 投稿视图：居中一列，装嵌入式 Google 表单。 */
+.submit-frame-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.submit-form-frame {
+  width: 100%;
+  height: calc(100vh - 172px);
+  min-height: 520px;
+  border: 0;
+  background: transparent;
+}
+
+.submit-frame-fallback {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.submit-frame-fallback a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.submit-frame-fallback a:hover {
+  color: var(--ink);
+}
+
+/* 导航栏「投稿」标签：图标 + 文字并排。 */
+.tab-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-submit svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
 }
 
 /* #15: while editing from Archive, push the cards out from under the fixed

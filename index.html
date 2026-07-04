@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=144" />
+    <link rel="stylesheet" href="styles.css?v=145" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -52,6 +52,14 @@
           <button class="tab is-active" data-view="map" type="button">Umbrella map</button>
           <button class="tab" data-view="archive" type="button">Archive</button>
           <button class="tab" data-view="about" type="button">About</button>
+          <button class="tab tab-submit" data-view="submit" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 15V4" />
+              <path d="M8 8l4-4 4 4" />
+              <path d="M5 14v3.5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5V14" />
+            </svg>
+            <span>Submit</span>
+          </button>
           <div class="language-switcher">
             <button
               id="language-toggle"
@@ -277,9 +285,29 @@
             <div class="about-legend" id="about-legend" aria-label="map legend"></div>
           </aside>
         </section>
+
+        <section class="submit-view view" id="submit-view" aria-label="submit an umbrella">
+          <div class="submit-frame-wrap">
+            <iframe
+              id="submit-form-frame"
+              class="submit-form-frame"
+              title="Forgotten Umbrellas submission form"
+              data-src="https://docs.google.com/forms/d/e/1FAIpQLSdca3Q8kyjlI849oubzUUFnoco6Om5eX0stZW--pUDeH51VKw/viewform?embedded=true"
+              loading="lazy"
+            ></iframe>
+            <p class="submit-frame-fallback">
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdca3Q8kyjlI849oubzUUFnoco6Om5eX0stZW--pUDeH51VKw/viewform"
+                target="_blank"
+                rel="noopener"
+                >フォームが表示されない場合は新しいタブで開く / Open the form in a new tab</a
+              >
+            </p>
+          </div>
+        </section>
       </main>
     </div>
 
-    <script src="app.js?v=144" type="module"></script>
+    <script src="app.js?v=145" type="module"></script>
   </body>
 </html>
