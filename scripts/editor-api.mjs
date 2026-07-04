@@ -32,6 +32,9 @@ import {
   fetchDrivePhoto,
   importSubmission,
   markImported,
+  nextFolderId,
+  yyyymmdd,
+  PENDING_CATEGORY,
 } from "./submissions-core.mjs";
 
 // 新增/替换图片后，就地生成缩略图 + 网页版 webp（失败不阻断保存，只记日志）。
@@ -832,12 +835,61 @@ export async function saveSiteSettings(payload) {
 
 // ── 投稿收件箱（只对本机）：列出 Google 表单投稿 / 预览照片 / 导入成正式标点 ──
 
-// 列出表单投稿（已导入的带 imported 标记）。
+// 某条投稿（rowKey）曾导入成哪个文件夹 id：从去重日志里取最后一条。
+function importedIdForKey(state, rowKey) {
+  const log = Array.isArray(state.log) ? state.log : [];
+  for (let i = log.length - 1; i >= 0; i -= 1) {
+    if (log[i] && log[i].key === rowKey && log[i].id) {
+      return log[i].id;
+    }
+  }
+  return "";
+}
+
+// 对账（用户 1.4）：已标记「已导入」但对应 record 文件夹已被用户删除的，撤销标记，
+// 让它能重新导入。改动了就写回 state。返回是否有改动。
+async function reconcileImportedState(state) {
+  const keys = Array.isArray(state.importedKeys) ? state.importedKeys : [];
+  const kept = [];
+  let changed = false;
+  for (const key of keys) {
+    const id = importedIdForKey(state, key);
+    // 日志里查不到 id 的老数据，保守起见保留（不误删标记）。
+    if (!id) {
+      kept.push(key);
+      continue;
+    }
+    const recordPath = path.join(recordsRoot, PENDING_CATEGORY, id, "record.json");
+    if (await pathExists(recordPath)) {
+      kept.push(key);
+    } else {
+      changed = true; // 文件夹没了 → 撤销「已导入」
+    }
+  }
+  if (changed) {
+    state.importedKeys = kept;
+    await saveSubmissionsState(state);
+  }
+  return changed;
+}
+
+// 列出表单投稿（已导入的带 imported 标记 + 目标 record 文件夹 id）。
 async function submissionsList() {
   const config = await loadSubmissionsConfig();
   const state = await loadSubmissionsState();
   const clients = await getSubmissionClients();
+  await reconcileImportedState(state);
   const { submissions, cols } = await listSubmissions(clients, config, state);
+  // 给每条投稿附上 record 文件夹 id 当标题（用户 1.1）：已导入的用真实 id，未导入的算个预览 id
+  // （和将来点「导入并编辑」时生成的一致）。
+  const usedThisRun = new Set();
+  for (const s of submissions) {
+    if (s.imported) {
+      s.folderId = importedIdForKey(state, s.rowKey) || "";
+    } else {
+      s.folderId = await nextFolderId(yyyymmdd(s.timestamp), usedThisRun);
+    }
+  }
   const recognized = Object.fromEntries(Object.entries(cols).map(([k, v]) => [k, v >= 0]));
   return { ok: true, submissions, recognized };
 }

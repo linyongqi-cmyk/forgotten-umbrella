@@ -210,7 +210,7 @@ function isHeicExt(ext) {
   return /\.(heic|heif)$/i.test(ext || "");
 }
 
-async function nextFolderId(dateStr, usedThisRun) {
+export async function nextFolderId(dateStr, usedThisRun) {
   const pendingDir = path.join(recordsRoot, PENDING_CATEGORY);
   let existing = [];
   try {
@@ -324,7 +324,9 @@ export async function importSubmission(clients, submission, overrides = {}, ctx 
     photoTime: "",
     time: overrides.time ?? submission.dateFound ?? "",
     title: { ja: "", en: "" },
-    displayId: "",
+    // 投稿导入的标点默认开启「显示名」（用户 1.5）：先填成文件夹 id，编辑器里「显示名」勾选框
+    // 就会默认勾上、字段可见，用户直接改成对外好看的名字即可。
+    displayId: id,
     umbrellaType: "",
     umbrellaColor: "",
     umbrellaCount: "",

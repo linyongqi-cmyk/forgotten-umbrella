@@ -171,7 +171,13 @@ const UI_TEXT = {
   approxPrefix: { ja: "約 ", en: "approx. " },
   statsScopeOwn: { ja: "フィールド", en: "Fieldwork" },
   statsScopeContributed: { ja: "投稿", en: "Contributed" },
+  // Submit 标签的 hover 提示（用户 4，日英双语）。
+  submitTooltip: { ja: "Googleフォームから投稿", en: "Submit via Google Form" },
 };
+
+// 点 Submit 直接新标签打开的 Google 表单（用户 4：不再走内嵌页）。
+const SUBMIT_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdca3Q8kyjlI849oubzUUFnoco6Om5eX0stZW--pUDeH51VKw/viewform";
 
 // Static UI labels in the HTML carry a data-i18n="key" attribute; applyLanguage
 // swaps their text by language. Add a key here + the attribute in index.html.
@@ -222,6 +228,11 @@ function applyLanguage() {
       el.textContent = entry[state.lang] || entry.ja;
     }
   });
+  // Submit 标签 hover 提示随语言切换（用户 4）。
+  const submitTab = document.querySelector(".tab-submit");
+  if (submitTab) {
+    submitTab.title = UI_TEXT.submitTooltip[state.lang] || UI_TEXT.submitTooltip.ja;
+  }
   // The map base / label toggle buttons set their own text — refresh it too.
   syncMapTypeButton();
   // Re-render everything that contains per-record bilingual text.
@@ -238,7 +249,8 @@ function renderAbout() {
   const about = TEXTS.about || {};
   const lang = state.lang;
   const justify = lang === "ja" ? " is-justify" : "";
-  const sections = [about.section1, about.section2].filter(Boolean);
+  // 用户 5：把「記録の作法」(section2) 放到「観察のきっかけ」(section1) 前面。
+  const sections = [about.section2, about.section1].filter(Boolean);
   root.innerHTML = sections
     .map((sec) => {
       const title = (lang === "ja" ? sec.titleJa : sec.titleEn) || sec.titleJa || "";
@@ -619,6 +631,12 @@ function bindEvents() {
         return;
       }
 
+      // Submit 不是一个页面：直接新标签打开 Google 表单，不切换当前视图（用户 4）。
+      if (view === "submit") {
+        window.open(SUBMIT_FORM_URL, "_blank", "noopener");
+        return;
+      }
+
       // Switching views from an open detail page closes it first (#4).
       if (els.mapView?.classList.contains("is-focus-mode")) {
         closeFocusMode({ resetZoom: false });
@@ -627,14 +645,6 @@ function bindEvents() {
       els.tabs.forEach((item) => item.classList.toggle("is-active", item === tab));
       els.views.forEach((section) => section.classList.toggle("is-active", section.id === `${view}-view`));
       document.body.classList.toggle("view-map", view === "map");
-
-      // 投稿视图：第一次点开时才真正加载嵌入的 Google 表单（懒加载，省得每次开站都拉外部内容）。
-      if (view === "submit") {
-        const frame = document.getElementById("submit-form-frame");
-        if (frame && !frame.src && frame.dataset.src) {
-          frame.src = frame.dataset.src;
-        }
-      }
 
       if (view === "map" && state.googleReady) {
         setTimeout(() => google.maps.event.trigger(state.map, "resize"), 80);
@@ -2997,8 +3007,9 @@ function renderFocusInfo(item) {
   if (submittedText) {
     rows.push({ label: "submitted", lines: [escapeHtml(submittedText)] });
   }
-  if (isContributed && item.submitter) {
-    rows.push({ label: "by", lines: [escapeHtml(item.submitter)] });
+  if (isContributed) {
+    // 投稿者留空默认显示 Anonymous（英文，用户 2）。
+    rows.push({ label: "by", lines: [escapeHtml((item.submitter || "").trim() || "Anonymous")] });
   }
   // 主图天气横轴（用户 2.4）：放回覆盖信息块底部——即「图片之上」，和 v128 前的位置一样。
   // 因为它在 .focus-overlay-info 里，放大灯箱时会随整块覆盖信息一起隐藏（顺带满足 2.1）。
@@ -5443,7 +5454,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=147", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=148", { updateViaCache: "none" });
   }
 }
 
@@ -7761,7 +7772,7 @@ async function onCreateRecord(event) {
 
 // ---- 投稿收件箱（仅本机）：拉 Google 表单投稿 → 审核/改信息/定坐标 → 增加为正式标点 ----
 
-const inboxState = { modal: null, listEl: null, detailEl: null, submissions: [], currentKey: null };
+const inboxState = { modal: null, listEl: null, detailEl: null, submissions: [], currentKey: null, collapsed: new Set() };
 
 function buildInboxModal() {
   const modal = document.createElement("div");
@@ -7821,25 +7832,76 @@ async function loadInbox() {
   }
 }
 
+// 投稿时间戳 → 年月（分组用）/ 年月日（显示用）。Google 时间戳含「下午」等本地化词，
+// new Date 认不了，所以直接正则抽前面的「四位年 + 月 + 日」。都抽不到就回退原文。
+function inboxSubmissionDate(sub) {
+  const raw = String(sub.timestamp || "").trim();
+  const m = raw.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  if (m) {
+    const mo = String(m[2]).padStart(2, "0");
+    const day = String(m[3]).padStart(2, "0");
+    return { month: `${m[1]}-${mo}`, ymd: `${m[1]}-${mo}-${day}` };
+  }
+  return { month: raw || "未知时间", ymd: raw || "?" };
+}
+
+function inboxSubmitterName(sub) {
+  const s = (sub.submitter || "").trim();
+  return s || "Anonymous";
+}
+
+function inboxItemHtml(s) {
+  const badge = s.imported ? `<span class="editor-inbox-badge">已导入</span>` : "";
+  const active = s.rowKey === inboxState.currentKey ? " is-active" : "";
+  const done = s.imported ? " is-imported" : "";
+  return `<button type="button" class="editor-inbox-item${active}${done}" data-key="${escapeHtml(s.rowKey)}">
+      <span class="editor-inbox-item-title">${escapeHtml(s.folderId || "(待定 id)")}${badge}</span>
+      <span class="editor-inbox-item-sub">${escapeHtml(inboxSubmitterName(s))} · ${escapeHtml(inboxSubmissionDate(s).ymd)}</span>
+    </button>`;
+}
+
 function renderInboxList() {
   const subs = inboxState.submissions;
+  const listEl = inboxState.listEl;
   if (subs.length === 0) {
-    inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">表单里还没有投稿。</p>`;
+    listEl.innerHTML = `<p class="editor-inbox-empty">表单里还没有投稿。</p>`;
     return;
   }
-  inboxState.listEl.innerHTML = subs
-    .map((s) => {
-      const badge = s.imported ? `<span class="editor-inbox-badge">已导入</span>` : "";
-      const photos = s.mainPhotoIds.length + s.additionalPhotoIds.length;
-      const active = s.rowKey === inboxState.currentKey ? " is-active" : "";
-      const done = s.imported ? " is-imported" : "";
-      return `<button type="button" class="editor-inbox-item${active}${done}" data-key="${escapeHtml(s.rowKey)}">
-        <span class="editor-inbox-item-title">${escapeHtml(s.submitter || "(匿名)")}${badge}</span>
-        <span class="editor-inbox-item-sub">${escapeHtml(s.dateFound || "?")} · ${escapeHtml(s.location || "?")} · ${photos}📷</span>
-      </button>`;
+  // 按投稿月份分组（用户 1.2），每组可折叠。
+  const groups = new Map();
+  subs.forEach((s) => {
+    const key = inboxSubmissionDate(s).month;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(s);
+  });
+  const collapsed = inboxState.collapsed;
+  listEl.innerHTML = [...groups.entries()]
+    .map(([month, items]) => {
+      const isCollapsed = collapsed.has(month);
+      return `<div class="editor-inbox-group${isCollapsed ? " is-collapsed" : ""}">
+        <button type="button" class="editor-inbox-group-head" data-month="${escapeHtml(month)}">
+          <span class="editor-inbox-group-caret">▾</span>
+          <span class="editor-inbox-group-title">${escapeHtml(month)}</span>
+          <span class="editor-inbox-group-count">${items.length}</span>
+        </button>
+        <div class="editor-inbox-group-body">${items.map(inboxItemHtml).join("")}</div>
+      </div>`;
     })
     .join("");
-  inboxState.listEl.querySelectorAll(".editor-inbox-item").forEach((btn) => {
+  listEl.querySelectorAll(".editor-inbox-group-head").forEach((head) => {
+    head.addEventListener("click", () => {
+      const m = head.dataset.month;
+      if (collapsed.has(m)) {
+        collapsed.delete(m);
+      } else {
+        collapsed.add(m);
+      }
+      renderInboxList();
+    });
+  });
+  listEl.querySelectorAll(".editor-inbox-item").forEach((btn) => {
     btn.addEventListener("click", () => openInboxDetail(btn.dataset.key));
   });
 }
@@ -7859,6 +7921,7 @@ function inboxDefaultBlocksText(sub) {
   return parts.join("\n\n");
 }
 
+// 收件箱右侧「只看信息、不编辑」（用户 1.3）。所有修改进编辑器做。
 function openInboxDetail(key) {
   const sub = inboxState.submissions.find((s) => s.rowKey === key);
   if (!sub) {
@@ -7867,60 +7930,48 @@ function openInboxDetail(key) {
   inboxState.currentKey = key;
   renderInboxList();
   const d = inboxState.detailEl;
+  const content = inboxDefaultBlocksText(sub);
+  const row = (label, val) =>
+    val ? `<div class="editor-inbox-info-row"><dt>${label}</dt><dd>${escapeHtml(val)}</dd></div>` : "";
   d.innerHTML = `
     <div class="editor-inbox-photos"></div>
-    <label class="editor-inbox-field"><span>署名</span><input class="ib-submitter" type="text" /></label>
-    <label class="editor-inbox-field"><span>时间</span><input class="ib-time" type="text" /></label>
-    <label class="editor-inbox-field"><span>地点</span><input class="ib-location" type="text" /></label>
-    <label class="editor-inbox-field"><span>内容段落</span><textarea class="ib-blocks" rows="5"></textarea></label>
-    <div class="editor-inbox-coords">
-      <span>坐标（可留空）</span>
-      <input class="ib-lat" type="number" step="any" placeholder="纬度 lat" />
-      <input class="ib-lng" type="number" step="any" placeholder="经度 lng" />
-      <button type="button" class="ib-use-center">用地图中心</button>
-    </div>
+    <dl class="editor-inbox-info">
+      ${row("文件夹 ID", sub.folderId || "(导入时生成)")}
+      ${row("投稿者", inboxSubmitterName(sub))}
+      ${row("投稿时间", inboxSubmissionDate(sub).ymd)}
+      ${row("发现时间", sub.dateFound)}
+      ${row("地点", sub.location)}
+    </dl>
+    ${
+      content
+        ? `<div class="editor-inbox-content"><dt>内容</dt><p>${escapeHtml(content).replace(/\n/g, "<br>")}</p></div>`
+        : ""
+    }
     <div class="editor-inbox-actions">
       <button type="button" class="ib-import">导入并编辑</button>
       <span class="ib-status"></span>
     </div>
-    <p class="editor-inbox-hint" style="margin:8px 0 0">署名/时间/地点/内容会先填进草稿；地址级联、伞的属性、段落图文、四个勾选框、拖动地图定坐标都在打开的编辑器里继续改。导入即生成待审核（submission pending）草稿，审核前不对外公开。</p>`;
-  d.querySelector(".ib-submitter").value = sub.submitter || "";
-  d.querySelector(".ib-time").value = sub.dateFound || "";
-  d.querySelector(".ib-location").value = sub.location || "";
-  d.querySelector(".ib-blocks").value = inboxDefaultBlocksText(sub);
+    <p class="editor-inbox-hint">这里只看信息。点「导入并编辑」生成待审核（submission pending）草稿并打开编辑器——地址级联、伞的属性、段落图文、四个勾选框、拖动地图定坐标都在编辑器里改。主图若有 GPS 会自动作为初始坐标。</p>`;
 
-  const latEl = d.querySelector(".ib-lat");
-  const lngEl = d.querySelector(".ib-lng");
-  const importBtn = d.querySelector(".ib-import");
-  const status = d.querySelector(".ib-status");
-  // 照片读到 GPS 时，主图坐标自动填进来（用户再进编辑器可拖动微调）。
-  const fillCoords = (lat, lng, { force = false } = {}) => {
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return;
-    }
-    if (!force && (latEl.value.trim() || lngEl.value.trim())) {
-      return; // 用户已填就不覆盖
-    }
-    latEl.value = lat.toFixed(6);
-    lngEl.value = lng.toFixed(6);
-  };
-  renderInboxPhotos(sub, d.querySelector(".editor-inbox-photos"), fillCoords);
-
-  d.querySelector(".ib-use-center").addEventListener("click", () => {
-    if (state.map) {
-      const c = state.map.getCenter();
-      fillCoords(c.lat(), c.lng(), { force: true });
+  // 主图若有 GPS，记下来当导入时的初始坐标（不再让用户手填）。
+  const picked = { coords: null };
+  renderInboxPhotos(sub, d.querySelector(".editor-inbox-photos"), (lat, lng) => {
+    if (!picked.coords && Number.isFinite(lat) && Number.isFinite(lng)) {
+      picked.coords = { lat, lng };
     }
   });
+
+  const importBtn = d.querySelector(".ib-import");
+  const status = d.querySelector(".ib-status");
   if (sub.imported) {
     importBtn.disabled = true;
     importBtn.textContent = "已导入";
     status.textContent = "这条已经导入过了。";
   }
-  importBtn.addEventListener("click", () => doInboxImport(sub, d));
+  importBtn.addEventListener("click", () => doInboxImport(sub, d, picked));
 }
 
-async function renderInboxPhotos(sub, container, onExifCoords) {
+async function renderInboxPhotos(sub, container, onMainCoords) {
   const ids = [...sub.mainPhotoIds, ...sub.additionalPhotoIds];
   container.innerHTML = ids.map(() => `<div class="editor-inbox-photo is-loading">加载中…</div>`).join("");
   const slots = container.querySelectorAll(".editor-inbox-photo");
@@ -7949,19 +8000,12 @@ async function renderInboxPhotos(sub, container, onExifCoords) {
         parts.push(`📍 ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`);
       }
       const metaHtml = parts.length
-        ? `<div class="editor-inbox-photo-exif">${parts.join(" · ")}${
-            hasGps ? ` <button type="button" class="ib-photo-gps">用此坐标</button>` : ""
-          }</div>`
+        ? `<div class="editor-inbox-photo-exif">${parts.join(" · ")}</div>`
         : `<div class="editor-inbox-photo-exif is-empty">无 EXIF</div>`;
       slot.innerHTML = `<img src="${res.dataUrl}" alt="" />${metaHtml}`;
-      if (hasGps && typeof onExifCoords === "function") {
-        // 主图（第一张）的 GPS 自动填进坐标框；其它图提供「用此坐标」按钮。
-        if (i === 0) {
-          onExifCoords(gps.lat, gps.lng);
-        }
-        slot.querySelector(".ib-photo-gps")?.addEventListener("click", () => {
-          onExifCoords(gps.lat, gps.lng, { force: true });
-        });
+      // 主图（第一张）的 GPS 回报给详情，导入时当初始坐标。
+      if (hasGps && i === 0 && typeof onMainCoords === "function") {
+        onMainCoords(gps.lat, gps.lng);
       }
     } catch {
       slot.className = "editor-inbox-photo is-error";
@@ -7970,33 +8014,24 @@ async function renderInboxPhotos(sub, container, onExifCoords) {
   });
 }
 
-async function doInboxImport(sub, d) {
+async function doInboxImport(sub, d, picked) {
   const importBtn = d.querySelector(".ib-import");
   const status = d.querySelector(".ib-status");
-  const lat = parseFloat(d.querySelector(".ib-lat").value);
-  const lng = parseFloat(d.querySelector(".ib-lng").value);
-  const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+  const coords = picked && picked.coords ? picked.coords : null;
   importBtn.disabled = true;
   status.textContent = "导入中…";
   try {
-    const res = await apiPost("/api/submissions/import", {
-      rowKey: sub.rowKey,
-      // 坐标可留空——进编辑器后拖动地图标记再定（功能 4）。
-      coords: hasCoords ? { lat, lng } : null,
-      submitter: d.querySelector(".ib-submitter").value,
-      time: d.querySelector(".ib-time").value,
-      locationText: d.querySelector(".ib-location").value,
-      blocksText: d.querySelector(".ib-blocks").value,
-    });
+    // 只传 rowKey + 主图 GPS（若有）；署名/时间/地点/内容用投稿原值（后端回退），进编辑器再改。
+    const res = await apiPost("/api/submissions/import", { rowKey: sub.rowKey, coords });
     sub.imported = true;
-    // 刷新数据 → 关收件箱 → 直接打开完整编辑器继续改（地址级联/伞属性/段落/四勾选框/拖动定坐标）。
+    // 刷新数据 → 关收件箱 → 直接打开完整编辑器继续改。
     state.umbrellas = await loadUmbrellaData();
     render();
     closeInbox();
     openEditor(res.id);
     switchToMapView();
-    if (hasCoords) {
-      centerInEditorGap({ lat, lng });
+    if (coords) {
+      centerInEditorGap(coords);
     }
     const heicNote = res.heicCount ? `（${res.heicCount} 张 HEIC 待手动转 jpg）` : "";
     showEditorToast(`已导入草稿 ${res.id}，继续编辑吧 ✓${heicNote}`);
