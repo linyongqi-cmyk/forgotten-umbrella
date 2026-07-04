@@ -22,6 +22,8 @@
   "time": "2024.03.19",
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"","en":""},
+  // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
+  "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -41,7 +43,7 @@
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。
-  "submissionTime": "2026/04/23",
+  "submissionTime": "2026/04/21",
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
@@ -68,6 +70,9 @@
       }
     }
   ],
+  // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
+  // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+  "weather": null,
   // 这个标点下的媒体列表。第一项通常是主图。
   "media": [
     {
@@ -84,7 +89,14 @@
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
-      "legacyThumb": ""
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
     }
   ]
 }

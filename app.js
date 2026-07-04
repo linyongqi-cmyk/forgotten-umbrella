@@ -361,7 +361,8 @@ const els = {
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
-  mapTypeNum: document.querySelector(".map-type-num"),
+  mapTypeIco: document.querySelector(".map-type-ico"),
+  locateMe: document.querySelector("#locate-me"),
   mapFilter: document.querySelector("#map-filter"),
   mapFilterToggle: document.querySelector("#map-filter-toggle"),
   mapFilterPanel: document.querySelector("#map-filter-panel"),
@@ -957,6 +958,7 @@ function bindEvents() {
   });
 
   els.mapTypeToggle?.addEventListener("click", cycleMapType);
+  els.locateMe?.addEventListener("click", goToMyLocation);
 
   els.listSecondary?.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-list-subfilter]");
@@ -2128,6 +2130,27 @@ function getInitialMapCenter() {
   });
 }
 
+// 定位按钮：把地图移到用户当前位置（用户 2026-07-05 要求）。用浏览器地理定位，
+// 拿到坐标后 panTo 过去并适当放大；失败/拒绝就安静收回按钮状态（不打扰）。
+function goToMyLocation() {
+  if (!state.googleReady || !navigator.geolocation) {
+    return;
+  }
+  els.locateMe?.classList.add("is-locating");
+  const done = () => els.locateMe?.classList.remove("is-locating");
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      done();
+      const here = { lat: position.coords.latitude, lng: position.coords.longitude };
+      state.map.panTo(here);
+      const z = state.map.getZoom() || DEFAULT_MAP_ZOOM;
+      state.map.setZoom(Math.max(z, 14));
+    },
+    done,
+    { enableHighAccuracy: true, maximumAge: 60000, timeout: GEOLOCATION_TIMEOUT_MS },
+  );
+}
+
 // 一个按钮循环三种地图（用户要求）：卫星1(无字) → 卫星2(有字) → 普通 → 卫星1…
 // 对应 state：卫星1 = satellite+labels off；卫星2 = satellite+labels on；普通 = roadmap。
 function cycleMapType() {
@@ -2145,6 +2168,20 @@ function cycleMapType() {
   applyMapType();
   syncMapTypeButton();
   syncMapLayers(); // 编辑面板跟着切到当前那套（仅本地）
+}
+
+// 切换地图按钮的三个图标（用户手绘，基于 Lucide map）：一张地图折成三格，
+// 斜线画在第 1/2/3 格里，表示当前是哪张地图（卫星1/卫星2/普通）。不再用数字角标。
+const MAP_SWITCH_OUTLINE =
+  '<path d="M14.1,5.6c0.6,0.3,1.2,0.3,1.8,0l3.7-1.8c0.5-0.2,1.1,0,1.3,0.4C21,4.3,21,4.5,21,4.6v12.8c0,0.4-0.2,0.7-0.6,0.9l-4.6,2.3c-0.6,0.3-1.2,0.3-1.8,0l-4.2-2.1c-0.6-0.3-1.2-0.3-1.8,0l-3.7,1.8c-0.5,0.2-1.1,0-1.3-0.4C3,19.7,3,19.5,3,19.4V6.6c0-0.4,0.2-0.7,0.6-0.9l4.6-2.3c0.6-0.3,1.2-0.3,1.8,0L14.1,5.6z"/><path d="M15,5.8v15"/><path d="M9,3.2v15"/>';
+const MAP_SWITCH_HATCH = [
+  '<path d="M3,13.5l6-3"/><path d="M3,17.4l6-3"/><path d="M3,9.6l6-3"/>', // 左格
+  '<path d="M9,10.5l6,3"/><path d="M9,14.4l6,3"/><path d="M9,6.6l6,3"/>', // 中格
+  '<path d="M15,13.5l6-3"/><path d="M15,17.4l6-3"/><path d="M15,9.6l6-3"/>', // 右格
+];
+function mapSwitchIconSvg(num) {
+  const hatch = MAP_SWITCH_HATCH[Math.min(Math.max(num, 1), 3) - 1];
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${MAP_SWITCH_OUTLINE}${hatch}</svg>`;
 }
 
 // 当前地图对应的图标数字：卫星1=1、卫星2=2、普通=3。
@@ -2216,8 +2253,8 @@ function syncMapTypeButton() {
           : { ja: "衛星1へ", en: "To satellite 1" };
     els.mapTypeToggle.setAttribute("aria-label", nextHint[lang] || nextHint.ja);
     els.mapTypeToggle.setAttribute("title", nextHint[lang] || nextHint.ja);
-    if (els.mapTypeNum) {
-      els.mapTypeNum.textContent = String(num);
+    if (els.mapTypeIco) {
+      els.mapTypeIco.innerHTML = mapSwitchIconSvg(num);
     }
   }
   // The map-layers switches only apply to the plain map (hidden on satellite).
@@ -2643,7 +2680,7 @@ function renderFocusLink(item) {
   // 用户 #6: a horizontal chain-link icon (same stroke weight as back-to-map),
   // not an arrow; the text is a brighter, more legible blue (see .focus-link-a).
   els.focusLink.hidden = false;
-  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}"><svg class="focus-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 12h6"/><path d="M8.5 7.5H7a4.5 4.5 0 0 0 0 9h1.5"/><path d="M15.5 7.5H17a4.5 4.5 0 0 1 0 9h-1.5"/></svg><span>${escapeHtml(label)}</span></a>`;
+  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}"><svg class="focus-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span>${escapeHtml(label)}</span></a>`;
 }
 
 // The detail page body: an ordered flow of paragraphs and photos. Falls back
@@ -2727,7 +2764,7 @@ function renderFocusHeader(item) {
   // LEFT of the id. Same line style as the magnifier / back-to-map controls.
   const isContributed = item.submissionType === "contributed";
   const badge = isContributed
-    ? `<span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11V20H20V11"/><path d="M4 11L12 16L20 11"/><path d="M12 3V10"/><path d="M9 7.5L12 10.5L15 7.5"/></svg></span>`
+    ? `<span class="focus-badge" role="img" aria-label="contributed"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="m16 19 2 2 4-4"/></svg></span>`
     : "";
   return `<h3 class="focus-title">${badge}${escapeHtml(focusTitle)}</h3>`;
 }
@@ -2751,10 +2788,15 @@ function weatherCategory(code) {
   if (c === 0) return "clear"; // 晴
   if (c === 1 || c === 2) return "partly"; // 多云间晴
   if (c === 3 || c === 45 || c === 48) return "cloudy"; // 阴（雾也归这里，用户定）
-  // 中雨（斜线2）：用户定「取消小雨归入中雨」，原小雨的 51/53/61/80 也并到这里
-  if (c === 51 || c === 53 || c === 55 || c === 61 || c === 63 || c === 80 || c === 81) return "rain";
-  if (c === 65 || c === 82) return "heavy-rain"; // 大雨（斜线3）
-  if (c === 95 || c === 96 || c === 99) return "thunder"; // 暴雨（云+斜线+闪电）
+  // 雨四级（按 WMO 标准重新分级，用户 2026-07-05 定）：
+  //   小雨 = 毛毛雨(51/53/55) + 小雨(61) + 小阵雨(80) → cloud-hail
+  if (c === 51 || c === 53 || c === 55 || c === 61 || c === 80) return "light-rain";
+  //   中雨 = 中雨(63) + 中阵雨(81) → cloud-rain
+  if (c === 63 || c === 81) return "rain";
+  //   大雨 = 大雨(65) + 强阵雨(82) → cloud-rain-wind
+  if (c === 65 || c === 82) return "heavy-rain";
+  //   暴雨 = 雷暴(95/96/99) → cloud-lightning
+  if (c === 95 || c === 96 || c === 99) return "thunder";
   // 小雪（云+雪花）：含雨夹雪(56/57/66/67)、小雪(71)、中雪(73，用户定归入小雪)、雪粒(77)、小阵雪(85)
   if (c === 56 || c === 57 || c === 66 || c === 67 || c === 71 || c === 73 || c === 77 || c === 85) return "light-snow";
   if (c === 75 || c === 86) return "snow"; // 大雪（只雪花）：大雪(75)、强阵雪(86)
@@ -2779,53 +2821,34 @@ function weatherCategoryAt(code, timeStr) {
   return base;
 }
 
-// 极简线条图标（stroke=currentColor，无填充）。共用一朵云的路径，雨/雪/雷在云下加元素。
-const WEATHER_CLOUD = `<path d="M8 18h8a3.6 3.6 0 0 0 .4-7.2 4.8 4.8 0 0 0-9.2-1A3.4 3.4 0 0 0 8 18Z"/>`;
-// 太阳（晴·昼）：圆+八条光线。月亮（晴·夜）：一弯新月轮廓。
-const WEATHER_SUN = `<circle cx="12" cy="12" r="4.2"/><path d="M12 3.2v2.3M12 18.5v2.3M3.2 12h2.3M18.5 12h2.3M6 6l1.6 1.6M16.4 16.4L18 18M18 6l-1.6 1.6M7.6 16.4L6 18"/>`;
-const WEATHER_MOON = `<path d="M17.6 14.4A6.6 6.6 0 1 1 9.6 6.4 5.1 5.1 0 0 0 17.6 14.4Z"/>`;
-// 多云间晴：云后露出的小太阳弧/月牙（左上角），再叠一朵云。
-const WEATHER_SUN_SMALL = `<path d="M6.5 9.2a3.4 3.4 0 0 1 6.4-1.1"/><path d="M5 5.6l.9.9M3 10h1.3M9.6 4.3l-.6 1.1"/>`;
-const WEATHER_MOON_SMALL = `<path d="M11 8.4A3.2 3.2 0 1 1 6.9 4.7 2.5 2.5 0 0 0 11 8.4Z"/>`;
+// 极简线条图标（stroke=currentColor，无填充）。天气图标统一采用 Lucide 线条图标
+// （ISC 许可，直接内嵌，不走 CDN 以保证 PWA 离线可用）；小雪是用户手绘的 7 点版。
+// Lucide 官方路径，viewBox 24、stroke=currentColor。
+const WEATHER_ICON_INNER = {
+  // 晴·昼 = sun，晴·夜 = moon
+  clear: `<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>`,
+  "clear-night": `<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>`,
+  // 多云间晴·昼 = cloud-sun，多云间晴·夜 = cloud-moon
+  partly: `<path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>`,
+  "partly-night": `<path d="M13 16a3 3 0 0 1 0 6H7a5 5 0 1 1 4.9-6z"/><path d="M18.376 14.512a6 6 0 0 0 3.461-4.127c.148-.625-.659-.97-1.248-.714a4 4 0 0 1-5.259-5.26c.255-.589-.09-1.395-.716-1.248a6 6 0 0 0-4.594 5.36"/>`,
+  // 阴 = cloud
+  cloudy: `<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>`,
+  // 雨四级：小雨 cloud-hail / 中雨 cloud-rain / 大雨 cloud-rain-wind / 暴雨 cloud-lightning
+  "light-rain": `<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v2"/><path d="M8 14v2"/><path d="M16 20h.01"/><path d="M8 20h.01"/><path d="M12 16v2"/><path d="M12 22h.01"/>`,
+  rain: `<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>`,
+  "heavy-rain": `<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m9.2 22 3-7"/><path d="m9 13-3 7"/><path d="m17 13-3 7"/>`,
+  thunder: `<path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/>`,
+  // 小雪：用户手绘 = 云 + 6 点围一圈 + 中心 1 点；大雪 = snowflake
+  "light-snow": `<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 15h.01"/><path d="M8 19h.01"/><path d="M12 13h.01"/><path d="M12 17h.01"/><path d="M12 21h.01"/><path d="M16 15h.01"/><path d="M16 19h.01"/>`,
+  snow: `<path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/><path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/><path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/><path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/>`,
+};
 function weatherIconSvg(category) {
-  const open = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
-  const close = `</svg>`;
-  let inner = "";
-  switch (category) {
-    case "clear":
-      inner = WEATHER_SUN;
-      break;
-    case "clear-night":
-      inner = WEATHER_MOON;
-      break;
-    case "partly":
-      inner = `${WEATHER_SUN_SMALL}${WEATHER_CLOUD}`;
-      break;
-    case "partly-night":
-      inner = `${WEATHER_MOON_SMALL}${WEATHER_CLOUD}`;
-      break;
-    case "cloudy":
-      inner = WEATHER_CLOUD;
-      break;
-    case "rain": // 中雨：斜线 2 条（用户取消小雨后，最小的雨就是它）
-      inner = `${WEATHER_CLOUD}<path d="M10.5 19l-1.6 3.4M14.5 19l-1.6 3.4"/>`;
-      break;
-    case "heavy-rain": // 大雨：斜线 3 条
-      inner = `${WEATHER_CLOUD}<path d="M9 19l-1.6 3.4M12.5 19l-1.6 3.4M16 19l-1.6 3.4"/>`;
-      break;
-    case "thunder": // 暴雨：云 + 斜线 + 闪电
-      inner = `${WEATHER_CLOUD}<path d="M8.6 19l-1.5 3.2"/><path d="M14.6 18.4l-2.4 3.2h2.1l-1.5 3"/>`;
-      break;
-    case "light-snow": // 小雪：云 + 雪花
-      inner = `${WEATHER_CLOUD}<path d="M12 18.4v4.8M9.9 19.6l4.2 2.4M9.9 22l4.2-2.4"/>`;
-      break;
-    case "snow": // 大雪：只雪花（较大，居中）
-      inner = `<path d="M12 4.5v15M5.5 8.25l13 7.5M5.5 15.75l13-7.5"/>`;
-      break;
-    default:
-      return "";
+  const inner = WEATHER_ICON_INNER[category];
+  if (!inner) {
+    return "";
   }
-  return open + inner + close;
+  const open = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
+  return `${open}${inner}</svg>`;
 }
 
 // 把逐时天气压成「只留头、尾、和每次变化点」（用户 2.5：中间只放变化点图例）。
@@ -3199,9 +3222,9 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
         <div class="focus-video-wrap">
           <video class="focus-video" muted playsinline preload="metadata" data-media-file="${escapeHtml(media.file)}" src="${escapeHtml(media.src)}"></video>
           <button class="focus-video-play" type="button" aria-label="play video">
-            <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30"/><path d="M26 21l18 11-18 11z"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"/></svg>
           </button>
-          <button class="focus-photo-zoom" type="button" aria-label="enlarge video" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/><path d="M10.5 7.5v6M7.5 10.5h6"/></svg></button>
+          <button class="focus-photo-zoom" type="button" aria-label="enlarge video" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg></button>
         </div>
         ${caption ? `<figcaption class="focus-video-cap">${escapeHtml(caption)}</figcaption>` : ""}
       </figure>`;
@@ -3214,7 +3237,7 @@ function renderFocusBlockHtml(block, mediaByFile, opts = {}) {
   const figClass = media.role === "illustration" ? "focus-photo is-illustration" : "focus-photo";
   // 用户 #1: a magnifier hint (same style as the cover's) on enlargeable photos.
   const zoomBtn = expandable
-    ? `<button class="focus-photo-zoom" type="button" aria-label="enlarge image" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/><path d="M10.5 7.5v6M7.5 10.5h6"/></svg></button>`
+    ? `<button class="focus-photo-zoom" type="button" aria-label="enlarge image" data-media-file="${escapeHtml(media.file)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg></button>`
     : "";
   // 用户 #8: show the (non-destructive) cropped region if this media has a crop.
   const cs = cropStyles(media.crop);
@@ -4019,15 +4042,16 @@ function renderArchiveGroup(group) {
 }
 
 // Small inline logos shown on the corner of an archive card.
+// 卡片角标图标（Lucide）：多图 images / 插图 pencil-sparkles / 有文本 letter-text / 有视频 video。
 const CARD_ICON_MULTI =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="14" height="14" rx="2.5"/><rect x="3" y="7" width="14" height="14" rx="2.5"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"/><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"/><circle cx="13" cy="7" r="1" fill="currentColor"/><rect x="8" y="2" width="14" height="14" rx="2"/></svg>';
 const CARD_ICON_ILLUSTRATION =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H8"/><path d="m15.007 5.008 3.987 3.986"/><path d="M20 15v4"/><path d="M21.174 6.813a2.82 2.82 0 0 0-3.986-3.987L3.842 16.175a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="M22 17h-4"/><path d="M4 5v4"/><path d="M6 7H2"/><path d="M9 2v2"/></svg>';
 const CARD_ICON_TEXT =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="2.6" rx="1.3"/><rect x="4" y="10.7" width="16" height="2.6" rx="1.3"/><rect x="4" y="16.4" width="10" height="2.6" rx="1.3"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5h6"/><path d="M15 12h6"/><path d="M3 19h18"/><path d="m3 12 3.553-7.724a.5.5 0 0 1 .894 0L11 12"/><path d="M3.92 10h6.16"/></svg>';
 // 用户: shown on a card's bottom-right corner when the record has a video.
 const CARD_ICON_VIDEO =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="3"/><path d="M10 9.5l5 2.5-5 2.5z"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
 
 // A record "has text" if any of its content blocks is a non-empty paragraph
 // (blocks store {ja,en}); fall back to the legacy joined story string.
@@ -5485,7 +5509,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=152", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=153", { updateViaCache: "none" });
   }
 }
 
@@ -5517,7 +5541,7 @@ const EDITOR_ICON_TEXTS =
 const EDITOR_ICON_ADD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 // 收件箱（信封）图标 —— 投稿收件箱按钮。
 const EDITOR_ICON_INBOX =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M4 7l8 6 8-6"/></svg>';
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
 
 function setupEditor() {
   // The three local-only buttons (edit / 文案 / 新增) live in one fixed toolbar
@@ -5562,7 +5586,7 @@ function setupEditor() {
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
-      <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点">🗑</button>
+      <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </footer>`;
   document.body.appendChild(drawer);
   editor.root = drawer;
@@ -8024,11 +8048,15 @@ async function renderInboxPhotos(sub, container, onMainCoords) {
       const gps = exif.coordinates;
       const hasGps = gps && Number.isFinite(gps.lat) && Number.isFinite(gps.lng);
       const parts = [];
+      const inlineIco = (inner) =>
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em">${inner}</svg>`;
       if (exif.dateTime) {
-        parts.push(`🕑 ${escapeHtml(exif.dateTime)}`);
+        parts.push(`${inlineIco('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>')} ${escapeHtml(exif.dateTime)}`);
       }
       if (hasGps) {
-        parts.push(`📍 ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`);
+        parts.push(
+          `${inlineIco('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>')} ${gps.lat.toFixed(5)}, ${gps.lng.toFixed(5)}`,
+        );
       }
       const metaHtml = parts.length
         ? `<div class="editor-inbox-photo-exif">${parts.join(" · ")}</div>`

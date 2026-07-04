@@ -26799,7 +26799,7 @@
     "image": "filebox/records/submission(pending)/rednote_2352131487/rednote_2352131487_1_1.web.webp",
     "imageOriginal": "filebox/records/submission(pending)/rednote_2352131487/rednote_2352131487_1_1.jpg",
     "photoTime": "",
-    "time": "2025.04",
+    "time": "2026.04",
     "photoCoordinates": null,
     "locationCoordinates": {
       "lat": 35.4478,
@@ -26892,7 +26892,7 @@
     "submissionType": "contributed",
     "submitter": "@rednote/621639248",
     "submissionChannel": "",
-    "submissionTime": "2026/04/23",
+    "submissionTime": "2026/04/21",
     "submitterNote": "",
     "remarks": "",
     "locationApprox": true,
@@ -27015,7 +27015,7 @@
     "image": "filebox/records/submission(pending)/aaa(1)/aaa_1_1.web.webp",
     "imageOriginal": "filebox/records/submission(pending)/aaa(1)/aaa_1_1.jpeg",
     "photoTime": "",
-    "time": "2025.04.27",
+    "time": "2026.04.27 17:40",
     "photoCoordinates": null,
     "locationCoordinates": {
       "lat": 34.98643525209344,
@@ -27356,7 +27356,7 @@
     "submissionType": "contributed",
     "submitter": "LYUCHEN",
     "submissionChannel": "",
-    "submissionTime": "2026/05/02",
+    "submissionTime": "2026/04/28",
     "submitterNote": "",
     "remarks": "",
     "locationApprox": false,
@@ -27586,7 +27586,7 @@
           "posY": 49.93326822916666
         },
         "weather": null,
-        "showWeather": true
+        "showWeather": false
       }
     ],
     "locationLevels": [
@@ -27757,7 +27757,7 @@
     "submissionType": "contributed",
     "submitter": "@rednote/kankan",
     "submissionChannel": "",
-    "submissionTime": "2026/06/29",
+    "submissionTime": "2026/05/02",
     "submitterNote": "",
     "remarks": "",
     "locationApprox": true,

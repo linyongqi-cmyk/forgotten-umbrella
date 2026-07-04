@@ -1165,15 +1165,21 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   position: relative;
 }
 
-.map-type-num {
-  position: absolute;
-  inset: 0;
+.map-type-ico {
   display: grid;
   place-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
   pointer-events: none;
+}
+
+/* 定位按钮取位时的转圈反馈 */
+.map-layer-btn.is-locating svg {
+  animation: locate-spin 0.9s linear infinite;
+}
+
+@keyframes locate-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .city-map {
@@ -3116,8 +3122,7 @@ body.edit-mode .card-edit {
 
   body.view-map .nav-toggle svg,
   body.view-map .map-layer-btn svg,
-  body.view-map .panel-toggle-left span svg,
-  body.view-map .map-type-num {
+  body.view-map .panel-toggle-left span svg {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   }
 

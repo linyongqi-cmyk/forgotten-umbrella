@@ -24,6 +24,8 @@
   "time": "2026.05.02",
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"","en":""},
+  // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
+  "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -88,7 +90,7 @@
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
       "weather": null,
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
-      "showWeather": true
+      "showWeather": false
     }
   ]
 }
