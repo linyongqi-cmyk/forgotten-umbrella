@@ -3053,13 +3053,16 @@ body.edit-mode .card-edit {
     transform: translateY(calc(100% + 24px));
   }
 
-  .panel-toggle-left {
-    top: auto;
-    bottom: calc(46vh + 24px);
-    transform: none;
-    width: 44px;
-    height: 44px;
-    left: 18px;
+  /* 档案键(1)：顶部横幅居中（用户）。用 .workspace(.is-list-collapsed) 前缀
+     压过 line 570/576 那两条更具体的桌面定位规则。 */
+  .workspace .panel-toggle-left,
+  .workspace.is-list-collapsed .panel-toggle-left {
+    top: 12px;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 48px;
   }
 
   .archive-list {
@@ -3084,9 +3087,43 @@ body.edit-mode .card-edit {
     bottom: 32px;
   }
 
+  /* 地图切换(4)+筛选(2)：顶部横幅靠左，排成一行（DOM 顺序=4 在前，2 在后）。 */
   .map-layer-tools {
-    left: 18px;
-    bottom: 32px;
+    top: 12px;
+    left: 12px;
+    bottom: auto;
+    flex-direction: row;
+    gap: 2px;
+  }
+
+  /* ── 手机顶部横幅：所有导航按钮去掉圆形背景（用户）。──
+     覆盖各页汉堡 + 地图页横幅里的 map 按钮/档案键。 */
+  .nav-toggle,
+  .map-layer-btn,
+  .panel-toggle-left {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  /* 地图页这些按钮浮在底图上：白图标 + 深色投影，卫星/普通底图都可读。 */
+  body.view-map .nav-toggle,
+  body.view-map .map-layer-btn,
+  body.view-map .panel-toggle-left {
+    color: #fff;
+  }
+
+  body.view-map .nav-toggle svg,
+  body.view-map .map-layer-btn svg,
+  body.view-map .panel-toggle-left span svg,
+  body.view-map .map-type-num {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  }
+
+  /* 非地图页（Archive/About 浅底）：汉堡用深色。 */
+  body:not(.view-map) .nav-toggle {
+    color: var(--ink);
   }
 
   .focus-blur {
