@@ -2368,6 +2368,10 @@ body.editor-open .archive-view {
 
 .archive-content {
   display: grid;
+  /* 单列 minmax(0,1fr)：否则隐式列是 auto，会被最宽的子元素（统计宽表）撑开，
+     导致整页横向溢出、说明段落也跟着变宽。加 minmax(0,…) 让列不被内容撑，
+     宽表交给自己的 .stats-table-wrap 内部横向滚动。 */
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
 }
 
@@ -2988,14 +2992,19 @@ body.edit-mode .card-edit {
     pointer-events: auto;
   }
 
-  /* 菜单项：左对齐、占满整行，方便手指点。 */
+  /* 菜单项：右对齐（汉堡在右上角）、占满整行，方便手指点。 */
   .view-tabs .tab,
   .view-tabs .language-switcher,
   .view-tabs .language-toggle {
     width: 100%;
-    justify-content: flex-start;
-    text-align: left;
+    justify-content: flex-end;
+    text-align: right;
     padding: 12px 12px;
+  }
+
+  .view-tabs .language-menu,
+  .view-tabs .language-menu button {
+    text-align: right;
   }
 
   /* 面板有自己的浅色底，覆盖地图页把导航字变浅的规则，否则字看不见。 */
@@ -3166,6 +3175,24 @@ body.edit-mode .card-edit {
   .archive-group-header {
     align-items: start;
     flex-direction: column;
+  }
+
+  /* 统计表：窄屏缩小字号/内边距，并让长行标签换行——否则第一列（如
+     "transparent long umbrella"）独占大半宽，数据列几乎看不到。数据格是
+     数字，保持 nowrap。宽表仍在 .stats-table-wrap 内部横向滚。 */
+  .stats-table {
+    font-size: 12px;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    padding: 5px 7px;
+  }
+
+  .stats-table tbody th[scope="row"],
+  .stats-corner {
+    white-space: normal;
+    min-width: 92px;
   }
 }
 
