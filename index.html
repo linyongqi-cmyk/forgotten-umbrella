@@ -7,7 +7,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=154" />
+    <link rel="stylesheet" href="styles.css?v=155" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -75,25 +75,22 @@
             <span>Submit</span>
           </button>
           <div class="language-switcher">
+            <!-- v155: 点击直接循环切换语言（ja↔en），不再展开下拉。当前语言那一段加粗（用户 item14）。 -->
             <button
               id="language-toggle"
               class="language-toggle"
               type="button"
-              aria-haspopup="true"
-              aria-expanded="false"
-              aria-label="language switch"
+              aria-label="switch language"
             >
               <svg class="language-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
                 <path d="M2 12h20" />
               </svg>
-              <span>Language</span>
+              <span class="lang-opt" data-lang="ja">JA</span>
+              <span class="lang-sep" aria-hidden="true">/</span>
+              <span class="lang-opt" data-lang="en">EN</span>
             </button>
-            <div class="language-menu" id="language-menu" hidden>
-              <button type="button" data-lang="ja-JP">&#26085;&#26412;&#35486;</button>
-              <button type="button" data-lang="en-US">English</button>
-            </div>
           </div>
         </nav>
       </header>
@@ -117,16 +114,28 @@
             title="expand location list"
           >
             <span aria-hidden="true">
-              <!-- 桌面：从左侧展开（panel-left-open）；手机：从底部展开（panel-bottom-open）。用 CSS 按屏宽切换。 -->
-              <svg class="panel-ico-desktop" viewBox="0 0 24 24" focusable="false">
+              <!-- 收起时=open 图标（桌面 panel-left-open / 手机 panel-bottom-open）；
+                   展开后=close 图标（桌面 panel-left-close / 手机 panel-bottom-close）。
+                   桌面/手机按屏宽切、open/close 按 aria-expanded 切，都在 CSS 里控制（用户 item10）。 -->
+              <svg class="panel-ico panel-ico-desktop panel-ico-open" viewBox="0 0 24 24" focusable="false">
                 <rect width="18" height="18" x="3" y="3" rx="2" />
                 <path d="M9 3v18" />
                 <path d="m14 9 3 3-3 3" />
               </svg>
-              <svg class="panel-ico-mobile" viewBox="0 0 24 24" focusable="false">
+              <svg class="panel-ico panel-ico-desktop panel-ico-close" viewBox="0 0 24 24" focusable="false">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 3v18" />
+                <path d="m16 15-3-3 3-3" />
+              </svg>
+              <svg class="panel-ico panel-ico-mobile panel-ico-open" viewBox="0 0 24 24" focusable="false">
                 <rect width="18" height="18" x="3" y="3" rx="2" />
                 <path d="M3 15h18" />
                 <path d="m9 10 3-3 3 3" />
+              </svg>
+              <svg class="panel-ico panel-ico-mobile panel-ico-close" viewBox="0 0 24 24" focusable="false">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M3 15h18" />
+                <path d="m15 8-3 3-3-3" />
               </svg>
             </span>
           </button>
@@ -208,7 +217,16 @@
             <div class="archive-list" id="archive-list" aria-live="polite"></div>
           </aside>
 
+          <!-- 右下角：回到定位按钮(locate-fixed)在上，139item 计数(最轻字重)在下（用户 item11）。 -->
           <button id="reset-map" class="map-toolbar" type="button" aria-label="show all items" title="show all items">
+            <svg class="reset-map-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <line x1="2" x2="5" y1="12" y2="12" />
+              <line x1="19" x2="22" y1="12" y2="12" />
+              <line x1="12" x2="12" y1="2" y2="5" />
+              <line x1="12" x2="12" y1="19" y2="22" />
+              <circle cx="12" cy="12" r="7" />
+              <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+            </svg>
             <span id="result-count"></span>
           </button>
 
@@ -311,6 +329,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=154" type="module"></script>
+    <script src="app.js?v=155" type="module"></script>
   </body>
 </html>

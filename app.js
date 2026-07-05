@@ -381,7 +381,6 @@ const els = {
   archiveOrderToggle: document.querySelector("#archive-order-toggle"),
   languageSwitcher: document.querySelector(".language-switcher"),
   languageToggle: document.querySelector("#language-toggle"),
-  languageMenu: document.querySelector("#language-menu"),
   topbar: document.querySelector(".topbar"),
   navToggle: document.querySelector("#nav-toggle"),
 };
@@ -408,6 +407,7 @@ async function init() {
   initWelcomeTitleLayout();
   bindEvents();
   applyLanguage();
+  syncLanguageMenu();
   render();
   await initGoogleMap();
   render();
@@ -1206,31 +1206,16 @@ function bindEvents() {
     }
   });
 
+  // v155: 语言按钮点一下就在 ja↔en 之间循环切换（只有两种语言，等于 toggle）。
   els.languageToggle?.addEventListener("click", () => {
-    state.languageMenuOpen = !state.languageMenuOpen;
-    syncLanguageMenu();
-  });
-
-  els.languageMenu?.addEventListener("click", (event) => {
-    const button = event.target.closest?.("[data-lang]");
-    if (button) {
-      state.lang = button.dataset.lang.startsWith("en") ? "en" : "ja";
-      try {
-        localStorage.setItem("fu-lang", state.lang);
-      } catch {
-        /* ignore storage errors */
-      }
-      applyLanguage();
+    state.lang = state.lang === "ja" ? "en" : "ja";
+    try {
+      localStorage.setItem("fu-lang", state.lang);
+    } catch {
+      /* ignore storage errors */
     }
-    state.languageMenuOpen = false;
+    applyLanguage();
     syncLanguageMenu();
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!els.languageSwitcher?.contains(event.target)) {
-      state.languageMenuOpen = false;
-      syncLanguageMenu();
-    }
   });
 
   // Close an open overview filter dropdown when clicking outside of it (item 6).
@@ -1831,18 +1816,13 @@ function syncSearchBox() {
   }
 }
 
+// v155: 「JA / EN」两段里，把当前语言那段加粗（is-active），另一段变淡。
 function syncLanguageMenu() {
-  els.languageSwitcher?.classList.toggle("is-open", state.languageMenuOpen);
-  els.languageToggle?.setAttribute("aria-expanded", String(state.languageMenuOpen));
-  if (els.languageMenu) {
-    els.languageMenu.hidden = !state.languageMenuOpen;
-    // 用户 T11: mark the current language so you can tell which one is active.
-    els.languageMenu.querySelectorAll("[data-lang]").forEach((btn) => {
-      const isActive = btn.dataset.lang.startsWith("en") ? state.lang === "en" : state.lang === "ja";
-      btn.classList.toggle("is-active", isActive);
-      btn.setAttribute("aria-current", isActive ? "true" : "false");
-    });
-  }
+  els.languageToggle?.querySelectorAll(".lang-opt").forEach((opt) => {
+    const isActive = opt.dataset.lang === state.lang;
+    opt.classList.toggle("is-active", isActive);
+    opt.setAttribute("aria-current", isActive ? "true" : "false");
+  });
 }
 
 function initWelcomeCrosshair() {
@@ -2209,10 +2189,43 @@ function getInitialMapCenter() {
   });
 }
 
+// 地图上的一次性小提示（右下浮出，几秒后自动消失）。用于定位失败等轻量反馈。
+let mapToastTimer = null;
+function flashMapToast(message) {
+  const host = els.mapView || document.querySelector("#map-view");
+  if (!host) {
+    return;
+  }
+  let toast = host.querySelector(".map-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "map-toast";
+    host.appendChild(toast);
+  }
+  toast.textContent = message;
+  // 触发进入动画：先去掉再下一帧加上。
+  toast.classList.remove("is-show");
+  void toast.offsetWidth;
+  toast.classList.add("is-show");
+  window.clearTimeout(mapToastTimer);
+  mapToastTimer = window.setTimeout(() => toast.classList.remove("is-show"), 3600);
+}
+
 // 定位按钮：把地图移到用户当前位置（用户 2026-07-05 要求）。用浏览器地理定位，
-// 拿到坐标后 panTo 过去并适当放大；失败/拒绝就安静收回按钮状态（不打扰）。
+// 拿到坐标后 panTo 过去并适当放大。失败会给一句轻提示（用户 item2：手机上点了没反应，
+// 多半是用 http 的局域网 IP 打开——iOS Safari 只在 https/localhost 才允许定位，会直接
+// 拒绝且不弹权限框；上线到 https 就正常）。
 function goToMyLocation() {
-  if (!state.googleReady || !navigator.geolocation) {
+  if (!state.googleReady) {
+    return;
+  }
+  // 非安全环境（http 的局域网 IP 等）：浏览器根本不会弹权限框，直接说明原因。
+  if (!window.isSecureContext || !navigator.geolocation) {
+    flashMapToast(
+      state.lang === "ja"
+        ? "位置情報は https（またはlocalhost）でのみ利用できます"
+        : "Location needs https (or localhost) to work",
+    );
     return;
   }
   els.locateMe?.classList.add("is-locating");
@@ -2225,7 +2238,19 @@ function goToMyLocation() {
       const z = state.map.getZoom() || DEFAULT_MAP_ZOOM;
       state.map.setZoom(Math.max(z, 14));
     },
-    done,
+    (error) => {
+      done();
+      const ja = state.lang === "ja";
+      const msg =
+        error && error.code === error.PERMISSION_DENIED
+          ? ja
+            ? "位置情報の利用が許可されていません"
+            : "Location permission was denied"
+          : ja
+            ? "現在地を取得できませんでした"
+            : "Couldn't get your location";
+      flashMapToast(msg);
+    },
     { enableHighAccuracy: true, maximumAge: 60000, timeout: GEOLOCATION_TIMEOUT_MS },
   );
 }
@@ -3040,7 +3065,12 @@ function renderFocusWeatherAxis(weather) {
   const LO = 6;
   const HI = 94;
   const spanW = HI - LO;
-  const MIN_GAP = 13; // 百分比；两个图例中心至少差 13% 才不挤（图标约占 5–8%）。
+  // 两个图例中心至少差 MIN_GAP%。线段两端各让开 LET_OFF px（见下）。当两图例正好挨到
+  // MIN_GAP 时，线段实宽 = MIN_GAP%×轨宽 − 2×LET_OFF px。轨道(.focus-weather)只有信息栏的
+  // 65% 宽、手机上更窄，13% 时中间线会被 2×18px 让开吃到几乎为零（用户 item3：晴天↔多云间晴
+  // 线看不见）。把让开缩到 18、最短距离提到 19%，保证窄轨上也留得下一段可见的线。
+  const MIN_GAP = 19; // 百分比
+  const LET_OFF = 18; // px，线段两端各让开这么多，避免压到图标
   const tOf = (p) => (last > 0 ? LO + (p.index / last) * spanW : (LO + HI) / 2);
 
   // 2) 用户「问题X」方案：不丢点。所有变化点（`weatherChangePoints` 保证相邻天气一定不同）
@@ -3067,13 +3097,13 @@ function renderFocusWeatherAxis(weather) {
     for (let i = 0; i < n; i += 1) pos[i] = LO + step * i;
   }
 
-  // 线段：只画在相邻图例之间的空隙里，各让开 20px（图标半宽约 14px + 约 6px 空隙），
-  // 让图标和线段之间有明显间隙、不会几乎连在一起（用户 item4）。
+  // 线段：只画在相邻图例之间的空隙里，各让开 LET_OFF px（图标半宽约 14px + 约 4px 空隙），
+  // 让图标和线段之间有明显间隙、不会几乎连在一起（用户 item3/item4）。
   const segs = [];
   for (let i = 1; i < pos.length; i += 1) {
     const wPct = pos[i] - pos[i - 1];
     segs.push(
-      `<span class="fw-seg" style="left:calc(${pos[i - 1].toFixed(2)}% + 20px);width:calc(${wPct.toFixed(2)}% - 40px)"></span>`,
+      `<span class="fw-seg" style="left:calc(${pos[i - 1].toFixed(2)}% + ${LET_OFF}px);width:calc(${wPct.toFixed(2)}% - ${LET_OFF * 2}px)"></span>`,
     );
   }
 
@@ -5589,7 +5619,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=154", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=155", { updateViaCache: "none" });
   }
 }
 

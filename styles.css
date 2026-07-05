@@ -7,8 +7,12 @@
   --ink: light-dark(#182322, #f4f1ea);
   --muted: light-dark(#65706b, #a7aaa4);
   --paper: transparent;
-  --panel: light-dark(rgba(255, 255, 255, 0.72), rgba(16, 18, 18, 0.68));
+  /* 毛玻璃底色（用户 item6：更透明）。透明度降到 0.55/0.5，靠强模糊撑起可读性。 */
+  --panel: light-dark(rgba(255, 255, 255, 0.55), rgba(16, 18, 18, 0.5));
   --panel-solid: light-dark(#fbfaf5, #111514);
+  /* 全站弹窗统一毛玻璃强度（用户 item6/7）：模糊更强、饱和度略提，一处改全站生效。 */
+  --glass-blur: 26px;
+  --glass-sat: 1.4;
   --line: light-dark(rgba(24, 35, 34, 0.14), rgba(244, 241, 234, 0.16));
   --accent: #c54f35;
   --accent-dark: #863521;
@@ -42,6 +46,10 @@
 html,
 body {
   min-height: 100%;
+  /* iOS Safari 会对横向能滚动的宽块（如统计表）自动放大字，导致同一表里字号忽大忽小
+     （用户 item8，图3）。锁成 100% 关掉这个自动缩放。 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -301,7 +309,8 @@ body.is-entered .welcome-screen {
   color: var(--ink);
   background: var(--panel);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   pointer-events: auto;
   cursor: pointer;
 }
@@ -318,8 +327,7 @@ body.is-entered .welcome-screen {
 .tab,
 .chip,
 .archive-control,
-.language-toggle,
-.language-menu button {
+.language-toggle {
   border: 0;
   color: var(--muted);
   background: transparent;
@@ -442,38 +450,19 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   position: relative;
 }
 
-.language-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  display: grid;
-  min-width: 120px;
-  padding: 10px 0;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
-  backdrop-filter: blur(18px);
-  box-shadow: var(--shadow);
+/* v155: 「JA / EN」两段——当前语言那段加粗+变实(ink)，另一段变淡(muted)。 */
+.lang-opt {
+  transition: color 160ms ease, font-weight 160ms ease;
 }
 
-.language-menu[hidden] {
-  display: none;
-}
-
-.language-menu button {
-  padding: 8px 14px;
-  color: var(--ink);
-  text-align: left;
-}
-
-.language-menu button:hover {
-  background: rgba(197, 79, 53, 0.08);
-}
-
-/* 用户 T11 (v121): the active language is simply BOLD — the ✓ mark was removed on
-   request. */
-.language-menu button.is-active {
+.lang-opt.is-active {
   font-weight: 700;
+  color: var(--ink);
+}
+
+.language-toggle .lang-sep {
+  opacity: 0.5;
+  margin: 0 1px;
 }
 
 .view {
@@ -507,7 +496,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   box-shadow: var(--shadow);
   transition: transform 260ms ease, opacity 260ms ease;
   scrollbar-gutter: stable;
@@ -561,7 +551,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   color: var(--ink);
   background: var(--panel);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
 
 .panel-toggle span {
@@ -584,10 +575,23 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-linejoin: round;
 }
 
-/* 展开栏图标：桌面从左展开（panel-left-open），手机从底展开（panel-bottom-open）。
-   默认（桌面）显示左侧版，手机版隐藏；窄屏切换见文件末尾手机适配区。 */
-.panel-toggle-left .panel-ico-mobile {
+/* 展开栏图标（用户 item10）：桌面/手机各一套，收起=open、展开=close 两种。
+   默认全部隐藏，下面按「桌面 vs 手机」+「open vs close(aria-expanded)」精确显示一个。
+   桌面：收起 panel-left-open，展开后 panel-left-close；手机切换见文件末尾适配区。 */
+.panel-toggle-left .panel-ico {
   display: none;
+}
+
+.panel-toggle-left .panel-ico-desktop.panel-ico-open {
+  display: block;
+}
+
+.panel-toggle-left[aria-expanded="true"] .panel-ico-desktop.panel-ico-open {
+  display: none;
+}
+
+.panel-toggle-left[aria-expanded="true"] .panel-ico-desktop.panel-ico-close {
+  display: block;
 }
 
 .panel-toggle-left {
@@ -637,7 +641,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   color: var(--ink);
   background: var(--panel);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
 
 .map-layer-btn svg {
@@ -677,7 +682,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   background: var(--panel);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
 
 .map-filter-panel[hidden] {
@@ -1164,6 +1170,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   right: 28px;
   bottom: 34px;
   z-index: 5;
+  /* 回到定位图标在上、计数在下，纵向居中排（用户 item11）。 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   padding: 4px 6px;
   border: 0;
   background: transparent;
@@ -1171,9 +1182,22 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   cursor: pointer;
 }
 
+/* 回到定位图标（locate-fixed）：白色描边 + 阴影，和计数一样在深/浅底图上都看得清。 */
+.reset-map-ico {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: var(--icon-stroke, 1.7);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
 .map-toolbar span {
   font-size: 13px;
-  font-weight: 700;
+  /* 用户 item11：计数用最轻字重。 */
+  font-weight: 200;
   line-height: 1;
   white-space: nowrap;
   color: #fff;
@@ -1181,6 +1205,36 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.6),
     0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 地图上的一次性小提示（定位失败等）：底部居中浮出、毛玻璃、几秒自动淡出。 */
+.map-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  z-index: 9;
+  max-width: min(84vw, 420px);
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.map-toast.is-show {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 /* 地图切换按钮：双层图例，中间叠一个当前地图编号（1/2/3）。 */
@@ -2543,7 +2597,8 @@ body.editor-open .archive-view {
   display: flex;
   flex-direction: column;
   background: var(--panel);
-  backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   border: 1px solid var(--line);
   border-radius: 6px;
   box-shadow: 0 10px 26px rgba(20, 26, 25, 0.22);
@@ -2997,12 +3052,22 @@ body.edit-mode .card-edit {
     display: grid;
   }
 
-  /* 展开栏图标：手机改用从底部展开（panel-bottom-open），隐藏桌面的左展开版。 */
-  .panel-toggle-left .panel-ico-desktop {
+  /* 展开栏图标（手机）：隐藏桌面版，用底部展开版；收起 panel-bottom-open、
+     展开后 panel-bottom-close（用户 item10）。 */
+  .panel-toggle-left .panel-ico-desktop.panel-ico-open,
+  .panel-toggle-left[aria-expanded="true"] .panel-ico-desktop.panel-ico-close {
     display: none;
   }
 
-  .panel-toggle-left .panel-ico-mobile {
+  .panel-toggle-left .panel-ico-mobile.panel-ico-open {
+    display: block;
+  }
+
+  .panel-toggle-left[aria-expanded="true"] .panel-ico-mobile.panel-ico-open {
+    display: none;
+  }
+
+  .panel-toggle-left[aria-expanded="true"] .panel-ico-mobile.panel-ico-close {
     display: block;
   }
 
@@ -3023,7 +3088,8 @@ body.edit-mode .card-edit {
     border-radius: 14px;
     background: var(--panel);
     box-shadow: var(--shadow);
-    backdrop-filter: blur(20px) saturate(1.3);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
     /* 默认收起 */
     opacity: 0;
     transform: translateY(-8px);
@@ -3031,15 +3097,22 @@ body.edit-mode .card-edit {
     transition: opacity 160ms ease, transform 160ms ease;
   }
 
-  /* 白底毛玻璃上不再需要地图页的深色描边阴影，去掉以免发糊。 */
+  /* 白底毛玻璃上不再需要地图页的深色描边阴影，全部去掉以免发糊（用户 item5：
+     含选中/hover 态——「Umbrella map」选中时之前还残留一层描边阴影）。 */
   body.view-map .view-tabs {
     color-scheme: light;
   }
 
   body.view-map .view-tabs .tab,
+  body.view-map .view-tabs .tab.is-active,
+  body.view-map .view-tabs .tab:hover,
   body.view-map .view-tabs .language-toggle,
+  body.view-map .view-tabs .language-toggle:hover,
   body.view-map.is-roadmap .view-tabs .tab,
-  body.view-map.is-roadmap .view-tabs .language-toggle {
+  body.view-map.is-roadmap .view-tabs .tab.is-active,
+  body.view-map.is-roadmap .view-tabs .tab:hover,
+  body.view-map.is-roadmap .view-tabs .language-toggle,
+  body.view-map.is-roadmap .view-tabs .language-toggle:hover {
     text-shadow: none;
   }
 
@@ -3057,11 +3130,6 @@ body.edit-mode .card-edit {
     justify-content: flex-end;
     text-align: right;
     padding: 12px 12px;
-  }
-
-  .view-tabs .language-menu,
-  .view-tabs .language-menu button {
-    text-align: right;
   }
 
   /* 面板有自己的浅色底，覆盖地图页把导航字变浅的规则，否则字看不见。 */
@@ -3085,13 +3153,6 @@ body.edit-mode .card-edit {
   .view-tabs .tab::after,
   .view-tabs .language-toggle::after {
     display: none;
-  }
-
-  /* 语言子菜单：在竖排里直接贴着「Language」下方展开。 */
-  .view-tabs .language-menu {
-    position: static;
-    margin-top: 4px;
-    box-shadow: none;
   }
 
   .workspace.is-active {
@@ -3268,8 +3329,7 @@ body.edit-mode .card-edit {
     right: 8px;
   }
 
-  .archive-view,
-  .about-view {
+  .archive-view {
     padding: 112px 18px 24px;
   }
 
@@ -3277,8 +3337,45 @@ body.edit-mode .card-edit {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* About 手机版（用户 item12/13）：内容整体上移到顶部——第一屏标题和右上角汉堡按钮
+     大致同高（顶部留白从 112px 收到 22px）；单列堆叠；正文/标题字号与行距收紧；
+     四个统计块从竖排改 2×2，省高度。 */
   .about-view {
     grid-template-columns: 1fr;
+    padding: 22px 18px 44px;
+    gap: 24px;
+  }
+
+  .about-view .about-section-title {
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
+
+  .about-view .about-para {
+    font-size: 15px;
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+
+  .about-view .about-section + .about-section {
+    margin-top: 28px;
+  }
+
+  .about-view .about-side {
+    gap: 20px;
+  }
+
+  .about-view .about-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .about-view .about-stats div {
+    padding: 14px 16px;
+  }
+
+  .about-view .about-stats dt {
+    font-size: 26px;
   }
 }
 
@@ -3527,6 +3624,31 @@ body:not(.edit-mode) .texts-toggle {
 }
 
 /* 视觉设定面板：按类分组，每行 名称 | 滑块 | 数值(当前/默认) | 恢复默认 */
+/* 视觉设定：改成左侧贴边的滑出面板（用户 item9），不再遮住整屏——这样能一边拖滑块
+   一边看/拖详情页。遮罩层去掉暗色背景并 pointer-events:none，让点击穿透到下面的详情页；
+   只有面板本身可交互。（这些只覆盖 .theme-editor，文案編集面板不受影响。） */
+.theme-editor-overlay {
+  inset: 0;
+  padding: 0;
+  background: transparent;
+  justify-content: flex-start;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.theme-editor-overlay .theme-editor {
+  pointer-events: auto;
+  width: min(340px, 90vw);
+  max-height: none;
+  height: 100vh;
+  border-radius: 0 14px 14px 0;
+  box-shadow: 0 18px 50px rgba(20, 26, 25, 0.35);
+  /* 毛玻璃质感（用户 item7）。 */
+  background: var(--panel);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+
 .theme-editor-body {
   display: grid;
   gap: 16px;
