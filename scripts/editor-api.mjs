@@ -780,13 +780,27 @@ export async function saveTexts(payload) {
   return { ok: true };
 }
 
-// Save the visual theme (icon stroke width + detail-page body font size/line height)
-// to data/theme.json. Only these three known numeric keys, each clamped to a safe
-// range, so a bad POST can never write surprising values.
+// Save the visual theme (icon stroke width + detail-page 4-category font size/line
+// height/weight) to data/theme.json. Only these known numeric keys, each clamped to a
+// safe range, so a bad POST can never write surprising values. v154: 详情正文拆成
+// overlay(主图浮字)/dialogue(对话)/para(段落)/id(ID) 四类，每类 size/line/weight。
+const SIZE_C = { min: 10, max: 24 };
+const LINE_C = { min: 1, max: 2.2 };
+const WEIGHT_C = { min: 300, max: 700 };
 const THEME_CLAMP = {
   iconStroke: { min: 1, max: 3, def: 1.8 },
-  detailBodySize: { min: 11, max: 20, def: 13 },
-  detailBodyLine: { min: 1.1, max: 2, def: 1.45 },
+  overlaySize: { ...SIZE_C, def: 13 },
+  overlayLine: { ...LINE_C, def: 1.45 },
+  overlayWeight: { ...WEIGHT_C, def: 400 },
+  dialogueSize: { ...SIZE_C, def: 13 },
+  dialogueLine: { ...LINE_C, def: 1.45 },
+  dialogueWeight: { ...WEIGHT_C, def: 400 },
+  paraSize: { ...SIZE_C, def: 13 },
+  paraLine: { ...LINE_C, def: 1.45 },
+  paraWeight: { ...WEIGHT_C, def: 400 },
+  idSize: { min: 12, max: 32, def: 20 },
+  idLine: { ...LINE_C, def: 1.2 },
+  idWeight: { min: 300, max: 800, def: 600 },
 };
 
 export async function saveTheme(payload) {

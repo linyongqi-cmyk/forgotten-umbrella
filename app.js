@@ -486,11 +486,24 @@ async function loadSiteSettings() {
 // 视觉主题设定（data/theme.json）：图标线宽 + 详情页正文字号/行距。前端启动读它当默认
 // （线上/别人打开就是这套）；本机在「视觉设定」面板调完写回该文件，push 就上线。
 // 只 3 个数值，带范围钳制，避免面板传来异常值把界面调坏。
-const THEME_DEFAULTS = { iconStroke: 1.8, detailBodySize: 13, detailBodyLine: 1.45 };
+// v154：详情页正文按 4 类分别调（字号/行距/字重）+ 图标线宽。旧的 detailBodySize/Line
+// 已拆成 overlay/dialogue/para 三套；ID 单独一套。旧字段若还留在 theme.json 里会被忽略。
+const THEME_DEFAULTS = {
+  iconStroke: 1.8,
+  overlaySize: 13, overlayLine: 1.45, overlayWeight: 400,
+  dialogueSize: 13, dialogueLine: 1.45, dialogueWeight: 400,
+  paraSize: 13, paraLine: 1.45, paraWeight: 400,
+  idSize: 20, idLine: 1.2, idWeight: 600,
+};
+const SIZE_RANGE = { min: 10, max: 24, step: 1 };
+const LINE_RANGE = { min: 1, max: 2.2, step: 0.05 };
+const WEIGHT_RANGE = { min: 300, max: 700, step: 100 };
 const THEME_RANGES = {
   iconStroke: { min: 1, max: 3, step: 0.1 },
-  detailBodySize: { min: 11, max: 20, step: 1 },
-  detailBodyLine: { min: 1.1, max: 2, step: 0.05 },
+  overlaySize: SIZE_RANGE, overlayLine: LINE_RANGE, overlayWeight: WEIGHT_RANGE,
+  dialogueSize: SIZE_RANGE, dialogueLine: LINE_RANGE, dialogueWeight: WEIGHT_RANGE,
+  paraSize: SIZE_RANGE, paraLine: LINE_RANGE, paraWeight: WEIGHT_RANGE,
+  idSize: { min: 12, max: 32, step: 1 }, idLine: LINE_RANGE, idWeight: { min: 300, max: 800, step: 100 },
 };
 let THEME = { ...THEME_DEFAULTS };
 
@@ -533,8 +546,18 @@ function applyTheme(theme) {
   const t = sanitizeTheme(theme);
   const root = document.documentElement.style;
   root.setProperty("--icon-stroke", String(t.iconStroke));
-  root.setProperty("--detail-body-size", `${t.detailBodySize}px`);
-  root.setProperty("--detail-body-line", String(t.detailBodyLine));
+  root.setProperty("--detail-overlay-size", `${t.overlaySize}px`);
+  root.setProperty("--detail-overlay-line", String(t.overlayLine));
+  root.setProperty("--detail-overlay-weight", String(t.overlayWeight));
+  root.setProperty("--detail-dialogue-size", `${t.dialogueSize}px`);
+  root.setProperty("--detail-dialogue-line", String(t.dialogueLine));
+  root.setProperty("--detail-dialogue-weight", String(t.dialogueWeight));
+  root.setProperty("--detail-para-size", `${t.paraSize}px`);
+  root.setProperty("--detail-para-line", String(t.paraLine));
+  root.setProperty("--detail-para-weight", String(t.paraWeight));
+  root.setProperty("--detail-id-size", `${t.idSize}px`);
+  root.setProperty("--detail-id-line", String(t.idLine));
+  root.setProperty("--detail-id-weight", String(t.idWeight));
 }
 
 async function loadUmbrellaData() {
@@ -1504,7 +1527,7 @@ function renderFocusApproxLabel(text, { pending = false, preview = false } = {})
     <svg class="focus-approx-label-svg" viewBox="-640 -640 1280 1280" aria-hidden="true" focusable="false">
       <defs><path id="focus-approx-label-path" /></defs>
       <text class="focus-approx-label-text">
-        <textPath href="#focus-approx-label-path" startOffset="50%">${escapeHtml(label)}</textPath>
+        <textPath href="#focus-approx-label-path" startOffset="50%">◌ ${escapeHtml(label)}</textPath>
       </text>
     </svg>`;
   updateFocusApproxLabelGeometry();
@@ -2736,7 +2759,7 @@ function renderFocusLink(item) {
   // 用户 #6: a horizontal chain-link icon (same stroke weight as back-to-map),
   // not an arrow; the text is a brighter, more legible blue (see .focus-link-a).
   els.focusLink.hidden = false;
-  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}"><svg class="focus-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span>${escapeHtml(label)}</span></a>`;
+  els.focusLink.innerHTML = `<a href="#" class="focus-link-a" data-link-id="${escapeHtml(target.id)}"><svg class="focus-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg><span>${escapeHtml(label)}</span></a>`;
 }
 
 // The detail page body: an ordered flow of paragraphs and photos. Falls back
@@ -3044,12 +3067,13 @@ function renderFocusWeatherAxis(weather) {
     for (let i = 0; i < n; i += 1) pos[i] = LO + step * i;
   }
 
-  // 线段：只画在相邻图例之间的空隙里（各让开半个图标宽 ~13px），实现「图例处断开」的遮挡。
+  // 线段：只画在相邻图例之间的空隙里，各让开 20px（图标半宽约 14px + 约 6px 空隙），
+  // 让图标和线段之间有明显间隙、不会几乎连在一起（用户 item4）。
   const segs = [];
   for (let i = 1; i < pos.length; i += 1) {
     const wPct = pos[i] - pos[i - 1];
     segs.push(
-      `<span class="fw-seg" style="left:calc(${pos[i - 1].toFixed(2)}% + 13px);width:calc(${wPct.toFixed(2)}% - 26px)"></span>`,
+      `<span class="fw-seg" style="left:calc(${pos[i - 1].toFixed(2)}% + 20px);width:calc(${wPct.toFixed(2)}% - 40px)"></span>`,
     );
   }
 
@@ -5565,7 +5589,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=153", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=154", { updateViaCache: "none" });
   }
 }
 
@@ -7375,11 +7399,50 @@ async function saveTextsEditor() {
 // 线上/别人打开也吃这套值。范围钳制在 THEME_RANGES 内。
 const themeEditor = { overlay: null };
 
-const THEME_FIELDS = [
-  { key: "iconStroke", label: "图标线宽", unit: "" },
-  { key: "detailBodySize", label: "详情正文字号", unit: "px" },
-  { key: "detailBodyLine", label: "详情正文行距", unit: "" },
+// 面板分组：图标线宽 + 详情页 4 类正文（每类 字号/行距/字重）。字重=CSS font-weight。
+const THEME_GROUPS = [
+  { title: "图标", fields: [{ key: "iconStroke", label: "图标线宽", unit: "" }] },
+  {
+    title: "主图浮字（地点 / 时间 / INFORMATION）",
+    fields: [
+      { key: "overlaySize", label: "字号", unit: "px" },
+      { key: "overlayLine", label: "行距", unit: "" },
+      { key: "overlayWeight", label: "字重", unit: "" },
+    ],
+  },
+  {
+    title: "对话",
+    fields: [
+      { key: "dialogueSize", label: "字号", unit: "px" },
+      { key: "dialogueLine", label: "行距", unit: "" },
+      { key: "dialogueWeight", label: "字重", unit: "" },
+    ],
+  },
+  {
+    title: "段落",
+    fields: [
+      { key: "paraSize", label: "字号", unit: "px" },
+      { key: "paraLine", label: "行距", unit: "" },
+      { key: "paraWeight", label: "字重", unit: "" },
+    ],
+  },
+  {
+    title: "ID（主图左上角）",
+    fields: [
+      { key: "idSize", label: "字号", unit: "px" },
+      { key: "idLine", label: "行距", unit: "" },
+      { key: "idWeight", label: "字重", unit: "" },
+    ],
+  },
 ];
+const THEME_FIELDS = THEME_GROUPS.flatMap((g) => g.fields);
+const THEME_UNITS = Object.fromEntries(THEME_FIELDS.map((f) => [f.key, f.unit]));
+
+// 数值读数：显示「当前值 / 默认值」（用户 item9，如 1.2/1.8）。
+function themeOutText(key, value) {
+  const unit = THEME_UNITS[key] || "";
+  return `${value}${unit}/${THEME_DEFAULTS[key]}${unit}`;
+}
 
 function setupThemeEditor() {
   const btn = document.createElement("button");
@@ -7412,14 +7475,18 @@ function buildThemeEditor() {
   overlay.className = "texts-editor-overlay theme-editor-overlay";
   overlay.hidden = true;
 
-  const rows = THEME_FIELDS.map((f) => {
-    const r = THEME_RANGES[f.key];
-    return `
-      <label class="theme-row" data-theme-row="${f.key}">
-        <span class="theme-row-name">${f.label}</span>
-        <input type="range" data-theme-field="${f.key}" min="${r.min}" max="${r.max}" step="${r.step}" />
-        <output data-theme-out="${f.key}"></output>
-      </label>`;
+  const groupsHtml = THEME_GROUPS.map((g) => {
+    const rows = g.fields.map((f) => {
+      const r = THEME_RANGES[f.key];
+      return `
+        <label class="theme-row" data-theme-row="${f.key}">
+          <span class="theme-row-name">${f.label}</span>
+          <input type="range" data-theme-field="${f.key}" min="${r.min}" max="${r.max}" step="${r.step}" />
+          <output data-theme-out="${f.key}"></output>
+          <button type="button" class="theme-row-reset" data-theme-reset="${f.key}" title="恢复此项默认" aria-label="恢复默认">↺</button>
+        </label>`;
+    }).join("");
+    return `<div class="theme-group"><div class="theme-group-title">${g.title}</div>${rows}</div>`;
   }).join("");
 
   overlay.innerHTML = `
@@ -7428,8 +7495,8 @@ function buildThemeEditor() {
         <strong>视觉设定 — 图标线宽 / 详情正文</strong>
         <button type="button" class="texts-editor-close" aria-label="close">×</button>
       </header>
-      <p class="texts-editor-hint">拖动即实时预览。保存后写入 data/theme.json，线上看到的也会更新。</p>
-      <div class="texts-editor-body theme-editor-body">${rows}</div>
+      <p class="texts-editor-hint">拖动即实时预览，数值显示「当前/默认」。保存后写入 data/theme.json，线上看到的也会更新。</p>
+      <div class="texts-editor-body theme-editor-body">${groupsHtml}</div>
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save theme-editor-save">保存</button>
         <button type="button" class="texts-editor-reset theme-editor-reset">恢复默认</button>
@@ -7443,6 +7510,18 @@ function buildThemeEditor() {
   // 拖动滑块：实时预览（改 :root）+ 更新数字读数，但先不写文件。
   overlay.querySelectorAll("[data-theme-field]").forEach((input) => {
     input.addEventListener("input", () => {
+      applyTheme(readThemeEditor());
+      updateThemeOutputs();
+    });
+  });
+  // 单项「恢复默认」小按钮（用户 item9）：只把这一项拨回默认值并实时预览。
+  overlay.querySelectorAll("[data-theme-reset]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.themeReset;
+      const input = overlay.querySelector(`[data-theme-field="${key}"]`);
+      if (input) {
+        input.value = String(THEME_DEFAULTS[key]);
+      }
       applyTheme(readThemeEditor());
       updateThemeOutputs();
     });
@@ -7494,7 +7573,7 @@ function updateThemeOutputs() {
     const input = themeEditor.overlay.querySelector(`[data-theme-field="${f.key}"]`);
     const out = themeEditor.overlay.querySelector(`[data-theme-out="${f.key}"]`);
     if (input && out) {
-      out.textContent = `${input.value}${f.unit}`;
+      out.textContent = themeOutText(f.key, input.value);
     }
   });
 }
