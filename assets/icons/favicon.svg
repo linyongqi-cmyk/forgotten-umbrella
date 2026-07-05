@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- 标签页图标：白底 + 黑色 lucide「umbrella」线条图标 -->
+  <rect width="24" height="24" rx="4" fill="#ffffff"/>
+  <g fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+     transform="translate(3 3) scale(0.75)">
+    <path d="M22 12a10.06 10.06 0 0 0-20 0Z"/>
+    <path d="M12 12v8a2 2 0 0 0 4 0"/>
+    <path d="M12 2v1"/>
+  </g>
+</svg>

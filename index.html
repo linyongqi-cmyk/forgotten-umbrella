@@ -2,12 +2,14 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- 禁止整页缩放（用户）：手机上大面积是地图，双指捏合应只缩放地图，不要误触把整页放大。
+         maximum-scale=1 + user-scalable=no 关掉浏览器页面缩放；Google 地图自有手势不受影响。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#1f2d2d" />
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=155" />
+    <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=161" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -87,9 +89,9 @@
                 <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
                 <path d="M2 12h20" />
               </svg>
-              <span class="lang-opt" data-lang="ja">JA</span>
+              <span class="lang-opt" data-lang="ja">Ja</span>
               <span class="lang-sep" aria-hidden="true">/</span>
-              <span class="lang-opt" data-lang="en">EN</span>
+              <span class="lang-opt" data-lang="en">En</span>
             </button>
           </div>
         </nav>
@@ -143,12 +145,6 @@
           <div class="map-layer-tools" id="map-layer-tools">
             <button id="map-type-toggle" class="map-layer-btn map-type-btn" type="button" aria-label="switch map" title="switch map">
               <span class="map-type-ico" aria-hidden="true"></span>
-            </button>
-
-            <button id="locate-me" class="map-layer-btn" type="button" aria-label="go to my location" title="go to my location">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <polygon points="3 11 22 2 13 21 11 13 3 11" />
-              </svg>
             </button>
 
             <div class="map-filter" id="map-filter">
@@ -217,23 +213,26 @@
             <div class="archive-list" id="archive-list" aria-live="polite"></div>
           </aside>
 
-          <!-- 右下角：回到定位按钮(locate-fixed)在上，139item 计数(最轻字重)在下（用户 item11）。 -->
-          <button id="reset-map" class="map-toolbar" type="button" aria-label="show all items" title="show all items">
-            <svg class="reset-map-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <line x1="2" x2="5" y1="12" y2="12" />
-              <line x1="19" x2="22" y1="12" y2="12" />
-              <line x1="12" x2="12" y1="2" y2="5" />
-              <line x1="12" x2="12" y1="19" y2="22" />
-              <circle cx="12" cy="12" r="7" />
-              <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
-            </svg>
-            <span id="result-count"></span>
-          </button>
+          <!-- 右下角：定位按钮(navigation，去当前位置)在上、139item 计数(show all items)在下。
+               定位按钮原来在左上横幅，按用户 item4 整个移到这里，不是新增装饰图标。 -->
+          <div class="map-toolbar" id="map-toolbar">
+            <button id="locate-me" class="map-locate-btn" type="button" aria-label="go to my location" title="go to my location">
+              <svg class="locate-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <polygon points="3 11 22 2 13 21 11 13 3 11" />
+              </svg>
+            </button>
+            <button id="reset-map" class="map-reset-btn" type="button" aria-label="show all items" title="show all items">
+              <span id="result-count"></span>
+            </button>
+          </div>
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
           <div class="focus-approx-label" id="focus-approx-label" aria-hidden="true" hidden></div>
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
+            <!-- 手机端底部抽屉的拖动把手（仅 ≤820px 显示）。点一下在「低档/全屏」两档间切换；
+                 拖动手势在第2阶段接。 -->
+            <button class="focus-sheet-handle" id="focus-sheet-handle" type="button" aria-label="展开/收起详情" title="展开/收起详情"><svg class="focus-sheet-hint" viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="M4 10l8-6 8 6" /></svg></button>
             <div class="focus-scroll" id="focus-scroll">
               <div class="focus-stage">
                 <div class="focus-image-frame">
@@ -273,6 +272,12 @@
               </div>
             </div>
           </figure>
+
+          <!-- 手机端：拖动/缩放地图时详情抽屉收起，露出这个「展开」胶囊按钮把它叫回来（仅 ≤820px）。 -->
+          <button class="focus-expand" id="focus-expand" type="button" aria-label="展开详情" title="展开详情">
+            <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="M4 10l8-6 8 6" /></svg>
+            <span class="focus-expand-label">Show detail</span>
+          </button>
 
           <div class="focus-thumbs" id="focus-thumbs" aria-label="image thumbnails" hidden></div>
         </section>
@@ -329,6 +334,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=155" type="module"></script>
+    <script src="app.js?v=161" type="module"></script>
   </body>
 </html>

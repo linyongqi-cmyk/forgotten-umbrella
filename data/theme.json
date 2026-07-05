@@ -1,5 +1,25 @@
 {
-  "iconStroke": 1.8,
-  "detailBodySize": 13,
-  "detailBodyLine": 1.45
+  "iconStroke": 1.2,
+  "overlaySize": 13,
+  "overlayLine": 1.45,
+  "overlayWeight": 400,
+  "overlayGap": 5,
+  "dialogueSize": 13,
+  "dialogueLine": 1.45,
+  "dialogueWeight": 300,
+  "dialogueGap": 5,
+  "paraSize": 13,
+  "paraLine": 1.45,
+  "paraWeight": 300,
+  "paraGap": 10,
+  "idSize": 20,
+  "idLine": 1.2,
+  "idWeight": 400,
+  "sheetFollow": 1,
+  "sheetSnapRatio": 0.28,
+  "sheetExitRatio": 0.22,
+  "sheetSnapMs": 300,
+  "sheetExitMs": 260,
+  "sheetInertia": 120,
+  "sheetExitFade": 0.2
 }

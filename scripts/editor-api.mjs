@@ -792,15 +792,26 @@ const THEME_CLAMP = {
   overlaySize: { ...SIZE_C, def: 13 },
   overlayLine: { ...LINE_C, def: 1.45 },
   overlayWeight: { ...WEIGHT_C, def: 400 },
+  overlayGap: { min: 0, max: 30, def: 5 },
   dialogueSize: { ...SIZE_C, def: 13 },
   dialogueLine: { ...LINE_C, def: 1.45 },
   dialogueWeight: { ...WEIGHT_C, def: 400 },
+  dialogueGap: { min: 0, max: 30, def: 5 },
   paraSize: { ...SIZE_C, def: 13 },
   paraLine: { ...LINE_C, def: 1.45 },
   paraWeight: { ...WEIGHT_C, def: 400 },
+  paraGap: { min: 0, max: 30, def: 8 },
   idSize: { min: 12, max: 32, def: 20 },
   idLine: { ...LINE_C, def: 1.2 },
   idWeight: { min: 300, max: 800, def: 600 },
+  // 任务6：手机端详情抽屉手势参数（范围要和 app.js THEME_RANGES 对齐，否则保存会被抹掉）。
+  sheetFollow: { min: 0.5, max: 1.5, def: 1.0 },
+  sheetSnapRatio: { min: 0.1, max: 0.5, def: 0.28 },
+  sheetExitRatio: { min: 0.1, max: 0.5, def: 0.22 },
+  sheetSnapMs: { min: 120, max: 700, def: 300 },
+  sheetExitMs: { min: 120, max: 700, def: 260 },
+  sheetInertia: { min: 0, max: 300, def: 120 },
+  sheetExitFade: { min: 0, max: 0.8, def: 0.2 },
 };
 
 export async function saveTheme(payload) {

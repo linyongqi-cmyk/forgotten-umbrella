@@ -35,8 +35,16 @@
   --fb-veil-a: 0.3;
   --fb-label-distance-a: 245px;
   --fb-label-rotate-a: 0deg;
+  /* 根字体栈：拉丁字体在前、日文字体兜底。浏览器逐字形回退——英文字母永远命中
+     -apple-system 这类拉丁字体（不管 <html lang> 是 ja 还是 en 都同一套，字号一致），
+     只有日文假名/汉字才落到后面的 Hiragino/Yu Gothic/Noto。
+     旧写法以 sans-serif 收尾，sans-serif 用哪套字体由 <html lang> 决定，导致
+     lang=ja 时英文被日文字体的拉丁字形接管、显得更大更宽——切换语言全站字号忽变。
+     这里把拉丁字体显式提前，从根上关掉这个 lang 依赖（用户 item1）。 */
   font-family:
-    "Segoe UI", "Hiragino Sans GB", "Microsoft YaHei", "Yu Gothic UI", sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Yu Gothic UI",
+    "Noto Sans JP", "Noto Sans CJK JP", "Microsoft YaHei", sans-serif;
 }
 
 * {
@@ -354,6 +362,14 @@ body.is-entered .welcome-screen {
   flex: none;
 }
 
+/* 导航标签是固定英文，但切换语言会把 <html lang> 改成 ja/en。锁一套纯拉丁字体栈，
+   否则 lang=ja 时这些英文会被日文字体的拉丁字形接管，看起来比 lang=en 时更大更宽
+   （手机汉堡菜单里尤其明显——用户 item3）。 */
+.view-tabs .tab,
+.view-tabs .language-toggle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 .tab::after,
 .language-toggle::after {
   content: "";
@@ -450,9 +466,17 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   position: relative;
 }
 
-/* v155: 「JA / EN」两段——当前语言那段加粗+变实(ink)，另一段变淡(muted)。 */
+/* v155: 「Ja / En」两段——当前语言那段加粗+变实(ink)，另一段变淡(muted)。
+   给每段一个能装下粗体的固定宽度并居中：这样在 400↔700 之间切换时整段宽度不变，
+   导航栏不会再随字重跳动（用户 item2）。也别对 font-weight 做过渡，否则中间态的
+   半粗宽度同样会造成细微抖动。 */
 .lang-opt {
-  transition: color 160ms ease, font-weight 160ms ease;
+  display: inline-block;
+  /* 够装下粗体两字母、防止 400↔700 切换时抖动即可；再大就会在 Ja / En 之间
+     留出多余空隙（用户 item3）。 */
+  min-width: 1.5em;
+  text-align: center;
+  transition: color 160ms ease;
 }
 
 .lang-opt.is-active {
@@ -462,7 +486,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 .language-toggle .lang-sep {
   opacity: 0.5;
-  margin: 0 1px;
+  /* Ja / En 之间的可视间距收到 8px（用户）：靠负 margin 抵消掉 .language-toggle 的
+     flex gap(6px×2)+分隔符两侧留白，让「Ja / En」更紧凑。 */
+  margin: 0 -4.3px;
 }
 
 .view {
@@ -539,6 +565,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   transform: translateX(calc(-100% - 32px));
 }
 
+/* 用户 v159：桌面也去掉展开列表按钮的圆形毛玻璃底/边框/阴影，只留图标
+   （手机端早已去，和地图左下角图层按钮/右上定位按钮统一）。图标改白描边+投影，
+   深/浅底图都看得清。 */
 .panel-toggle {
   position: fixed;
   z-index: 15;
@@ -546,13 +575,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   place-items: center;
   width: 52px;
   height: 52px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  padding: 0;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
 }
 
 .panel-toggle span {
@@ -573,6 +600,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-width: var(--icon-stroke, 1.7);
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
 }
 
 /* 展开栏图标（用户 item10）：桌面/手机各一套，收起=open、展开=close 两种。
@@ -630,19 +658,19 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   z-index: 40;
 }
 
+/* 用户 item2：去掉圆形毛玻璃底/边框/阴影，只留图标（和右上角定位按钮一样）。
+   保留 48px 命中区（弹面板仍相对它定位），图标改白描边+投影，深/浅底图都看得清。 */
 .map-layer-btn {
   display: grid;
   place-items: center;
   width: 48px;
   height: 48px;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  cursor: pointer;
 }
 
 .map-layer-btn svg {
@@ -653,16 +681,16 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-width: var(--icon-stroke, 1.8);
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
 }
 
 .map-layer-btn[hidden] {
   display: none;
 }
 
+/* 选中态不再是填充圆，改用主题色描边区分。 */
 .map-layer-btn.is-active {
-  color: #fff;
-  background: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Map marker filter: a button that expands a 4-colour show/hide panel (item 6). */
@@ -1163,27 +1191,34 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   box-shadow: none !important;
 }
 
-/* 「查看所有标点」原来的圆按钮已删（用户）：现在只剩右下角的「139 item」
-   计数文字，本身就是那个可点按钮（点它=显示全部标点），白色字。 */
+/* 右下角工具组：定位按钮(navigation)在上、「139 item」计数在下，纵向居中排
+   （用户 item4：把原本左上横幅的定位按钮整个移过来，不是新增装饰图标）。 */
 .map-toolbar {
   position: fixed;
   right: 28px;
   bottom: 34px;
   z-index: 5;
-  /* 回到定位图标在上、计数在下，纵向居中排（用户 item11）。 */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 4px 6px;
+  gap: 6px;
+}
+
+/* 组里两个按钮都做成透明底、无边框，点哪块各管各的功能。 */
+.map-locate-btn,
+.map-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
   border: 0;
   background: transparent;
   box-shadow: none;
   cursor: pointer;
 }
 
-/* 回到定位图标（locate-fixed）：白色描边 + 阴影，和计数一样在深/浅底图上都看得清。 */
-.reset-map-ico {
+/* 定位图标（navigation）：白色描边 + 阴影，在深/浅底图上都看得清。 */
+.locate-ico {
   width: 22px;
   height: 22px;
   fill: none;
@@ -1192,6 +1227,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+/* 取当前位置时转圈反馈（原来在 .map-layer-btn 上，随按钮一起搬过来）。 */
+.map-locate-btn.is-locating .locate-ico {
+  animation: locate-spin 0.9s linear infinite;
 }
 
 .map-toolbar span {
@@ -1307,6 +1347,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
      --fb-tint   the wash colour outside the circle (white for blur-approx)
    Defaults come from :root (--fb-*-n normal set); .is-blur-approx swaps in the
    --fb-*-a set. */
+/* 「展开详情」胶囊只在手机端地图收起时出现，桌面/宽屏一律不显示。 */
+.focus-expand {
+  display: none;
+}
+
 .focus-blur {
   color-scheme: dark;
   --focus-x: 23vw;
@@ -1369,6 +1414,18 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   --fb-tint: rgba(255, 255, 255, 0.5);
 }
 
+/* 任务5（手机端）：清晰圈半径缩到约 0.83（面积≈70%）。配合 app.js 的 FOCUS_MAP_ZOOM_MOBILE
+   把地图拉远 1.2 倍，圈里显示的真实内容不变、只是整体缩小。桌面(>820px)保持原样。
+   --fb-radius 是在 .focus-blur 上算出来的（不是 :root 内联变量），所以这里能安全覆盖。 */
+@media (max-width: 820px) {
+  .focus-blur {
+    --fb-radius: calc(var(--fb-radius-n, 138px) * 0.83);
+  }
+  .workspace.is-focus-mode.is-blur-approx .focus-blur {
+    --fb-radius: calc(var(--fb-radius-a, 200px) * 0.83);
+  }
+}
+
 .focus-image-panel {
   color-scheme: dark;
   /* --ink/--muted 是在 :root 用 light-dark() 声明的，会在 :root（浅色系统）就
@@ -1419,6 +1476,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   transition:
     opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 手机端底部抽屉的拖动把手：桌面完全不显示（详情面板是右侧固定框，不需要抽屉）。
+   手机适配区（≤820px）里再打开并接切档。 */
+.focus-sheet-handle {
+  display: none;
 }
 
 /* Back-to-map affordance (用户要求 #6): a U-turn return arrow with a long tail and
@@ -2802,24 +2865,22 @@ body.editor-open .archive-view {
   z-index: 2;
 }
 
+/* 用户 v159：去掉角标黑色方块底，只留白图标 + 投影，图片深浅都看得清。 */
 .card-badge {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: rgba(17, 21, 20, 0.62);
   color: #fff;
 }
 
 .card-badge svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: var(--icon-stroke, 1.7);
   stroke-linejoin: round;
   stroke-linecap: round;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.55));
 }
 
 /* Edit button (top-right) — only visible in local edit mode. */
@@ -2867,6 +2928,14 @@ body.edit-mode .card-edit {
 .archive-group-header h3,
 .archive-group-header p {
   margin: 0;
+}
+
+/* 用户 v159：条数「58 item」放到地址右边（原来在标题下方一行）。 */
+.archive-group-header > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .archive-group-header p {
@@ -3081,9 +3150,9 @@ body.edit-mode .card-edit {
     align-items: stretch;
     gap: 2px;
     padding: 8px;
-    /* 白色毛玻璃质感（用户 item3-3）：强制 color-scheme:light，让 --panel/--line/文字
-       变量都取浅色版，白玻璃底 + 深色字，覆盖地图页原本的暗色导航。 */
-    color-scheme: light;
+    /* 毛玻璃下拉栏跟随系统浅/深色（用户）：浅色=白玻璃+深字，深色=暗玻璃+浅字，
+       覆盖地图页原本强制的暗色导航。 */
+    color-scheme: light dark;
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--panel);
@@ -3100,7 +3169,7 @@ body.edit-mode .card-edit {
   /* 白底毛玻璃上不再需要地图页的深色描边阴影，全部去掉以免发糊（用户 item5：
      含选中/hover 态——「Umbrella map」选中时之前还残留一层描边阴影）。 */
   body.view-map .view-tabs {
-    color-scheme: light;
+    color-scheme: light dark;
   }
 
   body.view-map .view-tabs .tab,
@@ -3124,12 +3193,21 @@ body.edit-mode .card-edit {
 
   /* 菜单项：右对齐（汉堡在右上角）、占满整行，方便手指点。 */
   .view-tabs .tab,
-  .view-tabs .language-switcher,
   .view-tabs .language-toggle {
     width: 100%;
     justify-content: flex-end;
     text-align: right;
     padding: 12px 12px;
+  }
+
+  /* 语言项外层容器只负责撑满整行，内边距全交给里面的 .language-toggle，
+     否则 switcher(12) + toggle(12) 会叠加，让「En」比上面「Submit」多缩进 12px，
+     看起来没右对齐（用户 item1）。 */
+  .view-tabs .language-switcher {
+    width: 100%;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
   }
 
   /* 面板有自己的浅色底，覆盖地图页把导航字变浅的规则，否则字看不见。 */
@@ -3278,7 +3356,7 @@ body.edit-mode .card-edit {
 
   .focus-blur {
     --focus-x: 50vw;
-    --focus-y: 42vh;
+    --focus-y: 25vh;
     --focus-radius: 114px;
     --focus-feather: 28px;
   }
@@ -3290,15 +3368,158 @@ body.edit-mode .card-edit {
     bottom: 28px;
     width: auto;
     min-width: 0;
-    /* v127：窄屏保持「底部抽屉」——高度随内容撑（不用固定高），只封顶不超过一屏。
-       内容矮时贴着底部一小块，内容多时往上长到封顶后内部滚动。 */
-    height: auto;
-    max-height: calc(100vh - var(--focus-top) - 28px);
+    /* v159 第2阶段：窄屏「可拖动底部抽屉」的两档吸附（手势逻辑在 app.js）。
+       - peek 半开档 --sheet-peek：只露封面+主要信息，上方地图/清晰圆还看得见。
+       - 加 .is-sheet-full：升到导航栏下方，方便读长文。
+       --sheet-peek/--sheet-full 由 JS 按视口写成 px（updateSheetMetrics），
+       这里的值只是 JS 跑起来前的兜底。 */
+    --sheet-peek: 50svh;
+    --sheet-full: calc(100svh - var(--focus-top) - 28px);
+    height: var(--sheet-peek);
+    max-height: var(--sheet-full);
     transform: translateY(24px);
+    /* height 过渡时长 = 任务6 可调 --sheet-snap-ms（peek↔full 吸附/回弹）。 */
+    transition:
+      opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .focus-image-panel.is-sheet-full {
+    height: var(--sheet-full);
+  }
+
+  /* 拖动中：关掉高度/位移过渡，让面板 1:1 跟手（内联样式由 JS 每帧写）。 */
+  .focus-image-panel.is-sheet-dragging {
+    transition: none;
+  }
+
+  /* 下滑退出：只给位移/透明度一段短过渡，滑出屏幕底部后再真正关闭。
+     时长 = 任务6 可调 --sheet-exit-ms（与 animateSheetExit 的 setTimeout 一致）。 */
+  .focus-image-panel.is-sheet-exiting {
+    transition:
+      transform var(--sheet-exit-ms, 260ms) cubic-bezier(0.4, 0, 1, 1),
+      opacity var(--sheet-exit-ms, 260ms) ease;
   }
 
   .workspace.is-focus-mode .focus-image-panel {
     transform: translateY(0);
+  }
+
+  /* peek 档：内容不滚动，保证「向上拖=展开抽屉」不会被内容滚动抢走；
+     升到 full 后才放开滚动（full 档顶部再向下拖=收回 peek）。 */
+  .focus-image-panel:not(.is-sheet-full):not(.is-expanded) .focus-scroll {
+    overflow: hidden;
+  }
+
+  /* 拖动/缩放地图时（is-focus-map-active）抽屉整体滑出屏底收起，露出「展开」胶囊。 */
+  .workspace.is-focus-mode.is-focus-map-active .focus-image-panel:not(.is-expanded) {
+    transform: translateY(115%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .focus-expand {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 34;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 1px solid rgba(244, 241, 234, 0.28);
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.72);
+    color: rgba(244, 241, 234, 0.92);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transform: translate(-50%, 8px);
+    opacity: 0;
+    transition: opacity 240ms ease, transform 240ms ease;
+    cursor: pointer;
+  }
+
+  .focus-expand svg {
+    width: 18px;
+    height: 11px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .workspace.is-focus-mode.is-focus-map-active .focus-expand {
+    display: inline-flex;
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* 抽屉里滚动区填满（footer 钉在抽屉底），短内容不再居中——抽屉是固定档高。 */
+  .focus-image-panel:not(.is-expanded) .focus-scroll,
+  .focus-image-panel.is-focus-short:not(.is-expanded) .focus-scroll {
+    flex: 1 1 auto;
+    margin-top: 0;
+  }
+
+  /* 顶部拖动把手：一条灰色小横条，整条可点（低档↔全屏切换）。 */
+  .focus-sheet-handle {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  /* 用户任务3+4：去掉旧的灰色小横条，改成一个向上的小箭头 + 上浮动效，提示「可向上滑动看更多」。
+     短内容（.is-focus-short，peek 已能看全）时隐藏；全屏档（.is-sheet-full）也隐藏。 */
+  .focus-sheet-hint {
+    width: 26px;
+    height: 15px;
+    fill: none;
+    stroke: rgba(244, 241, 234, 0.72);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+    animation: focus-sheet-hint-bob 1.5s ease-in-out infinite;
+  }
+
+  .focus-image-panel.is-sheet-full .focus-sheet-hint,
+  .focus-image-panel.is-focus-short .focus-sheet-hint {
+    animation: none;
+    opacity: 0;
+  }
+
+  @keyframes focus-sheet-hint-bob {
+    0%,
+    100% {
+      transform: translateY(2px);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-3px);
+      opacity: 0.95;
+    }
+  }
+
+  /* 用户任务1：手机端抽屉里不显示底部「Back to map / Scroll for more」这一行
+     （退出靠向下滑，看更多靠向上滑 + 上方箭头提示）。放大灯箱不受影响。 */
+  .focus-image-panel:not(.is-expanded) .focus-footer {
+    display: none;
+  }
+
+  /* 放大灯箱时不显示把手。 */
+  .focus-image-panel.is-expanded .focus-sheet-handle {
+    display: none;
   }
 
   .focus-image-panel.is-expanded,
@@ -3334,16 +3555,70 @@ body.edit-mode .card-edit {
   }
 
   .photo-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* 用户 item5：手机端一行 3 张卡。 */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
   }
 
-  /* About 手机版（用户 item12/13）：内容整体上移到顶部——第一屏标题和右上角汉堡按钮
-     大致同高（顶部留白从 112px 收到 22px）；单列堆叠；正文/标题字号与行距收紧；
-     四个统计块从竖排改 2×2，省高度。 */
+  /* 用户：手机端卡片一行 3 张、格子很窄，原来 id 和 title 并排且不换行会溢出、
+     跟相邻卡片的文字叠在一起。改成竖排（id 在上、标题在下）+ 缩小字号 + 允许换行。 */
+  .card-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1px;
+    padding-top: 6px;
+  }
+
+  .card-id {
+    font-size: 12px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .card-title {
+    font-size: 11px;
+    line-height: 1.3;
+    /* 标题也允许折行（不再单行省略号），完整显示在 id 下方。 */
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  /* About 手机版（用户 item12/13）：单列堆叠；正文/标题字号与行距收紧；
+     四个统计块从竖排改 2×2，省高度。（顶部留白按用户要求撤销上移，恢复 112px。） */
   .about-view {
-    grid-template-columns: 1fr;
-    padding: 22px 18px 44px;
+    flex-direction: column;
+    /* 顶部内边距对齐汉堡按钮顶部（用户）：topbar top:14 + 图标在 48 高按钮内居中(+13)
+       ≈ 27，让四个统计方块的上边线和右上角汉堡图标顶部齐平。 */
+    padding: 27px 18px 44px;
     gap: 24px;
+  }
+
+  /* .about-view.is-active 基础样式里是 display:grid（优先级 0,2,0），这里同优先级覆盖成
+     flex 竖排，item4 的 order 排序才生效。 */
+  .about-view.is-active {
+    display: flex;
+  }
+
+  /* 用户 item4：把四个统计方块移到最顶部。about-stats 原本嵌在 about-side 里，
+     用 display:contents 把 about-side 摊平成 about-view 的直接子项，再用 order 排：
+     统计块最上、正文居中、图例最下。 */
+  .about-view .about-side {
+    display: contents;
+  }
+
+  .about-view .about-stats {
+    order: -1;
+  }
+
+  .about-view .about-copy {
+    order: 0;
+  }
+
+  .about-view .about-legend {
+    order: 1;
   }
 
   .about-view .about-section-title {
@@ -3391,12 +3666,14 @@ body.edit-mode .card-edit {
   }
 
   .photo-grid {
-    grid-template-columns: 1fr;
+    /* 用户 item5：最窄屏也保持 3 列，全手机端统一。 */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .archive-group-header {
-    align-items: start;
-    flex-direction: column;
+    /* 保持横排：月份/条数在左，折叠箭头始终在右（用户）——之前竖排把箭头挤到了标题下方。 */
+    align-items: center;
   }
 
   /* 统计表：窄屏缩小字号/内边距，并让长行标签换行——否则第一列（如
@@ -3662,10 +3939,45 @@ body:not(.edit-mode) .texts-toggle {
   border-radius: 8px;
 }
 
+/* 分组标题：可点击的折叠头（用户 item6）。整行做成按钮，左边小箭头指示状态。 */
 .theme-group-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 13px;
   font-weight: 600;
+  text-align: left;
   color: var(--ink, #141a19);
+  cursor: pointer;
+}
+
+.theme-group-chevron {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 160ms ease;
+}
+
+.theme-group.is-collapsed .theme-group-chevron {
+  transform: rotate(-90deg);
+}
+
+.theme-group-rows {
+  display: grid;
+  gap: 10px;
+}
+
+.theme-group.is-collapsed .theme-group-rows {
+  display: none;
 }
 
 .theme-row {
@@ -5527,7 +5839,9 @@ body:not(.edit-mode) .editor-inbox-btn {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: 5px 10px;
+  /* 用户 item7：INFORMATION 各行之间的行距 = 「视觉设定 → 主图浮字 → 段落间距」
+     (--detail-overlay-gap)；列间距固定 10px。 */
+  gap: var(--detail-overlay-gap, 5px) 10px;
 }
 
 .focus-info-row {
@@ -5901,6 +6215,15 @@ body.editor-open .panel-resizer {
   margin: 0;
 }
 
+/* 预览里也让「段落间距」如实生效（换行后段落之间），和详情页一致（用户 item6）。 */
+.editor-preview .item-story {
+  margin-bottom: var(--detail-para-gap, 8px);
+}
+
+.editor-preview .item-story:last-child {
+  margin-bottom: 0;
+}
+
 /* 用户: 预览里的对话文字也太大 → 一并调小（详情页真身不受影响）。 */
 .editor-preview .focus-dialogue,
 .editor-preview .focus-dialogue-line,
@@ -6049,7 +6372,7 @@ body.editor-open .panel-resizer {
 }
 
 .focus-image-panel figcaption .focus-note {
-  margin: 0.4em 0 0.6em;
+  margin: var(--detail-para-gap, 8px) 0;
   padding-left: 10px;
   border-left: 2px solid currentColor;
   font-size: var(--detail-para-size);
@@ -6072,14 +6395,14 @@ body.editor-open .panel-resizer {
 
 /* 用户 #7: paragraph block gets a white left rule, same as the dialogue block. */
 .focus-image-panel figcaption .focus-text-block {
-  margin: 0.4em 0 0.6em;
+  margin: var(--detail-para-gap, 8px) 0;
   padding-left: 10px;
   border-left: 2px solid currentColor;
 }
 
 /* Dialogue block (item 12): italic, left rule; speaker left, line body right. */
 .focus-image-panel figcaption .focus-dialogue {
-  margin: 0.4em 0 0.6em;
+  margin: var(--detail-para-gap, 8px) 0;
   padding-left: 10px;
   border-left: 2px solid currentColor;
   font-size: var(--detail-dialogue-size);
@@ -6092,8 +6415,13 @@ body.editor-open .panel-resizer {
 .focus-dialogue-line {
   display: flex;
   gap: 6px;
-  margin: 0 0 0.25em;
+  /* 用户 item7：对话每行之间的间距 = 「视觉设定 → 对话 → 段落间距」(--detail-dialogue-gap)。 */
+  margin: 0 0 var(--detail-dialogue-gap, 5px);
   align-items: baseline;
+}
+
+.focus-dialogue-line:last-child {
+  margin-bottom: 0;
 }
 
 /* Fixed-width speaker cell so every body starts at the same x and wrapped lines
@@ -6111,9 +6439,15 @@ body.editor-open .panel-resizer {
 }
 
 /* 详情页正文段落间距 + 日语两边对齐（英语保持左对齐）。
-   .focus-caption-inner 有 4px 的 grid gap，这里再补一点点段间距（已减半）。 */
+   用户 item6：一个文字块内按换行拆成多个 <p>，这里的下边距就是「换行后段落之间」
+   的距离（如 8622 里 Day 1 段落到 Day 2 段落）——由「视觉设定 → 段落 → 段落间距」
+   滑块（--detail-para-gap）控制。最后一段不留边距，避免和块外边距叠加。 */
 .focus-image-panel figcaption .item-story {
-  margin: 0 0 0.12em;
+  margin: 0 0 var(--detail-para-gap, 8px);
+}
+
+.focus-image-panel figcaption .item-story:last-child {
+  margin-bottom: 0;
 }
 
 .focus-image-panel figcaption .item-story.is-justify {

@@ -96,7 +96,8 @@ const FOCUS_MARKER_SCREEN = {
   xDesktop: 0.23,
   yDesktop: 0.5,
   xMobile: 0.5,
-  yMobile: 0.42,
+  // v159 第2阶段：标点/清晰圆升到屏幕上方 25% 处，让上方地图约占 50%、下方详情抽屉约占 50%。
+  yMobile: 0.25,
 };
 const MARKER_VISUAL_CENTER_OFFSET_Y = 20;
 // Fallback center when geolocation is denied / unavailable / outside Japan: Tokyo Station.
@@ -111,6 +112,13 @@ const CLUSTER_FALLBACK_ZOOM = 11;
 // (without this the user could zoom out to the whole globe).
 const MIN_MAP_ZOOM = 5;
 const FOCUS_MAP_ZOOM = 18;
+// 任务5（手机端）：聚焦时把地图再拉远约 1.2 倍（18 - log2(1.2) ≈ 17.74），屏幕看到更多周边；
+// 同时清晰圈半径按同比例缩到约 0.83（面积≈70%，见 styles.css 手机端 --fb-radius），
+// 于是「圈里显示的真实内容」保持不变，只是整体缩小、能看到完整清晰圈。桌面不变。
+const FOCUS_MAP_ZOOM_MOBILE = 17.74;
+function focusMapZoom() {
+  return isMobileSheet() ? FOCUS_MAP_ZOOM_MOBILE : FOCUS_MAP_ZOOM;
+}
 const RESET_ZOOM_ANIMATION_MS = 760;
 const GEOLOCATION_TIMEOUT_MS = 2500;
 // First entry into the map zooms in from a "whole main island" scale.
@@ -343,6 +351,8 @@ const els = {
   focusImage: document.querySelector("#focus-image"),
   focusExpandedVideo: document.querySelector("#focus-expanded-video"),
   focusScroll: document.querySelector("#focus-scroll"),
+  focusSheetHandle: document.querySelector("#focus-sheet-handle"),
+  focusExpand: document.querySelector("#focus-expand"),
   focusScrollHint: document.querySelector("#focus-scroll-hint"),
   focusZoomHint: document.querySelector("#focus-zoom-hint"),
   focusCaption: document.querySelector("#focus-caption"),
@@ -490,10 +500,17 @@ async function loadSiteSettings() {
 // 已拆成 overlay/dialogue/para 三套；ID 单独一套。旧字段若还留在 theme.json 里会被忽略。
 const THEME_DEFAULTS = {
   iconStroke: 1.8,
-  overlaySize: 13, overlayLine: 1.45, overlayWeight: 400,
-  dialogueSize: 13, dialogueLine: 1.45, dialogueWeight: 400,
-  paraSize: 13, paraLine: 1.45, paraWeight: 400,
+  overlaySize: 13, overlayLine: 1.45, overlayWeight: 400, overlayGap: 5,
+  dialogueSize: 13, dialogueLine: 1.45, dialogueWeight: 400, dialogueGap: 5,
+  paraSize: 13, paraLine: 1.45, paraWeight: 400, paraGap: 8,
   idSize: 20, idLine: 1.2, idWeight: 600,
+  // 任务6：手机端详情抽屉手势的可调参数（存进 data/theme.json，手机打开线上就吃这套值）。
+  // sheetFollow=跟手系数(拖动位移倍率,1=1:1)；sheetSnapRatio=换档吸附阈值(占 peek↔full 行程比)；
+  // sheetExitRatio=下滑退出距离(占屏高比,另有 150px 下限)；sheetSnapMs=吸附/回弹动画时长；
+  // sheetExitMs=下滑退出滑出动画时长；sheetInertia=惯性(把松手时的速度折算成多少 ms 的额外位移,0=关)；
+  // sheetExitFade=下滑退出时抽屉最低透明度。
+  sheetFollow: 1.0, sheetSnapRatio: 0.28, sheetExitRatio: 0.22,
+  sheetSnapMs: 300, sheetExitMs: 260, sheetInertia: 120, sheetExitFade: 0.2,
 };
 const SIZE_RANGE = { min: 10, max: 24, step: 1 };
 const LINE_RANGE = { min: 1, max: 2.2, step: 0.05 };
@@ -501,11 +518,24 @@ const WEIGHT_RANGE = { min: 300, max: 700, step: 100 };
 const THEME_RANGES = {
   iconStroke: { min: 1, max: 3, step: 0.1 },
   overlaySize: SIZE_RANGE, overlayLine: LINE_RANGE, overlayWeight: WEIGHT_RANGE,
+  overlayGap: { min: 0, max: 30, step: 1 },
   dialogueSize: SIZE_RANGE, dialogueLine: LINE_RANGE, dialogueWeight: WEIGHT_RANGE,
+  dialogueGap: { min: 0, max: 30, step: 1 },
   paraSize: SIZE_RANGE, paraLine: LINE_RANGE, paraWeight: WEIGHT_RANGE,
+  paraGap: { min: 0, max: 30, step: 1 },
   idSize: { min: 12, max: 32, step: 1 }, idLine: LINE_RANGE, idWeight: { min: 300, max: 800, step: 100 },
+  sheetFollow: { min: 0.5, max: 1.5, step: 0.05 },
+  sheetSnapRatio: { min: 0.1, max: 0.5, step: 0.02 },
+  sheetExitRatio: { min: 0.1, max: 0.5, step: 0.02 },
+  sheetSnapMs: { min: 120, max: 700, step: 20 },
+  sheetExitMs: { min: 120, max: 700, step: 20 },
+  sheetInertia: { min: 0, max: 300, step: 10 },
+  sheetExitFade: { min: 0, max: 0.8, step: 0.05 },
 };
 let THEME = { ...THEME_DEFAULTS };
+// 任务6：手势参数的「已生效」副本。applyTheme 每次（含面板拖动预览）都会刷新它，
+// 手势代码（applySheetDrag/releaseSheetDrag/…）直接读它，于是桌面拖滑块能实时改手感。
+const sheetTuning = { ...THEME_DEFAULTS };
 
 function clampThemeValue(key, value) {
   const r = THEME_RANGES[key];
@@ -549,15 +579,29 @@ function applyTheme(theme) {
   root.setProperty("--detail-overlay-size", `${t.overlaySize}px`);
   root.setProperty("--detail-overlay-line", String(t.overlayLine));
   root.setProperty("--detail-overlay-weight", String(t.overlayWeight));
+  root.setProperty("--detail-overlay-gap", `${t.overlayGap}px`);
   root.setProperty("--detail-dialogue-size", `${t.dialogueSize}px`);
   root.setProperty("--detail-dialogue-line", String(t.dialogueLine));
   root.setProperty("--detail-dialogue-weight", String(t.dialogueWeight));
+  root.setProperty("--detail-dialogue-gap", `${t.dialogueGap}px`);
   root.setProperty("--detail-para-size", `${t.paraSize}px`);
   root.setProperty("--detail-para-line", String(t.paraLine));
   root.setProperty("--detail-para-weight", String(t.paraWeight));
+  root.setProperty("--detail-para-gap", `${t.paraGap}px`);
   root.setProperty("--detail-id-size", `${t.idSize}px`);
   root.setProperty("--detail-id-line", String(t.idLine));
   root.setProperty("--detail-id-weight", String(t.idWeight));
+  // 任务6：手势参数——数值型的直接存进 sheetTuning 给 JS 手势逻辑读；两个动画时长顺手写成
+  // CSS 变量（手机抽屉 peek↔full 吸附 = --sheet-snap-ms、下滑退出 = --sheet-exit-ms 用）。
+  sheetTuning.sheetFollow = t.sheetFollow;
+  sheetTuning.sheetSnapRatio = t.sheetSnapRatio;
+  sheetTuning.sheetExitRatio = t.sheetExitRatio;
+  sheetTuning.sheetSnapMs = t.sheetSnapMs;
+  sheetTuning.sheetExitMs = t.sheetExitMs;
+  sheetTuning.sheetInertia = t.sheetInertia;
+  sheetTuning.sheetExitFade = t.sheetExitFade;
+  root.setProperty("--sheet-snap-ms", `${t.sheetSnapMs}ms`);
+  root.setProperty("--sheet-exit-ms", `${t.sheetExitMs}ms`);
 }
 
 async function loadUmbrellaData() {
@@ -969,6 +1013,21 @@ function bindEvents() {
   document.addEventListener("pointerup", stopExpandedImageDrag);
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
+  // 手机端底部抽屉把手：单击（没拖动）在「半开 ↔ 全屏」两档间切换。拖动手势见 setupSheetGestures。
+  els.focusSheetHandle?.addEventListener("click", () => {
+    if (state.sheetJustDragged) return; // 刚拖完的一下不当点击
+    const isFull = els.focusPanel?.classList.contains("is-sheet-full");
+    // 任务2 方案A：短内容（peek 已能看全，is-focus-short）不给展开到全屏，只能停在 peek。
+    if (!isFull && !sheetCanExpand()) return;
+    setSheetState(isFull ? "peek" : "full");
+  });
+  // 手机端：地图被拖动/缩放后抽屉收起，点「展开」胶囊把它叫回来（重新居中标点 + 恢复模糊）。
+  els.focusExpand?.addEventListener("click", () => {
+    setFocusBlurSuppressed(false);
+    setSheetState("peek");
+    recenterFocusedMarker();
+  });
+  setupSheetGestures();
   els.focusLink?.addEventListener("click", (event) => {
     const anchor = event.target.closest?.("[data-link-id]");
     if (!anchor) {
@@ -1228,7 +1287,10 @@ function bindEvents() {
 
   // Keep the (fixed) overview dropdown glued to its button while scrolling/resizing.
   window.addEventListener("scroll", () => state.overviewMenuOpen && positionOverviewMenu(), true);
-  window.addEventListener("resize", () => state.overviewMenuOpen && positionOverviewMenu());
+  window.addEventListener("resize", () => {
+    if (state.overviewMenuOpen) positionOverviewMenu();
+    if (els.mapView?.classList.contains("is-focus-mode")) updateSheetMetrics();
+  });
 
   document.addEventListener(
     "click",
@@ -3861,6 +3923,24 @@ function groupContributedByMonth(items) {
     .map(([, g]) => g);
 }
 
+// Contributed submission time → month group (item 8, 投稿時間). Same shape as
+// groupContributedByMonth but keyed on submissionTime instead of the photo time.
+function groupContributedBySubmission(items) {
+  const groups = new Map();
+  items.forEach((it) => {
+    const parts = parseLooseDateParts(it.submissionTime);
+    const key = parts ? `${parts.y}-${String(parts.mo).padStart(2, "0")}` : "0000-no";
+    const label = parts ? `${parts.y}/${String(parts.mo).padStart(2, "0")}` : state.lang === "ja" ? "時間不明" : "time needed";
+    if (!groups.has(key)) {
+      groups.set(key, { key: `s-${key}`, label, items: [] });
+    }
+    groups.get(key).items.push(it);
+  });
+  return Array.from(groups.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([, g]) => g);
+}
+
 // The 47 Japanese prefectures (romaji, as stored in locationLevels[0]); anything
 // else (China, unknown, …) groups as 海外 / Overseas (item 10).
 const JAPAN_PREFECTURES = new Set([
@@ -3913,6 +3993,7 @@ function renderContributedArchive() {
       <div class="archive-primary-row">
         <div class="archive-toolbar-group" role="group" aria-label="sort mode">
           ${btn("photo", ja ? "撮影日時" : "Taken")}
+          ${btn("submitted", ja ? "投稿日時" : "Submitted")}
           ${btn("location", ja ? "場所" : "Location")}
           ${btn("stats", ja ? "統計" : "Stats", false)}
         </div>
@@ -3924,9 +4005,16 @@ function renderContributedArchive() {
     return;
   }
 
-  // Grouped grid (撮影時間 → by month, 場所 → by city) like Fieldwork (item 10).
-  let groups = mode === "location" ? groupContributedByCity(items) : groupContributedByMonth(items);
-  if (mode === "photo" && state.contributedOrder === "asc") {
+  // Grouped grid (撮影時間 → by month, 投稿時間 → by submission month, 場所 → by
+  // city) like Fieldwork (item 10 / item 8).
+  let groups =
+    mode === "location"
+      ? groupContributedByCity(items)
+      : mode === "submitted"
+        ? groupContributedBySubmission(items)
+        : groupContributedByMonth(items);
+  // Time-based modes default newest-first; asc flips to oldest-first.
+  if ((mode === "photo" || mode === "submitted") && state.contributedOrder === "asc") {
     groups = groups.slice().reverse();
   }
   els.contributedContent.innerHTML = toolbar + groups.map((group) => renderArchiveGroup(group)).join("");
@@ -4572,10 +4660,216 @@ function openFocusMode() {
   setFocusBlurSuppressed(false);
   els.mapView.classList.add("is-focus-mode");
   els.focusPanel?.setAttribute("aria-hidden", "false");
+  // 每次打开标点都从半开档开始（手机端抽屉）；桌面无此类样式，加不加无影响。
+  setSheetState("peek");
+  updateSheetMetrics();
   // 用户: opening a marker's detail always starts at the top (main image) — never
   // carry over the scroll position from a previously-viewed detail page.
   els.focusScroll?.scrollTo({ top: 0 });
   setFocusMaskPosition();
+}
+
+// ── 手机端底部抽屉手势（v159 第2阶段，推倒重写）──────────────────────────────
+// 两个吸附档：peek（半开，露出上方地图/清晰圆）↔ full（顶到导航栏下方读长文）。
+// · peek 向上拖 → 升到 full；full 顶部向下拖 → 回到 peek。
+// · peek 向下拖超过「较大」阈值 → 退出聚焦、取消选中标点；不够则回弹。
+// · 拖动/缩放地图时抽屉整体收起（is-focus-map-active），靠「展开」胶囊叫回。
+function isMobileSheet() {
+  return window.matchMedia("(max-width: 820px)").matches;
+}
+
+// 任务2 方案A：只有内容在 peek 档就溢出（放不下）时，才允许向上拖/点开到全屏；
+// 短内容（is-focus-short，peek 已能看全）就固定 peek 一档，避免拖出一片空白。
+function sheetCanExpand() {
+  return !els.focusPanel?.classList.contains("is-focus-short");
+}
+
+// peek/full 两档的实际像素高度（和 CSS 变量保持一致：JS 把它们写进面板内联变量，
+// CSS 直接 var() 引用，保证拖动数值和静止档位不会对不上）。
+function sheetMetrics() {
+  const vh = window.innerHeight;
+  const focusTop = Math.min(120, Math.max(84, vh * 0.11)); // = CSS clamp(84px,11vh,120px)
+  const bottomGap = 28; // 面板 bottom:28px
+  const peekPx = Math.round(vh * 0.5); // 抽屉半开约占屏幕下半
+  const fullPx = Math.round(vh - focusTop - bottomGap);
+  return { peekPx, fullPx: Math.max(fullPx, peekPx) };
+}
+
+function updateSheetMetrics() {
+  if (!els.focusPanel) return;
+  const { peekPx, fullPx } = sheetMetrics();
+  els.focusPanel.style.setProperty("--sheet-peek", `${peekPx}px`);
+  els.focusPanel.style.setProperty("--sheet-full", `${fullPx}px`);
+}
+
+// 设定静止档位（清掉拖动时的内联 height/transform/opacity，让 CSS 过渡接管）。
+function setSheetState(next) {
+  const panel = els.focusPanel;
+  if (!panel) return;
+  panel.classList.remove("is-sheet-dragging", "is-sheet-exiting");
+  panel.style.height = "";
+  panel.style.transform = "";
+  panel.style.opacity = "";
+  panel.classList.toggle("is-sheet-full", next === "full");
+}
+
+// 向下拖多少像素才算“要退出”——按屏高比例（可调，sheetExitRatio），且不小于 150px。
+function sheetExitDistance() {
+  return Math.max(150, Math.round(window.innerHeight * sheetTuning.sheetExitRatio));
+}
+
+function setupSheetGestures() {
+  const panel = els.focusPanel;
+  if (!panel) return;
+  let s = null;
+
+  panel.addEventListener(
+    "touchstart",
+    (event) => {
+      if (!isMobileSheet()) return;
+      if (event.touches.length !== 1) return;
+      // 放大灯箱、地图收起态各有各的交互，这里不接管。
+      if (panel.classList.contains("is-expanded")) return;
+      if (els.mapView?.classList.contains("is-focus-map-active")) return;
+      const touch = event.touches[0];
+      s = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        dy: 0,
+        startFull: panel.classList.contains("is-sheet-full"),
+        scrollTop: els.focusScroll ? els.focusScroll.scrollTop : 0,
+        mode: null, // null → 未定；'sheet' → 抽屉手势；'native' → 交给内容滚动
+        // 任务6 惯性：记录手指瞬时竖直速度（px/ms，下为正），松手时折算成额外位移。
+        lastY: touch.clientY,
+        lastT: performance.now(),
+        vy: 0,
+      };
+      state.sheetJustDragged = false;
+    },
+    { passive: true },
+  );
+
+  panel.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!s) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - s.startX;
+      const dy = touch.clientY - s.startY;
+      s.dy = dy;
+
+      // 任务6 惯性：更新瞬时速度（指数平滑，避免最后一帧抖动主导）。
+      const now = performance.now();
+      const dt = now - s.lastT;
+      if (dt > 0) {
+        const inst = (touch.clientY - s.lastY) / dt;
+        s.vy = s.vy * 0.4 + inst * 0.6;
+        s.lastY = touch.clientY;
+        s.lastT = now;
+      }
+
+      if (s.mode === null) {
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          s.mode = "native"; // 横向滑动（如切图）不归抽屉管
+          return;
+        }
+        if (s.startFull) {
+          // 全屏档：只有内容已在顶部、且向下拖，才收抽屉；否则让文章正常滚动。
+          s.mode = dy > 0 && s.scrollTop <= 0 ? "sheet" : "native";
+        } else if (dy < 0 && !sheetCanExpand()) {
+          // 半开 + 短内容：无处可展开，上拖不接管（任务2 方案A）。
+          s.mode = "native";
+        } else {
+          s.mode = "sheet"; // 半开档：上拖=展开，下拖=退出
+        }
+        if (s.mode === "sheet") {
+          panel.classList.add("is-sheet-dragging");
+          state.sheetJustDragged = true;
+        }
+      }
+
+      if (s.mode === "sheet") {
+        event.preventDefault();
+        applySheetDrag(s, dy);
+      }
+    },
+    { passive: false },
+  );
+
+  const finish = () => {
+    if (!s) return;
+    if (s.mode === "sheet") releaseSheetDrag(s);
+    s = null;
+  };
+  panel.addEventListener("touchend", finish);
+  panel.addEventListener("touchcancel", finish);
+}
+
+function applySheetDrag(s, dy) {
+  const panel = els.focusPanel;
+  const { peekPx, fullPx } = sheetMetrics();
+  // 任务6 跟手系数：面板实际位移 = 手指位移 × sheetFollow（1=1:1，<1 更“沉”、>1 更“轻”）。
+  const d = dy * sheetTuning.sheetFollow;
+  if (s.startFull) {
+    // 全屏向下拖 → 高度从 full 缩向 peek（拖到 peek 就到底）。
+    const h = Math.max(peekPx, Math.min(fullPx, fullPx - d));
+    panel.style.height = `${h}px`;
+    panel.style.transform = "translateY(0)";
+    panel.style.opacity = "1";
+    return;
+  }
+  if (d < 0) {
+    // 半开向上拖 → 高度从 peek 升向 full。
+    const h = Math.max(peekPx, Math.min(fullPx, peekPx - d));
+    panel.style.height = `${h}px`;
+    panel.style.transform = "translateY(0)";
+    panel.style.opacity = "1";
+  } else {
+    // 半开向下拖 → 整个抽屉跟手下移并渐隐（松手看幅度决定退出/回弹）。
+    const exit = sheetExitDistance();
+    const floor = sheetTuning.sheetExitFade;
+    panel.style.height = `${peekPx}px`;
+    panel.style.transform = `translateY(${d}px)`;
+    panel.style.opacity = String(Math.max(floor, 1 - d / (exit * 1.6)));
+  }
+}
+
+function releaseSheetDrag(s) {
+  const { peekPx, fullPx } = sheetMetrics();
+  const snap = (fullPx - peekPx) * sheetTuning.sheetSnapRatio; // 跨过这段行程才换档，否则回弹
+  // 任务6 惯性：把松手时的速度折算成额外位移（vy px/ms × sheetInertia ms），再乘跟手系数，
+  // 于是“快速一甩”即使拖得不远也能换档/退出；sheetInertia=0 就退回“纯看拖动距离”。
+  const effDy = (s.dy + s.vy * sheetTuning.sheetInertia) * sheetTuning.sheetFollow;
+
+  if (s.startFull) {
+    setSheetState(effDy > snap ? "peek" : "full");
+    return;
+  }
+  if (s.dy < 0) {
+    setSheetState(-effDy > snap ? "full" : "peek");
+    return;
+  }
+  // 半开向下拖：超过“较大”阈值（含惯性）就退出，否则回弹到 peek。
+  if (effDy > sheetExitDistance()) {
+    animateSheetExit();
+  } else {
+    setSheetState("peek");
+  }
+}
+
+// 退出动画：抽屉滑出屏幕底部并淡出，收尾时真正关闭聚焦（等同 Back to map）。
+// 滑出时长可调（sheetExitMs / CSS --sheet-exit-ms），这里的 setTimeout 与它保持一致。
+function animateSheetExit() {
+  const panel = els.focusPanel;
+  panel.classList.remove("is-sheet-dragging");
+  panel.classList.add("is-sheet-exiting");
+  panel.style.transform = "translateY(110%)";
+  panel.style.opacity = "0";
+  window.setTimeout(() => {
+    setSheetState("peek");
+    closeFocusMode({ resetZoom: true });
+  }, sheetTuning.sheetExitMs);
 }
 
 function closeFocusMode(options = {}) {
@@ -5345,7 +5639,7 @@ function animateMarkerToFocus(item) {
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
     state.map.panTo(item.coordinates);
-    const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), FOCUS_MAP_ZOOM);
+    const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
     revealApproxLabel();
     return;
@@ -5361,7 +5655,7 @@ function animateMarkerToFocus(item) {
   // T7: a 模糊地址 point can pin a specific (usually lower) focus zoom so the
   // location stays vague; otherwise zoom in to at least FOCUS_MAP_ZOOM.
   const approxZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : null;
-  const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, FOCUS_MAP_ZOOM);
+  const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, focusMapZoom());
   const startScreen = getLatLngScreenPoint(markerLatLng, startZoom); // 用户 T1: see recenter note
   const endScreen = getFocusTargetScreenPoint();
   const startTime = performance.now();
@@ -5619,7 +5913,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=155", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=161", { updateViaCache: "none" });
   }
 }
 
@@ -7438,6 +7732,7 @@ const THEME_GROUPS = [
       { key: "overlaySize", label: "字号", unit: "px" },
       { key: "overlayLine", label: "行距", unit: "" },
       { key: "overlayWeight", label: "字重", unit: "" },
+      { key: "overlayGap", label: "段落间距", unit: "px" },
     ],
   },
   {
@@ -7446,6 +7741,7 @@ const THEME_GROUPS = [
       { key: "dialogueSize", label: "字号", unit: "px" },
       { key: "dialogueLine", label: "行距", unit: "" },
       { key: "dialogueWeight", label: "字重", unit: "" },
+      { key: "dialogueGap", label: "段落间距", unit: "px" },
     ],
   },
   {
@@ -7454,6 +7750,7 @@ const THEME_GROUPS = [
       { key: "paraSize", label: "字号", unit: "px" },
       { key: "paraLine", label: "行距", unit: "" },
       { key: "paraWeight", label: "字重", unit: "" },
+      { key: "paraGap", label: "段落间距", unit: "px" },
     ],
   },
   {
@@ -7462,6 +7759,19 @@ const THEME_GROUPS = [
       { key: "idSize", label: "字号", unit: "px" },
       { key: "idLine", label: "行距", unit: "" },
       { key: "idWeight", label: "字重", unit: "" },
+    ],
+  },
+  {
+    // 任务6：手机端详情抽屉手势手感（这里在桌面调，保存进 theme.json，手机打开线上就吃这套）。
+    title: "手势（手机详情抽屉）",
+    fields: [
+      { key: "sheetFollow", label: "跟手系数", unit: "" },
+      { key: "sheetSnapRatio", label: "换档吸附阈值", unit: "" },
+      { key: "sheetExitRatio", label: "退出下滑距离(屏高比)", unit: "" },
+      { key: "sheetSnapMs", label: "吸附/回弹时长", unit: "ms" },
+      { key: "sheetExitMs", label: "退出滑出时长", unit: "ms" },
+      { key: "sheetInertia", label: "惯性(0=关)", unit: "ms" },
+      { key: "sheetExitFade", label: "退出最低透明度", unit: "" },
     ],
   },
 ];
@@ -7516,16 +7826,23 @@ function buildThemeEditor() {
           <button type="button" class="theme-row-reset" data-theme-reset="${f.key}" title="恢复此项默认" aria-label="恢复默认">↺</button>
         </label>`;
     }).join("");
-    return `<div class="theme-group"><div class="theme-group-title">${g.title}</div>${rows}</div>`;
+    // 标题做成可点的折叠头（用户 item6）：点一下收起/展开这一大项的所有滑块。
+    return `<div class="theme-group">
+        <button type="button" class="theme-group-title" data-group-toggle aria-expanded="true">
+          <svg class="theme-group-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+          <span>${g.title}</span>
+        </button>
+        <div class="theme-group-rows">${rows}</div>
+      </div>`;
   }).join("");
 
   overlay.innerHTML = `
     <div class="texts-editor theme-editor" role="dialog" aria-label="视觉设定">
       <header class="texts-editor-head">
-        <strong>视觉设定 — 图标线宽 / 详情正文</strong>
+        <strong>视觉设定 — 图标 / 详情正文 / 手势</strong>
         <button type="button" class="texts-editor-close" aria-label="close">×</button>
       </header>
-      <p class="texts-editor-hint">拖动即实时预览，数值显示「当前/默认」。保存后写入 data/theme.json，线上看到的也会更新。</p>
+      <p class="texts-editor-hint">拖动即实时预览，数值显示「当前/默认」。保存后写入 data/theme.json，线上看到的也会更新。「手势」组在此桌面调、保存后到手机端看效果。</p>
       <div class="texts-editor-body theme-editor-body">${groupsHtml}</div>
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save theme-editor-save">保存</button>
@@ -7536,6 +7853,15 @@ function buildThemeEditor() {
 
   document.body.appendChild(overlay);
   themeEditor.overlay = overlay;
+
+  // 分组标题点击折叠/展开（用户 item6）。
+  overlay.querySelectorAll("[data-group-toggle]").forEach((head) => {
+    head.addEventListener("click", () => {
+      const group = head.closest(".theme-group");
+      const collapsed = group.classList.toggle("is-collapsed");
+      head.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    });
+  });
 
   // 拖动滑块：实时预览（改 :root）+ 更新数字读数，但先不写文件。
   overlay.querySelectorAll("[data-theme-field]").forEach((input) => {
