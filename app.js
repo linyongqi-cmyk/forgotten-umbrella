@@ -353,6 +353,7 @@ const els = {
   focusScroll: document.querySelector("#focus-scroll"),
   focusSheetHandle: document.querySelector("#focus-sheet-handle"),
   focusSheetClose: document.querySelector("#focus-sheet-close"),
+  focusMobileBack: document.querySelector("#focus-mobile-back"),
   focusExpand: document.querySelector("#focus-expand"),
   focusScrollHint: document.querySelector("#focus-scroll-hint"),
   focusZoomHint: document.querySelector("#focus-zoom-hint"),
@@ -759,9 +760,23 @@ function bindEvents() {
     els.topbar.classList.remove("is-nav-open");
     els.navToggle?.setAttribute("aria-expanded", "false");
   };
+  const closeMarkerFilterMenu = () => {
+    if (!state.markerFilterOpen) {
+      return;
+    }
+    state.markerFilterOpen = false;
+    syncMarkerFilter();
+  };
+  const closeMobileMapMenus = () => {
+    closeNavMenu();
+    closeMarkerFilterMenu();
+  };
   els.navToggle?.addEventListener("click", (event) => {
     event.stopPropagation();
     const open = !els.topbar.classList.contains("is-nav-open");
+    if (open) {
+      closeMarkerFilterMenu();
+    }
     els.topbar.classList.toggle("is-nav-open", open);
     els.navToggle.setAttribute("aria-expanded", String(open));
   });
@@ -769,6 +784,9 @@ function bindEvents() {
   document.addEventListener("click", (event) => {
     if (els.topbar?.classList.contains("is-nav-open") && !els.topbar.contains(event.target)) {
       closeNavMenu();
+    }
+    if (state.markerFilterOpen && !els.mapFilter?.contains(event.target)) {
+      closeMarkerFilterMenu();
     }
   });
   // Esc 收起。
@@ -828,7 +846,9 @@ function bindEvents() {
 
   // Map marker filter (item 6/15/16): one button expands a panel of 4 colour
   // toggles that show/hide each marker category on the map.
-  els.mapFilterToggle?.addEventListener("click", () => {
+  els.mapFilterToggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    closeNavMenu();
     state.markerFilterOpen = !state.markerFilterOpen;
     syncMarkerFilter();
   });
@@ -847,6 +867,7 @@ function bindEvents() {
   // Map layers (T8 dev tuning): one button (edit mode only) expands a panel of
   // per-category 自動/表示/淡化/隠す cycle + zoom threshold, for both maps.
   els.mapLayersToggle?.addEventListener("click", () => {
+    closeMobileMapMenus();
     state.mapLayersOpen = !state.mapLayersOpen;
     syncMapLayers();
   });
@@ -892,6 +913,7 @@ function bindEvents() {
   // Opening the panel shows a live preview immediately; when a detail point is
   // already open the sliders tune the real focus overlay in place.
   els.blurAdjustToggle?.addEventListener("click", () => {
+    closeMobileMapMenus();
     state.blurAdjustOpen = !state.blurAdjustOpen;
     if (!state.blurAdjustOpen) {
       stopBlurPreview();
@@ -958,6 +980,7 @@ function bindEvents() {
   });
 
   els.resetMap?.addEventListener("click", () => {
+    closeMobileMapMenus();
     state.listSort = "time";
     state.listSubfilter = "all";
     state.listOrder = "desc";
@@ -977,7 +1000,10 @@ function bindEvents() {
     fitMapToItems(filteredUmbrellas());
   });
 
-  els.toggleList?.addEventListener("click", togglePanel);
+  els.toggleList?.addEventListener("click", () => {
+    closeMobileMapMenus();
+    togglePanel();
+  });
   els.focusImage?.addEventListener("click", (event) => {
     event.stopPropagation();
     if (isMobileSheet()) return;
@@ -1023,6 +1049,7 @@ function bindEvents() {
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   els.focusSheetClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
+  els.focusMobileBack?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   // 手机端底部抽屉把手：单击（没拖动）在「半开 ↔ 全屏」两档间切换。拖动手势见 setupSheetGestures。
   els.focusSheetHandle?.addEventListener("click", () => {
     if (state.sheetJustDragged) return; // 刚拖完的一下不当点击
@@ -1111,8 +1138,14 @@ function bindEvents() {
     syncSearchBox();
   });
 
-  els.mapTypeToggle?.addEventListener("click", cycleMapType);
-  els.locateMe?.addEventListener("click", goToMyLocation);
+  els.mapTypeToggle?.addEventListener("click", () => {
+    closeMobileMapMenus();
+    cycleMapType();
+  });
+  els.locateMe?.addEventListener("click", () => {
+    closeMobileMapMenus();
+    goToMyLocation();
+  });
 
   els.listSecondary?.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-list-subfilter]");
@@ -4730,12 +4763,18 @@ function updateSheetMetrics() {
   const { peekPx, fullPx } = sheetMetrics();
   els.focusPanel.style.setProperty("--sheet-peek", `${peekPx}px`);
   els.focusPanel.style.setProperty("--sheet-full", `${fullPx}px`);
+  setSheetBottomFadeForHeight(els.focusPanel.classList.contains("is-sheet-full") ? fullPx : peekPx, { peekPx, fullPx });
+}
+
+function sheetProgressForHeight(height, metrics = sheetMetrics()) {
+  const { peekPx, fullPx } = metrics;
+  const span = Math.max(1, fullPx - peekPx);
+  return Math.max(0, Math.min(1, (height - peekPx) / span));
 }
 
 function sheetBottomFadePxForHeight(height, metrics = sheetMetrics()) {
-  const { peekPx, fullPx } = metrics;
-  const span = Math.max(1, fullPx - peekPx);
-  const progress = Math.max(0, Math.min(1, (height - peekPx) / span));
+  const { peekPx } = metrics;
+  const progress = sheetProgressForHeight(height, metrics);
   const fontSize = Number.parseFloat(getComputedStyle(els.focusPanel || document.documentElement).fontSize) || 14;
   const peekFade = peekPx * 0.3;
   const fullFade = fontSize * 1.45;
@@ -4744,6 +4783,10 @@ function sheetBottomFadePxForHeight(height, metrics = sheetMetrics()) {
 
 function setSheetBottomFadeForHeight(height, metrics) {
   els.focusPanel?.style.setProperty("--sheet-bottom-fade", `${sheetBottomFadePxForHeight(height, metrics)}px`);
+}
+
+function setSheetChromeProgress(progress) {
+  document.body.style.setProperty("--focus-sheet-progress", String(Math.max(0, Math.min(1, progress))));
 }
 
 function setFocusSheetRaised(isRaised) {
@@ -4770,16 +4813,25 @@ function syncFocusSheetRaisedByImage() {
 function setSheetState(next) {
   const panel = els.focusPanel;
   if (!panel) return;
+  const returningFromFadedDrag = next === "peek" && panel.style.opacity && panel.style.opacity !== "1";
+  if (returningFromFadedDrag) {
+    panel.classList.add("is-sheet-returning");
+  }
   panel.classList.remove("is-sheet-dragging", "is-sheet-exiting");
   panel.style.height = "";
   panel.style.transform = "";
   panel.style.opacity = "";
-  panel.style.removeProperty("--sheet-bottom-fade");
+  const metrics = sheetMetrics();
+  setSheetBottomFadeForHeight(next === "full" ? metrics.fullPx : metrics.peekPx, metrics);
+  setSheetChromeProgress(next === "full" ? 1 : 0);
   panel.classList.toggle("is-sheet-full", next === "full");
   if (next === "full") {
     requestAnimationFrame(syncFocusSheetRaisedByImage);
   } else {
     setFocusSheetRaised(false);
+  }
+  if (returningFromFadedDrag) {
+    window.setTimeout(() => panel.classList.remove("is-sheet-returning"), 120);
   }
   requestAnimationFrame(updateFocusScrollHint);
 }
@@ -4890,6 +4942,7 @@ function applySheetDrag(s, dy) {
     const h = Math.max(peekPx, Math.min(fullPx, fullPx - d));
     panel.style.height = `${h}px`;
     setSheetBottomFadeForHeight(h, metrics);
+    setSheetChromeProgress(sheetProgressForHeight(h, metrics));
     syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
@@ -4900,6 +4953,7 @@ function applySheetDrag(s, dy) {
     const h = Math.max(peekPx, Math.min(fullPx, peekPx - d));
     panel.style.height = `${h}px`;
     setSheetBottomFadeForHeight(h, metrics);
+    setSheetChromeProgress(sheetProgressForHeight(h, metrics));
     syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
@@ -4910,6 +4964,7 @@ function applySheetDrag(s, dy) {
     const floor = sheetTuning.sheetExitFade;
     panel.style.height = `${peekPx}px`;
     setSheetBottomFadeForHeight(peekPx, metrics);
+    setSheetChromeProgress(0);
     panel.style.transform = `translateY(${d}px)`;
     panel.style.opacity = String(Math.max(floor, 1 - d / (exit * 1.6)));
   }
@@ -4975,6 +5030,7 @@ function closeFocusMode(options = {}) {
   state.focusPositionedId = null;
   state.focusMarkerId = null;
   setFocusSheetRaised(false);
+  setSheetChromeProgress(0);
   setFocusBlurSuppressed(false);
   syncFocusMapInteractionLock(null);
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
@@ -5788,6 +5844,12 @@ function setupMobileDoubleTapZoomGuard() {
 }
 
 function dismissFocusAfterUserMapInteraction() {
+  els.topbar?.classList.remove("is-nav-open");
+  els.navToggle?.setAttribute("aria-expanded", "false");
+  if (state.markerFilterOpen) {
+    state.markerFilterOpen = false;
+    syncMarkerFilter();
+  }
   if (!els.mapView.classList.contains("is-focus-mode") || state.isFocusCameraAnimating) {
     return;
   }
@@ -6136,7 +6198,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=167", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=168", { updateViaCache: "none" });
   }
 }
 

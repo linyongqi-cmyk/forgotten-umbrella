@@ -1404,6 +1404,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   inherits: true;
   initial-value: 6px;
 }
+@property --sheet-bottom-mask {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
 
 /* 模糊地址 (blur-approx) = same overlay, vaguer settings: bigger radius, a white
    wash, and a non-zero centre veil so the exact spot stays hazy. */
@@ -1486,6 +1491,10 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .focus-sheet-close {
+  display: none;
+}
+
+.focus-mobile-back {
   display: none;
 }
 
@@ -2382,7 +2391,6 @@ body.view-map.is-focus-sheet-raised .view-tabs,
 body.view-map.is-focus-sheet-raised .nav-toggle,
 body.view-map.is-focus-sheet-raised .panel-toggle-left,
 body.view-map.is-focus-sheet-raised .map-layer-tools {
-  opacity: 0;
   pointer-events: none;
 }
 
@@ -3351,11 +3359,6 @@ body.edit-mode .card-edit {
     gap: 2px;
   }
 
-  .workspace.is-focus-mode .map-layer-tools {
-    opacity: 0;
-    pointer-events: none;
-  }
-
   /* ── 手机顶部横幅：所有导航按钮去掉圆形背景（用户）。──
      覆盖各页汉堡 + 地图页横幅里的 map 按钮/档案键。 */
   .nav-toggle,
@@ -3378,6 +3381,20 @@ body.edit-mode .card-edit {
   body.view-map .map-layer-btn svg,
   body.view-map .panel-toggle-left span svg {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  }
+
+  body.view-map .topbar,
+  body.view-map .nav-toggle,
+  body.view-map .map-layer-tools,
+  body.view-map .panel-toggle-left {
+    opacity: calc(1 - var(--focus-sheet-progress, 0));
+  }
+
+  body.view-map.is-focus-sheet-raised .topbar,
+  body.view-map.is-focus-sheet-raised .nav-toggle,
+  body.view-map.is-focus-sheet-raised .map-layer-tools,
+  body.view-map.is-focus-sheet-raised .panel-toggle-left {
+    pointer-events: none;
   }
 
   /* 非地图页（Archive/About 浅底）：汉堡用深色。 */
@@ -3438,7 +3455,8 @@ body.edit-mode .card-edit {
        这里的值只是 JS 跑起来前的兜底。 */
     --sheet-peek: 50svh;
     --sheet-full: calc(100svh - 48px - 28px);
-    --sheet-bottom-fade: 30%;
+    --sheet-bottom-fade: 150px;
+    --sheet-bottom-mask: 0px;
     height: var(--sheet-peek);
     max-height: var(--sheet-full);
     transform: translateY(24px);
@@ -3447,7 +3465,8 @@ body.edit-mode .card-edit {
       opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
       height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
-      --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1);
+      --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask 180ms ease;
   }
 
   .focus-image-panel.is-sheet-full {
@@ -3460,6 +3479,14 @@ body.edit-mode .card-edit {
     transition: none;
   }
 
+  .focus-image-panel.is-sheet-returning {
+    transition:
+      transform var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
+      height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask 180ms ease;
+  }
+
   /* 下滑退出：只给位移/透明度一段短过渡，滑出屏幕底部后再真正关闭。
      时长 = 任务6 可调 --sheet-exit-ms（与 animateSheetExit 的 setTimeout 一致）。 */
   .focus-image-panel.is-sheet-exiting {
@@ -3469,13 +3496,12 @@ body.edit-mode .card-edit {
   }
 
   .focus-image-panel:not(.is-expanded) .focus-scroll {
-    -webkit-mask-image: none;
-    mask-image: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-mask)), rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-mask)), rgba(0, 0, 0, 0) 100%);
   }
 
   .focus-image-panel.has-scroll-after:not(.is-expanded) .focus-scroll {
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-fade)), rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-fade)), rgba(0, 0, 0, 0) 100%);
+    --sheet-bottom-mask: var(--sheet-bottom-fade);
   }
 
   .workspace.is-focus-mode .focus-image-panel {
@@ -3617,14 +3643,53 @@ body.edit-mode .card-edit {
     }
   }
 
-  /* 手机端把桌面同款 Back to map 复用成 full 档左上角固定按钮；Scroll for more 仍隐藏。 */
+  .focus-mobile-back {
+    position: fixed;
+    top: 58px;
+    left: 58px;
+    z-index: 44;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: 0;
+    opacity: var(--focus-sheet-progress, 0);
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78), 0 0 8px rgba(0, 0, 0, 0.42);
+    transition: opacity 180ms ease;
+    touch-action: manipulation;
+  }
+
+  body.view-map.is-focus-sheet-raised .focus-mobile-back {
+    pointer-events: auto;
+  }
+
+  .focus-mobile-back svg {
+    width: 62px;
+    height: 32px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--icon-stroke, 2);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  }
+
+  /* 手机端使用面板外的 .focus-mobile-back，面板内部 footer 只留给桌面。 */
   .focus-image-panel:not(.is-expanded) .focus-footer {
     display: none;
     margin: 0;
   }
 
   .focus-image-panel.is-sheet-full:not(.is-expanded) .focus-footer {
-    display: block;
+    display: none;
   }
 
   .focus-image-panel:not(.is-expanded) .focus-scroll-hint {
@@ -3632,14 +3697,7 @@ body.edit-mode .card-edit {
   }
 
   .focus-image-panel:not(.is-expanded) .focus-close {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 44;
-    height: 48px;
-    color: #fff;
-    opacity: 0.92;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78), 0 0 8px rgba(0, 0, 0, 0.42);
+    display: none;
   }
 
   .focus-image-panel:not(.is-expanded) .focus-close:hover {

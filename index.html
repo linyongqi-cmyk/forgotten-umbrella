@@ -9,7 +9,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=167" />
+    <link rel="stylesheet" href="styles.css?v=168" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -228,6 +228,13 @@
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
           <div class="focus-approx-label" id="focus-approx-label" aria-hidden="true" hidden></div>
+          <button class="focus-mobile-back" id="focus-mobile-back" type="button" aria-label="back to map" title="back to map">
+            <svg viewBox="0 0 56 30" aria-hidden="true" focusable="false">
+              <path d="M54 6H16a7 7 0 0 0-7 7v9" />
+              <path d="M3.5 17 9 23.5 14.5 17" />
+            </svg>
+            <span>Back to map</span>
+          </button>
 
           <figure class="focus-image-panel" id="focus-image-panel" aria-live="polite" aria-hidden="true">
             <!-- 手机端底部抽屉的拖动把手（仅 ≤820px 显示）。点一下在「低档/全屏」两档间切换；
@@ -340,6 +347,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=167" type="module"></script>
+    <script src="app.js?v=168" type="module"></script>
   </body>
 </html>
