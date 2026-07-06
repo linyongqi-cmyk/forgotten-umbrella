@@ -979,6 +979,7 @@ function bindEvents() {
   els.toggleList?.addEventListener("click", togglePanel);
   els.focusImage?.addEventListener("click", (event) => {
     event.stopPropagation();
+    if (isMobileSheet()) return;
     // Already expanded? a click there is just for panning — don't re-open.
     if (!state.imageExpanded) {
       openExpandedImage();
@@ -987,6 +988,7 @@ function bindEvents() {
   // Magnifier hint (用户 #5): same action as clicking the photo — enlarge it.
   els.focusZoomHint?.addEventListener("click", (event) => {
     event.stopPropagation();
+    if (isMobileSheet()) return;
     if (!state.imageExpanded) {
       openExpandedImage();
     }
@@ -1011,6 +1013,12 @@ function bindEvents() {
   els.focusImage?.addEventListener("pointerdown", startExpandedImageDrag);
   document.addEventListener("pointermove", dragExpandedImage);
   document.addEventListener("pointerup", stopExpandedImageDrag);
+  els.focusImage?.addEventListener("touchstart", startExpandedImagePinch, { passive: false });
+  els.focusImage?.addEventListener("touchmove", moveExpandedImagePinch, { passive: false });
+  els.focusImage?.addEventListener("touchend", endExpandedImagePinch);
+  els.focusImage?.addEventListener("touchcancel", endExpandedImagePinch);
+  els.focusPanel?.addEventListener("touchstart", blockMobileDetailPinch, { passive: false });
+  els.focusPanel?.addEventListener("touchmove", blockMobileDetailPinch, { passive: false });
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   // 手机端底部抽屉把手：单击（没拖动）在「半开 ↔ 全屏」两档间切换。拖动手势见 setupSheetGestures。
@@ -1028,6 +1036,7 @@ function bindEvents() {
     recenterFocusedMarker();
   });
   setupSheetGestures();
+  setupMobileBrowserGestureGuards();
   els.focusLink?.addEventListener("click", (event) => {
     const anchor = event.target.closest?.("[data-link-id]");
     if (!anchor) {
@@ -1068,6 +1077,10 @@ function bindEvents() {
     }
     const zoomTarget = event.target.closest?.("img[data-expandable], .focus-photo-zoom");
     if (!zoomTarget) {
+      return;
+    }
+    if (isMobileSheet()) {
+      event.preventDefault();
       return;
     }
     const file = zoomTarget.getAttribute("data-media-file");
@@ -1573,10 +1586,11 @@ function renderFocusApproxLabel(text, { pending = false, preview = false } = {})
   els.focusApproxLabel.innerHTML = `
     <svg class="focus-approx-label-svg" viewBox="-640 -640 1280 1280" aria-hidden="true" focusable="false">
       <defs><path id="focus-approx-label-path" /></defs>
-      <text class="focus-approx-label-text">
+      <text class="focus-approx-label-ring">
         <textPath href="#focus-approx-label-path" startOffset="50%">◌ ${escapeHtml(label)}</textPath>
       </text>
-    </svg>`;
+    </svg>
+    <span class="focus-approx-label-line">${escapeHtml(label)}</span>`;
   updateFocusApproxLabelGeometry();
 }
 
@@ -2817,9 +2831,12 @@ function updateFocusScrollHint() {
     return;
   }
   const overflowing = scroll.scrollHeight - scroll.clientHeight > 8;
+  const hasBefore = scroll.scrollTop > 8;
   const atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 8;
   const expanded = els.focusPanel?.classList.contains("is-expanded");
   hint.hidden = !overflowing || atBottom || Boolean(expanded);
+  els.focusPanel?.classList.toggle("has-scroll-before", hasBefore && !expanded);
+  els.focusPanel?.classList.toggle("has-scroll-after", overflowing && !atBottom && !expanded);
   // 用户 🅐 方案A：短内容（不溢出）时给面板 is-focus-short —— CSS 用 flex auto 外边距把
   //「滚动区(=内容高) + Back to map」当一个整体在固定高面板里垂直居中，footer 自然贴内容正下方。
   // 长内容（溢出）去掉这个类：滚动区压到剩余高、内部滚动，footer 固定面板底部不随滚动。
@@ -4638,6 +4655,7 @@ function focusUmbrellaOnMap(item, id) {
   // smoothly (opacity + registered @property). No floatPane layer, no replica pin
   // (that caused the instant look + the hover-through-the-replica bug).
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
+  syncFocusMapInteractionLock(item);
   // Turn the focused pin blue (it sits in the clear/veiled circle, sharp; the
   // overlay softens every other pin behind it).
   updateMarkerIcons();
@@ -4667,6 +4685,15 @@ function openFocusMode() {
   // carry over the scroll position from a previously-viewed detail page.
   els.focusScroll?.scrollTo({ top: 0 });
   setFocusMaskPosition();
+}
+
+function syncFocusMapInteractionLock(item = null) {
+  if (!state.googleReady || !state.map) return;
+  const locked = Boolean(isMobileSheet() && item?.blurApprox);
+  state.map.setOptions({
+    gestureHandling: locked ? "none" : "greedy",
+    draggable: !locked,
+  });
 }
 
 // ── 手机端底部抽屉手势（v159 第2阶段，推倒重写）──────────────────────────────
@@ -4702,6 +4729,25 @@ function updateSheetMetrics() {
   els.focusPanel.style.setProperty("--sheet-full", `${fullPx}px`);
 }
 
+function setFocusSheetRaised(isRaised) {
+  els.mapView?.classList.toggle("is-focus-sheet-raised", Boolean(isRaised));
+}
+
+function focusClearCircleCoveredBySheet(sheetHeight) {
+  if (!isMobileSheet() || !Number.isFinite(sheetHeight)) {
+    return false;
+  }
+  const focusY = getFocusTargetScreenPoint().y;
+  const radiusRaw = getComputedStyle(els.focusBlur || document.documentElement).getPropertyValue("--fb-radius");
+  const radius = Number.parseFloat(radiusRaw) || 114;
+  const panelTop = window.innerHeight - 28 - sheetHeight;
+  return panelTop <= focusY + radius + 12;
+}
+
+function setFocusSheetRaisedForHeight(sheetHeight) {
+  setFocusSheetRaised(focusClearCircleCoveredBySheet(sheetHeight));
+}
+
 // 设定静止档位（清掉拖动时的内联 height/transform/opacity，让 CSS 过渡接管）。
 function setSheetState(next) {
   const panel = els.focusPanel;
@@ -4711,6 +4757,8 @@ function setSheetState(next) {
   panel.style.transform = "";
   panel.style.opacity = "";
   panel.classList.toggle("is-sheet-full", next === "full");
+  setFocusSheetRaised(next === "full" && focusClearCircleCoveredBySheet(sheetMetrics().fullPx));
+  requestAnimationFrame(updateFocusScrollHint);
 }
 
 // 向下拖多少像素才算“要退出”——按屏高比例（可调，sheetExitRatio），且不小于 150px。
@@ -4777,9 +4825,11 @@ function setupSheetGestures() {
         if (s.startFull) {
           // 全屏档：只有内容已在顶部、且向下拖，才收抽屉；否则让文章正常滚动。
           s.mode = dy > 0 && s.scrollTop <= 0 ? "sheet" : "native";
-        } else if (dy < 0 && !sheetCanExpand()) {
-          // 半开 + 短内容：无处可展开，上拖不接管（任务2 方案A）。
-          s.mode = "native";
+        } else if (!sheetCanExpand()) {
+          // 半开 + 短内容：无处可展开。只允许下拖退出；一旦先下拖进入退出手势，
+          // 中途再反向上滑也只能回弹到 peek，不能展开出空白。
+          s.mode = dy > 0 ? "sheet" : "native";
+          s.lockPeek = true;
         } else {
           s.mode = "sheet"; // 半开档：上拖=展开，下拖=退出
         }
@@ -4814,19 +4864,22 @@ function applySheetDrag(s, dy) {
   if (s.startFull) {
     // 全屏向下拖 → 高度从 full 缩向 peek（拖到 peek 就到底）。
     const h = Math.max(peekPx, Math.min(fullPx, fullPx - d));
+    setFocusSheetRaisedForHeight(h);
     panel.style.height = `${h}px`;
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
     return;
   }
-  if (d < 0) {
+  if (d < 0 && !s.lockPeek) {
     // 半开向上拖 → 高度从 peek 升向 full。
     const h = Math.max(peekPx, Math.min(fullPx, peekPx - d));
+    setFocusSheetRaisedForHeight(h);
     panel.style.height = `${h}px`;
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
   } else {
     // 半开向下拖 → 整个抽屉跟手下移并渐隐（松手看幅度决定退出/回弹）。
+    setFocusSheetRaised(false);
     const exit = sheetExitDistance();
     const floor = sheetTuning.sheetExitFade;
     panel.style.height = `${peekPx}px`;
@@ -4844,6 +4897,14 @@ function releaseSheetDrag(s) {
 
   if (s.startFull) {
     setSheetState(effDy > snap ? "peek" : "full");
+    return;
+  }
+  if (s.lockPeek) {
+    if (effDy > sheetExitDistance()) {
+      animateSheetExit();
+    } else {
+      setSheetState("peek");
+    }
     return;
   }
   if (s.dy < 0) {
@@ -4886,7 +4947,9 @@ function closeFocusMode(options = {}) {
 
   state.focusPositionedId = null;
   state.focusMarkerId = null;
+  setFocusSheetRaised(false);
   setFocusBlurSuppressed(false);
+  syncFocusMapInteractionLock(null);
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
   els.mapView.classList.remove("is-focus-mode");
@@ -5568,8 +5631,105 @@ function stopExpandedImageDrag(event) {
   }
 }
 
+function expandedPinchDistance(touches) {
+  const a = touches[0];
+  const b = touches[1];
+  return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+}
+
+function startExpandedImagePinch(event) {
+  if (!state.imageExpanded || event.touches.length !== 2) {
+    return;
+  }
+  if (els.focusExpandedVideo && !els.focusExpandedVideo.hidden) {
+    return;
+  }
+  event.preventDefault();
+  state.imagePinchStart = {
+    distance: expandedPinchDistance(event.touches),
+    zoom: state.imageZoom,
+  };
+}
+
+function moveExpandedImagePinch(event) {
+  if (!state.imageExpanded || !state.imagePinchStart || event.touches.length !== 2) {
+    return;
+  }
+  event.preventDefault();
+  const start = Math.max(1, state.imagePinchStart.distance);
+  const ratio = expandedPinchDistance(event.touches) / start;
+  state.imageZoom = Math.min(4, Math.max(1, state.imagePinchStart.zoom * ratio));
+  updateExpandedImageTransform();
+}
+
+function endExpandedImagePinch(event) {
+  if (event.touches?.length < 2) {
+    state.imagePinchStart = null;
+  }
+}
+
+function blockMobileDetailPinch(event) {
+  if (isMobileSheet() && event.touches?.length > 1) {
+    event.preventDefault();
+  }
+}
+
+function setupMobileBrowserGestureGuards() {
+  let start = null;
+  document.addEventListener(
+    "touchstart",
+    (event) => {
+      if (!isMobileSheet() || event.touches.length !== 1) {
+        start = null;
+        return;
+      }
+      const touch = event.touches[0];
+      start = {
+        x: touch.clientX,
+        y: touch.clientY,
+        edge: touch.clientX < 28 || touch.clientX > window.innerWidth - 28,
+        atPageTop: window.scrollY <= 0,
+      };
+    },
+    { passive: true, capture: true },
+  );
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!start || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      const edgeBackSwipe = start.edge && Math.abs(dx) > 18 && Math.abs(dx) > Math.abs(dy);
+      const pagePullRefresh = start.atPageTop && start.x < 56 && dy > 18 && Math.abs(dy) > Math.abs(dx);
+      if (edgeBackSwipe || pagePullRefresh) {
+        event.preventDefault();
+      }
+    },
+    { passive: false, capture: true },
+  );
+  document.addEventListener(
+    "touchend",
+    () => {
+      start = null;
+    },
+    { capture: true },
+  );
+  document.addEventListener(
+    "touchcancel",
+    () => {
+      start = null;
+    },
+    { capture: true },
+  );
+}
+
 function dismissFocusAfterUserMapInteraction() {
   if (!els.mapView.classList.contains("is-focus-mode") || state.isFocusCameraAnimating) {
+    return;
+  }
+  const item = state.umbrellas.find((entry) => entry.id === state.focusMarkerId || entry.id === state.selectedId);
+  if (isMobileSheet() && item?.blurApprox) {
     return;
   }
 
@@ -5913,7 +6073,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=161", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=163", { updateViaCache: "none" });
   }
 }
 
