@@ -4717,7 +4717,7 @@ function sheetCanExpand() {
 // CSS 直接 var() 引用，保证拖动数值和静止档位不会对不上）。
 function sheetMetrics() {
   const vh = window.innerHeight;
-  const focusTop = Math.min(120, Math.max(84, vh * 0.11)); // = CSS clamp(84px,11vh,120px)
+  const focusTop = isMobileSheet() ? 48 : Math.min(120, Math.max(84, vh * 0.11));
   const bottomGap = 28; // 面板 bottom:28px
   const peekPx = Math.round(vh * 0.5); // 抽屉半开约占屏幕下半
   const fullPx = Math.round(vh - focusTop - bottomGap);
@@ -4733,21 +4733,22 @@ function updateSheetMetrics() {
 
 function setFocusSheetRaised(isRaised) {
   els.mapView?.classList.toggle("is-focus-sheet-raised", Boolean(isRaised));
+  document.body.classList.toggle("is-focus-sheet-raised", Boolean(isRaised && isMobileSheet()));
 }
 
-function focusClearCircleCoveredBySheet(sheetHeight) {
-  if (!isMobileSheet() || !Number.isFinite(sheetHeight)) {
+function focusClearCircleCoveredByImage() {
+  if (!isMobileSheet() || !els.focusImageFrame) {
     return false;
   }
   const focusY = getFocusTargetScreenPoint().y;
   const radiusRaw = getComputedStyle(els.focusBlur || document.documentElement).getPropertyValue("--fb-radius");
   const radius = Number.parseFloat(radiusRaw) || 114;
-  const panelTop = window.innerHeight - 28 - sheetHeight;
-  return panelTop <= focusY + radius + 12;
+  const imageTop = els.focusImageFrame.getBoundingClientRect().top;
+  return imageTop <= focusY + radius + 8;
 }
 
-function setFocusSheetRaisedForHeight(sheetHeight) {
-  setFocusSheetRaised(focusClearCircleCoveredBySheet(sheetHeight));
+function syncFocusSheetRaisedByImage() {
+  setFocusSheetRaised(focusClearCircleCoveredByImage());
 }
 
 // 设定静止档位（清掉拖动时的内联 height/transform/opacity，让 CSS 过渡接管）。
@@ -4759,7 +4760,11 @@ function setSheetState(next) {
   panel.style.transform = "";
   panel.style.opacity = "";
   panel.classList.toggle("is-sheet-full", next === "full");
-  setFocusSheetRaised(next === "full" && focusClearCircleCoveredBySheet(sheetMetrics().fullPx));
+  if (next === "full") {
+    requestAnimationFrame(syncFocusSheetRaisedByImage);
+  } else {
+    setFocusSheetRaised(false);
+  }
   requestAnimationFrame(updateFocusScrollHint);
 }
 
@@ -4866,8 +4871,8 @@ function applySheetDrag(s, dy) {
   if (s.startFull) {
     // 全屏向下拖 → 高度从 full 缩向 peek（拖到 peek 就到底）。
     const h = Math.max(peekPx, Math.min(fullPx, fullPx - d));
-    setFocusSheetRaisedForHeight(h);
     panel.style.height = `${h}px`;
+    syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
     return;
@@ -4875,8 +4880,8 @@ function applySheetDrag(s, dy) {
   if (d < 0 && !s.lockPeek) {
     // 半开向上拖 → 高度从 peek 升向 full。
     const h = Math.max(peekPx, Math.min(fullPx, peekPx - d));
-    setFocusSheetRaisedForHeight(h);
     panel.style.height = `${h}px`;
+    syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
   } else {
@@ -5691,6 +5696,7 @@ function setupMobileBrowserGestureGuards() {
         y: touch.clientY,
         edge: touch.clientX < 28 || touch.clientX > window.innerWidth - 28,
         atPageTop: window.scrollY <= 0,
+        guard: Boolean(event.target.closest?.("#focus-image-panel")),
       };
     },
     { passive: true, capture: true },
@@ -5702,8 +5708,9 @@ function setupMobileBrowserGestureGuards() {
       const touch = event.touches[0];
       const dx = touch.clientX - start.x;
       const dy = touch.clientY - start.y;
+      if (!start.guard) return;
       const edgeBackSwipe = start.edge && Math.abs(dx) > 18 && Math.abs(dx) > Math.abs(dy);
-      const pagePullRefresh = start.atPageTop && start.x < 56 && dy > 18 && Math.abs(dy) > Math.abs(dx);
+      const pagePullRefresh = start.atPageTop && dy > 18 && Math.abs(dy) > Math.abs(dx);
       if (edgeBackSwipe || pagePullRefresh) {
         event.preventDefault();
       }
@@ -6075,7 +6082,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=164", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=165", { updateViaCache: "none" });
   }
 }
 

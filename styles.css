@@ -2356,6 +2356,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
    enlarged (#10). */
 .topbar,
 .view-tabs,
+.nav-toggle,
 .panel-toggle-left,
 .map-layer-tools {
   transition:
@@ -2372,6 +2373,15 @@ body.is-image-expanded .panel-toggle-left,
 body.is-image-expanded .map-layer-tools,
 body.is-image-expanded .side-panel {
   filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.view-map.is-focus-sheet-raised .topbar,
+body.view-map.is-focus-sheet-raised .view-tabs,
+body.view-map.is-focus-sheet-raised .nav-toggle,
+body.view-map.is-focus-sheet-raised .panel-toggle-left,
+body.view-map.is-focus-sheet-raised .map-layer-tools {
   opacity: 0;
   pointer-events: none;
 }
@@ -3416,7 +3426,7 @@ body.edit-mode .card-edit {
        --sheet-peek/--sheet-full 由 JS 按视口写成 px（updateSheetMetrics），
        这里的值只是 JS 跑起来前的兜底。 */
     --sheet-peek: 50svh;
-    --sheet-full: calc(100svh - var(--focus-top) - 28px);
+    --sheet-full: calc(100svh - 48px - 28px);
     height: var(--sheet-peek);
     max-height: var(--sheet-full);
     transform: translateY(24px);
@@ -3454,16 +3464,16 @@ body.edit-mode .card-edit {
     pointer-events: none;
     opacity: 0;
     transition: opacity 180ms ease;
-    background: rgba(0, 0, 0, 0.24);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.001);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .focus-image-panel:not(.is-expanded)::before {
-    top: 26px;
-    height: min(156px, 24svh);
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.72) 46%, rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.72) 46%, rgba(0, 0, 0, 0) 100%);
+    top: 0;
+    height: min(170px, 26svh);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.64) 46%, rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.64) 46%, rgba(0, 0, 0, 0) 100%);
   }
 
   .focus-image-panel:not(.is-expanded)::after {
@@ -3471,8 +3481,8 @@ body.edit-mode .card-edit {
     height: 1.35em;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
   }
 
   .focus-image-panel.is-sheet-full.has-scroll-before:not(.is-expanded)::before,
@@ -5921,6 +5931,13 @@ body:not(.edit-mode) .editor-inbox-btn {
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+@media (max-width: 820px) {
+  .focus-image-panel:not(.is-expanded) .focus-zoom-hint,
+  .focus-image-panel:not(.is-expanded) .focus-photo-zoom {
+    display: none !important;
+  }
 }
 
 /* Illustrations are usually transparent PNGs — kill the inherited drop-shadow so
