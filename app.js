@@ -112,10 +112,10 @@ const CLUSTER_FALLBACK_ZOOM = 11;
 // (without this the user could zoom out to the whole globe).
 const MIN_MAP_ZOOM = 5;
 const FOCUS_MAP_ZOOM = 18;
-// 任务5（手机端）：聚焦时把地图再拉远约 1.2 倍（18 - log2(1.2) ≈ 17.74），屏幕看到更多周边；
-// 同时清晰圈半径按同比例缩到约 0.83（面积≈70%，见 styles.css 手机端 --fb-radius），
+// 任务5（手机端）：聚焦时把地图再拉远约 1.5 倍（18 - log2(1.5) ≈ 17.42），屏幕看到更多周边；
+// 同时清晰圈半径按同比例缩到约 0.664（见 styles.css 手机端 --fb-radius），
 // 于是「圈里显示的真实内容」保持不变，只是整体缩小、能看到完整清晰圈。桌面不变。
-const FOCUS_MAP_ZOOM_MOBILE = 17.74;
+const FOCUS_MAP_ZOOM_MOBILE = 17.42;
 function focusMapZoom() {
   return isMobileSheet() ? FOCUS_MAP_ZOOM_MOBILE : FOCUS_MAP_ZOOM;
 }
@@ -4732,6 +4732,20 @@ function updateSheetMetrics() {
   els.focusPanel.style.setProperty("--sheet-full", `${fullPx}px`);
 }
 
+function sheetBottomFadePxForHeight(height, metrics = sheetMetrics()) {
+  const { peekPx, fullPx } = metrics;
+  const span = Math.max(1, fullPx - peekPx);
+  const progress = Math.max(0, Math.min(1, (height - peekPx) / span));
+  const fontSize = Number.parseFloat(getComputedStyle(els.focusPanel || document.documentElement).fontSize) || 14;
+  const peekFade = peekPx * 0.3;
+  const fullFade = fontSize * 1.45;
+  return Math.round(peekFade + (fullFade - peekFade) * progress);
+}
+
+function setSheetBottomFadeForHeight(height, metrics) {
+  els.focusPanel?.style.setProperty("--sheet-bottom-fade", `${sheetBottomFadePxForHeight(height, metrics)}px`);
+}
+
 function setFocusSheetRaised(isRaised) {
   els.mapView?.classList.toggle("is-focus-sheet-raised", Boolean(isRaised));
   document.body.classList.toggle("is-focus-sheet-raised", Boolean(isRaised && isMobileSheet()));
@@ -4760,6 +4774,7 @@ function setSheetState(next) {
   panel.style.height = "";
   panel.style.transform = "";
   panel.style.opacity = "";
+  panel.style.removeProperty("--sheet-bottom-fade");
   panel.classList.toggle("is-sheet-full", next === "full");
   if (next === "full") {
     requestAnimationFrame(syncFocusSheetRaisedByImage);
@@ -4866,13 +4881,15 @@ function setupSheetGestures() {
 
 function applySheetDrag(s, dy) {
   const panel = els.focusPanel;
-  const { peekPx, fullPx } = sheetMetrics();
+  const metrics = sheetMetrics();
+  const { peekPx, fullPx } = metrics;
   // 任务6 跟手系数：面板实际位移 = 手指位移 × sheetFollow（1=1:1，<1 更“沉”、>1 更“轻”）。
   const d = dy * sheetTuning.sheetFollow;
   if (s.startFull) {
     // 全屏向下拖 → 高度从 full 缩向 peek（拖到 peek 就到底）。
     const h = Math.max(peekPx, Math.min(fullPx, fullPx - d));
     panel.style.height = `${h}px`;
+    setSheetBottomFadeForHeight(h, metrics);
     syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
@@ -4882,6 +4899,7 @@ function applySheetDrag(s, dy) {
     // 半开向上拖 → 高度从 peek 升向 full。
     const h = Math.max(peekPx, Math.min(fullPx, peekPx - d));
     panel.style.height = `${h}px`;
+    setSheetBottomFadeForHeight(h, metrics);
     syncFocusSheetRaisedByImage();
     panel.style.transform = "translateY(0)";
     panel.style.opacity = "1";
@@ -4891,6 +4909,7 @@ function applySheetDrag(s, dy) {
     const exit = sheetExitDistance();
     const floor = sheetTuning.sheetExitFade;
     panel.style.height = `${peekPx}px`;
+    setSheetBottomFadeForHeight(peekPx, metrics);
     panel.style.transform = `translateY(${d}px)`;
     panel.style.opacity = String(Math.max(floor, 1 - d / (exit * 1.6)));
   }
@@ -6117,7 +6136,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=166", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=167", { updateViaCache: "none" });
   }
 }
 

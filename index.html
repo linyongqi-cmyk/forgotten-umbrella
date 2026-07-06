@@ -9,7 +9,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=166" />
+    <link rel="stylesheet" href="styles.css?v=167" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -238,6 +238,12 @@
                 <div class="focus-image-frame">
                   <img id="focus-image" alt="" />
                   <video id="focus-expanded-video" class="focus-expanded-video" playsinline controls hidden></video>
+                  <button class="focus-sheet-close" id="focus-sheet-close" type="button" aria-label="close detail" title="close detail">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                  </button>
                   <!-- 放大后后台下载原图时的进度条（左下角胶囊，无文字）。 -->
                   <div class="focus-hires-bar" id="focus-hires-bar" aria-hidden="true"><span class="focus-hires-fill"></span></div>
                   <header class="focus-overlay-head focus-header" id="focus-header"></header>
@@ -334,6 +340,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=166" type="module"></script>
+    <script src="app.js?v=167" type="module"></script>
   </body>
 </html>

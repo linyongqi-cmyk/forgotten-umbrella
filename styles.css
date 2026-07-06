@@ -1415,15 +1415,15 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   --fb-tint: rgba(255, 255, 255, 0.5);
 }
 
-/* 任务5（手机端）：清晰圈半径缩到约 0.83（面积≈70%）。配合 app.js 的 FOCUS_MAP_ZOOM_MOBILE
-   把地图拉远 1.2 倍，圈里显示的真实内容不变、只是整体缩小。桌面(>820px)保持原样。
+/* 任务5（手机端）：清晰圈半径缩到约 0.664（=上版 0.83 的 80%）。配合 app.js 的
+   FOCUS_MAP_ZOOM_MOBILE 把地图拉远 1.5 倍，圈里显示的真实内容不变、只是整体缩小。桌面(>820px)保持原样。
    --fb-radius 是在 .focus-blur 上算出来的（不是 :root 内联变量），所以这里能安全覆盖。 */
 @media (max-width: 820px) {
   .focus-blur {
-    --fb-radius: calc(var(--fb-radius-n, 138px) * 0.83);
+    --fb-radius: calc(var(--fb-radius-n, 138px) * 0.664);
   }
   .workspace.is-focus-mode.is-blur-approx .focus-blur {
-    --fb-radius: calc(var(--fb-radius-a, 200px) * 0.83);
+    --fb-radius: calc(var(--fb-radius-a, 200px) * 0.664);
   }
 }
 
@@ -3438,6 +3438,7 @@ body.edit-mode .card-edit {
        这里的值只是 JS 跑起来前的兜底。 */
     --sheet-peek: 50svh;
     --sheet-full: calc(100svh - 48px - 28px);
+    --sheet-bottom-fade: 30%;
     height: var(--sheet-peek);
     max-height: var(--sheet-full);
     transform: translateY(24px);
@@ -3445,10 +3446,12 @@ body.edit-mode .card-edit {
     transition:
       opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
-      height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1);
+      height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .focus-image-panel.is-sheet-full {
+    --sheet-bottom-fade: 1.45em;
     height: var(--sheet-full);
   }
 
@@ -3470,9 +3473,9 @@ body.edit-mode .card-edit {
     mask-image: none;
   }
 
-  .focus-image-panel.is-sheet-full.has-scroll-after:not(.is-expanded) .focus-scroll {
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), rgba(0, 0, 0, 0) 100%);
+  .focus-image-panel.has-scroll-after:not(.is-expanded) .focus-scroll {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-fade)), rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-fade)), rgba(0, 0, 0, 0) 100%);
   }
 
   .workspace.is-focus-mode .focus-image-panel {
@@ -3553,9 +3556,9 @@ body.edit-mode .card-edit {
 
   .focus-sheet-close {
     position: absolute;
-    top: 28px;
-    right: 10px;
-    z-index: 5;
+    top: 12px;
+    right: 12px;
+    z-index: 9;
     display: grid;
     place-items: center;
     width: 34px;
@@ -3614,10 +3617,14 @@ body.edit-mode .card-edit {
     }
   }
 
-  /* 手机端把桌面同款 Back to map 复用成左上角固定按钮；Scroll for more 仍隐藏。 */
+  /* 手机端把桌面同款 Back to map 复用成 full 档左上角固定按钮；Scroll for more 仍隐藏。 */
   .focus-image-panel:not(.is-expanded) .focus-footer {
-    display: block;
+    display: none;
     margin: 0;
+  }
+
+  .focus-image-panel.is-sheet-full:not(.is-expanded) .focus-footer {
+    display: block;
   }
 
   .focus-image-panel:not(.is-expanded) .focus-scroll-hint {
