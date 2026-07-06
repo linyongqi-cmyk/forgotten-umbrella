@@ -404,8 +404,8 @@ const els = {
 // (GitHub Pages) site this is false, so none of the editor UI is created and
 // visitors never see an entry point.
 const IS_LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(location.hostname);
-const MOBILE_FOCUS_GESTURE_TIP_KEY = "fu-mobile-focus-gesture-tip-seen";
 let mobileFocusGestureTipTimer = 0;
+let mobileFocusGestureTipShown = false;
 
 init();
 
@@ -4034,26 +4034,33 @@ const JAPAN_PREFECTURES = new Set([
   "Kumamoto", "Oita", "Miyazaki", "Kagoshima", "Okinawa",
 ]);
 
-// Contributed place → prefecture group; non-Japan → 海外 (item 10).
-function groupContributedByCity(items) {
+function contributedPlaceLabel(item) {
+  const levels = Array.isArray(item.locationLevels) ? item.locationLevels : [];
+  const pref = String(levels[0] || "").trim();
+  return JAPAN_PREFECTURES.has(pref) ? pref : "overseas";
+}
+
+// Contributed place → first address level only. Non-Japan / editor "other" free
+// text is shown as lowercase "overseas" and always kept at the bottom.
+function groupContributedByPlace(items) {
   const groups = new Map();
   items.forEach((it) => {
-    const levels = Array.isArray(it.locationLevels) ? it.locationLevels : [];
-    const pref = levels[0];
-    // Non-Japan always groups as English "Overseas", even in 日本語 (用户要求 item 1).
-    const label = JAPAN_PREFECTURES.has(pref) ? pref : "Overseas";
+    const label = contributedPlaceLabel(it);
     if (!groups.has(label)) {
       groups.set(label, { key: `c-${label}`, label, items: [] });
     }
     groups.get(label).items.push(it);
   });
-  return Array.from(groups.values()).sort(
-    (a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label),
-  );
+  return Array.from(groups.values()).sort((a, b) => {
+    if (a.label === "overseas" && b.label !== "overseas") return 1;
+    if (b.label === "overseas" && a.label !== "overseas") return -1;
+    return b.items.length - a.items.length || a.label.localeCompare(b.label);
+  });
 }
 
-// The contributed Archive scope (item 3/10): a sort toolbar (撮影時間/場所, both
-// grouped like Fieldwork) over a photo-card grid, plus a 統計 overview table.
+// The contributed Archive scope: a sort toolbar over a photo-card grid, plus a
+// stats overview table. Place grouping intentionally stays shallower than
+// Fieldwork: first address level only.
 function renderContributedArchive() {
   if (!els.contributedContent) {
     return;
@@ -4087,11 +4094,11 @@ function renderContributedArchive() {
     return;
   }
 
-  // Grouped grid (撮影時間 → by month, 投稿時間 → by submission month, 場所 → by
-  // full place hierarchy) like Fieldwork.
+  // Grouped grid. Contributed Place intentionally stops at the first address
+  // level (Kyoto / Tokyo / overseas); Fieldwork keeps the full hierarchy.
   let groups =
     mode === "location"
-      ? groupByPlace(items)
+      ? groupContributedByPlace(items)
       : mode === "submitted"
         ? groupContributedBySubmission(items)
         : groupContributedByMonth(items);
@@ -4099,14 +4106,8 @@ function renderContributedArchive() {
   if ((mode === "photo" || mode === "submitted") && state.contributedOrder === "asc") {
     groups = groups.slice().reverse();
   }
-  const mobilePlace = mode === "location" && isMobileSheet();
-  els.contributedContent.classList.toggle("is-mobile-place", mobilePlace);
-  els.contributedContent.innerHTML =
-    toolbar + groups.map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group))).join("");
-  if (mobilePlace) {
-    bindMobilePlaceGroupToggles(els.contributedContent, renderContributedArchive);
-    return;
-  }
+  els.contributedContent.classList.remove("is-mobile-place");
+  els.contributedContent.innerHTML = toolbar + groups.map((group) => renderArchiveGroup(group)).join("");
   els.contributedContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.groupToggle;
@@ -6120,13 +6121,8 @@ function hideMobileFocusGestureTip() {
 
 function maybeShowMobileFocusGestureTip() {
   if (!isMobileSheet() || !els.focusGestureTip || !els.mapView?.classList.contains("is-focus-mode")) return;
-  try {
-    if (localStorage.getItem(MOBILE_FOCUS_GESTURE_TIP_KEY) === "1") return;
-    localStorage.setItem(MOBILE_FOCUS_GESTURE_TIP_KEY, "1");
-  } catch {
-    if (els.focusGestureTip.dataset.shown === "1") return;
-    els.focusGestureTip.dataset.shown = "1";
-  }
+  if (mobileFocusGestureTipShown) return;
+  mobileFocusGestureTipShown = true;
   setFocusMaskPosition();
   els.focusGestureTip.hidden = false;
   requestAnimationFrame(() => els.focusGestureTip?.classList.add("is-show"));
@@ -6417,7 +6413,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=176", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=177", { updateViaCache: "none" });
   }
 }
 
