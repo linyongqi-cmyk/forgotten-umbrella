@@ -3173,6 +3173,12 @@ body.edit-mode .card-edit {
     display: grid;
   }
 
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
   /* 展开栏图标（手机）：隐藏桌面版，用底部展开版；收起 panel-bottom-open、
      展开后 panel-bottom-close（用户 item10）。 */
   .panel-toggle-left .panel-ico-desktop.panel-ico-open,
@@ -3345,6 +3351,11 @@ body.edit-mode .card-edit {
     gap: 2px;
   }
 
+  .workspace.is-focus-mode .map-layer-tools {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* ── 手机顶部横幅：所有导航按钮去掉圆形背景（用户）。──
      覆盖各页汉堡 + 地图页横幅里的 map 按钮/档案键。 */
   .nav-toggle,
@@ -3454,40 +3465,14 @@ body.edit-mode .card-edit {
       opacity var(--sheet-exit-ms, 260ms) ease;
   }
 
-  .focus-image-panel:not(.is-expanded)::before,
-  .focus-image-panel:not(.is-expanded)::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    left: 0;
-    z-index: 3;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 180ms ease;
-    background: rgba(255, 255, 255, 0.001);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+  .focus-image-panel:not(.is-expanded) .focus-scroll {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
-  .focus-image-panel:not(.is-expanded)::before {
-    top: 0;
-    height: min(170px, 26svh);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.64) 46%, rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.64) 46%, rgba(0, 0, 0, 0) 100%);
-  }
-
-  .focus-image-panel:not(.is-expanded)::after {
-    bottom: 0;
-    height: 1.35em;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
-  }
-
-  .focus-image-panel.is-sheet-full.has-scroll-before:not(.is-expanded)::before,
-  .focus-image-panel.is-sheet-full.has-scroll-after:not(.is-expanded)::after {
-    opacity: 1;
+  .focus-image-panel.is-sheet-full.has-scroll-after:not(.is-expanded) .focus-scroll {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.45em), rgba(0, 0, 0, 0) 100%);
   }
 
   .workspace.is-focus-mode .focus-image-panel {
@@ -3629,10 +3614,29 @@ body.edit-mode .card-edit {
     }
   }
 
-  /* 用户任务1：手机端抽屉里不显示底部「Back to map / Scroll for more」这一行
-     （退出靠向下滑，看更多靠向上滑 + 上方箭头提示）。放大灯箱不受影响。 */
+  /* 手机端把桌面同款 Back to map 复用成左上角固定按钮；Scroll for more 仍隐藏。 */
   .focus-image-panel:not(.is-expanded) .focus-footer {
+    display: block;
+    margin: 0;
+  }
+
+  .focus-image-panel:not(.is-expanded) .focus-scroll-hint {
     display: none;
+  }
+
+  .focus-image-panel:not(.is-expanded) .focus-close {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 44;
+    height: 48px;
+    color: #fff;
+    opacity: 0.92;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78), 0 0 8px rgba(0, 0, 0, 0.42);
+  }
+
+  .focus-image-panel:not(.is-expanded) .focus-close:hover {
+    transform: none;
   }
 
   .focus-image-panel:not(.is-expanded) .focus-image-frame,

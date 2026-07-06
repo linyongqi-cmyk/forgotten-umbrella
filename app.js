@@ -1039,6 +1039,7 @@ function bindEvents() {
   });
   setupSheetGestures();
   setupMobileBrowserGestureGuards();
+  setupMobileDoubleTapZoomGuard();
   els.focusLink?.addEventListener("click", (event) => {
     const anchor = event.target.closest?.("[data-link-id]");
     if (!anchor) {
@@ -5733,6 +5734,40 @@ function setupMobileBrowserGestureGuards() {
   );
 }
 
+function setupMobileDoubleTapZoomGuard() {
+  let lastTap = null;
+  const interactiveSelector = "button, a, input, select, textarea, [role='button']";
+  document.addEventListener(
+    "touchend",
+    (event) => {
+      if (!isMobileSheet() || event.changedTouches.length !== 1) return;
+      if (!event.target.closest?.(interactiveSelector)) return;
+      const touch = event.changedTouches[0];
+      const now = performance.now();
+      const nearLast =
+        lastTap &&
+        now - lastTap.time < 360 &&
+        Math.hypot(touch.clientX - lastTap.x, touch.clientY - lastTap.y) < 32;
+      if (nearLast) {
+        event.preventDefault();
+        lastTap = null;
+        return;
+      }
+      lastTap = { time: now, x: touch.clientX, y: touch.clientY };
+    },
+    { passive: false, capture: true },
+  );
+  document.addEventListener(
+    "dblclick",
+    (event) => {
+      if (isMobileSheet() && event.target.closest?.(interactiveSelector)) {
+        event.preventDefault();
+      }
+    },
+    { capture: true },
+  );
+}
+
 function dismissFocusAfterUserMapInteraction() {
   if (!els.mapView.classList.contains("is-focus-mode") || state.isFocusCameraAnimating) {
     return;
@@ -6082,7 +6117,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=165", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=166", { updateViaCache: "none" });
   }
 }
 
