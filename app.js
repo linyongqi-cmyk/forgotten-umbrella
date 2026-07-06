@@ -96,8 +96,8 @@ const FOCUS_MARKER_SCREEN = {
   xDesktop: 0.23,
   yDesktop: 0.5,
   xMobile: 0.5,
-  // v159 第2阶段：标点/清晰圆升到屏幕上方 25% 处，让上方地图约占 50%、下方详情抽屉约占 50%。
-  yMobile: 0.25,
+  // 手机端：标点/清晰圆放在屏幕 30% 处，给顶部地图和半开详情留更平衡的空间。
+  yMobile: 0.3,
 };
 const MARKER_VISUAL_CENTER_OFFSET_Y = 20;
 // Fallback center when geolocation is denied / unavailable / outside Japan: Tokyo Station.
@@ -4782,7 +4782,10 @@ function sheetBottomFadePxForHeight(height, metrics = sheetMetrics()) {
 }
 
 function setSheetBottomFadeForHeight(height, metrics) {
-  els.focusPanel?.style.setProperty("--sheet-bottom-fade", `${sheetBottomFadePxForHeight(height, metrics)}px`);
+  const fadePx = sheetBottomFadePxForHeight(height, metrics);
+  els.focusPanel?.style.setProperty("--sheet-bottom-fade", `${fadePx}px`);
+  els.focusPanel?.style.setProperty("--sheet-bottom-fade-50", `${Math.round(fadePx * 0.5)}px`);
+  els.focusPanel?.style.setProperty("--sheet-bottom-fade-5", `${Math.round(fadePx * 0.05)}px`);
 }
 
 function setSheetChromeProgress(progress) {
@@ -4802,7 +4805,7 @@ function focusClearCircleCoveredByImage() {
   const radiusRaw = getComputedStyle(els.focusBlur || document.documentElement).getPropertyValue("--fb-radius");
   const radius = Number.parseFloat(radiusRaw) || 114;
   const imageTop = els.focusImageFrame.getBoundingClientRect().top;
-  return imageTop <= focusY + radius + 8;
+  return imageTop <= focusY - radius;
 }
 
 function syncFocusSheetRaisedByImage() {
@@ -6198,7 +6201,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=169", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=170", { updateViaCache: "none" });
   }
 }
 

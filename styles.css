@@ -1410,6 +1410,18 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   initial-value: 0px;
 }
 
+@property --sheet-bottom-mask-50 {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --sheet-bottom-mask-5 {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 /* 模糊地址 (blur-approx) = same overlay, vaguer settings: bigger radius, a white
    wash, and a non-zero centre veil so the exact spot stays hazy. */
 .workspace.is-focus-mode.is-blur-approx .focus-blur {
@@ -3457,7 +3469,11 @@ body.edit-mode .card-edit {
     --sheet-peek: 50svh;
     --sheet-full: calc(100svh - 48px - 28px);
     --sheet-bottom-fade: 150px;
+    --sheet-bottom-fade-50: 75px;
+    --sheet-bottom-fade-5: 8px;
     --sheet-bottom-mask: 0px;
+    --sheet-bottom-mask-50: 0px;
+    --sheet-bottom-mask-5: 0px;
     height: var(--sheet-peek);
     max-height: var(--sheet-full);
     transform: translateY(24px);
@@ -3467,7 +3483,9 @@ body.edit-mode .card-edit {
       transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
       height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
-      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1);
+      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask-50 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask-5 340ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .focus-image-panel.is-sheet-full {
@@ -3485,7 +3503,9 @@ body.edit-mode .card-edit {
       transform var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
-      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1);
+      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask-50 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      --sheet-bottom-mask-5 340ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   /* 下滑退出：只给位移/透明度一段短过渡，滑出屏幕底部后再真正关闭。
@@ -3497,12 +3517,26 @@ body.edit-mode .card-edit {
   }
 
   .focus-image-panel:not(.is-expanded) .focus-scroll {
-    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-mask)), rgba(0, 0, 0, 0) 100%);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--sheet-bottom-mask)), rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--sheet-bottom-mask)),
+      rgba(0, 0, 0, 0.4) calc(100% - var(--sheet-bottom-mask-50)),
+      rgba(0, 0, 0, 0) calc(100% - var(--sheet-bottom-mask-5)),
+      rgba(0, 0, 0, 0) 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--sheet-bottom-mask)),
+      rgba(0, 0, 0, 0.4) calc(100% - var(--sheet-bottom-mask-50)),
+      rgba(0, 0, 0, 0) calc(100% - var(--sheet-bottom-mask-5)),
+      rgba(0, 0, 0, 0) 100%
+    );
   }
 
   .focus-image-panel.has-scroll-after:not(.is-expanded) .focus-scroll {
     --sheet-bottom-mask: var(--sheet-bottom-fade);
+    --sheet-bottom-mask-50: var(--sheet-bottom-fade-50);
+    --sheet-bottom-mask-5: var(--sheet-bottom-fade-5);
   }
 
   .workspace.is-focus-mode .focus-image-panel {
