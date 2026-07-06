@@ -4819,8 +4819,15 @@ function selectUmbrella(id, options = {}) {
       } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
         closeFocusMode();
-        state.map.panTo(item.coordinates);
-        state.map.setZoom(Math.max(state.map.getZoom(), 15));
+        const targetZoom = Math.max(state.map.getZoom(), 15);
+        if (isMobileSheet()) {
+          const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
+          const center = getCenterForMarkerScreenPoint(markerLatLng, targetZoom, getFocusMarkerScreenPoint());
+          setMapCamera(center, targetZoom);
+        } else {
+          state.map.panTo(item.coordinates);
+          state.map.setZoom(targetZoom);
+        }
       }
     }
   }
@@ -6488,7 +6495,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=178", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=179", { updateViaCache: "none" });
   }
 }
 
