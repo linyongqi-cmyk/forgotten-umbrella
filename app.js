@@ -29,6 +29,7 @@ const state = {
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
   archiveOpenPlaceGroups: new Set(),
+  archivePlaceSelectedKey: "",
   // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
   statsY: "object",
@@ -2730,8 +2731,7 @@ function renderMapMarkers(items) {
   });
 
   visible.forEach((item) => {
-    const selected = item.id === state.focusMarkerId || item.id === state.selectedId;
-    const icon = markerIcon(selected, flagColorFor(item), markerCategory(item));
+    const icon = markerIcon(item.id === state.focusMarkerId, flagColorFor(item), markerCategory(item));
     const existing = state.markers.get(item.id);
     if (existing) {
       const pos = existing.getPosition();
@@ -2739,7 +2739,6 @@ function renderMapMarkers(items) {
         existing.setPosition(item.coordinates);
       }
       existing.setIcon(icon);
-      existing.setLabel(markerSelectionLabel(item.id === state.selectedId));
       existing.setZIndex(markerZIndex(item));
       if (existing.getDraggable() !== state.editMode) {
         existing.setDraggable(state.editMode);
@@ -2753,7 +2752,6 @@ function renderMapMarkers(items) {
       position: item.coordinates,
       title: id,
       icon,
-      label: markerSelectionLabel(item.id === state.selectedId),
       // Explicit, latitude-based z-order: overlapping pins (e.g. 8680 / aaa(1))
       // must never swap front-to-back while zooming — with a DISTINCT zIndex per pin
       // the canvas renderer draws them in a fixed order, so close pairs never flicker.
@@ -2800,13 +2798,13 @@ function renderMapMarkers(items) {
     marker.addListener("mouseover", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(it), markerCategory(it)));
+        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
       }
     });
     marker.addListener("mouseout", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(markerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(it), markerCategory(it)));
+        marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
       }
     });
     state.markers.set(id, marker);
@@ -4246,6 +4244,10 @@ function renderArchive() {
   const groups = state.archiveMode === "place" ? groupByPlace(sorted) : groupByMonth(sorted);
   const mobilePlace = state.archiveMode === "place" && isMobileSheet();
   els.archiveContent.classList.toggle("is-mobile-place", mobilePlace);
+  if (state.archiveMode === "place" && !mobilePlace) {
+    renderArchivePlaceDesktop(groups);
+    return;
+  }
   els.archiveContent.innerHTML = groups
     .map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group)))
     .join("");
@@ -4280,6 +4282,70 @@ function bindMobilePlaceGroupToggles(root, renderAgain) {
       renderAgain();
     });
   });
+}
+
+function renderArchivePlaceDesktop(groups) {
+  const selected =
+    findPlaceGroupByKey(groups, state.archivePlaceSelectedKey) ||
+    firstPlaceGroup(groups) ||
+    groups[0] ||
+    null;
+  if (selected) {
+    state.archivePlaceSelectedKey = selected.key;
+  }
+  els.archiveContent.innerHTML = `
+    <div class="archive-place-desktop">
+      <aside class="archive-place-tree" aria-label="place hierarchy">
+        ${groups.map((group) => renderArchivePlaceTreeRow(group, selected?.key, 0)).join("")}
+      </aside>
+      <section class="archive-place-grid" aria-label="place records">
+        ${
+          selected
+            ? `
+              <div class="archive-place-grid-head">
+                <h3>${escapeHtml(selected.label)}</h3>
+                <p>${selected.items.length} item</p>
+              </div>
+              <div class="photo-grid">${selected.items.map((item) => renderPhotoCard(item)).join("")}</div>
+            `
+            : ""
+        }
+      </section>
+    </div>
+  `;
+  els.archiveContent.querySelectorAll("[data-place-desktop-key]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.archivePlaceSelectedKey = button.dataset.placeDesktopKey;
+      renderArchive();
+    });
+  });
+}
+
+function renderArchivePlaceTreeRow(group, selectedKey, depth) {
+  const active = group.key === selectedKey;
+  return `
+    <button class="archive-place-tree-row ${active ? "is-active" : ""}" data-place-desktop-key="${escapeHtml(group.key)}" data-depth="${depth}" type="button">
+      <span>${escapeHtml(group.label)}</span>
+      <span>${group.items.length}</span>
+    </button>
+    ${(group.children || []).map((child) => renderArchivePlaceTreeRow(child, selectedKey, depth + 1)).join("")}
+  `;
+}
+
+function findPlaceGroupByKey(groups, key) {
+  if (!key) return null;
+  for (const group of groups) {
+    if (group.key === key) return group;
+    const child = findPlaceGroupByKey(group.children || [], key);
+    if (child) return child;
+  }
+  return null;
+}
+
+function firstPlaceGroup(groups) {
+  const first = groups[0];
+  if (!first) return null;
+  return first.children?.length ? firstPlaceGroup(first.children) : first;
 }
 
 function renderArchiveSecondary(items) {
@@ -4834,23 +4900,21 @@ function selectUmbrella(id, options = {}) {
 
 function panListSelectionToMap(item) {
   const targetZoom = Math.max(state.map.getZoom(), 15);
+  state.map.panTo(item.coordinates);
+  state.map.setZoom(targetZoom);
   if (!isMobileSheet()) {
-    state.map.panTo(item.coordinates);
-    state.map.setZoom(targetZoom);
     return;
   }
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
-  const markerScreen = getFocusMarkerScreenPoint();
-  if (getWorldProjection()) {
-    setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
-    return;
-  }
-  state.map.setZoom(targetZoom);
-  state.map.panTo(item.coordinates);
-  window.setTimeout(() => {
+  const markerScreen = getFocusTargetScreenPoint();
+  window.requestAnimationFrame(() => {
     if (!getWorldProjection()) return;
-    setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
-  }, 80);
+    try {
+      setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
+    } catch (error) {
+      console.warn("Could not offset mobile list selection", error);
+    }
+  });
 }
 
 function focusUmbrellaOnMap(item, id) {
@@ -6431,8 +6495,7 @@ function itemHasTitle(item) {
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(item), markerCategory(item)));
-    marker.setLabel(markerSelectionLabel(id === state.selectedId));
+    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
     marker.setZIndex(markerZIndex(item));
   });
 }
@@ -6463,7 +6526,6 @@ function markerIcon(isActive, flagColor, category) {
     strokeWeight: 2.1,
     scale: 1.55,
     anchor: new google.maps.Point(12, 26),
-    labelOrigin: new google.maps.Point(12, 11),
   };
 }
 
@@ -6472,17 +6534,6 @@ function hoverMarkerIcon(isActive, flagColor, category) {
     ...markerIcon(isActive, flagColor, category),
     scale: 1.72,
   };
-}
-
-function markerSelectionLabel(selected) {
-  return selected
-    ? {
-        text: "•",
-        color: "#ffffff",
-        fontSize: "16px",
-        fontWeight: "700",
-      }
-    : null;
 }
 
 function showMapMessage(message) {
@@ -6524,7 +6575,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=180", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=182", { updateViaCache: "none" });
   }
 }
 

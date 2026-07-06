@@ -514,10 +514,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .side-panel {
   position: fixed;
   left: 24px;
-  top: 96px;
-  bottom: 24px;
+  top: 50%;
+  bottom: auto;
   z-index: 12;
   width: min(400px, calc(100vw - 64px));
+  height: min(720px, calc(100vh - 144px));
   overflow: auto;
   padding: 22px;
   border: 1px solid var(--line);
@@ -526,6 +527,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   box-shadow: var(--shadow);
+  transform: translateY(-50%);
   transition: transform 260ms ease, opacity 260ms ease;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
@@ -563,7 +565,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 .workspace.is-list-collapsed .side-panel {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(calc(-100% - 32px));
+  transform: translate(calc(-100% - 32px), -50%);
 }
 
 /* 用户 v159：桌面也去掉展开列表按钮的圆形毛玻璃底/边框/阴影，只留图标
@@ -624,7 +626,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .panel-toggle-left {
-  left: 448px;
+  left: calc(24px + min(400px, calc(100vw - 64px)) + 24px);
   top: 50%;
   transform: translateY(-50%);
 }
@@ -3105,6 +3107,98 @@ body.edit-mode .card-edit {
   display: none;
 }
 
+.archive-place-desktop {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.archive-place-tree {
+  position: sticky;
+  top: 112px;
+  display: grid;
+  align-content: start;
+  max-height: calc(100vh - 148px);
+  overflow: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.archive-place-tree:hover,
+.archive-place-tree:focus-within {
+  scrollbar-color: rgba(24, 35, 34, 0.22) transparent;
+}
+
+.archive-place-tree-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  width: 100%;
+  padding: 9px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(24, 35, 34, 0.1);
+  color: var(--muted);
+  background: transparent;
+  text-align: left;
+}
+
+.archive-place-tree-row[data-depth="1"] {
+  padding-left: 14px;
+}
+
+.archive-place-tree-row[data-depth="2"] {
+  padding-left: 28px;
+  font-size: 12px;
+}
+
+.archive-place-tree-row span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-place-tree-row span:last-child {
+  font-size: 11px;
+}
+
+.archive-place-tree-row:hover,
+.archive-place-tree-row.is-active {
+  color: var(--ink);
+}
+
+.archive-place-tree-row.is-active {
+  box-shadow: inset 0 -1px 0 currentColor;
+}
+
+.archive-place-grid {
+  min-width: 0;
+}
+
+.archive-place-grid-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.archive-place-grid-head h3,
+.archive-place-grid-head p {
+  margin: 0;
+}
+
+.archive-place-grid-head p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.archive-place-grid .photo-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
 .archive-place-node {
   display: none;
 }
@@ -3215,12 +3309,11 @@ body.edit-mode .card-edit {
 
 @media (max-width: 1100px) {
   .side-panel {
-    top: 104px;
-    bottom: 18px;
+    height: min(680px, calc(100vh - 124px));
   }
 
   .panel-toggle-left {
-    left: calc(min(340px, calc(100vw - 64px)) + 42px);
+    left: calc(24px + min(400px, calc(100vw - 64px)) + 18px);
   }
 
   .photo-grid {
@@ -3382,7 +3475,9 @@ body.edit-mode .card-edit {
     top: auto;
     bottom: 12px;
     width: auto;
+    height: auto;
     max-height: 46vh;
+    transform: none;
     transition:
       transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 240ms ease;
