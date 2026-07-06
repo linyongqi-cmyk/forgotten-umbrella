@@ -195,7 +195,7 @@ const I18N = {
   sortType: { ja: "タイプ", en: "Type" },
   sortPlace: { ja: "場所", en: "Place" },
   statsTab: { ja: "統計", en: "Stats" },
-  aboutStatLocations: { ja: "記録された地点", en: "Recorded locations" },
+  aboutStatLocations: { ja: "記録された地点", en: "Locations" },
   aboutStatFieldwork: { ja: "フィールド数", en: "Fieldwork" },
   aboutStatSubmissions: { ja: "投稿数", en: "Submissions" },
   aboutStatSince: { ja: "記録開始", en: "Recording since" },
@@ -342,6 +342,7 @@ const els = {
   chips: document.querySelectorAll("[data-list-sort]"),
   listSecondary: document.querySelector("#list-secondary-row"),
   listOrderToggle: document.querySelector("#list-order-toggle"),
+  listPanel: document.querySelector("#list-panel"),
   list: document.querySelector("#archive-list"),
   mapCanvas: document.querySelector("#google-map"),
   mapMessage: document.querySelector("#map-message"),
@@ -448,6 +449,7 @@ function normalizeAboutSection(raw) {
 }
 
 let TEXTS = { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
+let locateFeedbackToken = 0;
 
 async function loadTexts() {
   try {
@@ -1065,6 +1067,7 @@ function bindEvents() {
     recenterFocusedMarker();
   });
   setupSheetGestures();
+  setupMobileListPanelPullToCollapse();
   setupMobileBrowserGestureGuards();
   setupMobileDoubleTapZoomGuard();
   els.focusLink?.addEventListener("click", (event) => {
@@ -2323,6 +2326,27 @@ function flashMapToast(message) {
   mapToastTimer = window.setTimeout(() => toast.classList.remove("is-show"), 3600);
 }
 
+function restartLocateFeedback() {
+  const button = els.locateMe;
+  if (!button) return () => {};
+  const token = ++locateFeedbackToken;
+  const startedAt = performance.now();
+  button.classList.remove("is-locating");
+  // Force the CSS animation timeline to restart even when the previous click
+  // finished recently and the class value would otherwise look unchanged.
+  void button.offsetWidth;
+  button.classList.add("is-locating");
+
+  return () => {
+    const remaining = Math.max(0, 900 - (performance.now() - startedAt));
+    window.setTimeout(() => {
+      if (locateFeedbackToken === token) {
+        button.classList.remove("is-locating");
+      }
+    }, remaining);
+  };
+}
+
 // 定位按钮：把地图移到用户当前位置（用户 2026-07-05 要求）。用浏览器地理定位，
 // 拿到坐标后 panTo 过去并适当放大。失败会给一句轻提示（用户 item2：手机上点了没反应，
 // 多半是用 http 的局域网 IP 打开——iOS Safari 只在 https/localhost 才允许定位，会直接
@@ -2331,6 +2355,7 @@ function goToMyLocation() {
   if (!state.googleReady) {
     return;
   }
+  const done = restartLocateFeedback();
   // 非安全环境（http 的局域网 IP 等）：浏览器根本不会弹权限框，直接说明原因。
   if (!window.isSecureContext || !navigator.geolocation) {
     flashMapToast(
@@ -2338,10 +2363,9 @@ function goToMyLocation() {
         ? "位置情報は https（またはlocalhost）でのみ利用できます"
         : "Location needs https (or localhost) to work",
     );
+    done();
     return;
   }
-  els.locateMe?.classList.add("is-locating");
-  const done = () => els.locateMe?.classList.remove("is-locating");
   navigator.geolocation.getCurrentPosition(
     (position) => {
       done();
@@ -4723,9 +4747,18 @@ function openFocusMode() {
   setFocusMaskPosition();
 }
 
-function syncFocusMapInteractionLock(item = null) {
+function currentFocusedItem() {
+  return state.umbrellas.find((entry) => entry.id === state.focusMarkerId || entry.id === state.selectedId) || null;
+}
+
+function focusMapShouldLock(item) {
+  return Boolean(isMobileSheet() && item && (item.blurApprox || els.focusPanel?.classList.contains("is-sheet-full")));
+}
+
+function syncFocusMapInteractionLock(item) {
   if (!state.googleReady || !state.map) return;
-  const locked = Boolean(isMobileSheet() && item?.blurApprox);
+  const targetItem = arguments.length === 0 ? currentFocusedItem() : item;
+  const locked = focusMapShouldLock(targetItem);
   state.map.setOptions({
     gestureHandling: locked ? "none" : "greedy",
     draggable: !locked,
@@ -4832,6 +4865,7 @@ function setSheetState(next) {
   setSheetBottomFadeForHeight(next === "full" ? metrics.fullPx : metrics.peekPx, metrics);
   setSheetChromeProgress(next === "full" ? 1 : 0);
   panel.classList.toggle("is-sheet-full", next === "full");
+  syncFocusMapInteractionLock();
   if (next === "full") {
     requestAnimationFrame(syncFocusSheetRaisedByImage);
   } else {
@@ -4933,6 +4967,48 @@ function setupSheetGestures() {
     if (!s) return;
     if (s.mode === "sheet") releaseSheetDrag(s);
     s = null;
+  };
+  panel.addEventListener("touchend", finish);
+  panel.addEventListener("touchcancel", finish);
+}
+
+function setupMobileListPanelPullToCollapse() {
+  const panel = els.listPanel;
+  if (!panel) return;
+  let start = null;
+
+  panel.addEventListener(
+    "touchstart",
+    (event) => {
+      if (!isMobileSheet()) return;
+      if (event.touches.length !== 1) return;
+      if (els.mapView?.classList.contains("is-list-collapsed")) return;
+      if (event.target.closest?.("input, textarea, select, button, a")) return;
+      start = { y: event.touches[0].clientY };
+    },
+    { passive: true },
+  );
+
+  panel.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!start || event.touches.length !== 1) return;
+      if (panel.scrollTop > 0) return;
+      const dy = event.touches[0].clientY - start.y;
+      if (dy <= 0) return;
+      if (dy > 8) {
+        event.preventDefault();
+      }
+      if (dy > 70) {
+        collapseListPanel();
+        start = null;
+      }
+    },
+    { passive: false },
+  );
+
+  const finish = () => {
+    start = null;
   };
   panel.addEventListener("touchend", finish);
   panel.addEventListener("touchcancel", finish);
@@ -5861,7 +5937,7 @@ function dismissFocusAfterUserMapInteraction() {
     return;
   }
   const item = state.umbrellas.find((entry) => entry.id === state.focusMarkerId || entry.id === state.selectedId);
-  if (isMobileSheet() && item?.blurApprox) {
+  if (isMobileSheet() && (item?.blurApprox || els.focusPanel?.classList.contains("is-sheet-full"))) {
     return;
   }
 
@@ -6205,7 +6281,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=171", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=173", { updateViaCache: "none" });
   }
 }
 
