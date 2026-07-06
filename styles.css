@@ -3343,10 +3343,24 @@ body.edit-mode .card-edit {
     bottom: 12px;
     width: auto;
     max-height: 46vh;
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 240ms ease;
   }
 
   .workspace.is-list-collapsed .side-panel {
     transform: translateY(calc(100% + 24px));
+  }
+
+  .side-panel.is-list-dragging {
+    transition: none;
+  }
+
+  .side-panel.is-list-exiting {
+    pointer-events: none;
+    transition:
+      transform 300ms cubic-bezier(0.32, 0, 0.67, 0),
+      opacity 300ms ease;
   }
 
   /* 档案键(1)：顶部横幅居中（用户）。用 .workspace(.is-list-collapsed) 前缀

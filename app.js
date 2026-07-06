@@ -639,6 +639,9 @@ function normalizeUmbrellaData(items) {
       const umbrellaType = item.umbrellaType || "";
       const umbrellaColor = item.umbrellaColor || "";
       const categoryType = formatCategoryType(item);
+      const rawLocationLevels = Array.isArray(item.locationLevels)
+        ? item.locationLevels.map((level) => String(level || "").trim()).filter(Boolean).slice(0, 3)
+        : [];
       const locationLevels = normalizeLocationLevels(item.locationLevels);
       const locationText = item.locationText || formatLocationLevels(locationLevels);
       const umbrellaCount = item.umbrellaCount || "";
@@ -663,6 +666,7 @@ function normalizeUmbrellaData(items) {
         location: locationText,
         locationText,
         locationLevels,
+        rawLocationLevels,
         coordinates,
         time,
         photoTime: item.photoTime || "",
@@ -4035,13 +4039,20 @@ const JAPAN_PREFECTURES = new Set([
 ]);
 
 function contributedPlaceLabel(item) {
-  const levels = Array.isArray(item.locationLevels) ? item.locationLevels : [];
+  const levels = Array.isArray(item.rawLocationLevels)
+    ? item.rawLocationLevels
+    : Array.isArray(item.locationLevels)
+      ? item.locationLevels
+      : [];
   const pref = String(levels[0] || "").trim();
+  if (pref.toLowerCase() === "unknown") {
+    return "unknown";
+  }
   return JAPAN_PREFECTURES.has(pref) ? pref : "overseas";
 }
 
 // Contributed place → first address level only. Non-Japan / editor "other" free
-// text is shown as lowercase "overseas" and always kept at the bottom.
+// text is shown as lowercase "overseas"; explicit unknown stays separate.
 function groupContributedByPlace(items) {
   const groups = new Map();
   items.forEach((it) => {
@@ -4052,8 +4063,9 @@ function groupContributedByPlace(items) {
     groups.get(label).items.push(it);
   });
   return Array.from(groups.values()).sort((a, b) => {
-    if (a.label === "overseas" && b.label !== "overseas") return 1;
-    if (b.label === "overseas" && a.label !== "overseas") return -1;
+    const rank = (label) => (label === "unknown" ? 2 : label === "overseas" ? 1 : 0);
+    const rankDelta = rank(a.label) - rank(b.label);
+    if (rankDelta !== 0) return rankDelta;
     return b.items.length - a.items.length || a.label.localeCompare(b.label);
   });
 }
@@ -4106,8 +4118,14 @@ function renderContributedArchive() {
   if ((mode === "photo" || mode === "submitted") && state.contributedOrder === "asc") {
     groups = groups.slice().reverse();
   }
-  els.contributedContent.classList.remove("is-mobile-place");
-  els.contributedContent.innerHTML = toolbar + groups.map((group) => renderArchiveGroup(group)).join("");
+  const mobilePlace = mode === "location" && isMobileSheet();
+  els.contributedContent.classList.toggle("is-mobile-place", mobilePlace);
+  els.contributedContent.innerHTML =
+    toolbar + groups.map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group))).join("");
+  if (mobilePlace) {
+    bindMobilePlaceGroupToggles(els.contributedContent, renderContributedArchive);
+    return;
+  }
   els.contributedContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.groupToggle;
@@ -5079,7 +5097,7 @@ function setupSheetGestures() {
 function setupMobileListPanelPullToCollapse() {
   const panel = els.listPanel;
   if (!panel) return;
-  let start = null;
+  let s = null;
 
   panel.addEventListener(
     "touchstart",
@@ -5088,7 +5106,15 @@ function setupMobileListPanelPullToCollapse() {
       if (event.touches.length !== 1) return;
       if (els.mapView?.classList.contains("is-list-collapsed")) return;
       if (event.target.closest?.("input, textarea, select, button, a")) return;
-      start = { y: event.touches[0].clientY };
+      const touch = event.touches[0];
+      s = {
+        startY: touch.clientY,
+        dy: 0,
+        dragging: false,
+        lastY: touch.clientY,
+        lastT: performance.now(),
+        vy: 0,
+      };
     },
     { passive: true },
   );
@@ -5096,26 +5122,75 @@ function setupMobileListPanelPullToCollapse() {
   panel.addEventListener(
     "touchmove",
     (event) => {
-      if (!start || event.touches.length !== 1) return;
-      if (panel.scrollTop > 0) return;
-      const dy = event.touches[0].clientY - start.y;
-      if (dy <= 0) return;
-      if (dy > 8) {
-        event.preventDefault();
+      if (!s || event.touches.length !== 1) return;
+      if (panel.scrollTop > 0 && !s.dragging) {
+        s = null;
+        return;
       }
-      if (dy > 70) {
-        collapseListPanel();
-        start = null;
+      const touch = event.touches[0];
+      const dy = touch.clientY - s.startY;
+      s.dy = dy;
+      const now = performance.now();
+      const dt = now - s.lastT;
+      if (dt > 0) {
+        const inst = (touch.clientY - s.lastY) / dt;
+        s.vy = s.vy * 0.4 + inst * 0.6;
+        s.lastY = touch.clientY;
+        s.lastT = now;
       }
+      if (dy <= 0 && !s.dragging) return;
+      if (dy > 8 && !s.dragging) {
+        s.dragging = true;
+        panel.classList.add("is-list-dragging");
+      }
+      if (!s.dragging) return;
+      event.preventDefault();
+      const d = Math.max(0, dy * 0.86);
+      const exit = Math.max(96, panel.clientHeight * 0.24);
+      panel.style.transform = `translateY(${d}px)`;
+      panel.style.opacity = String(Math.max(0.36, 1 - d / (exit * 1.8)));
     },
     { passive: false },
   );
 
   const finish = () => {
-    start = null;
+    if (!s) return;
+    if (s.dragging) {
+      const effectiveDy = (s.dy + s.vy * 180) * 0.86;
+      const exit = Math.max(96, panel.clientHeight * 0.24);
+      if (effectiveDy > exit) {
+        animateListPanelExit();
+      } else {
+        resetListPanelDrag();
+      }
+    }
+    s = null;
   };
   panel.addEventListener("touchend", finish);
   panel.addEventListener("touchcancel", finish);
+}
+
+function resetListPanelDrag() {
+  const panel = els.listPanel;
+  if (!panel) return;
+  panel.classList.remove("is-list-dragging");
+  panel.style.transform = "";
+  panel.style.opacity = "";
+}
+
+function animateListPanelExit() {
+  const panel = els.listPanel;
+  if (!panel) return;
+  panel.classList.remove("is-list-dragging");
+  panel.classList.add("is-list-exiting");
+  panel.style.transform = "translateY(calc(100% + 24px))";
+  panel.style.opacity = "0";
+  window.setTimeout(() => {
+    collapseListPanel();
+    panel.classList.remove("is-list-exiting");
+    panel.style.transform = "";
+    panel.style.opacity = "";
+  }, 300);
 }
 
 function applySheetDrag(s, dy) {
@@ -6413,7 +6488,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=177", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=178", { updateViaCache: "none" });
   }
 }
 
