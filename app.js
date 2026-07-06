@@ -28,6 +28,7 @@ const state = {
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
+  archiveOpenPlaceGroups: new Set(),
   // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
   statsY: "object",
@@ -4168,6 +4169,7 @@ function renderArchive() {
   if (!els.archiveContent) {
     return;
   }
+  els.archiveContent.classList.remove("is-mobile-place");
 
   // The Archive page is independent of the map sidebar search (state.query): it
   // has its own chips/sub-filters. Start from the author's own (Original) records
@@ -4209,7 +4211,26 @@ function renderArchive() {
   }
 
   const groups = state.archiveMode === "place" ? groupByPlace(sorted) : groupByMonth(sorted);
-  els.archiveContent.innerHTML = groups.map((group) => renderArchiveGroup(group)).join("");
+  const mobilePlace = state.archiveMode === "place" && isMobileSheet();
+  els.archiveContent.classList.toggle("is-mobile-place", mobilePlace);
+  els.archiveContent.innerHTML = groups
+    .map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group)))
+    .join("");
+
+  if (mobilePlace) {
+    els.archiveContent.querySelectorAll("[data-place-group-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.placeGroupToggle;
+        if (state.archiveOpenPlaceGroups.has(key)) {
+          state.archiveOpenPlaceGroups.delete(key);
+        } else {
+          state.archiveOpenPlaceGroups.add(key);
+        }
+        renderArchive();
+      });
+    });
+    return;
+  }
 
   els.archiveContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -4311,6 +4332,37 @@ function renderArchiveGroup(group) {
       </div>
       <div class="archive-group-body">
         ${group.children ? group.children.map((child) => renderArchiveGroup(child)).join("") : `<div class="photo-grid">${group.items.map((item) => renderPhotoCard(item)).join("")}</div>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderMobilePlaceGroup(group) {
+  const open = state.archiveOpenPlaceGroups.has(group.key);
+  const hasChildren = Array.isArray(group.children) && group.children.length > 0;
+  const previews = group.items
+    .slice(0, 3)
+    .map((item) => {
+      const media = item.media?.[0];
+      const src = media?.thumb || media?.src || item.image || "";
+      return src ? `<img src="${escapeHtml(src)}" alt="" loading="lazy" />` : "<span></span>";
+    })
+    .join("");
+  const body = hasChildren
+    ? group.children.map((child) => renderMobilePlaceGroup(child)).join("")
+    : `<div class="photo-grid">${group.items.map((item) => renderPhotoCard(item)).join("")}</div>`;
+  return `
+    <section class="archive-place-node ${open ? "is-open" : ""}" data-place-group-key="${escapeHtml(group.key)}">
+      <button class="archive-place-row" type="button" data-place-group-toggle="${escapeHtml(group.key)}" aria-expanded="${open}">
+        <span class="archive-place-main">
+          <span class="archive-place-title">${escapeHtml(group.label)}</span>
+          <span class="archive-place-count">${group.items.length} item</span>
+        </span>
+        <span class="archive-place-preview" aria-hidden="true">${previews}</span>
+        <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="${open ? "M4 10l8-6 8 6" : "M4 4l8 6 8-6"}" /></svg>
+      </button>
+      <div class="archive-place-body">
+        ${body}
       </div>
     </section>
   `;
@@ -4600,12 +4652,12 @@ function groupByMonth(items) {
 // Group by the address hierarchy: prefecture (level 0) → city (1) → ward (2),
 // nesting one level deeper only where records actually have that level.
 function groupByPlace(items) {
-  function buildLevel(list, depth) {
+  function buildLevel(list, depth, parentKey = "place") {
     const groups = new Map();
     list.forEach((item) => {
       const levels = Array.isArray(item.locationLevels) ? item.locationLevels : [];
       const label = levels[depth] || (depth === 0 ? "Unknown" : "");
-      const key = `lvl${depth}-${label || "unknown"}`;
+      const key = `${parentKey}/lvl${depth}-${label || "unknown"}`;
       if (!groups.has(key)) {
         groups.set(key, { key, label: label || "Unknown", items: [] });
       }
@@ -4618,7 +4670,7 @@ function groupByPlace(items) {
       const hasDeeper = group.items.some(
         (item) => (Array.isArray(item.locationLevels) ? item.locationLevels.length : 0) > depth + 1,
       );
-      return hasDeeper ? { ...group, children: buildLevel(group.items, depth + 1) } : group;
+      return hasDeeper ? { ...group, children: buildLevel(group.items, depth + 1, group.key) } : group;
     });
   }
   return buildLevel(items, 0);
@@ -6281,7 +6333,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=173", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=174", { updateViaCache: "none" });
   }
 }
 

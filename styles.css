@@ -3052,6 +3052,10 @@ body.edit-mode .card-edit {
   display: none;
 }
 
+.archive-place-node {
+  display: none;
+}
+
 .about-view {
   display: none;
   grid-template-columns: minmax(0, 700px) minmax(260px, 380px);
@@ -3802,6 +3806,99 @@ body.edit-mode .card-edit {
     /* 用户 item5：手机端一行 3 张卡。 */
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
+  }
+
+  .archive-content.is-mobile-place {
+    gap: 8px;
+  }
+
+  .archive-content.is-mobile-place .archive-place-node {
+    display: block;
+  }
+
+  .archive-place-node {
+    border-top: 1px solid var(--line);
+  }
+
+  .archive-content.is-mobile-place > .archive-place-node:first-child {
+    border-top: 0;
+  }
+
+  .archive-place-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 24px;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    text-align: left;
+  }
+
+  .archive-place-main {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .archive-place-title {
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .archive-place-count {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .archive-place-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 24px);
+    gap: 3px;
+  }
+
+  .archive-place-preview img,
+  .archive-place-preview span {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    background: rgba(20, 26, 25, 0.08);
+    object-fit: cover;
+  }
+
+  .archive-place-row svg {
+    width: 18px;
+    height: 11px;
+    justify-self: end;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .archive-place-body {
+    display: none;
+    padding: 0 0 8px 14px;
+  }
+
+  .archive-place-node.is-open > .archive-place-body {
+    display: block;
+  }
+
+  .archive-place-body .archive-place-row {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .archive-place-body .photo-grid {
+    padding-top: 8px;
   }
 
   /* 用户：手机端卡片一行 3 张、格子很窄，原来 id 和 title 并排且不换行会溢出、
