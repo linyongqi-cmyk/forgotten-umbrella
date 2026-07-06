@@ -4798,9 +4798,13 @@ function setFocusSheetRaised(isRaised) {
 }
 
 function focusClearCircleCoveredByImage() {
-  if (!isMobileSheet() || !els.focusImageFrame) {
+  if (!isMobileSheet()) {
     return false;
   }
+  if (els.focusPanel?.classList.contains("is-sheet-full")) {
+    return true;
+  }
+  if (!els.focusImageFrame) return false;
   const focusY = getFocusTargetScreenPoint().y;
   const radiusRaw = getComputedStyle(els.focusBlur || document.documentElement).getPropertyValue("--fb-radius");
   const radius = Number.parseFloat(radiusRaw) || 114;
@@ -6201,7 +6205,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=170", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=171", { updateViaCache: "none" });
   }
 }
 
