@@ -1485,6 +1485,10 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   display: none;
 }
 
+.focus-sheet-close {
+  display: none;
+}
+
 /* Back-to-map affordance (用户要求 #6): a U-turn return arrow with a long tail and
    the arrowhead pointing DOWN, plus a "Back to map" label (always English). Sits at
    the BOTTOM-LEFT of the panel, below the scrollable content. */
@@ -3552,6 +3556,37 @@ body.edit-mode .card-edit {
     touch-action: none;
   }
 
+  .focus-sheet-close {
+    position: absolute;
+    top: 28px;
+    right: 10px;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(244, 241, 234, 0.62);
+    opacity: 0.72;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .focus-sheet-close svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--icon-stroke, 1.8);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  }
+
   /* 用户任务3+4：去掉旧的灰色小横条，改成一个向上的小箭头 + 上浮动效，提示「可向上滑动看更多」。
      短内容（.is-focus-short，peek 已能看全）时隐藏；全屏档（.is-sheet-full）也隐藏。 */
   .focus-sheet-hint {
@@ -3602,6 +3637,10 @@ body.edit-mode .card-edit {
 
   /* 放大灯箱时不显示把手。 */
   .focus-image-panel.is-expanded .focus-sheet-handle {
+    display: none;
+  }
+
+  .focus-image-panel.is-expanded .focus-sheet-close {
     display: none;
   }
 

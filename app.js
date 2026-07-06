@@ -352,6 +352,7 @@ const els = {
   focusExpandedVideo: document.querySelector("#focus-expanded-video"),
   focusScroll: document.querySelector("#focus-scroll"),
   focusSheetHandle: document.querySelector("#focus-sheet-handle"),
+  focusSheetClose: document.querySelector("#focus-sheet-close"),
   focusExpand: document.querySelector("#focus-expand"),
   focusScrollHint: document.querySelector("#focus-scroll-hint"),
   focusZoomHint: document.querySelector("#focus-zoom-hint"),
@@ -1021,6 +1022,7 @@ function bindEvents() {
   els.focusPanel?.addEventListener("touchmove", blockMobileDetailPinch, { passive: false });
   els.focusPanel?.addEventListener("click", (event) => event.stopPropagation());
   els.focusClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
+  els.focusSheetClose?.addEventListener("click", () => closeFocusMode({ resetZoom: true }));
   // 手机端底部抽屉把手：单击（没拖动）在「半开 ↔ 全屏」两档间切换。拖动手势见 setupSheetGestures。
   els.focusSheetHandle?.addEventListener("click", () => {
     if (state.sheetJustDragged) return; // 刚拖完的一下不当点击
@@ -6073,7 +6075,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=163", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=164", { updateViaCache: "none" });
   }
 }
 
