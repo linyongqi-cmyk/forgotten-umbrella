@@ -9,7 +9,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=175" />
+    <link rel="stylesheet" href="styles.css?v=176" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -228,6 +228,10 @@
 
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
           <div class="focus-approx-label" id="focus-approx-label" aria-hidden="true" hidden></div>
+          <div class="focus-gesture-tip" id="focus-gesture-tip" aria-hidden="true" hidden>
+            <span class="focus-gesture-dots"><i></i><i></i></span>
+            <span>Pinch to zoom map</span>
+          </div>
           <button class="focus-mobile-back" id="focus-mobile-back" type="button" aria-label="back to map" title="back to map">
             <svg viewBox="0 0 56 30" aria-hidden="true" focusable="false">
               <path d="M54 6H16a7 7 0 0 0-7 7v9" />
@@ -347,6 +351,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=175" type="module"></script>
+    <script src="app.js?v=176" type="module"></script>
   </body>
 </html>

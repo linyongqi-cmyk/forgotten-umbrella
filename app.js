@@ -349,6 +349,7 @@ const els = {
   mapMessage: document.querySelector("#map-message"),
   focusBlur: document.querySelector("#focus-blur"),
   focusApproxLabel: document.querySelector("#focus-approx-label"),
+  focusGestureTip: document.querySelector("#focus-gesture-tip"),
   focusPanel: document.querySelector("#focus-image-panel"),
   focusImage: document.querySelector("#focus-image"),
   focusExpandedVideo: document.querySelector("#focus-expanded-video"),
@@ -403,6 +404,8 @@ const els = {
 // (GitHub Pages) site this is false, so none of the editor UI is created and
 // visitors never see an entry point.
 const IS_LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"].includes(location.hostname);
+const MOBILE_FOCUS_GESTURE_TIP_KEY = "fu-mobile-focus-gesture-tip-seen";
+let mobileFocusGestureTipTimer = 0;
 
 init();
 
@@ -5216,6 +5219,7 @@ function closeFocusMode(options = {}) {
   setSheetChromeProgress(0);
   setFocusBlurSuppressed(false);
   syncFocusMapInteractionLock(null);
+  hideMobileFocusGestureTip();
   pauseFocusVideos(); // #10: leaving the detail page stops any playing video.
   closeExpandedImage();
   els.mapView.classList.remove("is-focus-mode");
@@ -6096,7 +6100,37 @@ function setFocusMaskPosition() {
     els.focusApproxLabel.style.left = `${target.x}px`;
     els.focusApproxLabel.style.top = `${target.y}px`;
   }
+  if (els.focusGestureTip) {
+    els.focusGestureTip.style.left = `${target.x}px`;
+    els.focusGestureTip.style.top = `${target.y + 76}px`;
+  }
   updateFocusApproxLabelGeometry();
+}
+
+function hideMobileFocusGestureTip() {
+  if (mobileFocusGestureTipTimer) {
+    window.clearTimeout(mobileFocusGestureTipTimer);
+    mobileFocusGestureTipTimer = 0;
+  }
+  els.focusGestureTip?.classList.remove("is-show");
+  if (els.focusGestureTip) {
+    els.focusGestureTip.hidden = true;
+  }
+}
+
+function maybeShowMobileFocusGestureTip() {
+  if (!isMobileSheet() || !els.focusGestureTip || !els.mapView?.classList.contains("is-focus-mode")) return;
+  try {
+    if (localStorage.getItem(MOBILE_FOCUS_GESTURE_TIP_KEY) === "1") return;
+    localStorage.setItem(MOBILE_FOCUS_GESTURE_TIP_KEY, "1");
+  } catch {
+    if (els.focusGestureTip.dataset.shown === "1") return;
+    els.focusGestureTip.dataset.shown = "1";
+  }
+  setFocusMaskPosition();
+  els.focusGestureTip.hidden = false;
+  requestAnimationFrame(() => els.focusGestureTip?.classList.add("is-show"));
+  mobileFocusGestureTipTimer = window.setTimeout(hideMobileFocusGestureTip, 2800);
 }
 
 function animateMarkerToFocus(item) {
@@ -6110,6 +6144,7 @@ function animateMarkerToFocus(item) {
     const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
     revealApproxLabel();
+    maybeShowMobileFocusGestureTip();
     return;
   }
 
@@ -6149,6 +6184,7 @@ function animateMarkerToFocus(item) {
       setFocusMaskPosition();
       // Map has settled on the point — now fade the under-pin label in (item 3).
       revealApproxLabel();
+      maybeShowMobileFocusGestureTip();
       window.setTimeout(() => {
         state.isFocusCameraAnimating = false;
       }, 80);
@@ -6381,7 +6417,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=175", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=176", { updateViaCache: "none" });
   }
 }
 
