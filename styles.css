@@ -3375,6 +3375,7 @@ body.edit-mode .card-edit {
   body.view-map .map-layer-btn,
   body.view-map .panel-toggle-left {
     color: #fff;
+    z-index: 40;
   }
 
   body.view-map .nav-toggle svg,
@@ -3466,7 +3467,7 @@ body.edit-mode .card-edit {
       transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
       height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
-      --sheet-bottom-mask 180ms ease;
+      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .focus-image-panel.is-sheet-full {
@@ -3484,7 +3485,7 @@ body.edit-mode .card-edit {
       transform var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       height var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
       --sheet-bottom-fade var(--sheet-snap-ms, 300ms) cubic-bezier(0.22, 1, 0.36, 1),
-      --sheet-bottom-mask 180ms ease;
+      --sheet-bottom-mask 340ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   /* 下滑退出：只给位移/透明度一段短过渡，滑出屏幕底部后再真正关闭。
@@ -3645,25 +3646,25 @@ body.edit-mode .card-edit {
 
   .focus-mobile-back {
     position: fixed;
-    top: 58px;
-    left: 58px;
-    z-index: 44;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 32px;
+    top: 12px;
+    left: 12px;
+    z-index: 45;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
     padding: 0;
     border: 0;
     background: transparent;
     color: #fff;
-    font-size: 20px;
-    line-height: 1;
-    letter-spacing: 0;
     opacity: var(--focus-sheet-progress, 0);
     pointer-events: none;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78), 0 0 8px rgba(0, 0, 0, 0.42);
-    transition: opacity 180ms ease;
+    transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1);
     touch-action: manipulation;
+  }
+
+  .focus-mobile-back span {
+    display: none;
   }
 
   body.view-map.is-focus-sheet-raised .focus-mobile-back {
@@ -3671,9 +3672,8 @@ body.edit-mode .card-edit {
   }
 
   .focus-mobile-back svg {
-    width: 62px;
-    height: 32px;
-    flex-shrink: 0;
+    width: 34px;
+    height: 26px;
     fill: none;
     stroke: currentColor;
     stroke-width: var(--icon-stroke, 2);

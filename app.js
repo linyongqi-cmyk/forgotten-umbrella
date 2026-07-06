@@ -4831,7 +4831,7 @@ function setSheetState(next) {
     setFocusSheetRaised(false);
   }
   if (returningFromFadedDrag) {
-    window.setTimeout(() => panel.classList.remove("is-sheet-returning"), 120);
+    window.setTimeout(() => panel.classList.remove("is-sheet-returning"), sheetTuning.sheetSnapMs + 80);
   }
   requestAnimationFrame(updateFocusScrollHint);
 }
@@ -6198,7 +6198,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=168", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=169", { updateViaCache: "none" });
   }
 }
 
