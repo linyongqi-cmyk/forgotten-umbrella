@@ -1232,7 +1232,7 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 /* 取当前位置时转圈反馈（原来在 .map-layer-btn 上，随按钮一起搬过来）。 */
 .map-locate-btn.is-locating .locate-ico {
-  animation: locate-spin 0.9s linear infinite;
+  animation: locate-nod 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .map-toolbar span {
@@ -1291,7 +1291,20 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 
 /* 定位按钮取位时的转圈反馈 */
 .map-layer-btn.is-locating svg {
-  animation: locate-spin 0.9s linear infinite;
+  animation: locate-nod 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes locate-nod {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  38% {
+    transform: rotate(34deg);
+  }
+  68% {
+    transform: rotate(-7deg);
+  }
 }
 
 @keyframes locate-spin {
@@ -3687,9 +3700,11 @@ body.edit-mode .card-edit {
     top: 12px;
     left: 12px;
     z-index: 45;
-    display: grid;
-    place-items: center;
-    width: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: auto;
+    min-width: 48px;
     height: 48px;
     padding: 0;
     border: 0;
@@ -3702,7 +3717,15 @@ body.edit-mode .card-edit {
   }
 
   .focus-mobile-back span {
-    display: none;
+    display: block;
+    max-width: 112px;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1;
+    letter-spacing: 0;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78), 0 0 8px rgba(0, 0, 0, 0.42);
+    white-space: nowrap;
   }
 
   body.view-map.is-focus-sheet-raised .focus-mobile-back {

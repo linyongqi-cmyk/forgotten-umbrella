@@ -2339,7 +2339,7 @@ function restartLocateFeedback() {
   button.classList.add("is-locating");
 
   return () => {
-    const remaining = Math.max(0, 900 - (performance.now() - startedAt));
+    const remaining = Math.max(0, 440 - (performance.now() - startedAt));
     window.setTimeout(() => {
       if (locateFeedbackToken === token) {
         button.classList.remove("is-locating");
@@ -4055,6 +4055,7 @@ function renderContributedArchive() {
   if (!els.contributedContent) {
     return;
   }
+  els.contributedContent.classList.remove("is-mobile-place");
   const items = state.umbrellas.filter((item) => item.submissionType === "contributed");
   const ja = state.lang === "ja";
   const mode = state.contributedMode || "photo";
@@ -4072,7 +4073,7 @@ function renderContributedArchive() {
         <div class="archive-toolbar-group" role="group" aria-label="sort mode">
           ${btn("photo", ja ? "撮影日時" : "Taken")}
           ${btn("submitted", ja ? "投稿日時" : "Submitted")}
-          ${btn("location", ja ? "場所" : "Location")}
+          ${btn("location", ja ? "場所" : "Place")}
           ${btn("stats", ja ? "統計" : "Stats", false)}
         </div>
       </div>
@@ -4084,10 +4085,10 @@ function renderContributedArchive() {
   }
 
   // Grouped grid (撮影時間 → by month, 投稿時間 → by submission month, 場所 → by
-  // city) like Fieldwork (item 10 / item 8).
+  // full place hierarchy) like Fieldwork.
   let groups =
     mode === "location"
-      ? groupContributedByCity(items)
+      ? groupByPlace(items)
       : mode === "submitted"
         ? groupContributedBySubmission(items)
         : groupContributedByMonth(items);
@@ -4095,7 +4096,14 @@ function renderContributedArchive() {
   if ((mode === "photo" || mode === "submitted") && state.contributedOrder === "asc") {
     groups = groups.slice().reverse();
   }
-  els.contributedContent.innerHTML = toolbar + groups.map((group) => renderArchiveGroup(group)).join("");
+  const mobilePlace = mode === "location" && isMobileSheet();
+  els.contributedContent.classList.toggle("is-mobile-place", mobilePlace);
+  els.contributedContent.innerHTML =
+    toolbar + groups.map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group))).join("");
+  if (mobilePlace) {
+    bindMobilePlaceGroupToggles(els.contributedContent, renderContributedArchive);
+    return;
+  }
   els.contributedContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.groupToggle;
@@ -4218,17 +4226,7 @@ function renderArchive() {
     .join("");
 
   if (mobilePlace) {
-    els.archiveContent.querySelectorAll("[data-place-group-toggle]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const key = button.dataset.placeGroupToggle;
-        if (state.archiveOpenPlaceGroups.has(key)) {
-          state.archiveOpenPlaceGroups.delete(key);
-        } else {
-          state.archiveOpenPlaceGroups.add(key);
-        }
-        renderArchive();
-      });
-    });
+    bindMobilePlaceGroupToggles(els.archiveContent, renderArchive);
     return;
   }
 
@@ -4245,18 +4243,32 @@ function renderArchive() {
   });
 }
 
+function bindMobilePlaceGroupToggles(root, renderAgain) {
+  root.querySelectorAll("[data-place-group-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.placeGroupToggle;
+      if (state.archiveOpenPlaceGroups.has(key)) {
+        state.archiveOpenPlaceGroups.delete(key);
+      } else {
+        state.archiveOpenPlaceGroups.add(key);
+      }
+      renderAgain();
+    });
+  });
+}
+
 function renderArchiveSecondary(items) {
   if (!els.archiveSecondary) {
     return;
   }
 
-  if (state.archiveMode !== "type" && state.archiveMode !== "place") {
+  if (state.archiveMode !== "type") {
     els.archiveSecondary.hidden = true;
     els.archiveSecondary.innerHTML = "";
     return;
   }
 
-  const field = state.archiveMode === "type" ? "type" : "prefecture";
+  const field = "type";
   const counts = countByField(items, field);
   const options = [
     { key: "all", label: `all (${items.length})` },
@@ -4276,12 +4288,11 @@ function renderArchiveSecondary(items) {
 }
 
 function filterArchiveItems(items) {
-  if ((state.archiveMode !== "type" && state.archiveMode !== "place") || state.archiveSubfilter === "all") {
+  if (state.archiveMode !== "type" || state.archiveSubfilter === "all") {
     return items;
   }
 
-  const field = state.archiveMode === "type" ? "type" : "prefecture";
-  return items.filter((item) => item[field] === state.archiveSubfilter);
+  return items.filter((item) => item.type === state.archiveSubfilter);
 }
 
 function sortArchiveItems(items) {
@@ -4338,20 +4349,23 @@ function renderArchiveGroup(group) {
 }
 
 function renderMobilePlaceGroup(group) {
+  return buildMobilePlaceGroup(group).html;
+}
+
+function buildMobilePlaceGroup(group) {
   const open = state.archiveOpenPlaceGroups.has(group.key);
   const hasChildren = Array.isArray(group.children) && group.children.length > 0;
-  const previews = group.items
-    .slice(0, 3)
-    .map((item) => {
-      const media = item.media?.[0];
-      const src = media?.thumb || media?.src || item.image || "";
-      return src ? `<img src="${escapeHtml(src)}" alt="" loading="lazy" />` : "<span></span>";
-    })
-    .join("");
+  const childNodes = hasChildren ? group.children.map((child) => buildMobilePlaceGroup(child)) : [];
+  const childPreviewIds = new Set(childNodes.flatMap((child) => child.previewIds));
+  const previewItems = pickPlacePreviewItems(group.items, group.key, childPreviewIds);
+  const previewIds = previewItems.map((item) => item.id);
+  const previews = previewItems.map((item) => renderPlacePreviewThumb(item)).join("");
   const body = hasChildren
-    ? group.children.map((child) => renderMobilePlaceGroup(child)).join("")
+    ? childNodes.map((child) => child.html).join("")
     : `<div class="photo-grid">${group.items.map((item) => renderPhotoCard(item)).join("")}</div>`;
-  return `
+  return {
+    previewIds,
+    html: `
     <section class="archive-place-node ${open ? "is-open" : ""}" data-place-group-key="${escapeHtml(group.key)}">
       <button class="archive-place-row" type="button" data-place-group-toggle="${escapeHtml(group.key)}" aria-expanded="${open}">
         <span class="archive-place-main">
@@ -4365,7 +4379,41 @@ function renderMobilePlaceGroup(group) {
         ${body}
       </div>
     </section>
-  `;
+  `,
+  };
+}
+
+function renderPlacePreviewThumb(item) {
+  const media = item.media?.[0];
+  const src = media?.thumb || media?.src || item.image || "";
+  return src ? `<img src="${escapeHtml(src)}" alt="" loading="lazy" />` : "<span></span>";
+}
+
+function stableHash(value) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function pickPlacePreviewItems(items, key, excludedIds = new Set()) {
+  const ranked = [...items].sort((a, b) => {
+    const aHash = stableHash(`${key}:${a.id}`);
+    const bHash = stableHash(`${key}:${b.id}`);
+    return aHash - bHash || a.id.localeCompare(b.id);
+  });
+  const picked = ranked.filter((item) => !excludedIds.has(item.id)).slice(0, 3);
+  if (picked.length >= 3) {
+    return picked;
+  }
+  for (const item of ranked) {
+    if (picked.some((pickedItem) => pickedItem.id === item.id)) continue;
+    picked.push(item);
+    if (picked.length >= 3) break;
+  }
+  return picked;
 }
 
 // Small inline logos shown on the corner of an archive card.
@@ -6333,7 +6381,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=174", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=175", { updateViaCache: "none" });
   }
 }
 
