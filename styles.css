@@ -1613,21 +1613,47 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
-.focus-scroll-hint svg {
+.focus-scroll-icon {
   width: 18px;
-  height: 11px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: var(--icon-stroke, 2);
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
-  animation: focus-scroll-bob 1.4s ease-in-out infinite;
 }
 
-@keyframes focus-scroll-bob {
-  0%, 100% { transform: translateY(-1px); }
-  50% { transform: translateY(2px); }
+.focus-scroll-mouse {
+  stroke-width: var(--icon-stroke, 2);
+}
+
+.focus-scroll-wheel {
+  stroke-width: var(--icon-stroke, 2);
+  stroke-dasharray: 6;
+  stroke-dashoffset: 6;
+  animation: focus-scroll-wheel 1.8s ease-in-out infinite;
+}
+
+@keyframes focus-scroll-wheel {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 6;
+    transform: translateY(0);
+  }
+  18% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: translateY(3px);
+  }
+  72%, 100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+    transform: translateY(3px);
+  }
 }
 
 /* Single-column detail layout (v109): the cover image (B) with A1 (id/title) and

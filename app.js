@@ -2730,7 +2730,8 @@ function renderMapMarkers(items) {
   });
 
   visible.forEach((item) => {
-    const icon = markerIcon(item.id === state.focusMarkerId, flagColorFor(item), markerCategory(item));
+    const selected = item.id === state.focusMarkerId || item.id === state.selectedId;
+    const icon = markerIcon(selected, flagColorFor(item), markerCategory(item));
     const existing = state.markers.get(item.id);
     if (existing) {
       const pos = existing.getPosition();
@@ -2738,6 +2739,7 @@ function renderMapMarkers(items) {
         existing.setPosition(item.coordinates);
       }
       existing.setIcon(icon);
+      existing.setLabel(markerSelectionLabel(item.id === state.selectedId));
       existing.setZIndex(markerZIndex(item));
       if (existing.getDraggable() !== state.editMode) {
         existing.setDraggable(state.editMode);
@@ -2751,6 +2753,7 @@ function renderMapMarkers(items) {
       position: item.coordinates,
       title: id,
       icon,
+      label: markerSelectionLabel(item.id === state.selectedId),
       // Explicit, latitude-based z-order: overlapping pins (e.g. 8680 / aaa(1))
       // must never swap front-to-back while zooming — with a DISTINCT zIndex per pin
       // the canvas renderer draws them in a fixed order, so close pairs never flicker.
@@ -2797,13 +2800,13 @@ function renderMapMarkers(items) {
     marker.addListener("mouseover", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
+        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(it), markerCategory(it)));
       }
     });
     marker.addListener("mouseout", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
+        marker.setIcon(markerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(it), markerCategory(it)));
       }
     });
     state.markers.set(id, marker);
@@ -4819,15 +4822,7 @@ function selectUmbrella(id, options = {}) {
       } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
         closeFocusMode();
-        const targetZoom = Math.max(state.map.getZoom(), 15);
-        if (isMobileSheet()) {
-          const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
-          const center = getCenterForMarkerScreenPoint(markerLatLng, targetZoom, getFocusMarkerScreenPoint());
-          setMapCamera(center, targetZoom);
-        } else {
-          state.map.panTo(item.coordinates);
-          state.map.setZoom(targetZoom);
-        }
+        panListSelectionToMap(item);
       }
     }
   }
@@ -4835,6 +4830,27 @@ function selectUmbrella(id, options = {}) {
   if (options.focus) {
     openFocusMode();
   }
+}
+
+function panListSelectionToMap(item) {
+  const targetZoom = Math.max(state.map.getZoom(), 15);
+  if (!isMobileSheet()) {
+    state.map.panTo(item.coordinates);
+    state.map.setZoom(targetZoom);
+    return;
+  }
+  const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
+  const markerScreen = getFocusMarkerScreenPoint();
+  if (getWorldProjection()) {
+    setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
+    return;
+  }
+  state.map.setZoom(targetZoom);
+  state.map.panTo(item.coordinates);
+  window.setTimeout(() => {
+    if (!getWorldProjection()) return;
+    setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
+  }, 80);
 }
 
 function focusUmbrellaOnMap(item, id) {
@@ -6415,7 +6431,8 @@ function itemHasTitle(item) {
 function updateMarkerIcons() {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
+    marker.setIcon(markerIcon(id === state.focusMarkerId || id === state.selectedId, flagColorFor(item), markerCategory(item)));
+    marker.setLabel(markerSelectionLabel(id === state.selectedId));
     marker.setZIndex(markerZIndex(item));
   });
 }
@@ -6446,6 +6463,7 @@ function markerIcon(isActive, flagColor, category) {
     strokeWeight: 2.1,
     scale: 1.55,
     anchor: new google.maps.Point(12, 26),
+    labelOrigin: new google.maps.Point(12, 11),
   };
 }
 
@@ -6454,6 +6472,17 @@ function hoverMarkerIcon(isActive, flagColor, category) {
     ...markerIcon(isActive, flagColor, category),
     scale: 1.72,
   };
+}
+
+function markerSelectionLabel(selected) {
+  return selected
+    ? {
+        text: "•",
+        color: "#ffffff",
+        fontSize: "16px",
+        fontWeight: "700",
+      }
+    : null;
 }
 
 function showMapMessage(message) {
@@ -6495,7 +6524,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=179", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=180", { updateViaCache: "none" });
   }
 }
 

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Archive Place Preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182322;
+        --muted: #6f7977;
+        --line: rgba(24, 35, 34, 0.16);
+        --soft: rgba(24, 35, 34, 0.055);
+        --teal: #1e8f86;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #f7f8f6;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+      }
+
+      main {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+
+      header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 22px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+
+      header p,
+      .panel-note,
+      .count {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        align-items: start;
+      }
+
+      .scheme {
+        min-height: 720px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .scheme-head {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+
+      .scheme h2 {
+        font-size: 17px;
+        letter-spacing: 0;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      .tree {
+        display: grid;
+        gap: 4px;
+        align-content: start;
+        max-height: 610px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .tree-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(24, 35, 34, 0.08);
+        font-size: 13px;
+      }
+
+      .tree-row.depth-1 {
+        padding-left: 12px;
+        color: var(--muted);
+      }
+
+      .tree-row.depth-2 {
+        padding-left: 24px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .card {
+        min-width: 0;
+      }
+
+      .card img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 5px;
+        object-fit: cover;
+        background: var(--soft);
+      }
+
+      .card span {
+        display: block;
+        margin-top: 5px;
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .crumbs strong {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .crumb-levels {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .crumb-level {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(24, 35, 34, 0.1);
+      }
+
+      .crumb-level:first-child {
+        border-top: 1px solid rgba(24, 35, 34, 0.1);
+      }
+
+      .nested {
+        display: grid;
+        gap: 18px;
+      }
+
+      .nested h3 {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      .nested-child {
+        margin: 12px 0 0 14px;
+        padding-left: 14px;
+        border-left: 1px solid var(--line);
+      }
+
+      .nested-child h3 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      @media (max-width: 1100px) {
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .scheme {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Desktop Archive Place UI Preview</h1>
+          <p>同一批真实 Fieldwork 数据，临时可视化三个方向；这个页面不影响正式 Archive。</p>
+        </div>
+        <p id="summary">loading...</p>
+      </header>
+      <section class="preview-grid" id="preview"></section>
+    </main>
+
+    <script>
+      const preview = document.querySelector("#preview");
+      const summary = document.querySelector("#summary");
+
+      fetch("data/umbrellas.json")
+        .then((response) => response.json())
+        .then((items) => {
+          const own = items.filter((item) => item.submissionType !== "contributed" && Array.isArray(item.locationLevels));
+          const tree = buildTree(own);
+          const kyoto = tree.find((group) => group.label === "Kyoto") || tree[0];
+          summary.textContent = `${own.length} fieldwork records`;
+          preview.innerHTML = [renderSplitTree(kyoto), renderBreadcrumb(kyoto), renderLightNested(kyoto)].join("");
+        })
+        .catch((error) => {
+          summary.textContent = "failed to load data";
+          preview.textContent = error.message;
+        });
+
+      function buildTree(items, depth = 0, parentKey = "place") {
+        const groups = new Map();
+        items.forEach((item) => {
+          const label = item.locationLevels?.[depth] || (depth === 0 ? "Unknown" : "");
+          const key = `${parentKey}/${depth}-${label || "unknown"}`;
+          if (!groups.has(key)) groups.set(key, { key, label: label || "Unknown", items: [] });
+          groups.get(key).items.push(item);
+        });
+        return Array.from(groups.values())
+          .sort((a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label))
+          .map((group) => {
+            const hasChildren = group.items.some((item) => (item.locationLevels?.length || 0) > depth + 1);
+            return hasChildren ? { ...group, children: buildTree(group.items, depth + 1, group.key) } : group;
+          });
+      }
+
+      function renderSplitTree(root) {
+        const chosen = firstLeaf(root);
+        return `
+          <article class="scheme">
+            <div class="scheme-head">
+              <h2>A. 左树 + 右图</h2>
+              <p class="panel-note">像资料管理器。层级最清楚，适合大量地点，但工具感最强。</p>
+            </div>
+            <div class="split">
+              <nav class="tree">${renderTreeRows(root)}</nav>
+              <div class="grid">${chosen.items.slice(0, 12).map(renderCard).join("")}</div>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderBreadcrumb(root) {
+        const city = root.children?.[0] || root;
+        const ward = city.children?.[0] || city;
+        return `
+          <article class="scheme">
+            <div class="scheme-head">
+              <h2>B. 路径面包屑</h2>
+              <p class="panel-note">一次只看当前层级。页面干净，但要点进/退出来浏览。</p>
+            </div>
+            <div class="crumbs"><span>Place</span><span>/</span><strong>${escapeHtml(root.label)}</strong><span>/</span><strong>${escapeHtml(city.label)}</strong><span>/</span><strong>${escapeHtml(ward.label)}</strong></div>
+            <div class="crumb-levels">
+              ${(city.children || []).slice(0, 5).map((group) => `<div class="crumb-level"><strong>${escapeHtml(group.label)}</strong><span class="count">${group.items.length} item</span></div>`).join("")}
+            </div>
+            <div class="grid">${ward.items.slice(0, 12).map(renderCard).join("")}</div>
+          </article>
+        `;
+      }
+
+      function renderLightNested(root) {
+        return `
+          <article class="scheme">
+            <div class="scheme-head">
+              <h2>C. 轻量缩进标题</h2>
+              <p class="panel-note">最接近现在，但把子层级弱化成细标题，减少一层套一层的笨重感。</p>
+            </div>
+            <div class="nested">
+              <section>
+                <h3>${escapeHtml(root.label)} <span class="count">${root.items.length} item</span></h3>
+                ${(root.children || []).slice(0, 3).map(renderNestedChild).join("")}
+              </section>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderTreeRows(group, depth = 0) {
+        return `
+          <div class="tree-row depth-${depth}"><span>${escapeHtml(group.label)}</span><span class="count">${group.items.length}</span></div>
+          ${(group.children || []).slice(0, depth === 0 ? 7 : 4).map((child) => renderTreeRows(child, depth + 1)).join("")}
+        `;
+      }
+
+      function renderNestedChild(group) {
+        const leaf = firstLeaf(group);
+        return `
+          <section class="nested-child">
+            <h3>${escapeHtml(group.label)} <span class="count">${group.items.length} item</span></h3>
+            <div class="grid">${leaf.items.slice(0, 6).map(renderCard).join("")}</div>
+          </section>
+        `;
+      }
+
+      function firstLeaf(group) {
+        return group.children?.length ? firstLeaf(group.children[0]) : group;
+      }
+
+      function renderCard(item) {
+        return `<div class="card"><img src="${escapeHtml(item.thumb || item.image)}" alt="" loading="lazy" /><span>${escapeHtml(item.id)}</span></div>`;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+    </script>
+  </body>
+</html>
