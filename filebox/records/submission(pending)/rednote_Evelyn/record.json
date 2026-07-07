@@ -40,7 +40,7 @@
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "contributed",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
-  "submitter": "rednote_Evelyn",
+  "submitter": "@rednote_Evelyn",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
   "submissionChannel": "",
   // 投稿时间（仅投稿伞用，默认取照片文件的建立时间；可手动覆盖，优先显示手填值）。

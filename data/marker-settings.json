@@ -1,0 +1,81 @@
+{
+  "svg": "<svg viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>",
+  "strokeWidth": 1,
+  "regionOpacity": {
+    "region1": 1,
+    "region2": 1,
+    "region3": 0
+  },
+  "categories": {
+    "own": {
+      "svg": "",
+      "lineColors": {
+        "line1": "#ffffff",
+        "line2": "#d95e43",
+        "line3": "#d95d42"
+      },
+      "regionColors": {
+        "region1": "#d95d42",
+        "region2": "#d95d42",
+        "region3": "#d95d42"
+      }
+    },
+    "own-title": {
+      "svg": "",
+      "lineColors": {
+        "line1": "#ffffff",
+        "line2": "#982a1f",
+        "line3": "#982a1f"
+      },
+      "regionColors": {
+        "region1": "#982a1f",
+        "region2": "#982a1f",
+        "region3": "#982a1f"
+      }
+    },
+    "contrib": {
+      "svg": "",
+      "lineColors": {
+        "line1": "#ffffff",
+        "line2": "#2f9e67",
+        "line3": "#2f9e67"
+      },
+      "regionColors": {
+        "region1": "#2f9e67",
+        "region2": "#2f9e67",
+        "region3": "#2f9e67"
+      }
+    },
+    "contrib-story": {
+      "svg": "",
+      "lineColors": {
+        "line1": "#ffffff",
+        "line2": "#1e6e43",
+        "line3": "#1f6d43"
+      },
+      "regionColors": {
+        "region1": "#1f6d43",
+        "region2": "#1f6d43",
+        "region3": "#1f6d43"
+      }
+    },
+    "contrib-blurred": {
+      "svg": "",
+      "lineColors": {
+        "line1": "#ffffff",
+        "line2": "#7f909c",
+        "line3": "#7f8f9c"
+      },
+      "regionColors": {
+        "region1": "#7f8f9c",
+        "region2": "#7f8f9c",
+        "region3": "#7f8f9c"
+      }
+    }
+  },
+  "states": {
+    "normal": {},
+    "listSelected": {},
+    "focused": {}
+  }
+}

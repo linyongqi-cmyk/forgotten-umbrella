@@ -30,6 +30,10 @@ const state = {
   archiveCollapsedGroups: new Set(),
   archiveOpenPlaceGroups: new Set(),
   archivePlaceSelectedKey: "",
+  archivePlaceCollapsedKeys: new Set(),
+  contributedPlaceSelectedKey: "",
+  contributedPlaceCollapsedKeys: new Set(),
+  mobileArchivePendingCardId: "",
   // 統計 cross-tab: which dimension on each axis (#5). Default type × object (#3).
   statsX: "type",
   statsY: "object",
@@ -53,8 +57,8 @@ const state = {
   // satellite, an extra toggle for text labels (satellite ↔ hybrid).
   mapBase: "satellite",
   mapLabels: false,
-  // Map marker filter (item 6/15/16): which of the 4 colour categories show.
-  markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true },
+  // Map marker filter (item 6/15/16): which marker categories show.
+  markerFilter: { "own-title": true, own: true, "contrib-story": true, contrib: true, "contrib-blurred": true },
   markerFilterOpen: false,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
@@ -279,7 +283,7 @@ function renderAbout() {
   renderLegend();
 }
 
-// Map legend on the About page: the 4 marker colours + their meaning (item 15).
+// Map legend on the About page: marker colours + their meaning (item 15).
 // Labels are always English to match the rest of the legend/overview (item 9).
 function renderLegend() {
   const root = document.getElementById("about-legend");
@@ -291,7 +295,7 @@ function renderLegend() {
     `<h3 class="about-legend-title">${heading}</h3>` +
     MARKER_CATEGORIES.map(
       (cat) =>
-        `<div class="about-legend-row"><span class="about-legend-swatch" style="background:${MARKER_COLORS[cat]}"></span><span>${escapeHtml(markerLabel(cat))}</span></div>`,
+        `<div class="about-legend-row">${markerLegendIcon(cat, "about-legend-swatch")}<span>${escapeHtml(markerLabel(cat))}</span></div>`,
     ).join("");
 }
 
@@ -416,6 +420,7 @@ async function init() {
   // the module) is past its temporal dead zone.
   state.umbrellas = await loadUmbrellaData();
   SITE_SETTINGS = await loadSiteSettings();
+  MARKER_SETTINGS = await loadMarkerSettings();
   state.mapCategoryState = loadMapCategoryState();
   TEXTS = await loadTexts();
   THEME = await loadTheme();
@@ -485,6 +490,7 @@ async function loadTexts() {
 // （见 persistSiteSettings），所以调完 push 就上线，不用再手动导 localStorage。
 // null = 还没加载/加载失败，此时回退到代码里写死的 def（BLUR_PARAMS.def / hard*Set）。
 let SITE_SETTINGS = null;
+let MARKER_SETTINGS = null;
 
 async function loadSiteSettings() {
   try {
@@ -521,6 +527,95 @@ const THEME_DEFAULTS = {
   sheetFollow: 1.0, sheetSnapRatio: 0.28, sheetExitRatio: 0.22,
   sheetSnapMs: 300, sheetExitMs: 260, sheetInertia: 120, sheetExitFade: 0.2,
 };
+
+const DEFAULT_MARKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+const DEFAULT_MARKER_SETTINGS = {
+  svg: DEFAULT_MARKER_SVG,
+  strokeWidth: 1.2,
+  regionOpacity: { region1: 0.16, region2: 0, region3: 0 },
+  categories: {
+    own: {
+      svg: "",
+      lineColors: { line1: "#d95d42", line2: "#d95d42", line3: "#d95d42" },
+      regionColors: { region1: "#d95d42", region2: "#d95d42", region3: "#d95d42" },
+    },
+    "own-title": {
+      svg: "",
+      lineColors: { line1: "#982a1f", line2: "#982a1f", line3: "#982a1f" },
+      regionColors: { region1: "#982a1f", region2: "#982a1f", region3: "#982a1f" },
+    },
+    contrib: {
+      svg: "",
+      lineColors: { line1: "#2f9e67", line2: "#2f9e67", line3: "#2f9e67" },
+      regionColors: { region1: "#2f9e67", region2: "#2f9e67", region3: "#2f9e67" },
+    },
+    "contrib-story": {
+      svg: "",
+      lineColors: { line1: "#1f6d43", line2: "#1f6d43", line3: "#1f6d43" },
+      regionColors: { region1: "#1f6d43", region2: "#1f6d43", region3: "#1f6d43" },
+    },
+    "contrib-blurred": {
+      svg: "",
+      lineColors: { line1: "#7f8f9c", line2: "#7f8f9c", line3: "#7f8f9c" },
+      regionColors: { region1: "#7f8f9c", region2: "#7f8f9c", region3: "#7f8f9c" },
+    },
+  },
+  states: { normal: {}, listSelected: {}, focused: {} },
+};
+
+function sanitizeMarkerSettings(raw) {
+  const out = structuredClone(DEFAULT_MARKER_SETTINGS);
+  if (!raw || typeof raw !== "object") {
+    return out;
+  }
+  if (typeof raw.svg === "string" && raw.svg.trim().startsWith("<svg")) {
+    out.svg = raw.svg.trim();
+  }
+  const stroke = Number(raw.strokeWidth);
+  if (Number.isFinite(stroke)) {
+    out.strokeWidth = Math.min(Math.max(stroke, 0.5), 8);
+  }
+  for (const key of ["region1", "region2", "region3"]) {
+    const opacity = Number(raw.regionOpacity?.[key]);
+    if (Number.isFinite(opacity)) {
+      out.regionOpacity[key] = Math.min(Math.max(opacity, 0), 1);
+    }
+  }
+  for (const cat of Object.keys(out.categories)) {
+    const source = raw.categories?.[cat];
+    if (!source || typeof source !== "object") {
+      continue;
+    }
+    if (typeof source.svg === "string" && (!source.svg.trim() || source.svg.trim().startsWith("<svg"))) {
+      out.categories[cat].svg = source.svg.trim();
+    }
+    for (const key of ["line1", "line2", "line3"]) {
+      if (typeof source.lineColors?.[key] === "string" && source.lineColors[key].trim()) {
+        out.categories[cat].lineColors[key] = source.lineColors[key].trim();
+      }
+    }
+    for (const key of ["region1", "region2", "region3"]) {
+      if (typeof source.regionColors?.[key] === "string" && source.regionColors[key].trim()) {
+        out.categories[cat].regionColors[key] = source.regionColors[key].trim();
+      }
+    }
+  }
+  out.states = raw.states && typeof raw.states === "object" ? raw.states : out.states;
+  return out;
+}
+
+async function loadMarkerSettings() {
+  try {
+    const response = await fetch("data/marker-settings.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load data/marker-settings.json: ${response.status}`);
+    }
+    return sanitizeMarkerSettings(await response.json());
+  } catch (error) {
+    console.error(error);
+    return sanitizeMarkerSettings(null);
+  }
+}
 const SIZE_RANGE = { min: 10, max: 24, step: 1 };
 const LINE_RANGE = { min: 1, max: 2.2, step: 0.05 };
 const WEIGHT_RANGE = { min: 300, max: 700, step: 100 };
@@ -611,6 +706,7 @@ function applyTheme(theme) {
   sheetTuning.sheetExitFade = t.sheetExitFade;
   root.setProperty("--sheet-snap-ms", `${t.sheetSnapMs}ms`);
   root.setProperty("--sheet-exit-ms", `${t.sheetExitMs}ms`);
+  updateMarkerIcons();
 }
 
 async function loadUmbrellaData() {
@@ -804,6 +900,12 @@ function bindEvents() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeNavMenu();
+      if (textsEditor.overlay && !textsEditor.overlay.hidden) {
+        closeTextsEditor();
+      }
+      if (inboxState.modal && !inboxState.modal.hidden) {
+        closeInbox();
+      }
     }
   });
 
@@ -851,6 +953,7 @@ function bindEvents() {
   els.listScopeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       state.listScope = tab.dataset.listScope === "contributed" ? "contributed" : "own";
+      state.listSubfilter = "all";
       render();
     });
   });
@@ -977,8 +1080,9 @@ function bindEvents() {
   els.chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       const sort = chip.dataset.listSort;
-      // Clicking 时间 again while already sorting by time flips asc/desc.
-      if (sort === "time" && state.listSort === "time") {
+      const togglesOrder = sort === "time" || (state.listScope === "contributed" && sort === "type");
+      // Clicking time/taken/submitted again while active flips asc/desc.
+      if (togglesOrder && state.listSort === sort) {
         state.listOrder = state.listOrder === "desc" ? "asc" : "desc";
       } else {
         state.listSort = sort;
@@ -1178,6 +1282,9 @@ function bindEvents() {
       } else {
         state.archiveMode = mode;
         state.archiveSubfilter = "all";
+        if (mode === "place") {
+          state.archivePlaceSelectedKey = "all";
+        }
       }
       syncArchiveControls();
       renderArchive();
@@ -1250,13 +1357,16 @@ function bindEvents() {
   // to the map); double-clicking a card jumps to its spot on the map.
   els.archiveContent?.addEventListener("click", (event) => {
     const editButton = event.target.closest?.("[data-card-edit]");
-    if (!editButton) {
+    if (editButton) {
+      event.stopPropagation();
+      const card = editButton.closest(".photo-card");
+      if (card?.dataset.id && IS_LOCAL && typeof editor !== "undefined" && editor.root) {
+        openEditor(card.dataset.id);
+      }
       return;
     }
-    event.stopPropagation();
-    const card = editButton.closest(".photo-card");
-    if (card?.dataset.id && IS_LOCAL && typeof editor !== "undefined" && editor.root) {
-      openEditor(card.dataset.id);
+    if (handleMobileArchiveCardClick(event)) {
+      return;
     }
   });
 
@@ -1287,6 +1397,9 @@ function bindEvents() {
         if (m !== "stats") {
           state.contributedOrder = m === "location" ? "asc" : "desc";
         }
+        if (m === "location") {
+          state.contributedPlaceSelectedKey = "all";
+        }
       }
       renderContributedArchive();
       return;
@@ -1312,6 +1425,10 @@ function bindEvents() {
       if (card?.dataset.id && IS_LOCAL && typeof editor !== "undefined" && editor.root) {
         openEditor(card.dataset.id);
       }
+      return;
+    }
+    if (handleMobileArchiveCardClick(event)) {
+      return;
     }
   });
   els.contributedContent?.addEventListener("dblclick", (event) => {
@@ -1433,7 +1550,7 @@ function syncArchiveScope() {
   }
 }
 
-// Render the marker-filter panel (4 colour rows, each a show/hide toggle) and
+// Render the marker-filter panel (colour rows, each a show/hide toggle) and
 // open/close it (item 6/15/16).
 function syncMarkerFilter() {
   if (els.mapFilterToggle) {
@@ -1447,7 +1564,7 @@ function syncMarkerFilter() {
   els.mapFilterPanel.innerHTML = MARKER_CATEGORIES.map((cat) => {
     const on = state.markerFilter[cat] !== false;
     return `<button type="button" class="map-filter-row${on ? " is-on" : ""}" data-marker-cat="${cat}">
-        <span class="map-filter-swatch" style="background:${MARKER_COLORS[cat]}"></span>
+        ${markerLegendIcon(cat, "map-filter-swatch")}
         <span class="map-filter-label">${escapeHtml(markerLabel(cat))}</span>
       </button>`;
   }).join("");
@@ -1883,18 +2000,27 @@ function syncArchiveControls() {
 }
 
 function syncListControls(items) {
+  const contributed = state.listScope === "contributed";
   els.chips.forEach((button) => {
+    const label = button.querySelector("[data-i18n]");
+    if (label) {
+      if (button.dataset.listSort === "time") {
+        label.textContent = contributed ? (state.lang === "ja" ? "撮影" : "Taken") : I18N.sortTime[state.lang];
+      } else if (button.dataset.listSort === "type") {
+        label.textContent = contributed ? (state.lang === "ja" ? "投稿" : "Submitted") : I18N.sortType[state.lang];
+      } else if (button.dataset.listSort === "place") {
+        label.textContent = I18N.sortPlace[state.lang];
+      }
+    }
     button.classList.toggle("is-active", button.dataset.listSort === state.listSort);
   });
 
-  // The 时间 chip shows ↓ (newest first) / ↑ (oldest first) when active.
+  // Time/Taken and Submitted show ↓ (newest first) / ↑ (oldest first) when active.
   els.chips.forEach((chip) => {
-    if (chip.dataset.listSort !== "time") {
-      return;
-    }
     const arrow = chip.querySelector(".sort-arrow");
     if (arrow) {
-      arrow.textContent = state.listSort === "time" ? (state.listOrder === "asc" ? " ↑" : " ↓") : "";
+      const canOrder = chip.dataset.listSort === "time" || (contributed && chip.dataset.listSort === "type");
+      arrow.textContent = canOrder && state.listSort === chip.dataset.listSort ? (state.listOrder === "asc" ? " ↑" : " ↓") : "";
     }
   });
 
@@ -1902,18 +2028,34 @@ function syncListControls(items) {
     return;
   }
 
-  if (state.listSort !== "type" && state.listSort !== "place") {
+  if (contributed && state.listSort !== "place") {
     els.listSecondary.hidden = true;
     els.listSecondary.innerHTML = "";
     return;
   }
 
-  const field = state.listSort === "type" ? "type" : "prefecture";
-  const counts = countByField(items, field);
-  const options = [
-    { key: "all", label: `all (${items.length})` },
-    ...Array.from(counts.entries()).map(([key, count]) => ({ key, label: `${key} (${count})` })),
-  ];
+  if (!contributed && state.listSort !== "type" && state.listSort !== "place") {
+    els.listSecondary.hidden = true;
+    els.listSecondary.innerHTML = "";
+    return;
+  }
+
+  const options = contributed
+    ? [
+        { key: "all", label: `all (${items.length})` },
+        ...["Tokyo", "Kyoto", "Chiba"].map((key) => ({
+          key,
+          label: `${key} (${items.filter((item) => contributedPlaceLabel(item) === key).length})`,
+        })),
+      ]
+    : (() => {
+        const field = state.listSort === "type" ? "type" : "prefecture";
+        const counts = countByField(items, field);
+        return [
+          { key: "all", label: `all (${items.length})` },
+          ...Array.from(counts.entries()).map(([key, count]) => ({ key, label: `${key} (${count})` })),
+        ];
+      })();
 
   els.listSecondary.hidden = false;
   els.listSecondary.innerHTML = options
@@ -2623,6 +2765,63 @@ function render() {
 // would break the browser's native dblclick detection. Module-level so it survives
 // those re-renders.
 let listLastClick = { id: null, t: 0 };
+let mobileArchiveHintTimer = 0;
+
+function archiveTapHintText() {
+  const prefersJa =
+    state.lang === "ja" ||
+    document.documentElement.lang === "ja" ||
+    String(navigator.language || "").toLowerCase().startsWith("ja");
+  return prefersJa ? "再タップ" : "Tap again";
+}
+
+function clearMobileArchivePending() {
+  const pendingId = state.mobileArchivePendingCardId;
+  state.mobileArchivePendingCardId = "";
+  if (pendingId) {
+    document.querySelectorAll(".photo-card.is-mobile-card-pending").forEach((card) => {
+      if (card.dataset.id === pendingId) {
+        card.classList.remove("is-mobile-card-pending");
+      }
+    });
+  }
+  if (mobileArchiveHintTimer) {
+    window.clearTimeout(mobileArchiveHintTimer);
+    mobileArchiveHintTimer = 0;
+  }
+}
+
+function handleMobileArchiveCardClick(event) {
+  if (!isMobileSheet()) {
+    return false;
+  }
+  const card = event.target.closest?.(".photo-card");
+  if (!card?.dataset.id || event.target.closest?.("[data-card-edit]")) {
+    return false;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  const id = card.dataset.id;
+  if (state.mobileArchivePendingCardId === id) {
+    clearMobileArchivePending();
+    jumpToMapLocation(id);
+    return true;
+  }
+  clearMobileArchivePending();
+  state.mobileArchivePendingCardId = id;
+  card.classList.add("is-mobile-card-pending");
+  const hint = card.querySelector(".card-tap-hint");
+  if (hint) {
+    hint.textContent = archiveTapHintText();
+  }
+  mobileArchiveHintTimer = window.setTimeout(() => {
+    if (state.mobileArchivePendingCardId !== id) {
+      return;
+    }
+    clearMobileArchivePending();
+  }, 2200);
+  return true;
+}
 
 function renderList(items) {
   if (!els.list) {
@@ -2678,6 +2877,12 @@ function renderList(items) {
 }
 
 function filterListItems(items) {
+  if (state.listScope === "contributed") {
+    if (state.listSort === "place" && state.listSubfilter !== "all") {
+      return items.filter((item) => contributedPlaceLabel(item) === state.listSubfilter);
+    }
+    return items;
+  }
   if ((state.listSort !== "type" && state.listSort !== "place") || state.listSubfilter === "all") {
     return items;
   }
@@ -2692,10 +2897,23 @@ function sortListItems(items) {
   }
 
   if (state.listSort === "type") {
+    if (state.listScope === "contributed") {
+      return [...items].sort((a, b) => {
+        const delta = looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime);
+        return state.listOrder === "asc" ? delta : -delta;
+      });
+    }
     return sortByCount(items, "type");
   }
 
   if (state.listSort === "place") {
+    if (state.listScope === "contributed") {
+      return [...items].sort(
+        (a, b) =>
+          contributedPlaceLabel(a).localeCompare(contributedPlaceLabel(b)) ||
+          getTimeValue(b) - getTimeValue(a),
+      );
+    }
     return [...items].sort(
       (a, b) =>
         String(a.prefecture).localeCompare(String(b.prefecture)) ||
@@ -4047,13 +4265,13 @@ function contributedPlaceLabel(item) {
       : [];
   const pref = String(levels[0] || "").trim();
   if (pref.toLowerCase() === "unknown") {
-    return "unknown";
+    return "Unknown";
   }
-  return JAPAN_PREFECTURES.has(pref) ? pref : "overseas";
+  return JAPAN_PREFECTURES.has(pref) ? pref : "Overseas";
 }
 
 // Contributed place → first address level only. Non-Japan / editor "other" free
-// text is shown as lowercase "overseas"; explicit unknown stays separate.
+// text is shown as "Overseas"; explicit unknown stays separate.
 function groupContributedByPlace(items) {
   const groups = new Map();
   items.forEach((it) => {
@@ -4064,10 +4282,10 @@ function groupContributedByPlace(items) {
     groups.get(label).items.push(it);
   });
   return Array.from(groups.values()).sort((a, b) => {
-    const rank = (label) => (label === "unknown" ? 2 : label === "overseas" ? 1 : 0);
+    const rank = (label) => (label === "Unknown" ? 2 : label === "Overseas" ? 1 : 0);
     const rankDelta = rank(a.label) - rank(b.label);
     if (rankDelta !== 0) return rankDelta;
-    return b.items.length - a.items.length || a.label.localeCompare(b.label);
+    return placeGroupSortValue(a.label) - placeGroupSortValue(b.label) || b.items.length - a.items.length || a.label.localeCompare(b.label);
   });
 }
 
@@ -4096,7 +4314,7 @@ function renderContributedArchive() {
         <div class="archive-toolbar-group" role="group" aria-label="sort mode">
           ${btn("photo", ja ? "撮影日時" : "Taken")}
           ${btn("submitted", ja ? "投稿日時" : "Submitted")}
-          ${btn("location", ja ? "場所" : "Place")}
+          ${btn("location", ja ? "場所" : "Place", false)}
           ${btn("stats", ja ? "統計" : "Stats", false)}
         </div>
       </div>
@@ -4121,23 +4339,24 @@ function renderContributedArchive() {
   }
   const mobilePlace = mode === "location" && isMobileSheet();
   els.contributedContent.classList.toggle("is-mobile-place", mobilePlace);
-  els.contributedContent.innerHTML =
-    toolbar + groups.map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group))).join("");
-  if (mobilePlace) {
-    bindMobilePlaceGroupToggles(els.contributedContent, renderContributedArchive);
+  if (mode === "location" && !mobilePlace) {
+    els.contributedContent.innerHTML = toolbar;
+    renderArchivePlaceDesktop(groups, {
+      root: els.contributedContent,
+      selectedKeyName: "contributedPlaceSelectedKey",
+      collapsedKeyName: "contributedPlaceCollapsedKeys",
+      renderAgain: renderContributedArchive,
+      append: true,
+    });
     return;
   }
-  els.contributedContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const key = button.dataset.groupToggle;
-      if (state.archiveCollapsedGroups.has(key)) {
-        state.archiveCollapsedGroups.delete(key);
-      } else {
-        state.archiveCollapsedGroups.add(key);
-      }
-      renderContributedArchive();
-    });
-  });
+  els.contributedContent.innerHTML =
+    toolbar + groups.map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchivePlainGroup(group, `contrib-${mode}`))).join("");
+  if (mobilePlace) {
+    bindMobilePlaceGroupToggles(els.contributedContent, renderContributedArchive);
+  } else {
+    bindArchivePlainGroupToggles(els.contributedContent, renderContributedArchive);
+  }
 }
 
 // Contributed stats overview: contributor / submitted / taken / place. English
@@ -4245,11 +4464,16 @@ function renderArchive() {
   const mobilePlace = state.archiveMode === "place" && isMobileSheet();
   els.archiveContent.classList.toggle("is-mobile-place", mobilePlace);
   if (state.archiveMode === "place" && !mobilePlace) {
-    renderArchivePlaceDesktop(groups);
+    renderArchivePlaceDesktop(groups, {
+      root: els.archiveContent,
+      selectedKeyName: "archivePlaceSelectedKey",
+      collapsedKeyName: "archivePlaceCollapsedKeys",
+      renderAgain: renderArchive,
+    });
     return;
   }
   els.archiveContent.innerHTML = groups
-    .map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchiveGroup(group)))
+    .map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchivePlainGroup(group, "fieldwork-time")))
     .join("");
 
   if (mobilePlace) {
@@ -4257,17 +4481,7 @@ function renderArchive() {
     return;
   }
 
-  els.archiveContent.querySelectorAll("[data-group-toggle]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const key = button.dataset.groupToggle;
-      if (state.archiveCollapsedGroups.has(key)) {
-        state.archiveCollapsedGroups.delete(key);
-      } else {
-        state.archiveCollapsedGroups.add(key);
-      }
-      renderArchive();
-    });
-  });
+  bindArchivePlainGroupToggles(els.archiveContent, renderArchive);
 }
 
 function bindMobilePlaceGroupToggles(root, renderAgain) {
@@ -4284,39 +4498,74 @@ function bindMobilePlaceGroupToggles(root, renderAgain) {
   });
 }
 
-function renderArchivePlaceDesktop(groups) {
+function bindArchivePlainGroupToggles(root, renderAgain) {
+  root.querySelectorAll("[data-plain-group-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.plainGroupToggle;
+      if (state.archiveCollapsedGroups.has(key)) {
+        state.archiveCollapsedGroups.delete(key);
+      } else {
+        state.archiveCollapsedGroups.add(key);
+      }
+      renderAgain();
+    });
+  });
+}
+
+function renderChevronIcon(expanded) {
+  const path = expanded ? "m18 15-6-6-6 6" : "m6 9 6 6 6-6";
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${path}" /></svg>`;
+}
+
+function renderArchivePlaceDesktop(groups, options = {}) {
+  const root = options.root || els.archiveContent;
+  const selectedKeyName = options.selectedKeyName || "archivePlaceSelectedKey";
+  const renderAgain = options.renderAgain || renderArchive;
+  const orderedGroups = sortPlaceGroups(groups);
+  const allGroup = {
+    key: "all",
+    label: "All",
+    items: flattenPlaceGroups(orderedGroups),
+  };
   const selected =
-    findPlaceGroupByKey(groups, state.archivePlaceSelectedKey) ||
-    firstPlaceGroup(groups) ||
-    groups[0] ||
-    null;
+    state[selectedKeyName] === "all"
+      ? allGroup
+      : findPlaceGroupByKey(orderedGroups, state[selectedKeyName]) || allGroup;
   if (selected) {
-    state.archivePlaceSelectedKey = selected.key;
+    state[selectedKeyName] = selected.key;
   }
-  els.archiveContent.innerHTML = `
-    <div class="archive-place-desktop">
+  const html = `
+    <div class="archive-place-desktop ${orderedGroups.every((group) => !group.children?.length) ? "is-flat-tree" : ""}">
       <aside class="archive-place-tree" aria-label="place hierarchy">
-        ${groups.map((group) => renderArchivePlaceTreeRow(group, selected?.key, 0)).join("")}
+        ${renderArchivePlaceTreeRow(allGroup, selected?.key, 0)}
+        ${orderedGroups.map((group) => renderArchivePlaceTreeRow(group, selected?.key, 0)).join("")}
       </aside>
       <section class="archive-place-grid" aria-label="place records">
         ${
-          selected
-            ? `
+          selected?.key === "all"
+            ? renderArchivePlaceAllGrid(orderedGroups)
+            : selected
+              ? `
               <div class="archive-place-grid-head">
                 <h3>${escapeHtml(selected.label)}</h3>
                 <p>${selected.items.length} item</p>
               </div>
               <div class="photo-grid">${selected.items.map((item) => renderPhotoCard(item)).join("")}</div>
             `
-            : ""
+              : ""
         }
       </section>
     </div>
   `;
-  els.archiveContent.querySelectorAll("[data-place-desktop-key]").forEach((button) => {
+  if (options.append) {
+    root.insertAdjacentHTML("beforeend", html);
+  } else {
+    root.innerHTML = html;
+  }
+  root.querySelectorAll("[data-place-desktop-key]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.archivePlaceSelectedKey = button.dataset.placeDesktopKey;
-      renderArchive();
+      state[selectedKeyName] = button.dataset.placeDesktopKey;
+      renderAgain();
     });
   });
 }
@@ -4324,12 +4573,68 @@ function renderArchivePlaceDesktop(groups) {
 function renderArchivePlaceTreeRow(group, selectedKey, depth) {
   const active = group.key === selectedKey;
   return `
-    <button class="archive-place-tree-row ${active ? "is-active" : ""}" data-place-desktop-key="${escapeHtml(group.key)}" data-depth="${depth}" type="button">
-      <span>${escapeHtml(group.label)}</span>
-      <span>${group.items.length}</span>
-    </button>
+    <div class="archive-place-tree-row ${active ? "is-active" : ""}" data-depth="${depth}" style="--tree-depth:${depth}">
+      <button class="archive-place-tree-select" data-place-desktop-key="${escapeHtml(group.key)}" type="button">
+        <span class="archive-place-tree-label">${escapeHtml(group.label)}</span>
+        <span class="archive-place-tree-count">${group.items.length}</span>
+      </button>
+    </div>
     ${(group.children || []).map((child) => renderArchivePlaceTreeRow(child, selectedKey, depth + 1)).join("")}
   `;
+}
+
+function renderArchivePlaceAllGrid(groups) {
+  return groups
+    .map(
+      (group) => `
+        <section class="archive-place-all-group">
+          <div class="archive-place-grid-head">
+            <h3>${escapeHtml(group.label)}</h3>
+            <p>${group.items.length} item</p>
+          </div>
+          <div class="photo-grid">${group.items.map((item) => renderPhotoCard(item)).join("")}</div>
+        </section>
+      `,
+    )
+    .join("");
+}
+
+function placeGroupSortValue(label) {
+  const order = ["Kyoto", "Chiba", "Tokyo"];
+  const index = order.indexOf(label);
+  if (index >= 0) return index;
+  if (label === "Overseas") return 9000;
+  if (label === "Unknown") return 9001;
+  return 100 + String(label || "").localeCompare("~~~");
+}
+
+function sortPlaceGroups(groups) {
+  return groups
+    .map((group) => ({
+      ...group,
+      children: group.children ? sortPlaceGroups(group.children) : group.children,
+    }))
+    .sort(
+      (a, b) =>
+        placeGroupSortValue(a.label) - placeGroupSortValue(b.label) ||
+        b.items.length - a.items.length ||
+        String(a.label).localeCompare(String(b.label)),
+    );
+}
+
+function flattenPlaceGroups(groups) {
+  const seen = new Set();
+  const items = [];
+  const visit = (group) => {
+    group.items.forEach((item) => {
+      if (!seen.has(item.id)) {
+        seen.add(item.id);
+        items.push(item);
+      }
+    });
+  };
+  groups.forEach(visit);
+  return items;
 }
 
 function findPlaceGroupByKey(groups, key) {
@@ -4419,6 +4724,27 @@ function countByField(items, field) {
   return new Map([...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
 }
 
+function renderArchivePlainGroup(group, scope = "archive") {
+  const collapseKey = `${scope}:${group.key}`;
+  const collapsed = state.archiveCollapsedGroups.has(collapseKey);
+  return `
+    <section class="archive-plain-group ${collapsed ? "is-collapsed" : ""}" data-group-key="${group.key}">
+      <div class="archive-plain-group-header">
+        <div>
+          <h3>${group.label}</h3>
+          <p>${group.items.length} item</p>
+        </div>
+        <button class="archive-plain-group-toggle" type="button" data-plain-group-toggle="${escapeHtml(collapseKey)}" aria-label="${collapsed ? "expand" : "collapse"}" aria-expanded="${!collapsed}">
+          ${renderChevronIcon(!collapsed)}
+        </button>
+      </div>
+      <div class="archive-plain-group-body">
+        <div class="photo-grid">${group.items.map((item) => renderPhotoCard(item)).join("")}</div>
+      </div>
+    </section>
+  `;
+}
+
 function renderArchiveGroup(group) {
   const collapsed = state.archiveCollapsedGroups.has(group.key);
   return `
@@ -4429,7 +4755,7 @@ function renderArchiveGroup(group) {
           <p>${group.items.length} item</p>
         </div>
         <button class="archive-group-toggle" type="button" data-group-toggle="${group.key}" aria-label="${collapsed ? "expand" : "collapse"}">
-          <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="${collapsed ? "M4 4l8 6 8-6" : "M4 10l8-6 8 6"}" /></svg>
+          ${renderChevronIcon(!collapsed)}
         </button>
       </div>
       <div class="archive-group-body">
@@ -4464,7 +4790,7 @@ function buildMobilePlaceGroup(group) {
           <span class="archive-place-count">${group.items.length} item</span>
         </span>
         <span class="archive-place-preview" aria-hidden="true">${previews}</span>
-        <svg viewBox="0 0 24 14" aria-hidden="true" focusable="false"><path d="${open ? "M4 10l8-6 8 6" : "M4 4l8 6 8-6"}" /></svg>
+        ${renderChevronIcon(open)}
       </button>
       <div class="archive-place-body">
         ${body}
@@ -4556,14 +4882,17 @@ function renderPhotoCard(item) {
 
   const cardTitle = localize(item.title);
   const titleHtml = cardTitle ? `<span class="card-title">${escapeHtml(cardTitle)}</span>` : "";
+  const pendingJump = isMobileSheet() && state.mobileArchivePendingCardId === item.id;
+  const tapHint = archiveTapHintText();
   // 用户 T5 (v122): a red dot on cards flagged 待改 (editFlag). Internal reminder, so
   // it only shows in edit mode — the same rule as the map markers' 待改 colouring.
   const flagDot = state.editMode && item.editFlag ? `<span class="card-flag-dot" title="待改（这个标点后续需要修改）"></span>` : "";
 
   return `
-    <article class="photo-card" data-id="${escapeHtml(item.id)}">
+    <article class="photo-card ${pendingJump ? "is-mobile-card-pending" : ""}" data-id="${escapeHtml(item.id)}">
       <div class="card-photo">
         <img src="${item.thumb}" alt="${escapeHtml(displayUmbrellaId(item))}" loading="lazy" decoding="async" />
+        <span class="card-tap-hint">${tapHint}</span>
         ${flagDot}
         ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
         <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
@@ -6440,25 +6769,26 @@ function flagColorFor(item) {
   return state.editMode && item && FLAG_COLORS[item.editFlag] ? FLAG_COLORS[item.editFlag] : null;
 }
 
-// Contributed (投稿) umbrellas get a green pin on the public map so they stand
-// out from the author's own (red) points.
+// Contributed (投稿) umbrellas get their own marker family on the public map so
+// they stand out from the author's own points.
 function isContributedItem(item) {
   return item?.submissionType === "contributed";
 }
 
-// Four marker categories, each its own pin colour + legend entry (items 6/15/16):
-//   own-title (深红) / own (红) / contrib-story (深绿) / contrib (绿)
+// Five marker categories, each its own pin colour + legend entry (items 6/15/16):
+//   own / own-title / contrib / contrib-story / contrib-blurred.
 // A contributed point counts as "story" once it carries narrative text (its
 // submitter note is migrated into a content paragraph → item.story, item 8/15).
 const MARKER_COLORS = {
-  "own-title": "#8f2310",
-  own: "#c54f35",
-  "contrib-story": "#1f6b3a",
-  contrib: "#2e9e5b",
+  own: "#d95d42",
+  "own-title": "#982a1f",
+  contrib: "#2f9e67",
+  "contrib-story": "#1f6d43",
+  "contrib-blurred": "#7f8f9c",
 };
-// Order for the legend + filter (用户 #5): Fieldwork, Fieldwork·titled, Contributed,
-// Contributed·story.
-const MARKER_CATEGORIES = ["own", "own-title", "contrib", "contrib-story"];
+// Order for the legend + filter: Fieldwork, Fieldwork·titled, Contributed,
+// Contributed·story, Contributed·blurred.
+const MARKER_CATEGORIES = ["own", "own-title", "contrib", "contrib-story", "contrib-blurred"];
 // Bilingual labels (用户 #5: Japanese in a Japanese system) for the map filter +
 // About legend.
 const MARKER_LABELS = {
@@ -6466,9 +6796,14 @@ const MARKER_LABELS = {
   "own-title": { en: "Fieldwork · titled", ja: "フィールド・題名あり" },
   contrib: { en: "Contributed", ja: "投稿" },
   "contrib-story": { en: "Contributed · story", ja: "投稿・物語" },
+  "contrib-blurred": { en: "Contributed · blurred", ja: "投稿・ぼかし地点" },
 };
 function markerLabel(cat) {
   return localize(MARKER_LABELS[cat]);
+}
+
+function markerLegendIcon(cat, className) {
+  return `<span class="${className}" aria-hidden="true">${markerSvgMarkup(cat, { inline: true })}</span>`;
 }
 
 function itemHasStory(item) {
@@ -6477,6 +6812,9 @@ function itemHasStory(item) {
 
 function markerCategory(item) {
   if (isContributedItem(item)) {
+    if (item?.blurApprox) {
+      return "contrib-blurred";
+    }
     return itemHasStory(item) ? "contrib-story" : "contrib";
   }
   return itemHasTitle(item) ? "own-title" : "own";
@@ -6515,25 +6853,139 @@ function markerZIndex(item) {
 }
 
 function markerIcon(isActive, flagColor, category) {
-  // Colour by the 4-way category (own-title / own / contrib-story / contrib).
-  const base = MARKER_COLORS[category] || MARKER_COLORS.own;
+  // Colour by category, using lucide map-pin for the public marker shape.
+  const color = flagColor || (isActive ? "#1f8bb8" : null);
+  const size = 40;
   return {
-    path: "M12 2C7.03 2 3 6.03 3 11c0 6.75 9 15 9 15s9-8.25 9-15c0-4.97-4.03-9-9-9Z",
-    fillColor: flagColor || (isActive ? "#1f8bb8" : base),
-    fillOpacity: 1,
-    strokeColor: flagColor === "#ffffff" ? "#1a1a1a" : "#ffffff",
-    strokeOpacity: 1,
-    strokeWeight: 2.1,
-    scale: 1.55,
-    anchor: new google.maps.Point(12, 26),
+    url: lucideMapPinDataUrl(category, color),
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size - 2),
   };
 }
 
 function hoverMarkerIcon(isActive, flagColor, category) {
+  const size = 45;
   return {
     ...markerIcon(isActive, flagColor, category),
-    scale: 1.72,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size - 2),
   };
+}
+
+const markerIconCache = new Map();
+
+function currentMarkerStrokeWidth() {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--icon-stroke");
+  const parsed = Number.parseFloat(raw);
+  return clampThemeValue("iconStroke", Number.isFinite(parsed) ? parsed : THEME.iconStroke);
+}
+
+function activeMarkerSettings() {
+  return sanitizeMarkerSettings(MARKER_SETTINGS);
+}
+
+function markerSvgForCategory(category) {
+  const settings = activeMarkerSettings();
+  return settings.categories?.[category]?.svg || settings.svg || DEFAULT_MARKER_SVG;
+}
+
+function parseMarkerSvg(svgText) {
+  try {
+    const doc = new DOMParser().parseFromString(svgText || DEFAULT_MARKER_SVG, "image/svg+xml");
+    const svg = doc.documentElement;
+    if (!svg || svg.nodeName.toLowerCase() !== "svg" || svg.querySelector("parsererror")) {
+      throw new Error("invalid svg");
+    }
+    const elements = Array.from(svg.querySelectorAll("path,circle,rect,ellipse,line,polyline,polygon")).slice(0, 24);
+    const viewBox = svg.getAttribute("viewBox") || "0 0 24 24";
+    const lines = elements.filter((el) => markerElementCanStroke(el)).slice(0, 12);
+    const regions = elements.filter((el) => markerElementCanFill(el)).slice(0, 12);
+    return { viewBox, lines, regions };
+  } catch (error) {
+    if ((svgText || "") !== DEFAULT_MARKER_SVG) {
+      return parseMarkerSvg(DEFAULT_MARKER_SVG);
+    }
+    return { viewBox: "0 0 24 24", lines: [], regions: [] };
+  }
+}
+
+function markerElementCanStroke(el) {
+  return ["path", "circle", "rect", "ellipse", "line", "polyline", "polygon"].includes(el.tagName.toLowerCase());
+}
+
+function markerElementCanFill(el) {
+  return ["path", "circle", "rect", "ellipse", "polygon"].includes(el.tagName.toLowerCase());
+}
+
+function markerElementMarkup(el, attrs = {}) {
+  const clone = el.cloneNode(false);
+  clone.removeAttribute("class");
+  clone.removeAttribute("style");
+  clone.removeAttribute("id");
+  clone.removeAttribute("stroke");
+  clone.removeAttribute("stroke-width");
+  clone.removeAttribute("stroke-linecap");
+  clone.removeAttribute("stroke-linejoin");
+  clone.removeAttribute("fill");
+  clone.removeAttribute("fill-opacity");
+  clone.removeAttribute("opacity");
+  clone.removeAttribute("mask");
+  for (const [key, value] of Object.entries(attrs)) {
+    if (value !== undefined && value !== null) {
+      clone.setAttribute(key, String(value));
+    }
+  }
+  return new XMLSerializer().serializeToString(clone);
+}
+
+function markerSvgMarkup(category, options = {}) {
+  const settings = activeMarkerSettings();
+  const cat = settings.categories?.[category] || settings.categories.own;
+  const parts = parseMarkerSvg(markerSvgForCategory(category));
+  const strokeWidth = Math.min(Math.max(Number(settings.strokeWidth) || currentMarkerStrokeWidth(), 0.5), 8);
+  const suffix = `${category}-${options.inline ? "inline" : "marker"}-${String(parts.viewBox).replace(/[^0-9a-z_-]/gi, "-")}`;
+  const regionMarkup = parts.regions.slice(0, 3).map((el, index) => {
+    const regionKey = `region${index + 1}`;
+    const opacity = Math.min(Math.max(Number(settings.regionOpacity?.[regionKey]) || 0, 0), 1);
+    const color = options.overrideColor || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    if (opacity <= 0) {
+      return "";
+    }
+    const maskId = `marker-region-mask-${suffix}-${index}`.replace(/[^a-z0-9_-]/gi, "-");
+    const laterRegions = parts.regions.slice(index + 1, 3);
+    const mask = laterRegions.length
+      ? `<mask id="${maskId}"><rect width="100%" height="100%" fill="white"/>${laterRegions.map((later) => markerElementMarkup(later, { fill: "black", stroke: "none" })).join("")}</mask>`
+      : "";
+    return `${mask}${markerElementMarkup(el, {
+      fill: color,
+      "fill-opacity": opacity,
+      stroke: "none",
+      mask: laterRegions.length ? `url(#${maskId})` : null,
+    })}`;
+  }).join("");
+  const lineMarkup = parts.lines.slice(0, 3).map((el, index) => {
+    const lineKey = `line${index + 1}`;
+    return markerElementMarkup(el, {
+      fill: "none",
+      stroke: options.overrideColor || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own,
+      "stroke-width": strokeWidth,
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+    });
+  }).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}</svg>`;
+}
+
+function lucideMapPinDataUrl(category, overrideColor = null) {
+  const settings = activeMarkerSettings();
+  const key = JSON.stringify({ category, overrideColor, settings });
+  if (markerIconCache.has(key)) {
+    return markerIconCache.get(key);
+  }
+  const svg = markerSvgMarkup(category, { overrideColor });
+  const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  markerIconCache.set(key, url);
+  return url;
 }
 
 function showMapMessage(message) {
@@ -6575,7 +7027,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=182", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=194", { updateViaCache: "none" });
   }
 }
 
@@ -6608,6 +7060,8 @@ const EDITOR_ICON_ADD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1
 // 视觉设定面板按钮图标（Lucide sliders-horizontal）。
 const EDITOR_ICON_THEME =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>';
+const EDITOR_ICON_MARKER =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
 // 收件箱（信封）图标 —— 投稿收件箱按钮。
 const EDITOR_ICON_INBOX =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
@@ -6634,6 +7088,7 @@ function setupEditor() {
 
   setupTextsEditor();
   setupThemeEditor();
+  setupMarkerEditor();
 
   const drawer = document.createElement("aside");
   drawer.className = "editor-drawer";
@@ -8250,6 +8705,12 @@ function openTextsEditor() {
     buildTextsEditor();
   }
   fillTextsEditor();
+  textsEditor.overlay.querySelectorAll("[data-texts-section-toggle]").forEach((button) => {
+    const section = button.closest(".texts-section");
+    section.classList.add("is-collapsed");
+    button.setAttribute("aria-expanded", "false");
+    button.innerHTML = `${renderChevronIcon(false)}<span>${button.textContent}</span>`;
+  });
   textsEditor.overlay.hidden = false;
 }
 
@@ -8267,10 +8728,12 @@ function buildTextsEditor() {
   // The type sections, in the same order as the stats cross-tab.
   const typeSections = STATS_TYPE_ORDER.map(
     (key) => `
-      <fieldset class="texts-section" data-texts-type="${escapeHtml(key)}">
-        <legend>${escapeHtml(key)}</legend>
-        <label>日本語<textarea data-texts-field="type-ja" rows="4"></textarea></label>
-        <label>English<textarea data-texts-field="type-en" rows="4"></textarea></label>
+      <fieldset class="texts-section is-collapsed" data-texts-type="${escapeHtml(key)}">
+        <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>${escapeHtml(key)}</span></button></legend>
+        <div class="texts-section-body">
+          <label>日本語<textarea data-texts-field="type-ja" rows="4"></textarea></label>
+          <label>English<textarea data-texts-field="type-en" rows="4"></textarea></label>
+        </div>
       </fieldset>`,
   ).join("");
 
@@ -8282,24 +8745,30 @@ function buildTextsEditor() {
       </header>
       <p class="texts-editor-hint">只能修改现有文案；多个段落之间用一个空行分隔。保存后写入 data/texts.json，线上看到的也会更新。</p>
       <div class="texts-editor-body">
-        <fieldset class="texts-section" data-texts-stats>
-          <legend>统计页 说明文 (stats intro)</legend>
-          <label>日本語<textarea data-texts-field="stats-ja" rows="4"></textarea></label>
-          <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
+        <fieldset class="texts-section is-collapsed" data-texts-stats>
+          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>统计页 说明文 (stats intro)</span></button></legend>
+          <div class="texts-section-body">
+            <label>日本語<textarea data-texts-field="stats-ja" rows="4"></textarea></label>
+            <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
+          </div>
         </fieldset>
-        <fieldset class="texts-section" data-texts-about="section1">
-          <legend>About 第一段（观察のきっかけ）</legend>
-          <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
-          <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
-          <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
-          <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+        <fieldset class="texts-section is-collapsed" data-texts-about="section1">
+          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第一段（观察のきっかけ）</span></button></legend>
+          <div class="texts-section-body">
+            <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+            <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+            <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+            <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+          </div>
         </fieldset>
-        <fieldset class="texts-section" data-texts-about="section2">
-          <legend>About 第二段（記録の作法）</legend>
-          <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
-          <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
-          <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
-          <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+        <fieldset class="texts-section is-collapsed" data-texts-about="section2">
+          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第二段（記録の作法）</span></button></legend>
+          <div class="texts-section-body">
+            <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+            <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+            <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+            <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+          </div>
         </fieldset>
         ${typeSections}
       </div>
@@ -8315,8 +8784,21 @@ function buildTextsEditor() {
   overlay.querySelector(".texts-editor-close").addEventListener("click", closeTextsEditor);
   overlay.querySelector(".texts-editor-cancel").addEventListener("click", closeTextsEditor);
   overlay.querySelector(".texts-editor-save").addEventListener("click", saveTextsEditor);
+  overlay.querySelectorAll("[data-texts-section-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const section = button.closest(".texts-section");
+      const collapsed = section.classList.toggle("is-collapsed");
+      button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      button.innerHTML = `${renderChevronIcon(!collapsed)}<span>${button.textContent}</span>`;
+    });
+  });
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
+      closeTextsEditor();
+    }
+  });
+  overlay.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
       closeTextsEditor();
     }
   });
@@ -8384,10 +8866,16 @@ async function saveTextsEditor() {
 // 本机专用。三个滑块，拖动即实时预览（改 :root 变量），保存后写回 data/theme.json，
 // 线上/别人打开也吃这套值。范围钳制在 THEME_RANGES 内。
 const themeEditor = { overlay: null };
+const markerEditor = { overlay: null, draft: null };
 
 // 面板分组：图标线宽 + 详情页 4 类正文（每类 字号/行距/字重）。字重=CSS font-weight。
 const THEME_GROUPS = [
-  { title: "图标", fields: [{ key: "iconStroke", label: "图标线宽", unit: "" }] },
+  {
+    title: "图标",
+    fields: [
+      { key: "iconStroke", label: "图标线宽", unit: "" },
+    ],
+  },
   {
     title: "主图浮字（地点 / 时间 / INFORMATION）",
     fields: [
@@ -8605,6 +9093,298 @@ async function saveThemeEditor() {
     applyTheme(THEME);
     closeThemeEditor();
     showEditorToast("视觉设定已保存 ✓");
+  } catch (error) {
+    showEditorToast(`保存失败：${error.message}`, true);
+  }
+}
+
+function setupMarkerEditor() {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.id = "marker-settings-toggle";
+  btn.className = "editor-toggle marker-settings-toggle";
+  btn.innerHTML = EDITOR_ICON_MARKER;
+  btn.title = "标点设定";
+  btn.setAttribute("aria-label", "标点设定");
+  btn.addEventListener("click", openMarkerEditor);
+  (editor.toolbar || document.body).appendChild(btn);
+}
+
+function openMarkerEditor() {
+  if (!markerEditor.overlay) {
+    buildMarkerEditor();
+  }
+  markerEditor.draft = sanitizeMarkerSettings(MARKER_SETTINGS);
+  renderMarkerEditorBody();
+  markerEditor.overlay.hidden = false;
+}
+
+function closeMarkerEditor() {
+  if (markerEditor.overlay) {
+    markerEditor.overlay.hidden = true;
+  }
+}
+
+function buildMarkerEditor() {
+  const overlay = document.createElement("div");
+  overlay.className = "texts-editor-overlay marker-editor-overlay";
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="texts-editor marker-editor" role="dialog" aria-label="标点设定">
+      <header class="texts-editor-head">
+        <strong>标点设定</strong>
+        <button type="button" class="texts-editor-close" aria-label="close">×</button>
+      </header>
+      <p class="texts-editor-hint">支持简单 SVG：path / circle / rect / ellipse / polygon / polyline / line。建议 viewBox 为正方形 24×24，图形主体占 18～22px。上传后正式地图尺寸仍固定为 v192 的 40px，hover 45px，不跟 SVG 原始尺寸变化。</p>
+      <div class="texts-editor-body marker-editor-body"></div>
+      <footer class="texts-editor-actions">
+        <button type="button" class="texts-editor-save marker-editor-save">保存</button>
+        <button type="button" class="texts-editor-cancel">取消</button>
+      </footer>
+    </div>`;
+  document.body.appendChild(overlay);
+  markerEditor.overlay = overlay;
+  overlay.querySelector(".texts-editor-close").addEventListener("click", closeMarkerEditor);
+  overlay.querySelector(".texts-editor-cancel").addEventListener("click", closeMarkerEditor);
+  overlay.querySelector(".marker-editor-save").addEventListener("click", saveMarkerEditor);
+  overlay.addEventListener("input", handleMarkerEditorInput);
+  overlay.addEventListener("change", handleMarkerEditorChange);
+  overlay.addEventListener("click", handleMarkerEditorClick);
+}
+
+function markerDraft() {
+  if (!markerEditor.draft) {
+    markerEditor.draft = sanitizeMarkerSettings(MARKER_SETTINGS);
+  }
+  return markerEditor.draft;
+}
+
+function markerSvgFromSettings(settings, cat) {
+  return settings.categories?.[cat]?.svg || settings.svg || DEFAULT_MARKER_SVG;
+}
+
+function markerPartSummary(svgText) {
+  const parts = parseMarkerSvg(svgText);
+  return {
+    lines: parts.lines.slice(0, 3).map((el, i) => ({ key: `line${i + 1}`, label: `线段${i + 1}`, tag: el.tagName.toLowerCase() })),
+    regions: parts.regions.slice(0, 3).map((el, i) => ({ key: `region${i + 1}`, label: `区域${i + 1}`, tag: el.tagName.toLowerCase() })),
+  };
+}
+
+function renderMarkerEditorBody() {
+  const draft = markerDraft();
+  const body = markerEditor.overlay.querySelector(".marker-editor-body");
+  const sharedParts = markerPartSummary(draft.svg);
+  body.innerHTML = `
+    <section class="marker-preview-panel">
+      <div class="marker-preview-head">
+        <h3>实时预览</h3>
+        <span>拖动或改颜色会立即更新</span>
+      </div>
+      <div class="marker-preview-grid" data-marker-preview>
+        ${renderMarkerPreviewItems()}
+      </div>
+    </section>
+    <section class="marker-editor-section">
+      <div class="marker-editor-section-head">
+        <h3>统一修改</h3>
+        <label class="marker-upload-btn">更换统一 SVG<input type="file" accept=".svg,image/svg+xml" data-marker-svg-upload="global" /></label>
+      </div>
+      <div class="marker-editor-grid">
+        <label class="marker-range-row"><span>整体线宽</span><input type="range" min="0.5" max="8" step="0.1" value="${draft.strokeWidth}" data-marker-field="strokeWidth" /><output>${draft.strokeWidth}</output></label>
+        ${["region1", "region2", "region3"].map((key, i) => markerOpacityRow(key, `区域${i + 1}不透明度`, draft.regionOpacity?.[key] ?? 0)).join("")}
+      </div>
+      ${markerPartsList(sharedParts)}
+    </section>
+    <section class="marker-editor-section">
+      <div class="marker-editor-section-head">
+        <h3>5 个类型分别修改</h3>
+      </div>
+      <div class="marker-category-stack">
+        ${MARKER_CATEGORIES.map((cat) => markerCategoryEditor(cat, draft)).join("")}
+      </div>
+    </section>
+    <section class="marker-editor-section is-muted">
+      <div class="marker-editor-section-head"><h3>后续三种变化（预留）</h3></div>
+      <div class="marker-future-grid">
+        <div>普通状态</div>
+        <div>展开列表选中状态</div>
+        <div>点击后聚焦状态</div>
+      </div>
+    </section>`;
+}
+
+function renderMarkerPreviewItems() {
+  return MARKER_CATEGORIES.map(
+    (cat) => `<div class="marker-preview-item">
+      <span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true })}</span>
+      <span>${escapeHtml(markerLabel(cat))}</span>
+    </div>`,
+  ).join("");
+}
+
+function updateMarkerPreview() {
+  const preview = markerEditor.overlay?.querySelector("[data-marker-preview]");
+  if (preview) {
+    preview.innerHTML = renderMarkerPreviewItems();
+  }
+}
+
+function markerOpacityRow(key, label, value) {
+  const pct = Math.round(Number(value || 0) * 100);
+  return `<label class="marker-range-row"><span>${label}</span><input type="range" min="0" max="100" step="1" value="${pct}" data-marker-opacity="${key}" /><output>${pct}%</output></label>`;
+}
+
+function markerPartsList(parts) {
+  const lineHtml = parts.lines.length ? parts.lines.map((p) => `<span>${p.label} <small>${p.tag}</small></span>`).join("") : "<span>未识别线段</span>";
+  const regionHtml = parts.regions.length ? parts.regions.map((p) => `<span>${p.label} <small>${p.tag}</small></span>`).join("") : "<span>未识别封闭区域</span>";
+  return `<div class="marker-parts-list"><div><strong>线段</strong>${lineHtml}</div><div><strong>封闭区域</strong>${regionHtml}</div></div>`;
+}
+
+function markerCategoryEditor(cat, draft) {
+  const config = draft.categories[cat];
+  const parts = markerPartSummary(markerSvgFromSettings(draft, cat));
+  return `<fieldset class="marker-category-editor" data-marker-cat-panel="${cat}">
+    <legend>${escapeHtml(markerLabel(cat))}</legend>
+    <div class="marker-category-toolbar">
+      <label class="marker-upload-btn">更换 SVG（覆盖）<input type="file" accept=".svg,image/svg+xml" data-marker-svg-upload="${cat}" /></label>
+      <button type="button" data-marker-clear-svg="${cat}" ${config.svg ? "" : "disabled"}>取消覆盖</button>
+      <span>${config.svg ? "使用类型覆盖 SVG" : "跟随统一 SVG"}</span>
+    </div>
+    ${markerPartsList(parts)}
+    <div class="marker-color-grid">
+      ${parts.lines.map((part) => markerColorControl(cat, "lineColors", part.key, part.label, config.lineColors?.[part.key] || MARKER_COLORS[cat])).join("")}
+      ${parts.regions.map((part) => markerColorControl(cat, "regionColors", part.key, part.label, config.regionColors?.[part.key] || MARKER_COLORS[cat])).join("")}
+    </div>
+  </fieldset>`;
+}
+
+function markerColorControl(cat, group, key, label, value) {
+  const colorValue = colorInputValue(value);
+  return `<label class="marker-color-row">
+    <span>${label}</span>
+    <input type="color" value="${colorValue}" data-marker-color="${cat}" data-marker-color-group="${group}" data-marker-color-key="${key}" />
+    <input type="text" value="${escapeHtml(value)}" data-marker-color-text="${cat}" data-marker-color-group="${group}" data-marker-color-key="${key}" />
+  </label>`;
+}
+
+function colorInputValue(value) {
+  const raw = String(value || "").trim();
+  if (/^#[0-9a-f]{6}$/i.test(raw)) {
+    return raw;
+  }
+  const rgb = raw.match(/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);
+  if (rgb) {
+    return `#${rgb.slice(1, 4).map((n) => Math.min(Math.max(Number(n), 0), 255).toString(16).padStart(2, "0")).join("")}`;
+  }
+  return "#000000";
+}
+
+function handleMarkerEditorInput(event) {
+  const draft = markerDraft();
+  const field = event.target.closest?.("[data-marker-field]");
+  if (field) {
+    draft[field.dataset.markerField] = Number(field.value);
+    field.parentElement.querySelector("output").textContent = field.value;
+    applyMarkerDraft();
+    return;
+  }
+  const opacity = event.target.closest?.("[data-marker-opacity]");
+  if (opacity) {
+    draft.regionOpacity[opacity.dataset.markerOpacity] = Number(opacity.value) / 100;
+    opacity.parentElement.querySelector("output").textContent = `${opacity.value}%`;
+    applyMarkerDraft();
+    return;
+  }
+  const color = event.target.closest?.("[data-marker-color], [data-marker-color-text]");
+  if (color) {
+    const cat = color.dataset.markerColor || color.dataset.markerColorText;
+    const group = color.dataset.markerColorGroup;
+    const key = color.dataset.markerColorKey;
+    draft.categories[cat][group][key] = color.value.trim();
+    const panel = color.closest(".marker-category-editor");
+    panel.querySelectorAll(`[data-marker-color="${cat}"][data-marker-color-group="${group}"][data-marker-color-key="${key}"]`).forEach((input) => {
+      input.value = colorInputValue(color.value);
+    });
+    panel.querySelectorAll(`[data-marker-color-text="${cat}"][data-marker-color-group="${group}"][data-marker-color-key="${key}"]`).forEach((input) => {
+      if (input !== color) input.value = color.value.trim();
+    });
+    applyMarkerDraft();
+  }
+}
+
+async function handleMarkerEditorChange(event) {
+  const upload = event.target.closest?.("[data-marker-svg-upload]");
+  if (!upload || !upload.files?.[0]) {
+    return;
+  }
+  const target = upload.dataset.markerSvgUpload;
+  try {
+    const text = await readSvgFile(upload.files[0]);
+    if (target === "global") {
+      markerDraft().svg = text;
+    } else if (markerDraft().categories[target]) {
+      markerDraft().categories[target].svg = text;
+    }
+    renderMarkerEditorBody();
+    applyMarkerDraft();
+  } catch (error) {
+    showEditorToast(`SVG 读取失败：${error.message}`, true);
+  }
+}
+
+function handleMarkerEditorClick(event) {
+  const clear = event.target.closest?.("[data-marker-clear-svg]");
+  if (!clear) {
+    return;
+  }
+  const cat = clear.dataset.markerClearSvg;
+  if (markerDraft().categories[cat]) {
+    markerDraft().categories[cat].svg = "";
+    renderMarkerEditorBody();
+    applyMarkerDraft();
+  }
+}
+
+function readSvgFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!/svg/i.test(file.type) && !/\.svg$/i.test(file.name)) {
+      reject(new Error("请上传 SVG 文件"));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || "").trim();
+      if (!text.startsWith("<svg")) {
+        reject(new Error("文件内容不是 SVG"));
+        return;
+      }
+      resolve(text);
+    };
+    reader.onerror = () => reject(new Error("无法读取文件"));
+    reader.readAsText(file);
+  });
+}
+
+function applyMarkerDraft() {
+  MARKER_SETTINGS = sanitizeMarkerSettings(markerDraft());
+  markerIconCache.clear();
+  updateMarkerIcons();
+  syncMarkerFilter();
+  renderLegend();
+  updateMarkerPreview();
+}
+
+async function saveMarkerEditor() {
+  const payload = sanitizeMarkerSettings(markerDraft());
+  showEditorToast("保存中…");
+  try {
+    await apiPost("/api/save-marker-settings", payload);
+    MARKER_SETTINGS = payload;
+    markerEditor.draft = sanitizeMarkerSettings(payload);
+    applyMarkerDraft();
+    closeMarkerEditor();
+    showEditorToast("标点设定已保存 ✓");
   } catch (error) {
     showEditorToast(`保存失败：${error.message}`, true);
   }
@@ -8920,6 +9700,7 @@ async function saveEditor() {
   saveButton.disabled = true;
   saveButton.textContent = "保存中…";
   try {
+    await ensureEditorRecordFolderForSource(id, payload.submissionType);
     const response = await fetch("/api/save-record", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -8944,6 +9725,25 @@ async function saveEditor() {
     saveButton.disabled = false;
     saveButton.textContent = "保存";
   }
+}
+
+async function ensureEditorRecordFolderForSource(id, source) {
+  const raw = getRawById(id);
+  if (!raw) {
+    return;
+  }
+  const currentCategory = categoryFolderOf(raw);
+  const selectedCategory = editor.category?.value && editor.category.value !== "__new__" ? editor.category.value : "unknown";
+  const targetCategory =
+    source === "contributed"
+      ? "submission(pending)"
+      : selectedCategory.startsWith("submission")
+        ? "unknown"
+        : selectedCategory;
+  if (currentCategory === targetCategory) {
+    return;
+  }
+  await apiPost("/api/move-record", { id, category: targetCategory });
 }
 
 // 用户 2.2/2.4: 某张图的「获取天气」按钮。先保存（把当前 media/时间/showWeather 落盘），

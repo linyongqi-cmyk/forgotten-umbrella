@@ -59,6 +59,7 @@ const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 const textsPath = path.join(rootDir, "data", "texts.json");
 const siteSettingsPath = path.join(rootDir, "data", "site-settings.json");
 const themePath = path.join(rootDir, "data", "theme.json");
+const markerSettingsPath = path.join(rootDir, "data", "marker-settings.json");
 
 // Plain text fields the editor is allowed to overwrite. (title is handled
 // separately because it is now bilingual { ja, en }.)
@@ -824,6 +825,61 @@ export async function saveTheme(payload) {
   return { ok: true };
 }
 
+const MARKER_CATS = ["own", "own-title", "contrib", "contrib-story", "contrib-blurred"];
+const MARKER_LINE_KEYS = ["line1", "line2", "line3"];
+const MARKER_REGION_KEYS = ["region1", "region2", "region3"];
+const DEFAULT_MARKER_SVG_TEXT = "<svg viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>";
+const DEFAULT_MARKER_COLORS_API = {
+  own: "#d95d42",
+  "own-title": "#982a1f",
+  contrib: "#2f9e67",
+  "contrib-story": "#1f6d43",
+  "contrib-blurred": "#7f8f9c",
+};
+
+function cleanMarkerSvg(value, fallback = "") {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return fallback;
+  if (!text.startsWith("<svg")) return fallback;
+  return text.slice(0, 120000);
+}
+
+function cleanMarkerColor(value, fallback) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (/^#[0-9a-f]{6}$/i.test(text) || /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/i.test(text)) {
+    return text;
+  }
+  return fallback;
+}
+
+export async function saveMarkerSettings(payload) {
+  const stroke = Number(payload?.strokeWidth);
+  const out = {
+    svg: cleanMarkerSvg(payload?.svg, DEFAULT_MARKER_SVG_TEXT),
+    strokeWidth: Number.isFinite(stroke) ? Math.min(Math.max(stroke, 0.5), 8) : 1.2,
+    regionOpacity: {},
+    categories: {},
+    states: payload?.states && typeof payload.states === "object" ? payload.states : { normal: {}, listSelected: {}, focused: {} },
+  };
+  for (const key of MARKER_REGION_KEYS) {
+    const n = Number(payload?.regionOpacity?.[key]);
+    out.regionOpacity[key] = Number.isFinite(n) ? Math.min(Math.max(n, 0), 1) : 0;
+  }
+  for (const cat of MARKER_CATS) {
+    const source = payload?.categories?.[cat] || {};
+    const fallback = DEFAULT_MARKER_COLORS_API[cat] || "#000000";
+    out.categories[cat] = { svg: cleanMarkerSvg(source.svg, ""), lineColors: {}, regionColors: {} };
+    for (const key of MARKER_LINE_KEYS) {
+      out.categories[cat].lineColors[key] = cleanMarkerColor(source.lineColors?.[key], fallback);
+    }
+    for (const key of MARKER_REGION_KEYS) {
+      out.categories[cat].regionColors[key] = cleanMarkerColor(source.regionColors?.[key], fallback);
+    }
+  }
+  await fs.writeFile(markerSettingsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
+  return { ok: true };
+}
+
 // Save the tunable site settings (focus-blur params + the three map-label filter
 // sets) to data/site-settings.json. This is the online source of truth — the local
 // map/blur panels POST here whenever the user tweaks a slider, so tuning goes live on
@@ -1018,6 +1074,8 @@ export async function handleEditorApi(pathname, payload) {
       return saveTexts(payload);
     case "/api/save-theme":
       return saveTheme(payload);
+    case "/api/save-marker-settings":
+      return saveMarkerSettings(payload);
     case "/api/save-site-settings":
       return saveSiteSettings(payload);
     case "/api/upload-image":
