@@ -836,6 +836,25 @@ const DEFAULT_MARKER_COLORS_API = {
   "contrib-story": "#1f6d43",
   "contrib-blurred": "#7f8f9c",
 };
+const MARKER_STATE_KEYS_API = ["listSelected", "focused"];
+const DEFAULT_MARKER_STATES_API = {
+  listSelected: {
+    enabled: true,
+    scale: 1.06,
+    strokeMultiplier: 1,
+    regionOpacityMultiplier: 1,
+    centerDot: { enabled: true, color: "#ffffff", size: 2.2, opacity: 0.95 },
+    outerRing: { enabled: false, color: "#ffffff", radius: 6, strokeWidth: 1.2, opacity: 0.8 },
+  },
+  focused: {
+    enabled: true,
+    scale: 1.28,
+    strokeMultiplier: 1.35,
+    regionOpacityMultiplier: 1.18,
+    centerDot: { enabled: false, color: "#ffffff", size: 2.4, opacity: 1 },
+    outerRing: { enabled: true, color: "#ffffff", radius: 8.2, strokeWidth: 1.6, opacity: 0.9 },
+  },
+};
 
 function cleanMarkerSvg(value, fallback = "") {
   const text = typeof value === "string" ? value.trim() : "";
@@ -852,6 +871,54 @@ function cleanMarkerColor(value, fallback) {
   return fallback;
 }
 
+function cleanOptionalMarkerColor(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text ? cleanMarkerColor(text, "") : "";
+}
+
+function clampMarkerNumber(value, min, max, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(Math.max(n, min), max) : fallback;
+}
+
+function cleanMarkerStateConfig(value, stateKey) {
+  const defaults = DEFAULT_MARKER_STATES_API[stateKey];
+  const source = value && typeof value === "object" ? value : {};
+  const out = {
+    enabled: source.enabled === undefined ? defaults.enabled : Boolean(source.enabled),
+    scale: clampMarkerNumber(source.scale, 0.6, 2, defaults.scale),
+    strokeMultiplier: clampMarkerNumber(source.strokeMultiplier, 0.2, 4, defaults.strokeMultiplier),
+    regionOpacityMultiplier: clampMarkerNumber(source.regionOpacityMultiplier, 0, 4, defaults.regionOpacityMultiplier),
+    centerDot: {
+      enabled: source.centerDot?.enabled === undefined ? defaults.centerDot.enabled : Boolean(source.centerDot.enabled),
+      color: cleanMarkerColor(source.centerDot?.color, defaults.centerDot.color),
+      size: clampMarkerNumber(source.centerDot?.size, 0, 12, defaults.centerDot.size),
+      opacity: clampMarkerNumber(source.centerDot?.opacity, 0, 1, defaults.centerDot.opacity),
+    },
+    outerRing: {
+      enabled: source.outerRing?.enabled === undefined ? defaults.outerRing.enabled : Boolean(source.outerRing.enabled),
+      color: cleanMarkerColor(source.outerRing?.color, defaults.outerRing.color),
+      radius: clampMarkerNumber(source.outerRing?.radius, 0, 20, defaults.outerRing.radius),
+      strokeWidth: clampMarkerNumber(source.outerRing?.strokeWidth, 0, 8, defaults.outerRing.strokeWidth),
+      opacity: clampMarkerNumber(source.outerRing?.opacity, 0, 1, defaults.outerRing.opacity),
+    },
+    categories: {},
+  };
+  for (const cat of MARKER_CATS) {
+    const stateCat = source.categories?.[cat] || {};
+    const oldLineColor = cleanOptionalMarkerColor(stateCat.lineColor);
+    const oldRegionColor = cleanOptionalMarkerColor(stateCat.regionColor);
+    out.categories[cat] = { lineColors: {}, regionColors: {} };
+    for (const key of MARKER_LINE_KEYS) {
+      out.categories[cat].lineColors[key] = cleanOptionalMarkerColor(stateCat.lineColors?.[key]) || oldLineColor;
+    }
+    for (const key of MARKER_REGION_KEYS) {
+      out.categories[cat].regionColors[key] = cleanOptionalMarkerColor(stateCat.regionColors?.[key]) || oldRegionColor;
+    }
+  }
+  return out;
+}
+
 export async function saveMarkerSettings(payload) {
   const stroke = Number(payload?.strokeWidth);
   const out = {
@@ -859,7 +926,7 @@ export async function saveMarkerSettings(payload) {
     strokeWidth: Number.isFinite(stroke) ? Math.min(Math.max(stroke, 0.5), 8) : 1.2,
     regionOpacity: {},
     categories: {},
-    states: payload?.states && typeof payload.states === "object" ? payload.states : { normal: {}, listSelected: {}, focused: {} },
+    states: {},
   };
   for (const key of MARKER_REGION_KEYS) {
     const n = Number(payload?.regionOpacity?.[key]);
@@ -875,6 +942,9 @@ export async function saveMarkerSettings(payload) {
     for (const key of MARKER_REGION_KEYS) {
       out.categories[cat].regionColors[key] = cleanMarkerColor(source.regionColors?.[key], fallback);
     }
+  }
+  for (const stateKey of MARKER_STATE_KEYS_API) {
+    out.states[stateKey] = cleanMarkerStateConfig(payload?.states?.[stateKey], stateKey);
   }
   await fs.writeFile(markerSettingsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
   return { ok: true };

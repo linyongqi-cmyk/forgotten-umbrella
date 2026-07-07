@@ -9,6 +9,8 @@ const state = {
   query: "",
   map: null,
   markers: new Map(),
+  markerVisualStates: new Map(),
+  markerIconAnimations: new Map(),
   googleReady: false,
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   focusMarkerId: null,
@@ -529,6 +531,38 @@ const THEME_DEFAULTS = {
 };
 
 const DEFAULT_MARKER_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+const MARKER_CATEGORY_KEYS = ["own", "own-title", "contrib", "contrib-story", "contrib-blurred"];
+const MARKER_STATE_KEYS = ["listSelected", "focused"];
+const MARKER_LINE_KEYS = ["line1", "line2", "line3"];
+const MARKER_REGION_KEYS = ["region1", "region2", "region3"];
+const MARKER_STATE_LABELS = {
+  listSelected: "展开列表选中状态",
+  focused: "点击后聚焦状态",
+};
+const MARKER_STATE_SHORT_LABELS = {
+  listSelected: "列表选中",
+  focused: "聚焦",
+};
+const MARKER_STATE_DEFAULTS = {
+  listSelected: {
+    enabled: true,
+    scale: 1.06,
+    strokeMultiplier: 1,
+    regionOpacityMultiplier: 1,
+    centerDot: { enabled: true, color: "#ffffff", size: 2.2, opacity: 0.95 },
+    outerRing: { enabled: false, color: "#ffffff", radius: 6, strokeWidth: 1.2, opacity: 0.8 },
+    categories: defaultMarkerStateCategories(),
+  },
+  focused: {
+    enabled: true,
+    scale: 1.28,
+    strokeMultiplier: 1.35,
+    regionOpacityMultiplier: 1.18,
+    centerDot: { enabled: false, color: "#ffffff", size: 2.4, opacity: 1 },
+    outerRing: { enabled: true, color: "#ffffff", radius: 8.2, strokeWidth: 1.6, opacity: 0.9 },
+    categories: defaultMarkerStateCategories(),
+  },
+};
 const DEFAULT_MARKER_SETTINGS = {
   svg: DEFAULT_MARKER_SVG,
   strokeWidth: 1.2,
@@ -560,8 +594,31 @@ const DEFAULT_MARKER_SETTINGS = {
       regionColors: { region1: "#7f8f9c", region2: "#7f8f9c", region3: "#7f8f9c" },
     },
   },
-  states: { normal: {}, listSelected: {}, focused: {} },
+  states: structuredClone(MARKER_STATE_DEFAULTS),
 };
+
+function defaultMarkerStateCategories() {
+  return Object.fromEntries(MARKER_CATEGORY_KEYS.map((cat) => [cat, {
+    lineColors: Object.fromEntries(MARKER_LINE_KEYS.map((key) => [key, ""])),
+    regionColors: Object.fromEntries(MARKER_REGION_KEYS.map((key) => [key, ""])),
+  }]));
+}
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.min(Math.max(n, min), max) : fallback;
+}
+
+function markerCssColor(value, fallback = "", allowBlank = false) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text && allowBlank) {
+    return "";
+  }
+  if (/^#[0-9a-f]{6}$/i.test(text) || /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/i.test(text)) {
+    return text;
+  }
+  return fallback;
+}
 
 function sanitizeMarkerSettings(raw) {
   const out = structuredClone(DEFAULT_MARKER_SETTINGS);
@@ -600,7 +657,34 @@ function sanitizeMarkerSettings(raw) {
       }
     }
   }
-  out.states = raw.states && typeof raw.states === "object" ? raw.states : out.states;
+  for (const stateKey of MARKER_STATE_KEYS) {
+    const source = raw.states?.[stateKey] && typeof raw.states[stateKey] === "object" ? raw.states[stateKey] : {};
+    const target = out.states[stateKey];
+    target.enabled = source.enabled === undefined ? target.enabled : Boolean(source.enabled);
+    target.scale = clampNumber(source.scale, 0.6, 2, target.scale);
+    target.strokeMultiplier = clampNumber(source.strokeMultiplier, 0.2, 4, target.strokeMultiplier);
+    target.regionOpacityMultiplier = clampNumber(source.regionOpacityMultiplier, 0, 4, target.regionOpacityMultiplier);
+    target.centerDot.enabled = source.centerDot?.enabled === undefined ? target.centerDot.enabled : Boolean(source.centerDot.enabled);
+    target.centerDot.color = markerCssColor(source.centerDot?.color, target.centerDot.color);
+    target.centerDot.size = clampNumber(source.centerDot?.size, 0, 12, target.centerDot.size);
+    target.centerDot.opacity = clampNumber(source.centerDot?.opacity, 0, 1, target.centerDot.opacity);
+    target.outerRing.enabled = source.outerRing?.enabled === undefined ? target.outerRing.enabled : Boolean(source.outerRing.enabled);
+    target.outerRing.color = markerCssColor(source.outerRing?.color, target.outerRing.color);
+    target.outerRing.radius = clampNumber(source.outerRing?.radius, 0, 20, target.outerRing.radius);
+    target.outerRing.strokeWidth = clampNumber(source.outerRing?.strokeWidth, 0, 8, target.outerRing.strokeWidth);
+    target.outerRing.opacity = clampNumber(source.outerRing?.opacity, 0, 1, target.outerRing.opacity);
+    for (const cat of MARKER_CATEGORY_KEYS) {
+      const stateCat = source.categories?.[cat] || {};
+      const oldLineColor = markerCssColor(stateCat.lineColor, "", true);
+      const oldRegionColor = markerCssColor(stateCat.regionColor, "", true);
+      for (const key of MARKER_LINE_KEYS) {
+        target.categories[cat].lineColors[key] = markerCssColor(stateCat.lineColors?.[key], oldLineColor, true);
+      }
+      for (const key of MARKER_REGION_KEYS) {
+        target.categories[cat].regionColors[key] = markerCssColor(stateCat.regionColors?.[key], oldRegionColor, true);
+      }
+    }
+  }
   return out;
 }
 
@@ -967,6 +1051,7 @@ function bindEvents() {
     syncMarkerFilter();
   });
   els.mapFilterPanel?.addEventListener("click", (event) => {
+    event.stopPropagation();
     const row = event.target.closest?.("[data-marker-cat]");
     if (!row) {
       return;
@@ -2247,6 +2332,7 @@ function togglePanel() {
   els.mapView.classList.toggle(className);
   const isCollapsed = els.mapView.classList.contains(className);
   updatePanelButton(els.toggleList, isCollapsed, expandedLabel, collapsedLabel);
+  updateMarkerIcons({ animate: true });
 }
 
 function collapseListPanel() {
@@ -2264,6 +2350,7 @@ function collapseListPanel() {
   if (state.googleReady) {
     setTimeout(() => google.maps.event.trigger(state.map, "resize"), 280);
   }
+  updateMarkerIcons({ animate: true });
 }
 
 function updatePanelButton(button, isCollapsed, expandedLabel, collapsedLabel) {
@@ -2943,20 +3030,23 @@ function renderMapMarkers(items) {
   // disappeared (filtered out / deleted) are removed.
   state.markers.forEach((marker, id) => {
     if (!visibleIds.has(id)) {
+      stopMarkerIconAnimation(id);
+      state.markerVisualStates.delete(id);
       marker.setMap(null);
       state.markers.delete(id);
     }
   });
 
   visible.forEach((item) => {
-    const icon = markerIcon(item.id === state.focusMarkerId, flagColorFor(item), markerCategory(item));
+    const visual = markerVisualForItem(item);
+    const icon = markerIcon(visual);
     const existing = state.markers.get(item.id);
     if (existing) {
       const pos = existing.getPosition();
       if (!pos || pos.lat() !== item.coordinates.lat || pos.lng() !== item.coordinates.lng) {
         existing.setPosition(item.coordinates);
       }
-      existing.setIcon(icon);
+      setMarkerVisual(existing, item, { animate: true });
       existing.setZIndex(markerZIndex(item));
       if (existing.getDraggable() !== state.editMode) {
         existing.setDraggable(state.editMode);
@@ -2982,6 +3072,7 @@ function renderMapMarkers(items) {
       // which is what made a pin visibly "drop" then settle when opened (8665/8755/
       // 8766). The distinct zIndex above keeps the canvas order stable = no flicker.
     });
+    state.markerVisualStates.set(id, visual);
 
     // Handlers look the item up fresh by id — the marker now outlives data edits
     // (in-place updates above), so a captured `item` object could go stale.
@@ -3016,13 +3107,13 @@ function renderMapMarkers(items) {
     marker.addListener("mouseover", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(hoverMarkerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
+        setMarkerVisual(marker, it, { hover: true });
       }
     });
     marker.addListener("mouseout", () => {
       const it = liveItem();
       if (it) {
-        marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(it), markerCategory(it)));
+        setMarkerVisual(marker, it);
       }
     });
     state.markers.set(id, marker);
@@ -5216,7 +5307,9 @@ function selectUmbrella(id, options = {}) {
         focusUmbrellaOnMap(item, id);
       } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
-        closeFocusMode();
+        if (els.mapView?.classList.contains("is-focus-mode")) {
+          closeFocusMode({ animateMarkers: true });
+        }
         panListSelectionToMap(item);
       }
     }
@@ -5254,9 +5347,9 @@ function focusUmbrellaOnMap(item, id) {
   // (that caused the instant look + the hover-through-the-replica bug).
   els.mapView?.classList.toggle("is-blur-approx", Boolean(item.blurApprox));
   syncFocusMapInteractionLock(item);
-  // Turn the focused pin blue (it sits in the clear/veiled circle, sharp; the
-  // overlay softens every other pin behind it).
-  updateMarkerIcons();
+  // Keep the focused pin in sync after the mode class changes. This must animate:
+  // a plain refresh overwrites the transition that selectUmbrella just started.
+  updateMarkerIcons({ animate: true });
   // Under-pin label (item 3): custom text, or the display address as fallback.
   // It starts hidden (is-pending = opacity 0) and only fades in once the map has
   // finished animating to the point and settled (revealApproxLabel) — so the text
@@ -5716,8 +5809,8 @@ function closeFocusMode(options = {}) {
   closeExpandedImage();
   els.mapView.classList.remove("is-focus-mode");
   els.mapView.classList.remove("is-blur-approx");
-  // Restore the just-unfocused pin to its normal (non-blue) icon.
-  updateMarkerIcons();
+  // Restore the just-unfocused pin with the same transition system used when entering focus.
+  updateMarkerIcons({ animate: options.animateMarkers !== false });
   if (els.focusApproxLabel) {
     renderFocusApproxLabel("");
   }
@@ -6788,7 +6881,7 @@ const MARKER_COLORS = {
 };
 // Order for the legend + filter: Fieldwork, Fieldwork·titled, Contributed,
 // Contributed·story, Contributed·blurred.
-const MARKER_CATEGORIES = ["own", "own-title", "contrib", "contrib-story", "contrib-blurred"];
+const MARKER_CATEGORIES = MARKER_CATEGORY_KEYS;
 // Bilingual labels (用户 #5: Japanese in a Japanese system) for the map filter +
 // About legend.
 const MARKER_LABELS = {
@@ -6830,10 +6923,12 @@ function itemHasTitle(item) {
   return typeof title === "object" ? Boolean(title.ja || title.en) : Boolean(String(title).trim());
 }
 
-function updateMarkerIcons() {
+function updateMarkerIcons(options = {}) {
   state.markers.forEach((marker, id) => {
     const item = state.umbrellas.find((entry) => entry.id === id);
-    marker.setIcon(markerIcon(id === state.focusMarkerId, flagColorFor(item), markerCategory(item)));
+    if (item) {
+      setMarkerVisual(marker, item, options);
+    }
     marker.setZIndex(markerZIndex(item));
   });
 }
@@ -6852,24 +6947,141 @@ function markerZIndex(item) {
   return Math.max(1, Math.round((90 - item.coordinates.lat) * 100000));
 }
 
-function markerIcon(isActive, flagColor, category) {
-  // Colour by category, using lucide map-pin for the public marker shape.
-  const color = flagColor || (isActive ? "#1f8bb8" : null);
-  const size = 40;
+function markerStateForItem(item) {
+  if (!item) {
+    return "normal";
+  }
+  if (item.id === state.focusMarkerId) {
+    return "focused";
+  }
+  if (item.id === state.selectedId && isListPanelExpanded()) {
+    return "listSelected";
+  }
+  return "normal";
+}
+
+function isListPanelExpanded() {
+  return Boolean(els.mapView && !els.mapView.classList.contains("is-list-collapsed"));
+}
+
+function markerStateConfig(stateKey) {
+  const settings = activeMarkerSettings();
+  const config = settings.states?.[stateKey];
+  return stateKey && stateKey !== "normal" && config?.enabled ? config : null;
+}
+
+function markerStateScale(stateKey) {
+  const config = markerStateConfig(stateKey);
+  return config ? clampNumber(config.scale, 0.6, 2, 1) : 1;
+}
+
+const MARKER_STATE_TRANSITION_MS = 280;
+
+function markerVisualForItem(item, options = {}) {
   return {
-    url: lucideMapPinDataUrl(category, color),
+    stateKey: markerStateForItem(item),
+    flagColor: flagColorFor(item) || "",
+    category: markerCategory(item),
+    hover: Boolean(options.hover),
+  };
+}
+
+function markerVisualSignature(visual) {
+  return [visual?.stateKey || "normal", visual?.flagColor || "", visual?.category || "own", visual?.hover ? "hover" : "base"].join("|");
+}
+
+function markerIcon(visualOrState = "normal", flagColor = "", category = "own") {
+  const visual = typeof visualOrState === "object"
+    ? visualOrState
+    : { stateKey: visualOrState || "normal", flagColor: flagColor || "", category, hover: false };
+  // Colour by category, using lucide map-pin for the public marker shape.
+  const color = visual.flagColor || null;
+  const size = Math.round((visual.hover ? 45 : 40) * markerStateScale(visual.stateKey));
+  return {
+    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
 }
 
-function hoverMarkerIcon(isActive, flagColor, category) {
-  const size = 45;
+function markerTransitionIcon(fromVisual, toVisual, progress) {
+  const t = Math.min(Math.max(Number(progress) || 0, 0), 1);
+  const fromScale = markerStateScale(fromVisual.stateKey);
+  const toScale = markerStateScale(toVisual.stateKey);
+  const baseFrom = fromVisual.hover ? 45 : 40;
+  const baseTo = toVisual.hover ? 45 : 40;
+  const size = Math.round(lerp(baseFrom * fromScale, baseTo * toScale, t));
   return {
-    ...markerIcon(isActive, flagColor, category),
+    url: lucideMapPinDataUrl(toVisual.category, toVisual.flagColor || null, toVisual.stateKey, {
+      fromCategory: fromVisual.category,
+      fromFlagColor: fromVisual.flagColor || null,
+      fromStateKey: fromVisual.stateKey,
+      progress: t,
+    }),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
+}
+
+function setMarkerVisual(marker, item, options = {}) {
+  if (!marker || !item) {
+    return;
+  }
+  const id = item.id;
+  const next = markerVisualForItem(item, options);
+  const prev = state.markerVisualStates.get(id);
+  const running = state.markerIconAnimations.get(id);
+  if (running && !options.force) {
+    const target = running.toVisual;
+    const sameMainState =
+      target &&
+      target.stateKey === next.stateKey &&
+      target.flagColor === next.flagColor &&
+      target.category === next.category;
+    if (sameMainState) {
+      running.pendingVisual = next;
+      return;
+    }
+  }
+  const same = prev && markerVisualSignature(prev) === markerVisualSignature(next);
+  if (same && !options.force) {
+    return;
+  }
+  stopMarkerIconAnimation(id);
+  if (!options.animate || !prev || options.force) {
+    marker.setIcon(markerIcon(next));
+    state.markerVisualStates.set(id, next);
+    return;
+  }
+  animateMarkerVisual(marker, id, prev, next);
+}
+
+function animateMarkerVisual(marker, id, fromVisual, toVisual) {
+  const started = performance.now();
+  const animation = { frame: 0, toVisual, pendingVisual: null };
+  const step = (now) => {
+    const t = Math.min((now - started) / MARKER_STATE_TRANSITION_MS, 1);
+    marker.setIcon(markerTransitionIcon(fromVisual, toVisual, easeInOutCubic(t)));
+    if (t < 1) {
+      animation.frame = requestAnimationFrame(step);
+      state.markerIconAnimations.set(id, animation);
+      return;
+    }
+    state.markerIconAnimations.delete(id);
+    const finalVisual = animation.pendingVisual || toVisual;
+    marker.setIcon(markerIcon(finalVisual));
+    state.markerVisualStates.set(id, finalVisual);
+  };
+  animation.frame = requestAnimationFrame(step);
+  state.markerIconAnimations.set(id, animation);
+}
+
+function stopMarkerIconAnimation(id) {
+  const animation = state.markerIconAnimations.get(id);
+  if (animation) {
+    cancelAnimationFrame(animation.frame);
+    state.markerIconAnimations.delete(id);
+  }
 }
 
 const markerIconCache = new Map();
@@ -6938,16 +7150,146 @@ function markerElementMarkup(el, attrs = {}) {
   return new XMLSerializer().serializeToString(clone);
 }
 
+function parseMarkerRgb(value) {
+  const text = String(value || "").trim();
+  const hex = text.match(/^#([0-9a-f]{6})$/i);
+  if (hex) {
+    return {
+      r: Number.parseInt(hex[1].slice(0, 2), 16),
+      g: Number.parseInt(hex[1].slice(2, 4), 16),
+      b: Number.parseInt(hex[1].slice(4, 6), 16),
+    };
+  }
+  const rgb = text.match(/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);
+  if (rgb) {
+    return {
+      r: Math.min(Math.max(Number(rgb[1]), 0), 255),
+      g: Math.min(Math.max(Number(rgb[2]), 0), 255),
+      b: Math.min(Math.max(Number(rgb[3]), 0), 255),
+    };
+  }
+  return null;
+}
+
+function mixMarkerColor(from, to, t) {
+  const a = parseMarkerRgb(from);
+  const b = parseMarkerRgb(to);
+  if (!a || !b) {
+    return t < 1 ? from : to;
+  }
+  const channel = (key) => Math.round(lerp(a[key], b[key], t)).toString(16).padStart(2, "0");
+  return `#${channel("r")}${channel("g")}${channel("b")}`;
+}
+
+function markerViewBoxNumbers(viewBox) {
+  const nums = String(viewBox || "0 0 24 24").split(/[\s,]+/).map(Number).filter(Number.isFinite);
+  return nums.length === 4 ? nums : [0, 0, 24, 24];
+}
+
+function markerCenterPoint(parts) {
+  const circle = [...parts.lines, ...parts.regions].find((el) => el.tagName?.toLowerCase() === "circle");
+  const cx = Number(circle?.getAttribute("cx"));
+  const cy = Number(circle?.getAttribute("cy"));
+  if (Number.isFinite(cx) && Number.isFinite(cy)) {
+    return { x: cx, y: cy };
+  }
+  const [x, y, w, h] = markerViewBoxNumbers(parts.viewBox);
+  return { x: x + w / 2, y: y + h * 0.42 };
+}
+
+function normalizedMarkerDecoration(config, key) {
+  const fallback = MARKER_STATE_DEFAULTS.focused[key];
+  if (!config) {
+    return {
+      enabled: false,
+      color: fallback.color,
+      size: fallback.size || 0,
+      radius: fallback.radius || 0,
+      strokeWidth: fallback.strokeWidth || 0,
+      opacity: 0,
+    };
+  }
+  const source = config?.[key] || fallback;
+  return {
+    enabled: Boolean(source.enabled),
+    color: source.color || fallback.color,
+    size: clampNumber(source.size, 0, 12, fallback.size || 0),
+    radius: clampNumber(source.radius, 0, 20, fallback.radius || 0),
+    strokeWidth: clampNumber(source.strokeWidth, 0, 8, fallback.strokeWidth || 0),
+    opacity: clampNumber(source.opacity, 0, 1, fallback.opacity || 0),
+  };
+}
+
+function markerStateDecorationMarkup(parts, fromConfig, toConfig, progress = 1) {
+  if (!fromConfig && !toConfig) {
+    return "";
+  }
+  const t = Math.min(Math.max(Number(progress) || 0, 0), 1);
+  const center = markerCenterPoint(parts);
+  const pieces = [];
+  const fromRing = normalizedMarkerDecoration(fromConfig, "outerRing");
+  const toRing = normalizedMarkerDecoration(toConfig, "outerRing");
+  const ringOpacity = lerp(fromRing.enabled ? fromRing.opacity : 0, toRing.enabled ? toRing.opacity : 0, t);
+  const ringRadius = lerp(fromRing.radius, toRing.radius, t);
+  if (ringRadius > 0 && ringOpacity > 0) {
+    pieces.push(`<circle cx="${center.x}" cy="${center.y}" r="${ringRadius}" fill="none" stroke="${escapeHtml(mixMarkerColor(fromRing.color, toRing.color, t))}" stroke-width="${lerp(fromRing.strokeWidth, toRing.strokeWidth, t)}" stroke-opacity="${ringOpacity}" stroke-linecap="round" stroke-linejoin="round"/>`);
+  }
+  const fromDot = normalizedMarkerDecoration(fromConfig, "centerDot");
+  const toDot = normalizedMarkerDecoration(toConfig, "centerDot");
+  const dotOpacity = lerp(fromDot.enabled ? fromDot.opacity : 0, toDot.enabled ? toDot.opacity : 0, t);
+  const dotSize = lerp(fromDot.size, toDot.size, t);
+  if (dotSize > 0 && dotOpacity > 0) {
+    pieces.push(`<circle cx="${center.x}" cy="${center.y}" r="${dotSize / 2}" fill="${escapeHtml(mixMarkerColor(fromDot.color, toDot.color, t))}" fill-opacity="${dotOpacity}" stroke="none"/>`);
+  }
+  return pieces.join("");
+}
+
+function markerSvgStateConfig(settings, stateKey) {
+  const config = stateKey && stateKey !== "normal" ? settings.states?.[stateKey] : null;
+  return config?.enabled ? config : null;
+}
+
+function markerSvgCategoryConfig(settings, category) {
+  return settings.categories?.[category] || settings.categories.own;
+}
+
+function markerSvgStateCategoryConfig(config, category) {
+  return config?.categories?.[category] || {};
+}
+
+function markerStateLineColor(stateCat, key) {
+  return stateCat.lineColors?.[key] || stateCat.lineColor || "";
+}
+
+function markerStateRegionColor(stateCat, key) {
+  return stateCat.regionColors?.[key] || stateCat.regionColor || "";
+}
+
 function markerSvgMarkup(category, options = {}) {
   const settings = activeMarkerSettings();
-  const cat = settings.categories?.[category] || settings.categories.own;
+  const cat = markerSvgCategoryConfig(settings, category);
   const parts = parseMarkerSvg(markerSvgForCategory(category));
-  const strokeWidth = Math.min(Math.max(Number(settings.strokeWidth) || currentMarkerStrokeWidth(), 0.5), 8);
-  const suffix = `${category}-${options.inline ? "inline" : "marker"}-${String(parts.viewBox).replace(/[^0-9a-z_-]/gi, "-")}`;
+  const stateConfig = markerSvgStateConfig(settings, options.stateKey);
+  const fromCategory = options.fromCategory || category;
+  const fromCat = markerSvgCategoryConfig(settings, fromCategory);
+  const fromStateConfig = options.fromStateKey !== undefined ? markerSvgStateConfig(settings, options.fromStateKey) : stateConfig;
+  const stateCat = stateConfig?.categories?.[category] || {};
+  const fromStateCat = markerSvgStateCategoryConfig(fromStateConfig, fromCategory);
+  const transitionT = options.progress === undefined ? 1 : Math.min(Math.max(Number(options.progress) || 0, 0), 1);
+  const baseStroke = Math.min(Math.max(Number(settings.strokeWidth) || currentMarkerStrokeWidth(), 0.5), 8);
+  const fromStrokeWidth = baseStroke * (fromStateConfig ? clampNumber(fromStateConfig.strokeMultiplier, 0.2, 4, 1) : 1);
+  const toStrokeWidth = baseStroke * (stateConfig ? clampNumber(stateConfig.strokeMultiplier, 0.2, 4, 1) : 1);
+  const strokeWidth = lerp(fromStrokeWidth, toStrokeWidth, transitionT);
+  const fromRegionOpacityMultiplier = fromStateConfig ? clampNumber(fromStateConfig.regionOpacityMultiplier, 0, 4, 1) : 1;
+  const toRegionOpacityMultiplier = stateConfig ? clampNumber(stateConfig.regionOpacityMultiplier, 0, 4, 1) : 1;
+  const regionOpacityMultiplier = lerp(fromRegionOpacityMultiplier, toRegionOpacityMultiplier, transitionT);
+  const suffix = `${category}-${options.stateKey || "normal"}-${options.fromStateKey || "same"}-${Math.round(transitionT * 100)}-${options.inline ? "inline" : "marker"}-${String(parts.viewBox).replace(/[^0-9a-z_-]/gi, "-")}`;
   const regionMarkup = parts.regions.slice(0, 3).map((el, index) => {
     const regionKey = `region${index + 1}`;
-    const opacity = Math.min(Math.max(Number(settings.regionOpacity?.[regionKey]) || 0, 0), 1);
-    const color = options.overrideColor || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const opacity = Math.min(Math.max((Number(settings.regionOpacity?.[regionKey]) || 0) * regionOpacityMultiplier, 0), 1);
+    const fromColor = options.fromOverrideColor || markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = options.overrideColor || markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const color = mixMarkerColor(fromColor, toColor, transitionT);
     if (opacity <= 0) {
       return "";
     }
@@ -6965,24 +7307,33 @@ function markerSvgMarkup(category, options = {}) {
   }).join("");
   const lineMarkup = parts.lines.slice(0, 3).map((el, index) => {
     const lineKey = `line${index + 1}`;
+    const fromColor = options.fromOverrideColor || markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = options.overrideColor || markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     return markerElementMarkup(el, {
       fill: "none",
-      stroke: options.overrideColor || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own,
+      stroke: mixMarkerColor(fromColor, toColor, transitionT),
       "stroke-width": strokeWidth,
       "stroke-linecap": "round",
       "stroke-linejoin": "round",
     });
   }).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}</svg>`;
 }
 
-function lucideMapPinDataUrl(category, overrideColor = null) {
+function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null) {
   const settings = activeMarkerSettings();
-  const key = JSON.stringify({ category, overrideColor, settings });
+  const key = JSON.stringify({ category, overrideColor, stateKey, transition, settings });
   if (markerIconCache.has(key)) {
     return markerIconCache.get(key);
   }
-  const svg = markerSvgMarkup(category, { overrideColor });
+  const svg = markerSvgMarkup(category, {
+    overrideColor,
+    stateKey,
+    fromCategory: transition?.fromCategory,
+    fromOverrideColor: transition?.fromFlagColor,
+    fromStateKey: transition?.fromStateKey,
+    progress: transition?.progress,
+  });
   const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   markerIconCache.set(key, url);
   return url;
@@ -7027,7 +7378,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=194", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=200", { updateViaCache: "none" });
   }
 }
 
@@ -9204,23 +9555,32 @@ function renderMarkerEditorBody() {
         ${MARKER_CATEGORIES.map((cat) => markerCategoryEditor(cat, draft)).join("")}
       </div>
     </section>
-    <section class="marker-editor-section is-muted">
-      <div class="marker-editor-section-head"><h3>后续三种变化（预留）</h3></div>
-      <div class="marker-future-grid">
-        <div>普通状态</div>
-        <div>展开列表选中状态</div>
-        <div>点击后聚焦状态</div>
+    <section class="marker-editor-section">
+      <div class="marker-editor-section-head">
+        <h3>两种状态分别修改</h3>
+        <span class="marker-section-note">普通状态就是上面的基础设置，这里只叠加变化。</span>
+      </div>
+      <div class="marker-state-stack">
+        ${MARKER_STATE_KEYS.map((stateKey) => markerStateEditor(stateKey, draft)).join("")}
       </div>
     </section>`;
 }
 
 function renderMarkerPreviewItems() {
-  return MARKER_CATEGORIES.map(
-    (cat) => `<div class="marker-preview-item">
-      <span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true })}</span>
-      <span>${escapeHtml(markerLabel(cat))}</span>
-    </div>`,
-  ).join("");
+  const rows = [
+    { key: "normal", label: "普通" },
+    ...MARKER_STATE_KEYS.map((key) => ({ key, label: MARKER_STATE_SHORT_LABELS[key] })),
+  ];
+  return rows.map((row) => `
+    <div class="marker-preview-row">
+      <strong>${escapeHtml(row.label)}</strong>
+      <div class="marker-preview-icons">
+        ${MARKER_CATEGORIES.map((cat) => `<div class="marker-preview-item">
+          <span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true, stateKey: row.key })}</span>
+          <span>${escapeHtml(markerLabel(cat))}</span>
+        </div>`).join("")}
+      </div>
+    </div>`).join("");
 }
 
 function updateMarkerPreview() {
@@ -9268,6 +9628,77 @@ function markerColorControl(cat, group, key, label, value) {
   </label>`;
 }
 
+function markerStateEditor(stateKey, draft) {
+  const config = draft.states[stateKey];
+  return `<fieldset class="marker-state-editor" data-marker-state-panel="${stateKey}">
+    <legend>
+      <span>${escapeHtml(MARKER_STATE_LABELS[stateKey])}</span>
+      <label class="marker-toggle-row"><input type="checkbox" ${config.enabled ? "checked" : ""} data-marker-state-toggle="${stateKey}" data-marker-state-path="enabled" /> 启用</label>
+    </legend>
+    <div class="marker-editor-grid">
+      ${markerStateRange(stateKey, "scale", "整体缩放", config.scale, 0.6, 2, 0.01, "x")}
+      ${markerStateRange(stateKey, "strokeMultiplier", "线宽倍率", config.strokeMultiplier, 0.2, 4, 0.05, "x")}
+      ${markerStateRange(stateKey, "regionOpacityMultiplier", "区域透明倍率", config.regionOpacityMultiplier, 0, 4, 0.05, "x")}
+    </div>
+    <div class="marker-state-subgrid">
+      <div class="marker-state-subsection">
+        <label class="marker-toggle-row"><input type="checkbox" ${config.centerDot.enabled ? "checked" : ""} data-marker-state-toggle="${stateKey}" data-marker-state-path="centerDot.enabled" /> 中心点</label>
+        <div class="marker-state-controls">
+          ${markerStateColorControl(stateKey, "centerDot.color", "颜色", config.centerDot.color, "#ffffff", false)}
+          ${markerStateRange(stateKey, "centerDot.size", "大小", config.centerDot.size, 0, 12, 0.1, "")}
+          ${markerStateRange(stateKey, "centerDot.opacity", "不透明", config.centerDot.opacity, 0, 1, 0.01, "")}
+        </div>
+      </div>
+      <div class="marker-state-subsection">
+        <label class="marker-toggle-row"><input type="checkbox" ${config.outerRing.enabled ? "checked" : ""} data-marker-state-toggle="${stateKey}" data-marker-state-path="outerRing.enabled" /> 外环</label>
+        <div class="marker-state-controls">
+          ${markerStateColorControl(stateKey, "outerRing.color", "颜色", config.outerRing.color, "#ffffff", false)}
+          ${markerStateRange(stateKey, "outerRing.radius", "半径", config.outerRing.radius, 0, 20, 0.1, "")}
+          ${markerStateRange(stateKey, "outerRing.strokeWidth", "线宽", config.outerRing.strokeWidth, 0, 8, 0.1, "")}
+          ${markerStateRange(stateKey, "outerRing.opacity", "不透明", config.outerRing.opacity, 0, 1, 0.01, "")}
+        </div>
+      </div>
+    </div>
+    <div class="marker-state-category-grid">
+      ${MARKER_CATEGORIES.map((cat) => markerStateCategoryRow(stateKey, cat, config.categories[cat])).join("")}
+    </div>
+  </fieldset>`;
+}
+
+function markerStateRange(stateKey, path, label, value, min, max, step, suffix) {
+  const display = `${Number(value).toFixed(step < 0.05 ? 2 : 1).replace(/\.0$/, "")}${suffix}`;
+  return `<label class="marker-range-row"><span>${label}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" data-marker-state-range="${stateKey}" data-marker-state-path="${path}" data-marker-state-suffix="${suffix}" /><output>${display}</output></label>`;
+}
+
+function markerStateCategoryRow(stateKey, cat, config) {
+  const parts = markerPartSummary(markerSvgFromSettings(markerDraft(), cat));
+  const lineControls = parts.lines.map((part) =>
+    markerStateColorControl(stateKey, `categories.${cat}.lineColors.${part.key}`, part.label, config.lineColors?.[part.key] || "", MARKER_COLORS[cat], true),
+  ).join("");
+  const regionControls = parts.regions.map((part) =>
+    markerStateColorControl(stateKey, `categories.${cat}.regionColors.${part.key}`, part.label, config.regionColors?.[part.key] || "", MARKER_COLORS[cat], true),
+  ).join("");
+  return `<div class="marker-state-category-row">
+    <strong>${escapeHtml(markerLabel(cat))}</strong>
+    <div class="marker-state-part-group">
+      <span>线段</span>
+      <div>${lineControls || "<small>未识别线段</small>"}</div>
+    </div>
+    <div class="marker-state-part-group">
+      <span>区域</span>
+      <div>${regionControls || "<small>未识别区域</small>"}</div>
+    </div>
+  </div>`;
+}
+
+function markerStateColorControl(stateKey, path, label, value, fallback = "#000000", allowBlank = true) {
+  return `<label class="marker-color-row marker-state-color-row">
+    <span>${label}</span>
+    <input type="color" value="${colorInputValue(value || fallback)}" data-marker-state-color="${stateKey}" data-marker-state-path="${path}" />
+    <input type="text" value="${escapeHtml(value || "")}" placeholder="${allowBlank ? "跟随基础" : ""}" data-marker-state-color-text="${stateKey}" data-marker-state-path="${path}" />
+  </label>`;
+}
+
 function colorInputValue(value) {
   const raw = String(value || "").trim();
   if (/^#[0-9a-f]{6}$/i.test(raw)) {
@@ -9278,6 +9709,37 @@ function colorInputValue(value) {
     return `#${rgb.slice(1, 4).map((n) => Math.min(Math.max(Number(n), 0), 255).toString(16).padStart(2, "0")).join("")}`;
   }
   return "#000000";
+}
+
+function setMarkerObjectPath(root, path, value) {
+  const keys = String(path || "").split(".").filter(Boolean);
+  if (!keys.length) {
+    return;
+  }
+  let target = root;
+  for (const key of keys.slice(0, -1)) {
+    if (!target[key] || typeof target[key] !== "object") {
+      target[key] = {};
+    }
+    target = target[key];
+  }
+  target[keys[keys.length - 1]] = value;
+}
+
+function syncMarkerStateColorInputs(input, value) {
+  const stateKey = input.dataset.markerStateColor || input.dataset.markerStateColorText;
+  const path = input.dataset.markerStatePath;
+  const panel = input.closest(".marker-state-editor");
+  panel.querySelectorAll("[data-marker-state-color]").forEach((el) => {
+    if (el.dataset.markerStateColor === stateKey && el.dataset.markerStatePath === path) {
+      el.value = colorInputValue(value || el.value);
+    }
+  });
+  panel.querySelectorAll("[data-marker-state-color-text]").forEach((el) => {
+    if (el !== input && el.dataset.markerStateColorText === stateKey && el.dataset.markerStatePath === path) {
+      el.value = value.trim();
+    }
+  });
 }
 
 function handleMarkerEditorInput(event) {
@@ -9293,6 +9755,26 @@ function handleMarkerEditorInput(event) {
   if (opacity) {
     draft.regionOpacity[opacity.dataset.markerOpacity] = Number(opacity.value) / 100;
     opacity.parentElement.querySelector("output").textContent = `${opacity.value}%`;
+    applyMarkerDraft();
+    return;
+  }
+  const stateRange = event.target.closest?.("[data-marker-state-range]");
+  if (stateRange) {
+    const stateKey = stateRange.dataset.markerStateRange;
+    setMarkerObjectPath(draft.states[stateKey], stateRange.dataset.markerStatePath, Number(stateRange.value));
+    const suffix = stateRange.dataset.markerStateSuffix || "";
+    const step = Number(stateRange.step);
+    const display = `${Number(stateRange.value).toFixed(step < 0.05 ? 2 : 1).replace(/\.0$/, "")}${suffix}`;
+    stateRange.parentElement.querySelector("output").textContent = display;
+    applyMarkerDraft();
+    return;
+  }
+  const stateColor = event.target.closest?.("[data-marker-state-color], [data-marker-state-color-text]");
+  if (stateColor) {
+    const stateKey = stateColor.dataset.markerStateColor || stateColor.dataset.markerStateColorText;
+    const value = stateColor.value.trim();
+    setMarkerObjectPath(draft.states[stateKey], stateColor.dataset.markerStatePath, value);
+    syncMarkerStateColorInputs(stateColor, value);
     applyMarkerDraft();
     return;
   }
@@ -9314,6 +9796,13 @@ function handleMarkerEditorInput(event) {
 }
 
 async function handleMarkerEditorChange(event) {
+  const toggle = event.target.closest?.("[data-marker-state-toggle]");
+  if (toggle) {
+    const draft = markerDraft();
+    setMarkerObjectPath(draft.states[toggle.dataset.markerStateToggle], toggle.dataset.markerStatePath, toggle.checked);
+    applyMarkerDraft();
+    return;
+  }
   const upload = event.target.closest?.("[data-marker-svg-upload]");
   if (!upload || !upload.files?.[0]) {
     return;
@@ -9369,7 +9858,7 @@ function readSvgFile(file) {
 function applyMarkerDraft() {
   MARKER_SETTINGS = sanitizeMarkerSettings(markerDraft());
   markerIconCache.clear();
-  updateMarkerIcons();
+  updateMarkerIcons({ force: true });
   syncMarkerFilter();
   renderLegend();
   updateMarkerPreview();

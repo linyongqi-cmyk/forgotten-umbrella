@@ -4708,7 +4708,23 @@ body:not(.edit-mode) .marker-settings-toggle {
   color: #4f6268;
 }
 
-.marker-preview-grid {
+.marker-preview-grid,
+.marker-preview-row {
+  display: grid;
+  gap: 8px;
+}
+
+.marker-preview-row {
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+}
+
+.marker-preview-row > strong {
+  font-size: 12px;
+  color: #30444a;
+}
+
+.marker-preview-icons {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
@@ -4764,6 +4780,11 @@ body:not(.edit-mode) .marker-settings-toggle {
   margin: 0;
   font-size: 14px;
   font-weight: 650;
+}
+
+.marker-section-note {
+  font-size: 12px;
+  color: #4f6268;
 }
 
 .marker-editor-section,
@@ -4911,19 +4932,107 @@ body:not(.edit-mode) .marker-settings-toggle {
   background: rgba(255, 255, 255, 0.72);
 }
 
-.marker-future-grid {
+.marker-state-stack {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  color: var(--muted);
-  font-size: 12px;
+  gap: 12px;
 }
 
-.marker-future-grid div {
-  padding: 16px;
-  border: 1px dashed var(--line);
+.marker-state-editor {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid rgba(19, 34, 34, 0.14);
   border-radius: 8px;
-  text-align: center;
+  background: rgba(255, 255, 255, 0.44);
+}
+
+.marker-state-editor legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 4px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.marker-toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.marker-state-subgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.marker-state-subsection {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(19, 34, 34, 0.12);
+  border-radius: 8px;
+  background: rgba(19, 34, 34, 0.035);
+}
+
+.marker-state-controls {
+  display: grid;
+  gap: 8px;
+}
+
+.marker-state-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+}
+
+.marker-state-category-row {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(19, 34, 34, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.marker-state-category-row > strong {
+  grid-row: span 2;
+  font-size: 12px;
+  color: #30444a;
+}
+
+.marker-state-part-group {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+}
+
+.marker-state-part-group > span {
+  padding-top: 6px;
+  font-size: 12px;
+  color: #4f6268;
+}
+
+.marker-state-part-group > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+}
+
+.marker-state-part-group small {
+  color: #4f6268;
+}
+
+.marker-state-color-row {
+  grid-template-columns: 52px 34px minmax(0, 1fr);
 }
 
 /* 视觉设定面板：按类分组，每行 名称 | 滑块 | 数值(当前/默认) | 恢复默认 */

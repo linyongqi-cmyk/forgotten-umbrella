@@ -74,8 +74,167 @@
     }
   },
   "states": {
-    "normal": {},
-    "listSelected": {},
-    "focused": {}
+    "listSelected": {
+      "enabled": true,
+      "scale": 1,
+      "strokeMultiplier": 1,
+      "regionOpacityMultiplier": 1,
+      "centerDot": {
+        "enabled": false,
+        "color": "#ffffff",
+        "size": 5,
+        "opacity": 1
+      },
+      "outerRing": {
+        "enabled": true,
+        "color": "#ffffff",
+        "radius": 0.5,
+        "strokeWidth": 3,
+        "opacity": 1
+      },
+      "categories": {
+        "own": {
+          "lineColors": {
+            "line1": "",
+            "line2": "",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "",
+            "region2": "",
+            "region3": ""
+          }
+        },
+        "own-title": {
+          "lineColors": {
+            "line1": "",
+            "line2": "",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "",
+            "region2": "",
+            "region3": ""
+          }
+        },
+        "contrib": {
+          "lineColors": {
+            "line1": "",
+            "line2": "",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "",
+            "region2": "",
+            "region3": ""
+          }
+        },
+        "contrib-story": {
+          "lineColors": {
+            "line1": "",
+            "line2": "",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "",
+            "region2": "",
+            "region3": ""
+          }
+        },
+        "contrib-blurred": {
+          "lineColors": {
+            "line1": "",
+            "line2": "",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "",
+            "region2": "",
+            "region3": ""
+          }
+        }
+      }
+    },
+    "focused": {
+      "enabled": true,
+      "scale": 1.15,
+      "strokeMultiplier": 1,
+      "regionOpacityMultiplier": 1,
+      "centerDot": {
+        "enabled": false,
+        "color": "#ffffff",
+        "size": 8.1,
+        "opacity": 1
+      },
+      "outerRing": {
+        "enabled": true,
+        "color": "#ffffff",
+        "radius": 4,
+        "strokeWidth": 1,
+        "opacity": 1
+      },
+      "categories": {
+        "own": {
+          "lineColors": {
+            "line1": "",
+            "line2": "#269dd9",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "#269dd9",
+            "region2": "#269dd9",
+            "region3": "#269dd9"
+          }
+        },
+        "own-title": {
+          "lineColors": {
+            "line1": "",
+            "line2": "#269dd9",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "#269dd9",
+            "region2": "#269dd9",
+            "region3": "#269dd9"
+          }
+        },
+        "contrib": {
+          "lineColors": {
+            "line1": "",
+            "line2": "#269dd9",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "#269dd9",
+            "region2": "#269dd9",
+            "region3": "#269dd9"
+          }
+        },
+        "contrib-story": {
+          "lineColors": {
+            "line1": "",
+            "line2": "#269dd9",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "#269dd9",
+            "region2": "#269dd9",
+            "region3": "#269dd9"
+          }
+        },
+        "contrib-blurred": {
+          "lineColors": {
+            "line1": "",
+            "line2": "#269dd9",
+            "line3": ""
+          },
+          "regionColors": {
+            "region1": "#269dd9",
+            "region2": "#269dd9",
+            "region3": "#269dd9"
+          }
+        }
+      }
+    }
   }
 }
