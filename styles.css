@@ -4480,7 +4480,7 @@ body.editor-open .editor-toolbar {
   height: 22px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
+  stroke-width: var(--icon-stroke, 1.7);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -7105,7 +7105,6 @@ body:not(.edit-mode) .editor-inbox-btn {
   color-scheme: light;
   /* 预览内容整体缩小一档（用户: 对话/段落字号太大）。字号缩小，字重跟随面板设定继承。 */
   --detail-meta-size: 10px;
-  --detail-body-size: 11px;
   --detail-caption-size: 10px;
   --detail-overlay-size: 11px;
   --detail-dialogue-size: 11px;
@@ -7392,8 +7391,6 @@ body.editor-open .panel-resizer {
 :root {
   --detail-meta-size: 12px;    /* 地点 / 时间 字号 */
   --detail-meta-line: 1.25;    /* 地点 / 时间 行间距（想更紧就调小，如 1.1） */
-  --detail-body-size: 13px;    /* 兼容保留：个别地方仍引用（正文类已改用下面分类变量） */
-  --detail-body-line: 1.45;
   --detail-caption-size: 11px; /* 图片下方小字（title, ID, time）字号 */
 
   /* v154 起：详情页正文按「视觉设定」面板分成 4 类分别可调（字号/行距/字重）。

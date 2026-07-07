@@ -510,9 +510,8 @@ async function loadSiteSettings() {
   }
 }
 
-// 视觉主题设定（data/theme.json）：图标线宽 + 详情页正文字号/行距。前端启动读它当默认
+// 视觉主题设定（data/theme.json）：图标线宽 + 详情页文字/手机抽屉手感。前端启动读它当默认
 // （线上/别人打开就是这套）；本机在「视觉设定」面板调完写回该文件，push 就上线。
-// 只 3 个数值，带范围钳制，避免面板传来异常值把界面调坏。
 // v154：详情页正文按 4 类分别调（字号/行距/字重）+ 图标线宽。旧的 detailBodySize/Line
 // 已拆成 overlay/dialogue/para 三套；ID 单独一套。旧字段若还留在 theme.json 里会被忽略。
 const THEME_DEFAULTS = {
@@ -3408,7 +3407,7 @@ function weatherIconSvg(category) {
   if (!inner) {
     return "";
   }
-  const open = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
+  const open = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
   return `${open}${inner}</svg>`;
 }
 
@@ -4927,14 +4926,14 @@ function pickPlacePreviewItems(items, key, excludedIds = new Set()) {
 // Small inline logos shown on the corner of an archive card.
 // 卡片角标图标（Lucide）：多图 images / 插图 pencil-sparkles / 有文本 letter-text / 有视频 video。
 const CARD_ICON_MULTI =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"/><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"/><circle cx="13" cy="7" r="1" fill="currentColor"/><rect x="8" y="2" width="14" height="14" rx="2"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"/><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"/><circle cx="13" cy="7" r="1" fill="currentColor"/><rect x="8" y="2" width="14" height="14" rx="2"/></svg>';
 const CARD_ICON_ILLUSTRATION =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H8"/><path d="m15.007 5.008 3.987 3.986"/><path d="M20 15v4"/><path d="M21.174 6.813a2.82 2.82 0 0 0-3.986-3.987L3.842 16.175a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="M22 17h-4"/><path d="M4 5v4"/><path d="M6 7H2"/><path d="M9 2v2"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3H8"/><path d="m15.007 5.008 3.987 3.986"/><path d="M20 15v4"/><path d="M21.174 6.813a2.82 2.82 0 0 0-3.986-3.987L3.842 16.175a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="M22 17h-4"/><path d="M4 5v4"/><path d="M6 7H2"/><path d="M9 2v2"/></svg>';
 const CARD_ICON_TEXT =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5h6"/><path d="M15 12h6"/><path d="M3 19h18"/><path d="m3 12 3.553-7.724a.5.5 0 0 1 .894 0L11 12"/><path d="M3.92 10h6.16"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5h6"/><path d="M15 12h6"/><path d="M3 19h18"/><path d="m3 12 3.553-7.724a.5.5 0 0 1 .894 0L11 12"/><path d="M3.92 10h6.16"/></svg>';
 // 用户: shown on a card's bottom-right corner when the record has a video.
 const CARD_ICON_VIDEO =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>';
 
 // A record "has text" if any of its content blocks is a non-empty paragraph
 // (blocks store {ja,en}); fall back to the legacy joined story string.
@@ -4996,34 +4995,8 @@ function renderPhotoCard(item) {
   `;
 }
 
-function renderItemText(item, context) {
-  const isArchiveCard = context === "card";
-  const locationLine = formatDetailLine(item.location, formatDateTime(item.time));
-  const details = [
-    item.title,
-    locationLine || formatDateTime(item.time),
-    item.material,
-    item.statusText,
-    item.story,
-  ].filter(Boolean);
-  const title = displayUmbrellaId(item);
-  const storyClass = context === "focus" ? "item-story" : "item-story is-compact";
-
-  return [
-    `<h3>${escapeHtml(title)}</h3>`,
-    ...details.map((detail, index) => {
-      const className = index === details.length - 1 && detail === item.story ? storyClass : "item-detail";
-      return `<p class="${className}">${escapeHtml(detail)}</p>`;
-    }),
-  ].join("");
-}
-
 function formatDetailLine(...parts) {
   return parts.filter(Boolean).join(" / ");
-}
-
-function formatListMeta(item) {
-  return formatDetailLine(item.location, formatListDate(item.time)) || "time / location text needed";
 }
 
 function hasCoordinates(item) {
@@ -7378,7 +7351,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=200", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=201", { updateViaCache: "none" });
   }
 }
 
@@ -7462,7 +7435,7 @@ function setupEditor() {
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
-      <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+      <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </footer>`;
   document.body.appendChild(drawer);
   editor.root = drawer;

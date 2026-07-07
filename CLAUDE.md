@@ -15,8 +15,8 @@
 - 预览用 Claude Preview MCP 的 `preview_*` 工具。`.claude/launch.json` 已配置；**Mac 上 node 写的是绝对路径**（`/Users/eiki/.local/node-vXX/bin/node`，不能用符号链接，否则预览报 spawn 失败），以后升级 Node 换了目录要回来改这行。改了 `scripts/editor-api.mjs` 后要**杀掉 node 进程重启**（它是动态 import，有缓存）——Mac 上：`pkill -f "node server.js"`。
 
 ## 架构与数据流
-- 前端：`index.html` + `app.js`(~7800行) + `styles.css`；PWA：`sw.js` + `manifest.json`。
-- 真源：`filebox/records/<category>(<group>)/<id>/record.json`（95 条）→ `scripts/build-umbrellas.mjs` 聚合成 `data/umbrellas.json`（前端读取，**自动生成物，勿手改**）。
+- 前端：`index.html` + `app.js`(~11000行) + `styles.css`；PWA：`sw.js` + `manifest.json`。
+- 真源：`filebox/records/<category>(<group>)/<id>/record.json`（139 条）→ `scripts/build-umbrellas.mjs` 聚合成 `data/umbrellas.json`（前端读取，**自动生成物，勿手改**）。
 - **本地编辑器**：只在 `127.0.0.1`（本机）出现（`IS_LOCAL`），线上完全不渲染。后端 = `server.js` + `scripts/editor-api.mjs`，提供只对本机生效的 `/api/*` 接口（save-record / upload-image / delete-image / create-record / delete-record / move-record / save-texts）。
 - `data/japan-areas.json`：全日本地址数据（47 都道府县→市→区，日英双语，英文已译后缀：Kyoto / Kyoto City / Minami Ward），用于编辑器地址级联下拉。来源是用户的 KEN_ALL_ROME xlsx。
 - `data/texts.json`：可编辑的 UI 文案（双语 ja/en）——9 个类型说明文 + 统计页说明文。前端启动 fetch 读取（不是 record 生成物，**直接改它就是源**，不需 build）。本地「文 文案編集」面板（左上，仅 127.0.0.1）改完走 `/api/save-texts` 写回。**不要再在 app.js 里硬编码这些文案**。
@@ -43,7 +43,7 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v155**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v201**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。
