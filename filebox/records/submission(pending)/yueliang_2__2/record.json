@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 163,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "in front of Lawson Store 100 Kujō-Kawaramachi, Minami Ward, Kyoto",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Kyoto",
@@ -18,8 +18,8 @@
   },
   // 如果你想手动覆盖地图坐标，可以填写；没有就保持 null。
   "locationCoordinates": {
-    "lat": 34.97923611111111,
-    "lng": 135.7629861111111
+    "lat": 34.97941702825266,
+    "lng": 135.76424665355495
   },
   // 照片 EXIF 读取到的拍摄时间。
   "photoTime": "2026-06-21T20:48:00+09:00",
@@ -38,7 +38,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "white",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。

@@ -27,6 +27,8 @@
   "time": "",
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"代表的トイレ型 1","en":"Typical Restroom Type 1"},
+  // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
+  "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -46,11 +48,11 @@
     }
   ],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "black",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "IMG_6753",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
-  "submissionType": "",
+  "submissionType": "own",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
   "submitter": "",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
@@ -72,7 +74,7 @@
   // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
   "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+  "story": "一般的に、小便器や洗面台のそばに置かれる傘(6651)に比べて、個室の中にある傘(6753)はそう簡単には忘れられないはずだ。というより、むしろ忘れること自体が難しい。というのも、手を洗ったり小便をしたりする場合と違って、トイレの個室では傘だけでなく、カバンや上看などの持ち物も一緒にフックに掛けることが多いからだ。用を足したあとには、持ち物と傘は一緒に持って出るのが普通だろう。それなのに、どういう状況で傘だけがここに取り残されたのだろうか。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
@@ -82,7 +84,7 @@
     {
       "type": "text",
       "text": {
-        "ja": "一般的に、小便器や洗面台のそばに置かれる傘 (6651)に比 べて、個室の中にある傘 (6753) はそう簡単には忘れられな いはずだ。というより、むしろ忘れること自体が難しい。とい うのも、手を洗ったり小便をしたりする場合と違って、トイレ の個室では傘だけでなく、カバンや上看などの持ち物も一緒に フックに掛けることが多いからだ。用を足したあとには、持ち 物と傘は一緒に持って出るのが普通だろう。それなのに、どう いう状況で傘だけがここに取り残されたのだろうか。",
+        "ja": "一般的に、小便器や洗面台のそばに置かれる傘(6651)に比べて、個室の中にある傘(6753)はそう簡単には忘れられないはずだ。というより、むしろ忘れること自体が難しい。というのも、手を洗ったり小便をしたりする場合と違って、トイレの個室では傘だけでなく、カバンや上看などの持ち物も一緒にフックに掛けることが多いからだ。用を足したあとには、持ち物と傘は一緒に持って出るのが普通だろう。それなのに、どういう状況で傘だけがここに取り残されたのだろうか。",
         "en": "Generally speaking, compared to umbrellas left near urinals or washbasins (6651), those found inside private stalls (6753) should not be so easily forgotten. In fact, forgetting them is inherently difficult. This is because, unlike the brief actions of washing one's hands of using a urinal, a private stall usually requires one to hang multiple belongings such as bags or coats on a hook alongside the umbrella. Once finished, the natural sequence is to retrieve all items together before exiting: Given this logic, under what specific circumstances could an umbrella alone end up abandoned here?"
       }
     }

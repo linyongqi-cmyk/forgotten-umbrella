@@ -2799,6 +2799,8 @@ function filteredUmbrellas() {
     const haystack = [
       item.id,
       item.displayId, // 对外显示名：设了就能按它搜（真实文件名 item.id 也照样能搜）
+      item.title?.ja, // 标题（日/英都能搜，用户 #5b）
+      item.title?.en,
       item.location,
       item.time,
       item.type,
@@ -3268,9 +3270,16 @@ function effectiveBlocks(item) {
 // plain space (用户要求). Spaces become non-breaking; a <wbr> after each comma is
 // the sole break opportunity. Combined with a max-width in CSS (≤70% of width).
 function formatAddressBreaks(text) {
+  // 地址换行（用户 #1）：只在**逗号后**、连接词 **of / for / the 之前**断行；其余空格
+  // 改成不断行空格，让多词地名（如 "Minami Ward"）不被拆到两行。配合 CSS 把地址宽度限制在
+  // 图片的 85%（.focus-overlay-info .focus-info）+ overflow-wrap 兜底，保证绝不溢出。
+  const MARK = "\u0000"; // 临时断点占位（地址里不会出现）
+  const NB = "\u00A0";   // 不断行空格
   return escapeHtml(text)
-    .replace(/ /g, " ")
-    .replace(/, ?/g, (m) => `${m}<wbr>`);
+    .replace(/,\s*/g, "," + MARK)
+    .replace(/\s+(of|for|the)\b/gi, MARK + "$1")
+    .replace(/ /g, NB)
+    .replace(new RegExp(MARK, "g"), " <wbr>");
 }
 
 // One line per speaker: "編者：…" → speaker cell (left) + body cell (right).
@@ -7351,7 +7360,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=201", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=203", { updateViaCache: "none" });
   }
 }
 
@@ -7389,6 +7398,9 @@ const EDITOR_ICON_MARKER =
 // 收件箱（信封）图标 —— 投稿收件箱按钮。
 const EDITOR_ICON_INBOX =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
+// 隐藏标点（Lucide eye-off）图标 —— 编辑面板右上角「隐藏」按钮 + 工具栏「已隐藏」面板按钮。
+const EDITOR_ICON_HIDE =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
 
 function setupEditor() {
   // The three local-only buttons (edit / 文案 / 新增) live in one fixed toolbar
@@ -7426,6 +7438,7 @@ function setupEditor() {
         <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方给这个标点起个对外显示名（不改文件夹/文件名）"><span>显示名</span><input type="checkbox" id="editor-displayid-toggle" /></label>
       </div>
+      <button type="button" class="editor-hide-record" title="隐藏此标点（从地图/档案/统计/列表移除，数据保留，可在「已隐藏」面板恢复）" aria-label="隐藏此标点">${EDITOR_ICON_HIDE}</button>
       <button type="button" class="editor-close" aria-label="close">×</button>
     </header>
     <div class="editor-body">
@@ -7732,6 +7745,7 @@ function setupEditor() {
   drawer.querySelector(".editor-cancel").addEventListener("click", () => closeEditor());
   drawer.querySelector(".editor-save").addEventListener("click", saveEditor);
   drawer.querySelector(".editor-delete-record").addEventListener("click", deleteCurrentRecord);
+  drawer.querySelector(".editor-hide-record").addEventListener("click", hideCurrentRecord);
   coordRow.querySelector(".editor-coord-reset").addEventListener("click", () => {
     editor.draftCoords = null;
     updateCoordReadout(getRawById(state.editingId));
@@ -7775,6 +7789,18 @@ function setupEditor() {
   inboxButton.addEventListener("click", openInbox);
   toolbar.insertBefore(inboxButton, addButton);
   editor.inboxButton = inboxButton;
+
+  // 「已隐藏」面板按钮：列出所有被隐藏的标点，可原位恢复。仅编辑模式显示。
+  const hiddenButton = document.createElement("button");
+  hiddenButton.type = "button";
+  hiddenButton.id = "editor-hidden-btn";
+  hiddenButton.className = "editor-hidden-btn";
+  hiddenButton.innerHTML = EDITOR_ICON_HIDE;
+  hiddenButton.title = "已隐藏的标点";
+  hiddenButton.setAttribute("aria-label", "已隐藏的标点");
+  hiddenButton.addEventListener("click", openHiddenPanel);
+  toolbar.insertBefore(hiddenButton, addButton);
+  editor.hiddenButton = hiddenButton;
 
   buildCreateDialog();
   populateCategorySelects();
@@ -10436,6 +10462,112 @@ function closeInbox() {
   }
 }
 
+// ---- 已隐藏面板 / hidden-records panel (local-only) --------------------------
+// 列出 filebox/hidden 里所有被隐藏的标点，每条一个「恢复显示」按钮：点了搬回原
+// 分类 + rebuild，标点重新出现在地图/档案/统计/列表里。
+const hiddenState = { modal: null, listEl: null, items: [] };
+
+function buildHiddenModal() {
+  const modal = document.createElement("div");
+  modal.className = "editor-inbox-modal editor-hidden-modal";
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="editor-inbox-card editor-hidden-card" role="dialog" aria-label="已隐藏的标点">
+      <header class="editor-inbox-head">
+        <strong>已隐藏的标点</strong>
+        <div class="editor-inbox-head-actions">
+          <button type="button" class="editor-hidden-refresh">刷新</button>
+          <button type="button" class="editor-hidden-close" aria-label="关闭">×</button>
+        </div>
+      </header>
+      <div class="editor-hidden-body">
+        <div class="editor-hidden-list"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  hiddenState.modal = modal;
+  hiddenState.listEl = modal.querySelector(".editor-hidden-list");
+  modal.querySelector(".editor-hidden-close").addEventListener("click", closeHiddenPanel);
+  modal.querySelector(".editor-hidden-refresh").addEventListener("click", loadHiddenList);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeHiddenPanel();
+    }
+  });
+  hiddenState.listEl.addEventListener("click", (event) => {
+    const btn = event.target.closest(".editor-hidden-restore");
+    if (btn) {
+      unhideFromPanel(btn.dataset.rel);
+    }
+  });
+}
+
+function openHiddenPanel() {
+  if (!hiddenState.modal) {
+    buildHiddenModal();
+  }
+  hiddenState.modal.hidden = false;
+  loadHiddenList();
+}
+
+function closeHiddenPanel() {
+  if (hiddenState.modal) {
+    hiddenState.modal.hidden = true;
+  }
+}
+
+async function loadHiddenList() {
+  hiddenState.listEl.innerHTML = `<p class="editor-inbox-empty">读取中…</p>`;
+  try {
+    const res = await apiPost("/api/hidden-list", {});
+    hiddenState.items = res.items || [];
+    renderHiddenList();
+  } catch (error) {
+    hiddenState.listEl.innerHTML = `<p class="editor-inbox-empty">读取失败：${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function renderHiddenList() {
+  const items = hiddenState.items;
+  if (!items.length) {
+    hiddenState.listEl.innerHTML = `<p class="editor-inbox-empty">还没有隐藏任何标点。</p>`;
+    return;
+  }
+  hiddenState.listEl.innerHTML = items
+    .map((it) => {
+      const label = it.title ? `${escapeHtml(it.id)}（${escapeHtml(it.title)}）` : escapeHtml(it.id);
+      const sub = [it.category, it.locationText].filter(Boolean).map(escapeHtml).join(" · ");
+      const thumb = it.photo
+        ? `<img class="editor-hidden-thumb" src="${escapeHtml(it.photo)}" alt="" loading="lazy" />`
+        : `<span class="editor-hidden-thumb is-empty"></span>`;
+      return `<div class="editor-hidden-item">
+          ${thumb}
+          <span class="editor-hidden-meta">
+            <span class="editor-hidden-item-title">${label}</span>
+            <span class="editor-hidden-item-sub">${sub || "&nbsp;"}</span>
+          </span>
+          <button type="button" class="editor-hidden-restore" data-rel="${escapeHtml(it.relDir)}">恢复显示</button>
+        </div>`;
+    })
+    .join("");
+}
+
+async function unhideFromPanel(relDir) {
+  if (!relDir) {
+    return;
+  }
+  try {
+    await apiPost("/api/unhide-record", { relDir });
+    hiddenState.items = hiddenState.items.filter((it) => it.relDir !== relDir);
+    renderHiddenList();
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    showEditorToast("已恢复显示 ✓");
+  } catch (error) {
+    showEditorToast(`恢复失败：${error.message}`, true);
+  }
+}
+
 async function loadInbox() {
   inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">读取中…</p>`;
   inboxState.detailEl.innerHTML = `<p class="editor-inbox-hint">← 从左边选一条投稿</p>`;
@@ -10788,6 +10920,27 @@ async function deleteCurrentRecord() {
     showEditorToast("已删除标点 ✓（可在「修改记录」撤回）");
   } catch (error) {
     showEditorToast(`删除失败：${error.message}`, true);
+  }
+}
+
+// 隐藏当前标点：后端把整条记录搬进 filebox/hidden，rebuild 后它从地图/档案/统计/
+// 列表全部消失，但数据保留，可在「已隐藏」面板恢复。
+async function hideCurrentRecord() {
+  const id = state.editingId;
+  if (!id) {
+    return;
+  }
+  if (!window.confirm(`确定隐藏标点「${id}」？\n\n隐藏后会从地图、档案图片卡、统计表、展开列表、about 数据里全部移除，但数据完整保留，可在工具栏「已隐藏」面板里随时恢复。`)) {
+    return;
+  }
+  try {
+    await apiPost("/api/hide-record", { id });
+    closeEditor({ force: true });
+    state.umbrellas = await loadUmbrellaData();
+    render();
+    showEditorToast("已隐藏标点 ✓（可在「已隐藏」面板恢复）");
+  } catch (error) {
+    showEditorToast(`隐藏失败：${error.message}`, true);
   }
 }
 

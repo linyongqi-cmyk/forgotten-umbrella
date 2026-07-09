@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { mergeRecordMediaWithFolder, readRecordFile } from "./record-utils.mjs";
 import { derivativeNames, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
+import { exportTables } from "./export-tables.mjs";
 
 const rootDir = process.cwd();
 const recordsRoot = path.join(rootDir, "filebox", "records");
@@ -195,4 +196,12 @@ builtItems.sort((a, b) => {
 const outputItems = builtItems.map(({ item }) => item);
 await fs.writeFile(outputPath, `${JSON.stringify(outputItems, null, 2)}\n`, "utf8");
 
-console.log(JSON.stringify({ recordCount: outputItems.length, outputPath: toPosix(path.relative(rootDir, outputPath)) }, null, 2));
+// 顺带重生成两张总览表格（导出表格/*.csv），随记录内容自动同步。失败不影响主构建。
+let tableStats = null;
+try {
+  tableStats = await exportTables();
+} catch (error) {
+  console.warn("导出表格失败（不影响 umbrellas.json）：", error?.message || error);
+}
+
+console.log(JSON.stringify({ recordCount: outputItems.length, outputPath: toPosix(path.relative(rootDir, outputPath)), tables: tableStats }, null, 2));

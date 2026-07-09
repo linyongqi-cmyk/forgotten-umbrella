@@ -23,7 +23,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "2026.03.29, 20:05",
   // 手动标题。没有就保持空字符串。
-  "title": {"ja":"","en":""},
+  "title": {"ja":"春夏秋冬、いつもそこに","en":"Always There, Through the Seasons"},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
   "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
@@ -35,7 +35,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "white",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -49,7 +49,7 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "修改标题",
+  "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。

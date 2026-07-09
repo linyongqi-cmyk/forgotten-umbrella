@@ -23,7 +23,9 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": "",
+  "title": {"ja":"黒から白へ","en":"From Black to White"},
+  // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
+  "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -47,7 +49,7 @@
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
-  "submissionType": "",
+  "submissionType": "own",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
   "submitter": "",
   // 投稿渠道/日期（自由文本，如 "微信 2025-06"，仅内部管理用，不公开展示）。
@@ -69,13 +71,13 @@
   // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
   "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "この傘は、フェンスの内側に掛けられていた。随分と長い間に こに放置されていたことが見て取れる。元々は黒かったであろ う傘の表面は、少し白っちゃけている。その上、高架下という 場所柄、雨が直接当たることもないため、傘の上にはかなりの 量の埃が積もっていた。",
+  "story": "この傘は、フェンスの内側に掛けられていた。随分と長い間にこに放置されていたことが見て取れる。元々は黒かったであろう傘の表面は、少し白っちゃけている。その上、高架下という場所柄、雨が直接当たることもないため、傘の上にはかなりの量の埃が積もっていた。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
       "type": "text",
       "text": {
-        "ja": "この傘は、フェンスの内側に掛けられていた。随分と長い間に こに放置されていたことが見て取れる。元々は黒かったであろ う傘の表面は、少し白っちゃけている。その上、高架下という 場所柄、雨が直接当たることもないため、傘の上にはかなりの 量の埃が積もっていた。",
+        "ja": "この傘は、フェンスの内側に掛けられていた。随分と長い間にこに放置されていたことが見て取れる。元々は黒かったであろう傘の表面は、少し白っちゃけている。その上、高架下という場所柄、雨が直接当たることもないため、傘の上にはかなりの量の埃が積もっていた。",
         "en": "This umbrella was hung on the inner side of the fence. It was evident that It had been left there for quite a long time. The canopy, which must have been black originally, had faded to a dull, grayish white. Furthermore, because of its location beneath the elevated tracks, it was shielded from direct rain as a result, a thick layer of dust had accumulated on its surface."
       }
     }

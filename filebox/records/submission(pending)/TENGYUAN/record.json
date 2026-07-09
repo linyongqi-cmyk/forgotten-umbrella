@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 157,
   // 手动填写的展示地址。
-  "locationText": "关西国际机场T1国际出发层，B、C值机柜台附近",
+  "locationText": "near check-in counters B and C, international departures floor, Terminal 1, Kansai International Airport, Izumisano City, Osaka",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Osaka",
@@ -34,7 +34,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "white",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。

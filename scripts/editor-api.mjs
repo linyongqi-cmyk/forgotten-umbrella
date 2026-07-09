@@ -55,6 +55,12 @@ const recordsRoot = path.join(rootDir, "filebox", "records");
 // 用户「修改记录」撤回功能：删除的标点先移到这里（软删除），需要时可原位恢复；
 // 图片一并保留。gitignore 掉，不进仓库。
 const trashRoot = path.join(rootDir, "filebox", ".trash");
+// 用户「隐藏标点」功能：隐藏 = 把整条记录（图片 + record.json）搬到这里，保留原
+// 分类子路径，之后可在「已隐藏」面板里原位恢复。和 .trash（一次性撤回）不同，
+// 隐藏是长期的：build-umbrellas 只扫 filebox/records，所以隐藏后自动从地图/档案/
+// 统计/列表全部消失，但数据完整保留。这个目录**进仓库**（数据要备份），只是不被
+// umbrellas.json 引用、页面上无处链接，等于对外不可见。
+const hiddenRoot = path.join(rootDir, "filebox", "hidden");
 const buildScript = path.join(rootDir, "scripts", "build-umbrellas.mjs");
 const textsPath = path.join(rootDir, "data", "texts.json");
 const siteSettingsPath = path.join(rootDir, "data", "site-settings.json");
@@ -639,6 +645,114 @@ export async function restoreTrashed(payload) {
   return { ok: true };
 }
 
+// 隐藏一条标点：把整条记录文件夹搬进 filebox/hidden/<原分类>/<id>/（保留分类子
+// 路径，恢复时原位放回）。之后 rebuild → umbrellas.json 里没有它了 → 地图/档案/
+// 统计/展开列表/about 数据全部同步消失。数据完整躺在 hidden 里。
+export async function hideRecord(payload) {
+  const id = typeof payload?.id === "string" ? payload.id.trim() : "";
+  const recordPath = id ? await findRecordPathById(id) : null;
+  if (!recordPath) {
+    throw new ApiError(404, `No record found for id "${id}".`);
+  }
+  const recordDir = path.resolve(path.dirname(recordPath));
+  if (recordDir === recordsRoot || !recordDir.startsWith(recordsRoot)) {
+    throw new ApiError(400, "Refusing to hide outside the records folder.");
+  }
+  const relDir = path.relative(recordsRoot, recordDir);
+  const targetDir = path.resolve(path.join(hiddenRoot, relDir));
+  if (!targetDir.startsWith(hiddenRoot)) {
+    throw new ApiError(400, "Resolved path escaped the hidden folder.");
+  }
+  if (await pathExists(targetDir)) {
+    throw new ApiError(409, "隐藏区里已存在同名记录。");
+  }
+  await fs.mkdir(path.dirname(targetDir), { recursive: true });
+  await fs.rename(recordDir, targetDir);
+  await rebuildDatabase();
+  return { ok: true, id };
+}
+
+// 列出所有已隐藏的记录（供「已隐藏」面板）：id、原分类、可读标签、主图缩略图路径。
+export async function hiddenList() {
+  if (!(await pathExists(hiddenRoot))) {
+    return { ok: true, items: [] };
+  }
+  const files = await getRecordFiles(hiddenRoot);
+  const items = [];
+  for (const file of files) {
+    const record = await readRecordFile(file).catch(() => null);
+    if (!record) {
+      continue;
+    }
+    const dir = path.dirname(file);
+    const relDir = path.relative(hiddenRoot, dir).split(path.sep).join("/");
+    const id = path.basename(dir);
+    const category = relDir.includes("/") ? relDir.slice(0, relDir.lastIndexOf("/")) : "";
+    const media = Array.isArray(record.media) ? record.media : [];
+    const primary = media.find((m) => m?.role === "primary") || media[0] || null;
+    let photo = "";
+    if (primary?.legacyThumb) {
+      // 旧记录的缩略图是仓库根下的独立路径（filebox/thumbs/...），隐藏时不搬动，直接引用。
+      photo = `/${primary.legacyThumb}`;
+    } else if (primary?.file) {
+      // 优先用同目录下的 .thumb.webp 生成物（小、快），没有就退回原图，保证能显示。
+      const thumbName = primary.file.replace(/\.[^.]+$/, ".thumb.webp");
+      const hasThumb = await pathExists(path.join(dir, thumbName));
+      photo = `/filebox/hidden/${relDir}/${hasThumb ? thumbName : primary.file}`;
+    }
+    const title = record.title && typeof record.title === "object"
+      ? (record.title.ja || record.title.en || "")
+      : (record.title || "");
+    items.push({ id, relDir, category, title, locationText: record.locationText || "", photo });
+  }
+  // 按分类 + id 排序，稳定好找。
+  items.sort((a, b) => (a.category + a.id).localeCompare(b.category + b.id));
+  return { ok: true, items };
+}
+
+// 恢复一条隐藏记录：从 filebox/hidden/<relDir> 搬回 filebox/records/<relDir>（原位）。
+export async function unhideRecord(payload) {
+  const relDir = typeof payload?.relDir === "string" ? payload.relDir.trim() : "";
+  if (!relDir || relDir.includes("..") || path.isAbsolute(relDir)) {
+    throw new ApiError(400, "非法的隐藏记录标识。");
+  }
+  const sourceDir = path.resolve(path.join(hiddenRoot, relDir));
+  if (!sourceDir.startsWith(hiddenRoot) || !(await pathExists(sourceDir))) {
+    throw new ApiError(404, "隐藏区里找不到它（可能已恢复）。");
+  }
+  const targetDir = path.resolve(path.join(recordsRoot, relDir));
+  if (!targetDir.startsWith(recordsRoot)) {
+    throw new ApiError(400, "恢复路径非法。");
+  }
+  if (await pathExists(targetDir)) {
+    throw new ApiError(409, "records 里已存在同名记录，无法恢复。");
+  }
+  await fs.mkdir(path.dirname(targetDir), { recursive: true });
+  await fs.rename(sourceDir, targetDir);
+  await removeEmptyDirsUpTo(path.dirname(sourceDir), hiddenRoot);
+  await rebuildDatabase();
+  return { ok: true };
+}
+
+// 恢复后把 filebox/hidden 下变空的分类子文件夹逐级删掉（删到 hiddenRoot 为止），
+// 不留空壳。遇到非空目录就停。
+async function removeEmptyDirsUpTo(startDir, stopRoot) {
+  let dir = path.resolve(startDir);
+  const stop = path.resolve(stopRoot);
+  while (dir.startsWith(stop) && dir !== stop) {
+    try {
+      const entries = await fs.readdir(dir);
+      if (entries.length > 0) {
+        break;
+      }
+      await fs.rmdir(dir);
+    } catch {
+      break;
+    }
+    dir = path.dirname(dir);
+  }
+}
+
 // A record id used inside a trash folder name — keep it filesystem-safe. (The id
 // itself is already constrained, but a contributed id can contain parentheses.)
 function sanitizeTrashId(id) {
@@ -1162,6 +1276,12 @@ export async function handleEditorApi(pathname, payload) {
       return restoreTrashed(payload);
     case "/api/move-record":
       return moveRecord(payload);
+    case "/api/hide-record":
+      return hideRecord(payload);
+    case "/api/hidden-list":
+      return hiddenList(payload);
+    case "/api/unhide-record":
+      return unhideRecord(payload);
     case "/api/fetch-weather":
       return fetchWeather(payload);
     case "/api/submissions/list":
