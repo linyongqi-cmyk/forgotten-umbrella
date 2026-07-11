@@ -9,7 +9,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=203" />
+    <link rel="stylesheet" href="styles.css?v=204" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -46,6 +46,8 @@
           </span>
         </span>
       </button>
+      <!-- 任务3：仅触摸设备显示（桌面有准星暗示可点，触摸没有），提示整屏可轻触进入。 -->
+      <p class="welcome-tap-hint" id="welcome-tap-hint" data-i18n="welcomeTapHint" aria-hidden="true"></p>
     </section>
 
     <div class="app-shell">
@@ -226,6 +228,28 @@
             </button>
           </div>
 
+          <!-- 任务4：地图中下方按钮组。随机=随机跳到一个标点（map-pin 右下角改成「?」）；
+               nearest=只有当前画面里一个标点都没有时才出现，一键把最近的标点带回视野。
+               图标 stroke-width 绑 var(--icon-stroke) 以跟随「视觉设定」。 -->
+          <div class="map-fab-row" id="map-fab-row">
+            <button id="random-marker" class="map-fab" type="button" aria-label="random umbrella" title="random umbrella">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M19.914 11.105A7.298 7.298 0 0 0 20 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32 32 0 0 0 .824-.738" />
+                <circle cx="12" cy="10" r="3" />
+                <path d="M17.4 16.2a1.7 1.7 0 1 1 2.5 1.5c-.55.36-.9.72-.9 1.3" />
+                <path d="M19 20.6h.01" />
+              </svg>
+              <span data-i18n="randomMarker"></span>
+            </button>
+            <button id="nearest-marker" class="map-fab" type="button" aria-label="nearest umbrella" title="nearest umbrella" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span data-i18n="nearestMarker"></span>
+            </button>
+          </div>
+
           <div class="focus-blur" id="focus-blur" aria-hidden="true"></div>
           <div class="focus-approx-label" id="focus-approx-label" aria-hidden="true" hidden></div>
           <div class="focus-gesture-tip" id="focus-gesture-tip" aria-hidden="true" hidden>
@@ -352,6 +376,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=203" type="module"></script>
+    <script src="app.js?v=204" type="module"></script>
   </body>
 </html>

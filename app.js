@@ -116,6 +116,9 @@ const DEFAULT_MAP_ZOOM = 15;
 // 用户 task 2: when the user is in Japan but their default-zoom screen shows no
 // markers, we drop to this wider zoom over the nearest cluster of ≥3 markers.
 const CLUSTER_FALLBACK_ZOOM = 11;
+// 任务5：没有定位授权（或拒绝/超时/在日本以外）时的回退。旧逻辑落在东京站(15级)，
+// 但那一带没有标点，看着很空。改成 13 级、并把「离东京站最近的那个标点」放到画面正中。
+const TOKYO_FALLBACK_ZOOM = 13;
 // Floor on zoom-out: keeps the map from receding past the "whole of Japan" scale
 // (without this the user could zoom out to the whole globe).
 const MIN_MAP_ZOOM = 5;
@@ -207,6 +210,11 @@ const I18N = {
   aboutStatFieldwork: { ja: "フィールド数", en: "Fieldwork" },
   aboutStatSubmissions: { ja: "投稿数", en: "Submissions" },
   aboutStatSince: { ja: "記録開始", en: "Recording since" },
+  // 任务3：欢迎屏底部「轻触任意处进入地图」提示（仅触摸设备显示）。
+  welcomeTapHint: { ja: "どこでもタップして地図へ", en: "Tap anywhere to enter the map" },
+  // 任务4：地图中下方两个按钮的文字（随机跳转 / 回到最近的标点）。
+  randomMarker: { ja: "ランダム", en: "Random" },
+  nearestMarker: { ja: "最寄りへ", en: "Nearest" },
 };
 
 function applyLanguage() {
@@ -385,6 +393,9 @@ const els = {
   mapTypeToggle: document.querySelector("#map-type-toggle"),
   mapTypeIco: document.querySelector(".map-type-ico"),
   locateMe: document.querySelector("#locate-me"),
+  randomMarker: document.querySelector("#random-marker"),
+  nearestMarker: document.querySelector("#nearest-marker"),
+  welcomeTapHint: document.querySelector("#welcome-tap-hint"),
   mapFilter: document.querySelector("#map-filter"),
   mapFilterToggle: document.querySelector("#map-filter-toggle"),
   mapFilterPanel: document.querySelector("#map-filter-panel"),
@@ -1345,6 +1356,22 @@ function bindEvents() {
   els.locateMe?.addEventListener("click", () => {
     closeMobileMapMenus();
     goToMyLocation();
+  });
+  els.randomMarker?.addEventListener("click", () => {
+    closeMobileMapMenus();
+    goToRandomMarker();
+  });
+  els.nearestMarker?.addEventListener("click", () => {
+    closeMobileMapMenus();
+    goToNearestMarkerOnScreen();
+  });
+
+  // 任务3：触摸设备上整个欢迎屏都可轻触进入（桌面靠准星暗示点标题，触摸没有）。
+  // 标题按钮自己也会触发，enterSite 幂等，重复调用无副作用。
+  els.welcome?.addEventListener("click", () => {
+    if (isTouchDevice() && !document.body.classList.contains("is-entered")) {
+      enterSite();
+    }
   });
 
   els.listSecondary?.addEventListener("click", (event) => {
@@ -2401,6 +2428,8 @@ async function initGoogleMap() {
   state.map.addListener("dragstart", dismissFocusAfterUserMapInteraction);
   state.map.addListener("zoom_changed", dismissFocusAfterUserMapInteraction);
   state.map.addListener("zoom_changed", refreshSatellitePoi);
+  // 任务4：地图停下时刷新「回到最近的标点」按钮显隐。
+  state.map.addListener("idle", updateNearestFabVisibility);
 
   const initialView = await getInitialMapCenter();
   state.map.setCenter(initialView.center);
@@ -2481,6 +2510,33 @@ function findNearestClusterCenter(userLoc, items, zoom, canvasW, canvasH) {
   return best;
 }
 
+// 任务5：在一堆标点里找离 point 最近的一个（经纬度平方距离，够用）。无标点返回 null。
+function nearestMarkerTo(point, items) {
+  let best = null;
+  let bestDist = Infinity;
+  for (const it of items) {
+    const dLat = it.coordinates.lat - point.lat;
+    const dLng = it.coordinates.lng - point.lng;
+    const dist = dLat * dLat + dLng * dLng;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = it;
+    }
+  }
+  return best;
+}
+
+// 任务5：无定位时的回退视图 —— 东京 13 级，中心放在离东京站最近的标点上。
+// 没有任何带坐标的标点时退回东京站坐标。
+function getTokyoFallbackView() {
+  const items = state.umbrellas.filter(hasCoordinates);
+  const nearest = nearestMarkerTo(DEFAULT_MAP_CENTER, items);
+  return {
+    center: nearest ? nearest.coordinates : DEFAULT_MAP_CENTER,
+    zoom: TOKYO_FALLBACK_ZOOM,
+  };
+}
+
 // User is confirmed inside Japan. Default view = their spot at DEFAULT_MAP_ZOOM.
 // But if that screen shows no markers, drop to CLUSTER_FALLBACK_ZOOM over the
 // nearest ≥3-marker cluster (用户 task 2). Falls back to Tokyo if no cluster.
@@ -2496,14 +2552,14 @@ function resolveInJapanView(here) {
   if (cluster) {
     return { center: cluster, zoom: CLUSTER_FALLBACK_ZOOM };
   }
-  return { center: DEFAULT_MAP_CENTER, zoom: DEFAULT_MAP_ZOOM };
+  return getTokyoFallbackView();
 }
 
 // Resolves to { center, zoom }. Rules: (1) default Tokyo at DEFAULT_MAP_ZOOM;
 // (2) geolocation granted & inside Japan → their spot (with the task-2 fallback
 // above); (3) outside Japan / denied / timeout → Tokyo.
 function getInitialMapCenter() {
-  const fallback = { center: DEFAULT_MAP_CENTER, zoom: DEFAULT_MAP_ZOOM };
+  const fallback = getTokyoFallbackView();
   if (!navigator.geolocation) {
     return Promise.resolve(fallback);
   }
@@ -2626,6 +2682,76 @@ function goToMyLocation() {
     },
     { enableHighAccuracy: true, maximumAge: 60000, timeout: GEOLOCATION_TIMEOUT_MS },
   );
+}
+
+// 任务4：随机跳到一个标点。从「当前筛选后」的带坐标标点里随机挑一个，平移过去并
+// 保证够近能看清（比 16 级还远就拉到 16）。用户后续会细调跳转效果。
+function goToRandomMarker() {
+  if (!state.googleReady) {
+    return;
+  }
+  const items = filteredUmbrellas().filter(hasCoordinates);
+  if (!items.length) {
+    return;
+  }
+  const pick = items[Math.floor(Math.random() * items.length)];
+  // 用户 item8：随机后直接打开这个标点的详情页（不是只平移）。selectUmbrella(focus)
+  // 会带动画把镜头移过去 + 打开详情，正好满足 item7「要移动过去」+ item8「打开详情」。
+  selectUmbrella(pick.id, { focus: true });
+}
+
+// 任务4：当前画面里一个标点都没有时才出现的「回到最近的标点」。以当前地图中心为基准
+// 找最近的带坐标标点，平移过去；若比默认级还远，拉回默认级让它落进视野。
+function goToNearestMarkerOnScreen() {
+  if (!state.googleReady) {
+    return;
+  }
+  const items = filteredUmbrellas().filter(hasCoordinates);
+  const center = state.map.getCenter();
+  if (!items.length || !center) {
+    return;
+  }
+  const nearest = nearestMarkerTo({ lat: center.lat(), lng: center.lng() }, items);
+  if (!nearest) {
+    return;
+  }
+  // 用户 item7：要动画移动过去，不要瞬移。先把 zoom 定好（比默认远就拉回默认级），
+  // 再 panTo —— 顺序很关键：panTo 是动画，若在它之后再 setZoom 会打断动画导致中心不动。
+  const z = state.map.getZoom() || DEFAULT_MAP_ZOOM;
+  if (z < DEFAULT_MAP_ZOOM) {
+    state.map.setZoom(DEFAULT_MAP_ZOOM);
+  }
+  state.map.panTo(nearest.coordinates);
+}
+
+// 任务4：地图每次停下(idle)时判断当前画面里有没有标点，没有就露出「回到最近」按钮。
+// 「随机」按钮常显，聚焦详情时整组按钮由 CSS 隐藏，这里只管 nearest 的显隐。
+function updateNearestFabVisibility() {
+  if (!els.nearestMarker) {
+    return;
+  }
+  if (!state.googleReady || !state.map) {
+    els.nearestMarker.hidden = true;
+    return;
+  }
+  const items = filteredUmbrellas().filter(hasCoordinates);
+  const center = state.map.getCenter();
+  if (!items.length || !center) {
+    els.nearestMarker.hidden = true;
+    return;
+  }
+  const canvas = els.mapCanvas;
+  const canvasW = canvas?.clientWidth || window.innerWidth || 1280;
+  const canvasH = canvas?.clientHeight || window.innerHeight || 800;
+  const zoom = state.map.getZoom() || DEFAULT_MAP_ZOOM;
+  const onScreen = countMarkersOnScreen(
+    { lat: center.lat(), lng: center.lng() },
+    zoom,
+    items,
+    canvasW,
+    canvasH,
+  );
+  els.nearestMarker.hidden = onScreen > 0;
 }
 
 // 一个按钮循环三种地图（用户要求）：卫星1(无字) → 卫星2(有字) → 普通 → 卫星1…
@@ -5387,6 +5513,14 @@ function isMobileSheet() {
   return window.matchMedia("(max-width: 820px)").matches;
 }
 
+// 任务2 方案A：把「触摸交互」和「屏幕宽度」拆成两条独立判断。
+// isMobileSheet() 只管布局（窄屏=底部抽屉，宽屏=侧栏）；isTouchDevice() 管交互
+// （有没有鼠标 hover / 要不要准星 / 整屏轻触）。平板横屏 = 宽屏布局 + 触摸交互，
+// 靠这两个分开判断才不会被当成纯桌面。
+function isTouchDevice() {
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
 // 任务2 方案A：只有内容在 peek 档就溢出（放不下）时，才允许向上拖/点开到全屏；
 // 短内容（is-focus-short，peek 已能看全）就固定 peek 一档，避免拖出一片空白。
 function sheetCanExpand() {
@@ -7360,7 +7494,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=203", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=204", { updateViaCache: "none" });
   }
 }
 

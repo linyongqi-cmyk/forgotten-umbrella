@@ -279,6 +279,43 @@ body.is-entered .welcome-screen {
   }
 }
 
+/* 任务3：欢迎屏底部「轻触任意处进入地图」提示。桌面(有准星暗示)不显示，
+   只在触摸设备(pointer:coarse，含平板横屏)显示，轻微呼吸提示可点。 */
+.welcome-tap-hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .welcome-tap-hint {
+    display: block;
+    position: absolute;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
+    transform: translateX(-50%);
+    z-index: 2;
+    margin: 0;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    color: var(--ink);
+    opacity: 0.66;
+    pointer-events: none;
+    animation: welcome-tap-breathe 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes welcome-tap-breathe {
+  0%,
+  100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
 .app-shell {
   min-height: 100vh;
 }
@@ -1272,6 +1309,60 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.6),
     0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 任务4：地图中下方按钮组（随机 / 回到最近的标点）。玻璃胶囊 + icon+文字。
+   聚焦详情时整组隐藏（详情抽屉占据下方）。 */
+.map-fab-row {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#map-view.is-focus-mode .map-fab-row {
+  display: none;
+}
+
+.map-fab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  /* 地图区域强制了深色 color-scheme，会让 --panel 取到深色玻璃、按钮看着发黑。
+     这里固定用浅色 color-scheme，让 --panel/--ink 取浅色，得到和汉堡展开一致的
+     浅色毛玻璃质感（用户 item6）。 */
+  color-scheme: light;
+  background: var(--panel);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.map-fab[hidden] {
+  display: none;
+}
+
+.map-fab svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--icon-stroke, 1.7);
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* 地图上的一次性小提示（定位失败等）：底部居中浮出、毛玻璃、几秒自动淡出。 */
