@@ -80,6 +80,10 @@
     {
       "type": "photo",
       "file": "IMG_0929.jpeg"
+    },
+    {
+      "type": "photo",
+      "file": "IMG_0996.jpeg"
     }
   ],
   // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
@@ -121,6 +125,29 @@
       "title": "",
       // 这张媒体自己的拍摄时间。没有就保持空字符串。
       "photoTime": "2026-07-02T13:08:14+09:00",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": false
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "IMG_0996",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "IMG_0996.jpeg",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "supplement",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "next day, took it home",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "2026-07-03T17:32:14+09:00",
       // 这张媒体自己的说明文字。
       "story": "",
       // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。

@@ -9,7 +9,7 @@
     <title>忘れられた傘 | 都市の片隅の地図</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/favicon.svg?v=159" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=204" />
+    <link rel="stylesheet" href="styles.css?v=209" />
   </head>
   <body>
     <section class="welcome-screen" id="welcome-screen" aria-label="welcome">
@@ -187,9 +187,8 @@
           </div>
 
           <aside class="side-panel" id="list-panel" aria-label="location list">
-            <div class="panel-heading panel-scope-tabs" role="group" aria-label="list scope">
-              <button class="panel-scope-tab is-active" data-list-scope="own" type="button"><h2>Fieldwork</h2></button>
-              <button class="panel-scope-tab" data-list-scope="contributed" type="button"><h2>Contributed</h2></button>
+            <div class="panel-heading">
+              <h2>Archive</h2>
             </div>
 
             <div class="search-shell">
@@ -206,8 +205,8 @@
 
             <div class="filter-row" aria-label="map archive sorting">
               <button class="chip is-active" data-list-sort="time" type="button"><span data-i18n="sortTime">時間</span><span class="sort-arrow" aria-hidden="true"></span></button>
-              <button class="chip" data-list-sort="type" type="button"><span data-i18n="sortType">種類</span><span class="sort-arrow" aria-hidden="true"></span></button>
               <button class="chip" data-list-sort="place" type="button"><span data-i18n="sortPlace">場所</span></button>
+              <button class="chip" data-list-sort="type" type="button"><span data-i18n="sortType">タイプ</span></button>
             </div>
 
             <div class="list-secondary-row" id="list-secondary-row" hidden></div>
@@ -325,21 +324,20 @@
         </section>
 
         <section class="archive-view view" id="archive-view" aria-label="archive view">
-          <div class="section-heading" role="group" aria-label="archive scope">
-            <h2 class="archive-scope-heading">
-              <span class="archive-scope-prefix">Archive (</span><button class="archive-scope-tab is-active" data-archive-scope="own" type="button">Fieldwork</button><span class="archive-scope-sep"> / </span><button class="archive-scope-tab" data-archive-scope="contributed" type="button">Contributed</button><span class="archive-scope-suffix">)</span>
-            </h2>
+          <div class="section-heading">
+            <h2 class="archive-scope-heading">Archive</h2>
           </div>
 
+          <!-- 任务6：Fieldwork/Contributed 合并成一排标签（桌面一排；窄屏放不下时自动换行）。
+               Time=两边合并按拍摄时间；Place=两边合并进完整层级；Type=仅fieldwork；
+               两个 Stats 各看一边。 -->
           <div class="archive-toolbar" id="archive-own-toolbar" aria-label="archive controls">
-            <p data-i18n="sortBy">並び替え</p>
-            <div class="archive-primary-row">
-              <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-                <button class="archive-control is-active" data-archive-mode="time" type="button"><span data-i18n="sortTime">時間</span><span class="sort-arrow" aria-hidden="true"></span></button>
-                <button class="archive-control" data-archive-mode="type" type="button"><span data-i18n="sortType">種類</span></button>
-                <button class="archive-control" data-archive-mode="place" type="button"><span data-i18n="sortPlace">場所</span></button>
-                <button class="archive-control" data-archive-mode="stats" type="button"><span data-i18n="statsTab">統計</span></button>
-              </div>
+            <div class="archive-primary-row archive-tab-row" role="group" aria-label="archive mode">
+              <button class="archive-control is-active" data-archive-mode="time" type="button"><span data-i18n="sortTime">時間</span><span class="sort-arrow" aria-hidden="true"></span></button>
+              <button class="archive-control" data-archive-mode="place" type="button"><span data-i18n="sortPlace">場所</span></button>
+              <button class="archive-control" data-archive-mode="type" type="button"><span data-i18n="sortType">タイプ</span></button>
+              <button class="archive-control" data-archive-mode="statsFw" type="button"><span data-i18n="archiveStatsFw">統計 (Fieldwork)</span></button>
+              <button class="archive-control" data-archive-mode="statsContrib" type="button"><span data-i18n="archiveStatsContrib">統計 (Contributed)</span></button>
             </div>
             <div class="archive-secondary-row" id="archive-secondary-row" hidden></div>
           </div>
@@ -376,6 +374,6 @@
       </main>
     </div>
 
-    <script src="app.js?v=204" type="module"></script>
+    <script src="app.js?v=209" type="module"></script>
   </body>
 </html>

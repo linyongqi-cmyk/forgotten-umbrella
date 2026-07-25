@@ -874,6 +874,11 @@ export async function saveTexts(payload) {
     ja: String(payload?.statsIntro?.ja ?? "").trim(),
     en: String(payload?.statsIntro?.en ?? "").trim(),
   };
+  // 任务6：Type 标签 all 下的总说明文（段落数组，日英双语）。
+  const typeAllIntro = {
+    ja: sanitizeParas(payload?.typeAllIntro?.ja),
+    en: sanitizeParas(payload?.typeAllIntro?.en),
+  };
   const about = {
     section1: sanitizeAboutSection(payload?.about?.section1),
     section2: sanitizeAboutSection(payload?.about?.section2),
@@ -890,7 +895,7 @@ export async function saveTexts(payload) {
       typeDescriptions[key] = { ja: sanitizeParas(value?.ja), en: sanitizeParas(value?.en) };
     }
   }
-  const out = { statsIntro, typeDescriptions, about };
+  const out = { statsIntro, typeAllIntro, typeDescriptions, about };
   await fs.writeFile(textsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
   return { ok: true };
 }

@@ -26498,7 +26498,7 @@
       "lat": 35.8077,
       "lng": 139.724
     },
-    "locationText": "Kawaguchi City, Saitama",
+    "locationText": "Kawaguchi City, Saitama, Japan",
     "title": {
       "ja": "ハートですね♥",
       "en": "It's a heart♥"
@@ -30544,6 +30544,22 @@
       {
         "type": "photo",
         "file": "IMG_0158.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_0998.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_1018.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_1063.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_1179.jpeg"
       }
     ],
     "editFlag": "black",
@@ -30867,6 +30883,62 @@
         "role": "detail",
         "title": "",
         "photoTime": "2026-06-26T18:21:36+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_0998",
+        "file": "IMG_0998.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_0162/IMG_0998.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_0162/IMG_0998.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_0162/IMG_0998.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-03T17:36:35+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_1018",
+        "file": "IMG_1018.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_0162/IMG_1018.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_0162/IMG_1018.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_0162/IMG_1018.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-04T19:29:44+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_1063",
+        "file": "IMG_1063.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_0162/IMG_1063.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_0162/IMG_1063.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_0162/IMG_1063.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-08T10:18:43+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_1179",
+        "file": "IMG_1179.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_0162/IMG_1179.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_0162/IMG_1179.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_0162/IMG_1179.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-17T02:55:30+09:00",
         "story": "",
         "crop": null,
         "weather": null,
@@ -32726,6 +32798,10 @@
       {
         "type": "photo",
         "file": "IMG_0929.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_0996.jpeg"
       }
     ],
     "editFlag": "",
@@ -33035,6 +33111,20 @@
         "role": "detail",
         "title": "",
         "photoTime": "2026-07-02T13:08:14+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_0996",
+        "file": "IMG_0996.jpeg",
+        "src": "filebox/records/drop(behavior)/IMG_0932/IMG_0996.web.webp",
+        "thumb": "filebox/records/drop(behavior)/IMG_0932/IMG_0996.thumb.webp",
+        "original": "filebox/records/drop(behavior)/IMG_0932/IMG_0996.jpeg",
+        "role": "supplement",
+        "title": "next day, took it home",
+        "photoTime": "2026-07-03T17:32:14+09:00",
         "story": "",
         "crop": null,
         "weather": null,
@@ -34616,7 +34706,7 @@
         }
       }
     ],
-    "editFlag": "black",
+    "editFlag": "",
     "weather": {
       "source": "open-meteo",
       "fetchedAt": "2026-07-02T19:49:50.953Z",
@@ -38501,7 +38591,7 @@
       "lat": 34.702301815407985,
       "lng": 135.20570740935986
     },
-    "locationText": "",
+    "locationText": "Kobe City, Hyogo, Japan",
     "title": {
       "ja": "",
       "en": ""
@@ -41791,7 +41881,7 @@
       "lat": 38.26709367449417,
       "lng": 140.87085584348324
     },
-    "locationText": "",
+    "locationText": "Sendai City, Miyagi, Japan",
     "title": {
       "ja": "",
       "en": ""
@@ -43126,6 +43216,1826 @@
       "Kyoto",
       "Kyoto City",
       "Higashiyama Ward"
+    ]
+  },
+  {
+    "id": "IMG_1014",
+    "image": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.web.webp",
+    "imageOriginal": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.jpeg",
+    "photoTime": "2026-07-04T19:25:00+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.97640277777778,
+      "lng": 135.765275
+    },
+    "locationCoordinates": {
+      "lat": 34.97640277777779,
+      "lng": 135.76518552211516
+    },
+    "locationText": "Matsunokicho danchi, Minami Ward, Kyoto",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_1016.jpeg"
+      }
+    ],
+    "editFlag": "",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-25T10:04:38.934Z",
+      "lat": 34.97640277777778,
+      "lon": 135.765275,
+      "referenceTime": "2026-07-04T19:25:00+09:00",
+      "hourly": [
+        {
+          "time": "2026-07-03T19:00",
+          "code": 3,
+          "temp": 25
+        },
+        {
+          "time": "2026-07-03T20:00",
+          "code": 3,
+          "temp": 23.9
+        },
+        {
+          "time": "2026-07-03T21:00",
+          "code": 3,
+          "temp": 23.9
+        },
+        {
+          "time": "2026-07-03T22:00",
+          "code": 3,
+          "temp": 22.7
+        },
+        {
+          "time": "2026-07-03T23:00",
+          "code": 3,
+          "temp": 21.9
+        },
+        {
+          "time": "2026-07-04T00:00",
+          "code": 3,
+          "temp": 21.5
+        },
+        {
+          "time": "2026-07-04T01:00",
+          "code": 3,
+          "temp": 20.9
+        },
+        {
+          "time": "2026-07-04T02:00",
+          "code": 3,
+          "temp": 20.5
+        },
+        {
+          "time": "2026-07-04T03:00",
+          "code": 3,
+          "temp": 21.2
+        },
+        {
+          "time": "2026-07-04T04:00",
+          "code": 2,
+          "temp": 21
+        },
+        {
+          "time": "2026-07-04T05:00",
+          "code": 3,
+          "temp": 20.4
+        },
+        {
+          "time": "2026-07-04T06:00",
+          "code": 3,
+          "temp": 21.3
+        },
+        {
+          "time": "2026-07-04T07:00",
+          "code": 3,
+          "temp": 21.9
+        },
+        {
+          "time": "2026-07-04T08:00",
+          "code": 3,
+          "temp": 22.9
+        },
+        {
+          "time": "2026-07-04T09:00",
+          "code": 3,
+          "temp": 24.3
+        },
+        {
+          "time": "2026-07-04T10:00",
+          "code": 51,
+          "temp": 24.7
+        },
+        {
+          "time": "2026-07-04T11:00",
+          "code": 51,
+          "temp": 24.8
+        },
+        {
+          "time": "2026-07-04T12:00",
+          "code": 51,
+          "temp": 25.1
+        },
+        {
+          "time": "2026-07-04T13:00",
+          "code": 51,
+          "temp": 25.3
+        },
+        {
+          "time": "2026-07-04T14:00",
+          "code": 53,
+          "temp": 25.5
+        },
+        {
+          "time": "2026-07-04T15:00",
+          "code": 51,
+          "temp": 25.3
+        },
+        {
+          "time": "2026-07-04T16:00",
+          "code": 51,
+          "temp": 24.6
+        },
+        {
+          "time": "2026-07-04T17:00",
+          "code": 61,
+          "temp": 24
+        },
+        {
+          "time": "2026-07-04T18:00",
+          "code": 63,
+          "temp": 23
+        },
+        {
+          "time": "2026-07-04T19:00",
+          "code": 63,
+          "temp": 22.5
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "own",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "affordance",
+    "category": "hookable",
+    "thumb": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.thumb.webp",
+    "media": [
+      {
+        "id": "IMG_1014",
+        "file": "IMG_1014.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_1014/IMG_1014.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-25T10:04:38.934Z",
+          "lat": 34.97640277777778,
+          "lon": 135.765275,
+          "referenceTime": "2026-07-04T19:25:00+09:00",
+          "hourly": [
+            {
+              "time": "2026-07-03T19:00",
+              "code": 3,
+              "temp": 25
+            },
+            {
+              "time": "2026-07-03T20:00",
+              "code": 3,
+              "temp": 23.9
+            },
+            {
+              "time": "2026-07-03T21:00",
+              "code": 3,
+              "temp": 23.9
+            },
+            {
+              "time": "2026-07-03T22:00",
+              "code": 3,
+              "temp": 22.7
+            },
+            {
+              "time": "2026-07-03T23:00",
+              "code": 3,
+              "temp": 21.9
+            },
+            {
+              "time": "2026-07-04T00:00",
+              "code": 3,
+              "temp": 21.5
+            },
+            {
+              "time": "2026-07-04T01:00",
+              "code": 3,
+              "temp": 20.9
+            },
+            {
+              "time": "2026-07-04T02:00",
+              "code": 3,
+              "temp": 20.5
+            },
+            {
+              "time": "2026-07-04T03:00",
+              "code": 3,
+              "temp": 21.2
+            },
+            {
+              "time": "2026-07-04T04:00",
+              "code": 2,
+              "temp": 21
+            },
+            {
+              "time": "2026-07-04T05:00",
+              "code": 3,
+              "temp": 20.4
+            },
+            {
+              "time": "2026-07-04T06:00",
+              "code": 3,
+              "temp": 21.3
+            },
+            {
+              "time": "2026-07-04T07:00",
+              "code": 3,
+              "temp": 21.9
+            },
+            {
+              "time": "2026-07-04T08:00",
+              "code": 3,
+              "temp": 22.9
+            },
+            {
+              "time": "2026-07-04T09:00",
+              "code": 3,
+              "temp": 24.3
+            },
+            {
+              "time": "2026-07-04T10:00",
+              "code": 51,
+              "temp": 24.7
+            },
+            {
+              "time": "2026-07-04T11:00",
+              "code": 51,
+              "temp": 24.8
+            },
+            {
+              "time": "2026-07-04T12:00",
+              "code": 51,
+              "temp": 25.1
+            },
+            {
+              "time": "2026-07-04T13:00",
+              "code": 51,
+              "temp": 25.3
+            },
+            {
+              "time": "2026-07-04T14:00",
+              "code": 53,
+              "temp": 25.5
+            },
+            {
+              "time": "2026-07-04T15:00",
+              "code": 51,
+              "temp": 25.3
+            },
+            {
+              "time": "2026-07-04T16:00",
+              "code": 51,
+              "temp": 24.6
+            },
+            {
+              "time": "2026-07-04T17:00",
+              "code": 61,
+              "temp": 24
+            },
+            {
+              "time": "2026-07-04T18:00",
+              "code": 63,
+              "temp": 23
+            },
+            {
+              "time": "2026-07-04T19:00",
+              "code": 63,
+              "temp": 22.5
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "IMG_1016",
+        "file": "IMG_1016.jpeg",
+        "src": "filebox/records/hookable(affordance)/IMG_1014/IMG_1016.web.webp",
+        "thumb": "filebox/records/hookable(affordance)/IMG_1014/IMG_1016.thumb.webp",
+        "original": "filebox/records/hookable(affordance)/IMG_1014/IMG_1016.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-07-04T19:25:07+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
+  },
+  {
+    "id": "IMG_1068",
+    "image": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.web.webp",
+    "imageOriginal": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.jpeg",
+    "photoTime": "2026-07-08T17:08:28+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.984455555555556,
+      "lng": 135.76121388888888
+    },
+    "locationCoordinates": {
+      "lat": 34.98453399130228,
+      "lng": 135.76127165954458
+    },
+    "locationText": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "colored",
+        "colorDetail": "black",
+        "kind": "long umbrella",
+        "status": [
+          "unfastened",
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_1067.jpeg"
+      }
+    ],
+    "editFlag": "black",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-25T10:07:50.056Z",
+      "lat": 34.984455555555556,
+      "lon": 135.76121388888888,
+      "referenceTime": "2026-07-08T17:08:28+09:00",
+      "hourly": [
+        {
+          "time": "2026-07-07T17:00",
+          "code": 3,
+          "temp": 27.1
+        },
+        {
+          "time": "2026-07-07T18:00",
+          "code": 3,
+          "temp": 26.3
+        },
+        {
+          "time": "2026-07-07T19:00",
+          "code": 3,
+          "temp": 25.1
+        },
+        {
+          "time": "2026-07-07T20:00",
+          "code": 3,
+          "temp": 24
+        },
+        {
+          "time": "2026-07-07T21:00",
+          "code": 0,
+          "temp": 24.2
+        },
+        {
+          "time": "2026-07-07T22:00",
+          "code": 2,
+          "temp": 22.8
+        },
+        {
+          "time": "2026-07-07T23:00",
+          "code": 1,
+          "temp": 22.4
+        },
+        {
+          "time": "2026-07-08T00:00",
+          "code": 1,
+          "temp": 22.1
+        },
+        {
+          "time": "2026-07-08T01:00",
+          "code": 2,
+          "temp": 21.8
+        },
+        {
+          "time": "2026-07-08T02:00",
+          "code": 3,
+          "temp": 21.5
+        },
+        {
+          "time": "2026-07-08T03:00",
+          "code": 3,
+          "temp": 22.6
+        },
+        {
+          "time": "2026-07-08T04:00",
+          "code": 3,
+          "temp": 22.3
+        },
+        {
+          "time": "2026-07-08T05:00",
+          "code": 3,
+          "temp": 22.3
+        },
+        {
+          "time": "2026-07-08T06:00",
+          "code": 3,
+          "temp": 22.7
+        },
+        {
+          "time": "2026-07-08T07:00",
+          "code": 3,
+          "temp": 23.2
+        },
+        {
+          "time": "2026-07-08T08:00",
+          "code": 3,
+          "temp": 24.4
+        },
+        {
+          "time": "2026-07-08T09:00",
+          "code": 3,
+          "temp": 25.6
+        },
+        {
+          "time": "2026-07-08T10:00",
+          "code": 3,
+          "temp": 27.2
+        },
+        {
+          "time": "2026-07-08T11:00",
+          "code": 3,
+          "temp": 28.8
+        },
+        {
+          "time": "2026-07-08T12:00",
+          "code": 3,
+          "temp": 29.2
+        },
+        {
+          "time": "2026-07-08T13:00",
+          "code": 3,
+          "temp": 29.2
+        },
+        {
+          "time": "2026-07-08T14:00",
+          "code": 2,
+          "temp": 29.2
+        },
+        {
+          "time": "2026-07-08T15:00",
+          "code": 3,
+          "temp": 29.9
+        },
+        {
+          "time": "2026-07-08T16:00",
+          "code": 3,
+          "temp": 29.5
+        },
+        {
+          "time": "2026-07-08T17:00",
+          "code": 2,
+          "temp": 28.6
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "own",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "地址",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "behavior",
+    "category": "drop",
+    "thumb": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.thumb.webp",
+    "media": [
+      {
+        "id": "IMG_1068",
+        "file": "IMG_1068.jpeg",
+        "src": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.web.webp",
+        "thumb": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.thumb.webp",
+        "original": "filebox/records/drop(behavior)/IMG_1068/IMG_1068.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-25T10:07:50.056Z",
+          "lat": 34.984455555555556,
+          "lon": 135.76121388888888,
+          "referenceTime": "2026-07-08T17:08:28+09:00",
+          "hourly": [
+            {
+              "time": "2026-07-07T17:00",
+              "code": 3,
+              "temp": 27.1
+            },
+            {
+              "time": "2026-07-07T18:00",
+              "code": 3,
+              "temp": 26.3
+            },
+            {
+              "time": "2026-07-07T19:00",
+              "code": 3,
+              "temp": 25.1
+            },
+            {
+              "time": "2026-07-07T20:00",
+              "code": 3,
+              "temp": 24
+            },
+            {
+              "time": "2026-07-07T21:00",
+              "code": 0,
+              "temp": 24.2
+            },
+            {
+              "time": "2026-07-07T22:00",
+              "code": 2,
+              "temp": 22.8
+            },
+            {
+              "time": "2026-07-07T23:00",
+              "code": 1,
+              "temp": 22.4
+            },
+            {
+              "time": "2026-07-08T00:00",
+              "code": 1,
+              "temp": 22.1
+            },
+            {
+              "time": "2026-07-08T01:00",
+              "code": 2,
+              "temp": 21.8
+            },
+            {
+              "time": "2026-07-08T02:00",
+              "code": 3,
+              "temp": 21.5
+            },
+            {
+              "time": "2026-07-08T03:00",
+              "code": 3,
+              "temp": 22.6
+            },
+            {
+              "time": "2026-07-08T04:00",
+              "code": 3,
+              "temp": 22.3
+            },
+            {
+              "time": "2026-07-08T05:00",
+              "code": 3,
+              "temp": 22.3
+            },
+            {
+              "time": "2026-07-08T06:00",
+              "code": 3,
+              "temp": 22.7
+            },
+            {
+              "time": "2026-07-08T07:00",
+              "code": 3,
+              "temp": 23.2
+            },
+            {
+              "time": "2026-07-08T08:00",
+              "code": 3,
+              "temp": 24.4
+            },
+            {
+              "time": "2026-07-08T09:00",
+              "code": 3,
+              "temp": 25.6
+            },
+            {
+              "time": "2026-07-08T10:00",
+              "code": 3,
+              "temp": 27.2
+            },
+            {
+              "time": "2026-07-08T11:00",
+              "code": 3,
+              "temp": 28.8
+            },
+            {
+              "time": "2026-07-08T12:00",
+              "code": 3,
+              "temp": 29.2
+            },
+            {
+              "time": "2026-07-08T13:00",
+              "code": 3,
+              "temp": 29.2
+            },
+            {
+              "time": "2026-07-08T14:00",
+              "code": 2,
+              "temp": 29.2
+            },
+            {
+              "time": "2026-07-08T15:00",
+              "code": 3,
+              "temp": 29.9
+            },
+            {
+              "time": "2026-07-08T16:00",
+              "code": 3,
+              "temp": 29.5
+            },
+            {
+              "time": "2026-07-08T17:00",
+              "code": 2,
+              "temp": 28.6
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "IMG_1067",
+        "file": "IMG_1067.jpeg",
+        "src": "filebox/records/drop(behavior)/IMG_1068/IMG_1067.web.webp",
+        "thumb": "filebox/records/drop(behavior)/IMG_1068/IMG_1067.thumb.webp",
+        "original": "filebox/records/drop(behavior)/IMG_1068/IMG_1067.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-07-08T17:08:25+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Shimogyo Ward"
+    ]
+  },
+  {
+    "id": "IMG_1102",
+    "image": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.web.webp",
+    "imageOriginal": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.jpeg",
+    "photoTime": "2026-07-11T16:45:19+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.976086111111115,
+      "lng": 135.75715555555556
+    },
+    "locationCoordinates": {
+      "lat": 34.976030067729496,
+      "lng": 135.75715153224203
+    },
+    "locationText": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "translucent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_1101.jpeg"
+      }
+    ],
+    "editFlag": "black",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-25T10:09:27.521Z",
+      "lat": 34.976086111111115,
+      "lon": 135.75715555555556,
+      "referenceTime": "2026-07-11T16:45:19+09:00",
+      "hourly": [
+        {
+          "time": "2026-07-10T16:00",
+          "code": 0,
+          "temp": 30.8
+        },
+        {
+          "time": "2026-07-10T17:00",
+          "code": 0,
+          "temp": 29.4
+        },
+        {
+          "time": "2026-07-10T18:00",
+          "code": 0,
+          "temp": 28.5
+        },
+        {
+          "time": "2026-07-10T19:00",
+          "code": 1,
+          "temp": 27.3
+        },
+        {
+          "time": "2026-07-10T20:00",
+          "code": 2,
+          "temp": 26.4
+        },
+        {
+          "time": "2026-07-10T21:00",
+          "code": 2,
+          "temp": 26.8
+        },
+        {
+          "time": "2026-07-10T22:00",
+          "code": 2,
+          "temp": 25.6
+        },
+        {
+          "time": "2026-07-10T23:00",
+          "code": 3,
+          "temp": 25
+        },
+        {
+          "time": "2026-07-11T00:00",
+          "code": 2,
+          "temp": 24.8
+        },
+        {
+          "time": "2026-07-11T01:00",
+          "code": 3,
+          "temp": 24.6
+        },
+        {
+          "time": "2026-07-11T02:00",
+          "code": 3,
+          "temp": 23.8
+        },
+        {
+          "time": "2026-07-11T03:00",
+          "code": 3,
+          "temp": 24.3
+        },
+        {
+          "time": "2026-07-11T04:00",
+          "code": 3,
+          "temp": 23.7
+        },
+        {
+          "time": "2026-07-11T05:00",
+          "code": 3,
+          "temp": 23.6
+        },
+        {
+          "time": "2026-07-11T06:00",
+          "code": 51,
+          "temp": 24.4
+        },
+        {
+          "time": "2026-07-11T07:00",
+          "code": 51,
+          "temp": 25
+        },
+        {
+          "time": "2026-07-11T08:00",
+          "code": 51,
+          "temp": 25.6
+        },
+        {
+          "time": "2026-07-11T09:00",
+          "code": 51,
+          "temp": 27.3
+        },
+        {
+          "time": "2026-07-11T10:00",
+          "code": 51,
+          "temp": 28.1
+        },
+        {
+          "time": "2026-07-11T11:00",
+          "code": 3,
+          "temp": 29.1
+        },
+        {
+          "time": "2026-07-11T12:00",
+          "code": 3,
+          "temp": 30.3
+        },
+        {
+          "time": "2026-07-11T13:00",
+          "code": 3,
+          "temp": 30.3
+        },
+        {
+          "time": "2026-07-11T14:00",
+          "code": 2,
+          "temp": 30.9
+        },
+        {
+          "time": "2026-07-11T15:00",
+          "code": 3,
+          "temp": 31.3
+        },
+        {
+          "time": "2026-07-11T16:00",
+          "code": 3,
+          "temp": 30.6
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "own",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "地址",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "behavior",
+    "category": "disposal",
+    "thumb": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.thumb.webp",
+    "media": [
+      {
+        "id": "IMG_1102",
+        "file": "IMG_1102.jpeg",
+        "src": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.web.webp",
+        "thumb": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.thumb.webp",
+        "original": "filebox/records/disposal(behavior)/IMG_1102/IMG_1102.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-25T10:09:27.521Z",
+          "lat": 34.976086111111115,
+          "lon": 135.75715555555556,
+          "referenceTime": "2026-07-11T16:45:19+09:00",
+          "hourly": [
+            {
+              "time": "2026-07-10T16:00",
+              "code": 0,
+              "temp": 30.8
+            },
+            {
+              "time": "2026-07-10T17:00",
+              "code": 0,
+              "temp": 29.4
+            },
+            {
+              "time": "2026-07-10T18:00",
+              "code": 0,
+              "temp": 28.5
+            },
+            {
+              "time": "2026-07-10T19:00",
+              "code": 1,
+              "temp": 27.3
+            },
+            {
+              "time": "2026-07-10T20:00",
+              "code": 2,
+              "temp": 26.4
+            },
+            {
+              "time": "2026-07-10T21:00",
+              "code": 2,
+              "temp": 26.8
+            },
+            {
+              "time": "2026-07-10T22:00",
+              "code": 2,
+              "temp": 25.6
+            },
+            {
+              "time": "2026-07-10T23:00",
+              "code": 3,
+              "temp": 25
+            },
+            {
+              "time": "2026-07-11T00:00",
+              "code": 2,
+              "temp": 24.8
+            },
+            {
+              "time": "2026-07-11T01:00",
+              "code": 3,
+              "temp": 24.6
+            },
+            {
+              "time": "2026-07-11T02:00",
+              "code": 3,
+              "temp": 23.8
+            },
+            {
+              "time": "2026-07-11T03:00",
+              "code": 3,
+              "temp": 24.3
+            },
+            {
+              "time": "2026-07-11T04:00",
+              "code": 3,
+              "temp": 23.7
+            },
+            {
+              "time": "2026-07-11T05:00",
+              "code": 3,
+              "temp": 23.6
+            },
+            {
+              "time": "2026-07-11T06:00",
+              "code": 51,
+              "temp": 24.4
+            },
+            {
+              "time": "2026-07-11T07:00",
+              "code": 51,
+              "temp": 25
+            },
+            {
+              "time": "2026-07-11T08:00",
+              "code": 51,
+              "temp": 25.6
+            },
+            {
+              "time": "2026-07-11T09:00",
+              "code": 51,
+              "temp": 27.3
+            },
+            {
+              "time": "2026-07-11T10:00",
+              "code": 51,
+              "temp": 28.1
+            },
+            {
+              "time": "2026-07-11T11:00",
+              "code": 3,
+              "temp": 29.1
+            },
+            {
+              "time": "2026-07-11T12:00",
+              "code": 3,
+              "temp": 30.3
+            },
+            {
+              "time": "2026-07-11T13:00",
+              "code": 3,
+              "temp": 30.3
+            },
+            {
+              "time": "2026-07-11T14:00",
+              "code": 2,
+              "temp": 30.9
+            },
+            {
+              "time": "2026-07-11T15:00",
+              "code": 3,
+              "temp": 31.3
+            },
+            {
+              "time": "2026-07-11T16:00",
+              "code": 3,
+              "temp": 30.6
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "IMG_1101",
+        "file": "IMG_1101.jpeg",
+        "src": "filebox/records/disposal(behavior)/IMG_1102/IMG_1101.web.webp",
+        "thumb": "filebox/records/disposal(behavior)/IMG_1102/IMG_1101.thumb.webp",
+        "original": "filebox/records/disposal(behavior)/IMG_1102/IMG_1101.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-07-11T16:45:17+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
+  },
+  {
+    "id": "IMG_1105",
+    "image": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.web.webp",
+    "imageOriginal": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.jpeg",
+    "photoTime": "2026-07-11T16:52:25+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.97665277777778,
+      "lng": 135.7462472222222
+    },
+    "locationCoordinates": {
+      "lat": 34.9766698104448,
+      "lng": 135.7462794087304
+    },
+    "locationText": "Minami Ward Office bicycle parking, Minami Ward, Kyoto",
+    "title": {
+      "ja": "忘れられた傘だと確認",
+      "en": "Confirmed as a forgotten umbrella"
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "transparent",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "fastened"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_1110.jpeg"
+      },
+      {
+        "type": "photo",
+        "file": "IMG_1113.jpeg"
+      }
+    ],
+    "editFlag": "black",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-25T10:10:57.102Z",
+      "lat": 34.97665277777778,
+      "lon": 135.7462472222222,
+      "referenceTime": "2026-07-11T16:52:25+09:00",
+      "hourly": [
+        {
+          "time": "2026-07-10T16:00",
+          "code": 0,
+          "temp": 30.8
+        },
+        {
+          "time": "2026-07-10T17:00",
+          "code": 0,
+          "temp": 29.4
+        },
+        {
+          "time": "2026-07-10T18:00",
+          "code": 0,
+          "temp": 28.5
+        },
+        {
+          "time": "2026-07-10T19:00",
+          "code": 1,
+          "temp": 27.3
+        },
+        {
+          "time": "2026-07-10T20:00",
+          "code": 2,
+          "temp": 26.4
+        },
+        {
+          "time": "2026-07-10T21:00",
+          "code": 2,
+          "temp": 26.8
+        },
+        {
+          "time": "2026-07-10T22:00",
+          "code": 2,
+          "temp": 25.6
+        },
+        {
+          "time": "2026-07-10T23:00",
+          "code": 3,
+          "temp": 25
+        },
+        {
+          "time": "2026-07-11T00:00",
+          "code": 2,
+          "temp": 24.8
+        },
+        {
+          "time": "2026-07-11T01:00",
+          "code": 3,
+          "temp": 24.6
+        },
+        {
+          "time": "2026-07-11T02:00",
+          "code": 3,
+          "temp": 23.8
+        },
+        {
+          "time": "2026-07-11T03:00",
+          "code": 3,
+          "temp": 24.3
+        },
+        {
+          "time": "2026-07-11T04:00",
+          "code": 3,
+          "temp": 23.7
+        },
+        {
+          "time": "2026-07-11T05:00",
+          "code": 3,
+          "temp": 23.6
+        },
+        {
+          "time": "2026-07-11T06:00",
+          "code": 51,
+          "temp": 24.4
+        },
+        {
+          "time": "2026-07-11T07:00",
+          "code": 51,
+          "temp": 25
+        },
+        {
+          "time": "2026-07-11T08:00",
+          "code": 51,
+          "temp": 25.6
+        },
+        {
+          "time": "2026-07-11T09:00",
+          "code": 51,
+          "temp": 27.3
+        },
+        {
+          "time": "2026-07-11T10:00",
+          "code": 51,
+          "temp": 28.1
+        },
+        {
+          "time": "2026-07-11T11:00",
+          "code": 3,
+          "temp": 29.1
+        },
+        {
+          "time": "2026-07-11T12:00",
+          "code": 3,
+          "temp": 30.3
+        },
+        {
+          "time": "2026-07-11T13:00",
+          "code": 3,
+          "temp": 30.3
+        },
+        {
+          "time": "2026-07-11T14:00",
+          "code": 2,
+          "temp": 30.9
+        },
+        {
+          "time": "2026-07-11T15:00",
+          "code": 3,
+          "temp": 31.3
+        },
+        {
+          "time": "2026-07-11T16:00",
+          "code": 3,
+          "temp": 30.6
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "own",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "地址翻译，标题",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "behavior",
+    "category": "placement",
+    "thumb": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.thumb.webp",
+    "media": [
+      {
+        "id": "IMG_1105",
+        "file": "IMG_1105.jpeg",
+        "src": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.web.webp",
+        "thumb": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.thumb.webp",
+        "original": "filebox/records/placement(behavior)/IMG_1105/IMG_1105.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-25T10:10:57.102Z",
+          "lat": 34.97665277777778,
+          "lon": 135.7462472222222,
+          "referenceTime": "2026-07-11T16:52:25+09:00",
+          "hourly": [
+            {
+              "time": "2026-07-10T16:00",
+              "code": 0,
+              "temp": 30.8
+            },
+            {
+              "time": "2026-07-10T17:00",
+              "code": 0,
+              "temp": 29.4
+            },
+            {
+              "time": "2026-07-10T18:00",
+              "code": 0,
+              "temp": 28.5
+            },
+            {
+              "time": "2026-07-10T19:00",
+              "code": 1,
+              "temp": 27.3
+            },
+            {
+              "time": "2026-07-10T20:00",
+              "code": 2,
+              "temp": 26.4
+            },
+            {
+              "time": "2026-07-10T21:00",
+              "code": 2,
+              "temp": 26.8
+            },
+            {
+              "time": "2026-07-10T22:00",
+              "code": 2,
+              "temp": 25.6
+            },
+            {
+              "time": "2026-07-10T23:00",
+              "code": 3,
+              "temp": 25
+            },
+            {
+              "time": "2026-07-11T00:00",
+              "code": 2,
+              "temp": 24.8
+            },
+            {
+              "time": "2026-07-11T01:00",
+              "code": 3,
+              "temp": 24.6
+            },
+            {
+              "time": "2026-07-11T02:00",
+              "code": 3,
+              "temp": 23.8
+            },
+            {
+              "time": "2026-07-11T03:00",
+              "code": 3,
+              "temp": 24.3
+            },
+            {
+              "time": "2026-07-11T04:00",
+              "code": 3,
+              "temp": 23.7
+            },
+            {
+              "time": "2026-07-11T05:00",
+              "code": 3,
+              "temp": 23.6
+            },
+            {
+              "time": "2026-07-11T06:00",
+              "code": 51,
+              "temp": 24.4
+            },
+            {
+              "time": "2026-07-11T07:00",
+              "code": 51,
+              "temp": 25
+            },
+            {
+              "time": "2026-07-11T08:00",
+              "code": 51,
+              "temp": 25.6
+            },
+            {
+              "time": "2026-07-11T09:00",
+              "code": 51,
+              "temp": 27.3
+            },
+            {
+              "time": "2026-07-11T10:00",
+              "code": 51,
+              "temp": 28.1
+            },
+            {
+              "time": "2026-07-11T11:00",
+              "code": 3,
+              "temp": 29.1
+            },
+            {
+              "time": "2026-07-11T12:00",
+              "code": 3,
+              "temp": 30.3
+            },
+            {
+              "time": "2026-07-11T13:00",
+              "code": 3,
+              "temp": 30.3
+            },
+            {
+              "time": "2026-07-11T14:00",
+              "code": 2,
+              "temp": 30.9
+            },
+            {
+              "time": "2026-07-11T15:00",
+              "code": 3,
+              "temp": 31.3
+            },
+            {
+              "time": "2026-07-11T16:00",
+              "code": 3,
+              "temp": 30.6
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "IMG_1110",
+        "file": "IMG_1110.jpeg",
+        "src": "filebox/records/placement(behavior)/IMG_1105/IMG_1110.web.webp",
+        "thumb": "filebox/records/placement(behavior)/IMG_1105/IMG_1110.thumb.webp",
+        "original": "filebox/records/placement(behavior)/IMG_1105/IMG_1110.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-11T17:20:59+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      },
+      {
+        "id": "IMG_1113",
+        "file": "IMG_1113.jpeg",
+        "src": "filebox/records/placement(behavior)/IMG_1105/IMG_1113.web.webp",
+        "thumb": "filebox/records/placement(behavior)/IMG_1105/IMG_1113.thumb.webp",
+        "original": "filebox/records/placement(behavior)/IMG_1105/IMG_1113.jpeg",
+        "role": "supplement",
+        "title": "",
+        "photoTime": "2026-07-11T17:21:11+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
+    ]
+  },
+  {
+    "id": "IMG_1244",
+    "image": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.web.webp",
+    "imageOriginal": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.jpeg",
+    "photoTime": "2026-07-20T15:36:45+09:00",
+    "time": "",
+    "photoCoordinates": {
+      "lat": 34.98315,
+      "lng": 135.76586944444443
+    },
+    "locationCoordinates": {
+      "lat": 34.98311483856297,
+      "lng": 135.76588352604173
+    },
+    "locationText": "Takase River area, Higashikujo Higashiiwamotocho, Minami Ward, Kyoto",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
+    "displayId": "",
+    "umbrellaType": "",
+    "umbrellaColor": "",
+    "umbrellaCount": "1",
+    "umbrellaUnits": [
+      {
+        "color": "unknown",
+        "colorDetail": "",
+        "kind": "long umbrella",
+        "status": [
+          "broken",
+          "deteriorated"
+        ],
+        "statusOther": ""
+      }
+    ],
+    "story": "",
+    "blocks": [
+      {
+        "type": "photo",
+        "file": "IMG_1246.jpeg"
+      }
+    ],
+    "editFlag": "",
+    "weather": {
+      "source": "open-meteo",
+      "fetchedAt": "2026-07-25T10:14:02.847Z",
+      "lat": 34.98315,
+      "lon": 135.76586944444443,
+      "referenceTime": "2026-07-20T15:36:45+09:00",
+      "hourly": [
+        {
+          "time": "2026-07-19T15:00",
+          "code": 51,
+          "temp": 35.1
+        },
+        {
+          "time": "2026-07-19T16:00",
+          "code": 51,
+          "temp": 34.9
+        },
+        {
+          "time": "2026-07-19T17:00",
+          "code": 51,
+          "temp": 34.6
+        },
+        {
+          "time": "2026-07-19T18:00",
+          "code": 2,
+          "temp": 33.2
+        },
+        {
+          "time": "2026-07-19T19:00",
+          "code": 1,
+          "temp": 31.8
+        },
+        {
+          "time": "2026-07-19T20:00",
+          "code": 0,
+          "temp": 30.6
+        },
+        {
+          "time": "2026-07-19T21:00",
+          "code": 0,
+          "temp": 30.5
+        },
+        {
+          "time": "2026-07-19T22:00",
+          "code": 0,
+          "temp": 29.2
+        },
+        {
+          "time": "2026-07-19T23:00",
+          "code": 0,
+          "temp": 28.5
+        },
+        {
+          "time": "2026-07-20T00:00",
+          "code": 0,
+          "temp": 27.9
+        },
+        {
+          "time": "2026-07-20T01:00",
+          "code": 0,
+          "temp": 27.5
+        },
+        {
+          "time": "2026-07-20T02:00",
+          "code": 0,
+          "temp": 27.2
+        },
+        {
+          "time": "2026-07-20T03:00",
+          "code": 1,
+          "temp": 27.9
+        },
+        {
+          "time": "2026-07-20T04:00",
+          "code": 1,
+          "temp": 27.3
+        },
+        {
+          "time": "2026-07-20T05:00",
+          "code": 0,
+          "temp": 27.2
+        },
+        {
+          "time": "2026-07-20T06:00",
+          "code": 0,
+          "temp": 27.7
+        },
+        {
+          "time": "2026-07-20T07:00",
+          "code": 0,
+          "temp": 28.7
+        },
+        {
+          "time": "2026-07-20T08:00",
+          "code": 0,
+          "temp": 30
+        },
+        {
+          "time": "2026-07-20T09:00",
+          "code": 1,
+          "temp": 31.5
+        },
+        {
+          "time": "2026-07-20T10:00",
+          "code": 51,
+          "temp": 32.6
+        },
+        {
+          "time": "2026-07-20T11:00",
+          "code": 51,
+          "temp": 34
+        },
+        {
+          "time": "2026-07-20T12:00",
+          "code": 51,
+          "temp": 35
+        },
+        {
+          "time": "2026-07-20T13:00",
+          "code": 51,
+          "temp": 36
+        },
+        {
+          "time": "2026-07-20T14:00",
+          "code": 1,
+          "temp": 36.6
+        },
+        {
+          "time": "2026-07-20T15:00",
+          "code": 1,
+          "temp": 37.3
+        }
+      ]
+    },
+    "linkedId": "",
+    "submissionType": "own",
+    "submitter": "",
+    "submissionChannel": "",
+    "submissionTime": "",
+    "submitterNote": "",
+    "remarks": "",
+    "locationApprox": false,
+    "timeApprox": false,
+    "blurApprox": false,
+    "approxZoom": null,
+    "blurLabel": "",
+    "categoryGroup": "behavior",
+    "category": "disposal",
+    "thumb": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.thumb.webp",
+    "media": [
+      {
+        "id": "IMG_1244",
+        "file": "IMG_1244.jpeg",
+        "src": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.web.webp",
+        "thumb": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.thumb.webp",
+        "original": "filebox/records/disposal(behavior)/IMG_1244/IMG_1244.jpeg",
+        "role": "primary",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": {
+          "source": "open-meteo",
+          "fetchedAt": "2026-07-25T10:14:02.847Z",
+          "lat": 34.98315,
+          "lon": 135.76586944444443,
+          "referenceTime": "2026-07-20T15:36:45+09:00",
+          "hourly": [
+            {
+              "time": "2026-07-19T15:00",
+              "code": 51,
+              "temp": 35.1
+            },
+            {
+              "time": "2026-07-19T16:00",
+              "code": 51,
+              "temp": 34.9
+            },
+            {
+              "time": "2026-07-19T17:00",
+              "code": 51,
+              "temp": 34.6
+            },
+            {
+              "time": "2026-07-19T18:00",
+              "code": 2,
+              "temp": 33.2
+            },
+            {
+              "time": "2026-07-19T19:00",
+              "code": 1,
+              "temp": 31.8
+            },
+            {
+              "time": "2026-07-19T20:00",
+              "code": 0,
+              "temp": 30.6
+            },
+            {
+              "time": "2026-07-19T21:00",
+              "code": 0,
+              "temp": 30.5
+            },
+            {
+              "time": "2026-07-19T22:00",
+              "code": 0,
+              "temp": 29.2
+            },
+            {
+              "time": "2026-07-19T23:00",
+              "code": 0,
+              "temp": 28.5
+            },
+            {
+              "time": "2026-07-20T00:00",
+              "code": 0,
+              "temp": 27.9
+            },
+            {
+              "time": "2026-07-20T01:00",
+              "code": 0,
+              "temp": 27.5
+            },
+            {
+              "time": "2026-07-20T02:00",
+              "code": 0,
+              "temp": 27.2
+            },
+            {
+              "time": "2026-07-20T03:00",
+              "code": 1,
+              "temp": 27.9
+            },
+            {
+              "time": "2026-07-20T04:00",
+              "code": 1,
+              "temp": 27.3
+            },
+            {
+              "time": "2026-07-20T05:00",
+              "code": 0,
+              "temp": 27.2
+            },
+            {
+              "time": "2026-07-20T06:00",
+              "code": 0,
+              "temp": 27.7
+            },
+            {
+              "time": "2026-07-20T07:00",
+              "code": 0,
+              "temp": 28.7
+            },
+            {
+              "time": "2026-07-20T08:00",
+              "code": 0,
+              "temp": 30
+            },
+            {
+              "time": "2026-07-20T09:00",
+              "code": 1,
+              "temp": 31.5
+            },
+            {
+              "time": "2026-07-20T10:00",
+              "code": 51,
+              "temp": 32.6
+            },
+            {
+              "time": "2026-07-20T11:00",
+              "code": 51,
+              "temp": 34
+            },
+            {
+              "time": "2026-07-20T12:00",
+              "code": 51,
+              "temp": 35
+            },
+            {
+              "time": "2026-07-20T13:00",
+              "code": 51,
+              "temp": 36
+            },
+            {
+              "time": "2026-07-20T14:00",
+              "code": 1,
+              "temp": 36.6
+            },
+            {
+              "time": "2026-07-20T15:00",
+              "code": 1,
+              "temp": 37.3
+            }
+          ]
+        },
+        "showWeather": true
+      },
+      {
+        "id": "IMG_1246",
+        "file": "IMG_1246.jpeg",
+        "src": "filebox/records/disposal(behavior)/IMG_1244/IMG_1246.web.webp",
+        "thumb": "filebox/records/disposal(behavior)/IMG_1244/IMG_1246.thumb.webp",
+        "original": "filebox/records/disposal(behavior)/IMG_1244/IMG_1246.jpeg",
+        "role": "detail",
+        "title": "",
+        "photoTime": "2026-07-20T15:36:49+09:00",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
+      }
+    ],
+    "locationLevels": [
+      "Kyoto",
+      "Kyoto City",
+      "Minami Ward"
     ]
   }
 ]

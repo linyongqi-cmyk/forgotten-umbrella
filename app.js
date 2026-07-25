@@ -25,8 +25,6 @@ const state = {
   // Archive page has two scopes toggled from the big heading: own (Fieldwork) or
   // contributed. Replaces the old separate "Archive (contributed)" nav tab.
   archiveScope: "own",
-  // Map sidebar list also has a Fieldwork/Contributed scope toggle (item 17).
-  listScope: "own",
   archiveSubfilter: "all",
   archiveOrder: "desc",
   archiveCollapsedGroups: new Set(),
@@ -140,6 +138,8 @@ const ENTRY_ZOOM_ANIMATION_MS = 1600;
 // Bilingual values are stored as { ja, en }; legacy records use a plain string
 // (treated as the Japanese version). localize() picks the active language and
 // falls back to whatever is filled in.
+const LANG_STORAGE_KEY = "fu-lang";
+
 function localize(value) {
   if (value == null) {
     return "";
@@ -153,12 +153,47 @@ function localize(value) {
   return String(value);
 }
 
-function getStoredLang() {
-  try {
-    return localStorage.getItem("fu-lang") === "en" ? "en" : "ja";
-  } catch {
+function normalizeLangCode(value) {
+  return String(value || "").trim().toLowerCase().replace("_", "-");
+}
+
+function inferInitialLang() {
+  const browserLangs = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language || navigator.userLanguage || ""];
+  const normalized = browserLangs.map(normalizeLangCode).filter(Boolean);
+
+  if (normalized.some((lang) => lang === "ja" || lang.startsWith("ja-"))) {
     return "ja";
   }
+  if (normalized.some((lang) => lang === "en" || lang.startsWith("en-"))) {
+    return "en";
+  }
+  if (normalized.some((lang) => /(^|-)jp$/.test(lang))) {
+    return "ja";
+  }
+
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (timeZone === "Asia/Tokyo") {
+      return "ja";
+    }
+  } catch {
+    // If timezone detection is blocked, fall through to the public default.
+  }
+  return "en";
+}
+
+function getStoredLang() {
+  try {
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
+    if (stored === "ja" || stored === "en") {
+      return stored;
+    }
+  } catch {
+    // Storage can be unavailable in private/restricted browsers; detection still works.
+  }
+  return inferInitialLang();
 }
 
 // The few UI strings that switch with the language toggle (per the spec: the
@@ -215,19 +250,15 @@ const I18N = {
   // 任务4：地图中下方两个按钮的文字（随机跳转 / 回到最近的标点）。
   randomMarker: { ja: "ランダム", en: "Random" },
   nearestMarker: { ja: "最寄りへ", en: "Nearest" },
+  // 任务6：档案页合并后的统计标签文字。后缀 Fieldwork/Contributed 写全（用户要求），
+  // 沿用旧「Archive ( Fieldwork / Contributed )」标题里英文 scope 词的惯例。
+  archiveStatsFw: { ja: "統計 (Fieldwork)", en: "Stats (Fieldwork)" },
+  archiveStatsContrib: { ja: "統計 (Contributed)", en: "Stats (Contributed)" },
 };
 
 function applyLanguage() {
   document.documentElement.lang = state.lang;
   renderAbout();
-  // Map sidebar list scope tabs (item 17): Fieldwork / Contributed.
-  document.querySelectorAll("[data-list-scope] h2").forEach((heading) => {
-    const tab = heading.closest("[data-list-scope]");
-    heading.textContent =
-      tab.dataset.listScope === "contributed"
-        ? UI_TEXT.statsScopeContributed[state.lang]
-        : UI_TEXT.statsScopeOwn[state.lang];
-  });
   // Archive heading "Archive ( Fieldwork / Contributed )": only the two scope
   // words are clickable, the rest is fixed text (item 2).
   const prefix = document.querySelector(".archive-scope-prefix");
@@ -387,7 +418,6 @@ const els = {
   contributedContent: document.querySelector("#contributed-content"),
   archiveOwnToolbar: document.querySelector("#archive-own-toolbar"),
   archiveScopeTabs: document.querySelectorAll("[data-archive-scope]"),
-  listScopeTabs: document.querySelectorAll("[data-list-scope]"),
   resultCount: document.querySelector("#result-count"),
   resetMap: document.querySelector("#reset-map"),
   mapTypeToggle: document.querySelector("#map-type-toggle"),
@@ -471,8 +501,14 @@ function normalizeAboutSection(raw) {
   };
 }
 
-let TEXTS = { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
+let TEXTS = { statsIntro: { ja: "", en: "" }, typeAllIntro: { ja: [], en: [] }, typeDescriptions: {}, about: emptyAbout() };
 let locateFeedbackToken = 0;
+
+// 任务6：把 typeAllIntro 规整成 { ja:[段落], en:[段落] }（Type 标签 all 下的总说明文）。
+function normalizeTypeAllIntro(raw) {
+  const toParas = (v) => (Array.isArray(v) ? v.map((p) => String(p || "")).filter(Boolean) : []);
+  return { ja: toParas(raw?.ja), en: toParas(raw?.en) };
+}
 
 async function loadTexts() {
   try {
@@ -486,6 +522,7 @@ async function loadTexts() {
         ja: String(raw?.statsIntro?.ja || ""),
         en: String(raw?.statsIntro?.en || ""),
       },
+      typeAllIntro: normalizeTypeAllIntro(raw?.typeAllIntro),
       typeDescriptions: raw?.typeDescriptions && typeof raw.typeDescriptions === "object" ? raw.typeDescriptions : {},
       about: {
         section1: normalizeAboutSection(raw?.about?.section1),
@@ -494,7 +531,7 @@ async function loadTexts() {
     };
   } catch (error) {
     console.error(error);
-    return { statsIntro: { ja: "", en: "" }, typeDescriptions: {}, about: emptyAbout() };
+    return { statsIntro: { ja: "", en: "" }, typeAllIntro: { ja: [], en: [] }, typeDescriptions: {}, about: emptyAbout() };
   }
 }
 
@@ -1043,15 +1080,6 @@ function bindEvents() {
     });
   });
 
-  // Map sidebar list scope toggle (item 17): Fieldwork / Contributed.
-  els.listScopeTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      state.listScope = tab.dataset.listScope === "contributed" ? "contributed" : "own";
-      state.listSubfilter = "all";
-      render();
-    });
-  });
-
   // Map marker filter (item 6/15/16): one button expands a panel of 4 colour
   // toggles that show/hide each marker category on the map.
   els.mapFilterToggle?.addEventListener("click", (event) => {
@@ -1175,8 +1203,8 @@ function bindEvents() {
   els.chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       const sort = chip.dataset.listSort;
-      const togglesOrder = sort === "time" || (state.listScope === "contributed" && sort === "type");
-      // Clicking time/taken/submitted again while active flips asc/desc.
+      const togglesOrder = sort === "time";
+      // Clicking Time again while active flips asc/desc.
       if (togglesOrder && state.listSort === sort) {
         state.listOrder = state.listOrder === "desc" ? "asc" : "desc";
       } else {
@@ -1387,7 +1415,7 @@ function bindEvents() {
   els.archiveModeControls.forEach((button) => {
     button.addEventListener("click", () => {
       const mode = button.dataset.archiveMode;
-      // Clicking 时间 again while already sorting by time flips asc/desc.
+      // 再点当前的 Time 标签 → 翻转升/降序。
       if (mode === "time" && state.archiveMode === "time") {
         state.archiveOrder = state.archiveOrder === "desc" ? "asc" : "desc";
       } else {
@@ -1558,7 +1586,7 @@ function bindEvents() {
   els.languageToggle?.addEventListener("click", () => {
     state.lang = state.lang === "ja" ? "en" : "ja";
     try {
-      localStorage.setItem("fu-lang", state.lang);
+      localStorage.setItem(LANG_STORAGE_KEY, state.lang);
     } catch {
       /* ignore storage errors */
     }
@@ -2098,27 +2126,32 @@ function syncArchiveControls() {
     button.classList.toggle("is-active", button.dataset.archiveMode === state.archiveMode);
   });
 
-  // The 时间 button shows ↓ (newest first) / ↑ (oldest first) when active.
+  // Time 标签在选中时显示 ↓（新→旧）/ ↑（旧→新）。
   els.archiveModeControls.forEach((button) => {
-    if (button.dataset.archiveMode !== "time") {
+    const m = button.dataset.archiveMode;
+    if (m !== "time") {
       return;
     }
     const arrow = button.querySelector(".sort-arrow");
-    if (arrow) {
-      arrow.textContent = state.archiveMode === "time" ? (state.archiveOrder === "asc" ? " ↑" : " ↓") : "";
+    if (!arrow) {
+      return;
+    }
+    if (state.archiveMode !== m) {
+      arrow.textContent = "";
+    } else {
+      arrow.textContent = state.archiveOrder === "asc" ? " ↑" : " ↓";
     }
   });
 }
 
 function syncListControls(items) {
-  const contributed = state.listScope === "contributed";
   els.chips.forEach((button) => {
     const label = button.querySelector("[data-i18n]");
     if (label) {
       if (button.dataset.listSort === "time") {
-        label.textContent = contributed ? (state.lang === "ja" ? "撮影" : "Taken") : I18N.sortTime[state.lang];
+        label.textContent = I18N.sortTime[state.lang];
       } else if (button.dataset.listSort === "type") {
-        label.textContent = contributed ? (state.lang === "ja" ? "投稿" : "Submitted") : I18N.sortType[state.lang];
+        label.textContent = I18N.sortType[state.lang];
       } else if (button.dataset.listSort === "place") {
         label.textContent = I18N.sortPlace[state.lang];
       }
@@ -2126,11 +2159,11 @@ function syncListControls(items) {
     button.classList.toggle("is-active", button.dataset.listSort === state.listSort);
   });
 
-  // Time/Taken and Submitted show ↓ (newest first) / ↑ (oldest first) when active.
+  // Time shows ↓ (newest first) / ↑ (oldest first) when active.
   els.chips.forEach((chip) => {
     const arrow = chip.querySelector(".sort-arrow");
     if (arrow) {
-      const canOrder = chip.dataset.listSort === "time" || (contributed && chip.dataset.listSort === "type");
+      const canOrder = chip.dataset.listSort === "time";
       arrow.textContent = canOrder && state.listSort === chip.dataset.listSort ? (state.listOrder === "asc" ? " ↑" : " ↓") : "";
     }
   });
@@ -2139,34 +2172,18 @@ function syncListControls(items) {
     return;
   }
 
-  if (contributed && state.listSort !== "place") {
+  if (state.listSort !== "type" && state.listSort !== "place") {
     els.listSecondary.hidden = true;
     els.listSecondary.innerHTML = "";
     return;
   }
 
-  if (!contributed && state.listSort !== "type" && state.listSort !== "place") {
-    els.listSecondary.hidden = true;
-    els.listSecondary.innerHTML = "";
-    return;
-  }
-
-  const options = contributed
-    ? [
-        { key: "all", label: `all (${items.length})` },
-        ...["Tokyo", "Kyoto", "Chiba"].map((key) => ({
-          key,
-          label: `${key} (${items.filter((item) => contributedPlaceLabel(item) === key).length})`,
-        })),
-      ]
-    : (() => {
-        const field = state.listSort === "type" ? "type" : "prefecture";
-        const counts = countByField(items, field);
-        return [
-          { key: "all", label: `all (${items.length})` },
-          ...Array.from(counts.entries()).map(([key, count]) => ({ key, label: `${key} (${count})` })),
-        ];
-      })();
+  const field = state.listSort === "type" ? "type" : "prefecture";
+  const counts = countByField(items, field);
+  const options = [
+    { key: "all", label: `all (${items.length})` },
+    ...Array.from(counts.entries()).map(([key, count]) => ({ key, label: `${key} (${count})` })),
+  ];
 
   els.listSecondary.hidden = false;
   els.listSecondary.innerHTML = options
@@ -2953,9 +2970,9 @@ function render() {
   renderList(items);
   renderMapMarkers(items);
   renderFocusImage();
+  // 任务6：renderArchive 现在是统一分发器（内部按标签决定渲染 fieldwork/合并/投稿），
+  // 不再单独调 renderContributedArchive / syncArchiveScope。
   renderArchive();
-  renderContributedArchive();
-  syncArchiveScope();
 
   if (els.resultCount) {
     els.resultCount.textContent = `${items.length} item`;
@@ -3042,16 +3059,11 @@ function renderList(items) {
     return;
   }
 
-  // Scope the sidebar list to Fieldwork (own) or Contributed (item 17); the map
-  // markers still show everything.
-  const scoped = items.filter((it) =>
-    state.listScope === "contributed" ? it.submissionType === "contributed" : it.submissionType !== "contributed",
-  );
-  els.listScopeTabs?.forEach((tab) => {
-    tab.classList.toggle("is-active", (tab.dataset.listScope === "contributed") === (state.listScope === "contributed"));
-  });
-  syncListControls(scoped);
-  const sortedItems = sortListItems(filterListItems(scoped));
+  // Keep the expanded map list aligned with Archive: Time/Place include all
+  // records, while Type only uses Fieldwork records.
+  const listBase = state.listSort === "type" ? items.filter((it) => it.submissionType !== "contributed") : items;
+  syncListControls(listBase);
+  const sortedItems = sortListItems(filterListItems(listBase));
 
   els.list.innerHTML = sortedItems
     .map(
@@ -3091,12 +3103,6 @@ function renderList(items) {
 }
 
 function filterListItems(items) {
-  if (state.listScope === "contributed") {
-    if (state.listSort === "place" && state.listSubfilter !== "all") {
-      return items.filter((item) => contributedPlaceLabel(item) === state.listSubfilter);
-    }
-    return items;
-  }
   if ((state.listSort !== "type" && state.listSort !== "place") || state.listSubfilter === "all") {
     return items;
   }
@@ -3111,23 +3117,10 @@ function sortListItems(items) {
   }
 
   if (state.listSort === "type") {
-    if (state.listScope === "contributed") {
-      return [...items].sort((a, b) => {
-        const delta = looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime);
-        return state.listOrder === "asc" ? delta : -delta;
-      });
-    }
     return sortByCount(items, "type");
   }
 
   if (state.listSort === "place") {
-    if (state.listScope === "contributed") {
-      return [...items].sort(
-        (a, b) =>
-          contributedPlaceLabel(a).localeCompare(contributedPlaceLabel(b)) ||
-          getTimeValue(b) - getTimeValue(a),
-      );
-    }
     return [...items].sort(
       (a, b) =>
         String(a.prefecture).localeCompare(String(b.prefecture)) ||
@@ -4526,24 +4519,9 @@ function renderContributedArchive() {
   const ja = state.lang === "ja";
   const mode = state.contributedMode || "photo";
 
-  const arrow = (key) =>
-    `<span class="sort-arrow" aria-hidden="true">${
-      mode === key ? (state.contributedOrder === "asc" ? " ↑" : " ↓") : ""
-    }</span>`;
-  const btn = (key, label, withArrow = true) =>
-    `<button type="button" class="archive-control${mode === key ? " is-active" : ""}" data-contrib-mode="${key}">${label}${withArrow ? arrow(key) : ""}</button>`;
-  const toolbar = `
-    <div class="archive-toolbar" aria-label="contributed sort controls">
-      <p data-i18n="sortBy">${ja ? "並び替え" : "Sort by"}</p>
-      <div class="archive-primary-row">
-        <div class="archive-toolbar-group" role="group" aria-label="sort mode">
-          ${btn("photo", ja ? "撮影日時" : "Taken")}
-          ${btn("submitted", ja ? "投稿日時" : "Submitted")}
-          ${btn("location", ja ? "場所" : "Place", false)}
-          ${btn("stats", ja ? "統計" : "Stats", false)}
-        </div>
-      </div>
-    </div>`;
+  // 任务6：投稿档案原来的独立工具栏取消 —— 现在由档案页统一标签栏的
+  // Stats(投稿) 驱动 state.contributedMode，这里不再自绘工具栏。
+  const toolbar = "";
 
   if (mode === "stats") {
     els.contributedContent.innerHTML = toolbar + renderContributedOverview(items);
@@ -4640,44 +4618,53 @@ function renderContributedOverview(items) {
     </section>`;
 }
 
+// 任务6：档案页统一分发器。5 个标签合并成一套：
+//   time       —— fieldwork + contributed 合并，按拍摄时间分月，无时间的落到底部 unknown
+//   place      —— fieldwork + contributed 合并进完整地址层级
+//   type       —— 仅 fieldwork（几乎不变），all 下多一段可编辑说明文
+//   statsFw    —— fieldwork 统计
+//   statsContrib —— 投稿总览（走 #contributed-content）
 function renderArchive() {
   if (!els.archiveContent) {
     return;
   }
-  els.archiveContent.classList.remove("is-mobile-place");
-
-  // The Archive page is independent of the map sidebar search (state.query): it
-  // has its own chips/sub-filters. Start from the author's own (Original) records
-  // only — contributed umbrellas live in the "Archive (contributed)" view.
-  const items = state.umbrellas.filter((item) => item.submissionType !== "contributed");
-
+  const mode = state.archiveMode;
+  // Stats(投稿) 渲染进 #contributed-content，复用它已有的总览/排序处理器；
+  // 其余渲染进 #archive-content。两个面板互斥显示。
+  const useContributed = mode === "statsContrib";
+  els.archiveContent.hidden = useContributed;
+  if (els.contributedContent) {
+    els.contributedContent.hidden = !useContributed;
+  }
   syncArchiveControls();
-  renderArchiveSecondary(items);
 
-  if (state.archiveMode === "stats") {
-    renderStats(items);
+  if (useContributed) {
+    if (els.archiveSecondary) {
+      els.archiveSecondary.hidden = true;
+      els.archiveSecondary.innerHTML = "";
+    }
+    state.contributedMode = "stats";
+    renderContributedArchive();
     return;
   }
 
-  const visibleItems = filterArchiveItems(items);
-  const sorted = sortArchiveItems(visibleItems);
+  els.archiveContent.classList.remove("is-mobile-place");
 
-  if (state.archiveMode === "default" || state.archiveMode === "type") {
-    // #6: when a specific type is selected, show its explanatory text above the
-    // grid — one <p> per source paragraph; Japanese is justified, English isn't.
-    let typeDescHtml = "";
-    if (state.archiveMode === "type" && state.archiveSubfilter !== "all") {
-      const desc = TEXTS.typeDescriptions[state.archiveSubfilter];
-      const paras = desc ? desc[state.lang] || desc.ja || desc.en || [] : [];
-      if (paras.length) {
-        const justifyClass = state.lang === "ja" ? " is-justify" : "";
-        typeDescHtml = `<div class="archive-type-desc${justifyClass}">${paras
-          .map((p) => `<p>${escapeHtml(p)}</p>`)
-          .join("")}</div>`;
-      }
-    }
+  // Type / Stats(FW) 只看 fieldwork（作者自己拍的）。
+  const fieldwork = state.umbrellas.filter((item) => item.submissionType !== "contributed");
+  renderArchiveSecondary(fieldwork);
+
+  if (mode === "statsFw") {
+    renderStats();
+    return;
+  }
+
+  if (mode === "type") {
+    const sorted = sortArchiveItems(filterArchiveItems(fieldwork));
+    // all → 总说明文（可在「文案編集」里改）；选了具体 type → 该 type 的说明文。
+    const desc = state.archiveSubfilter === "all" ? TEXTS.typeAllIntro : TEXTS.typeDescriptions[state.archiveSubfilter];
     els.archiveContent.innerHTML = `
-      ${typeDescHtml}
+      ${renderTypeIntro(desc)}
       <div class="photo-grid">
         ${sorted.map((item) => renderPhotoCard(item)).join("")}
       </div>
@@ -4685,10 +4672,21 @@ function renderArchive() {
     return;
   }
 
-  const groups = state.archiveMode === "place" ? groupByPlace(sorted) : groupByMonth(sorted);
-  const mobilePlace = state.archiveMode === "place" && isMobileSheet();
+  // Time / Place 合并 fieldwork + contributed。
+  const merged = state.umbrellas.slice();
+
+  if (mode === "time") {
+    const groups = groupMergedByMonth(merged, state.archiveOrder);
+    els.archiveContent.innerHTML = groups.map((group) => renderArchivePlainGroup(group, "merged-time")).join("");
+    bindArchivePlainGroupToggles(els.archiveContent, renderArchive);
+    return;
+  }
+
+  // place（合并进完整层级）
+  const groups = groupByPlace(merged);
+  const mobilePlace = isMobileSheet();
   els.archiveContent.classList.toggle("is-mobile-place", mobilePlace);
-  if (state.archiveMode === "place" && !mobilePlace) {
+  if (!mobilePlace) {
     renderArchivePlaceDesktop(groups, {
       root: els.archiveContent,
       selectedKeyName: "archivePlaceSelectedKey",
@@ -4697,16 +4695,50 @@ function renderArchive() {
     });
     return;
   }
-  els.archiveContent.innerHTML = groups
-    .map((group) => (mobilePlace ? renderMobilePlaceGroup(group) : renderArchivePlainGroup(group, "fieldwork-time")))
-    .join("");
+  els.archiveContent.innerHTML = groups.map((group) => renderMobilePlaceGroup(group)).join("");
+  bindMobilePlaceGroupToggles(els.archiveContent, renderArchive);
+}
 
-  if (mobilePlace) {
-    bindMobilePlaceGroupToggles(els.archiveContent, renderArchive);
-    return;
+// 类型说明文渲染（all 总说明 / 单个 type 说明共用）。日语两端对齐、英语左对齐。
+function renderTypeIntro(desc) {
+  const paras = desc ? desc[state.lang] || desc.ja || desc.en || [] : [];
+  if (!Array.isArray(paras) || !paras.length) {
+    return "";
   }
+  const justifyClass = state.lang === "ja" ? " is-justify" : "";
+  return `<div class="archive-type-desc${justifyClass}">${paras.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</div>`;
+}
 
-  bindArchivePlainGroupToggles(els.archiveContent, renderArchive);
+// 任务6：Time 合并分组 —— fieldwork(ISO time) 和 contributed(宽松 time) 用同一个
+// 宽松解析器分月；解析不出时间的统一落到底部「unknown」组（用户决定2）。
+function groupMergedByMonth(items, order = "desc") {
+  const groups = new Map();
+  items.forEach((item) => {
+    const parts = parseLooseDateParts(item.time || item.photoTime);
+    const sortKey = parts ? `${parts.y}-${String(parts.mo).padStart(2, "0")}` : "unknown";
+    const label = parts ? `${parts.y}/${String(parts.mo).padStart(2, "0")}` : "unknown";
+    if (!groups.has(sortKey)) {
+      groups.set(sortKey, { key: `mt-${sortKey}`, sortKey, label, items: [] });
+    }
+    groups.get(sortKey).items.push(item);
+  });
+  const arr = Array.from(groups.values());
+  // unknown 永远排在最底部；其余按年月升/降序。
+  arr.sort((a, b) => {
+    if (a.sortKey === "unknown") return 1;
+    if (b.sortKey === "unknown") return -1;
+    return order === "asc" ? a.sortKey.localeCompare(b.sortKey) : b.sortKey.localeCompare(a.sortKey);
+  });
+  // 组内也按时间同向排序（unknown 组内保持原顺序）。
+  arr.forEach((group) => {
+    if (group.sortKey === "unknown") return;
+    group.items.sort((a, b) => {
+      const ka = looseDateKey(a.time || a.photoTime);
+      const kb = looseDateKey(b.time || b.photoTime);
+      return order === "asc" ? ka - kb : kb - ka;
+    });
+  });
+  return arr;
 }
 
 function bindMobilePlaceGroupToggles(root, renderAgain) {
@@ -5112,12 +5144,18 @@ function renderPhotoCard(item) {
   // 用户 T5 (v122): a red dot on cards flagged 待改 (editFlag). Internal reminder, so
   // it only shows in edit mode — the same rule as the map markers' 待改 colouring.
   const flagDot = state.editMode && item.editFlag ? `<span class="card-flag-dot" title="待改（这个标点后续需要修改）"></span>` : "";
+  // 任务6：合并档案里，投稿伞的卡片左上角打一个标记（与详情页 ID 左上角同一枚 icon）。
+  const contributedMark =
+    item.submissionType === "contributed"
+      ? `<span class="card-contributed" role="img" aria-label="contributed" title="投稿"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="m16 19 2 2 4-4"/></svg></span>`
+      : "";
 
   return `
     <article class="photo-card ${pendingJump ? "is-mobile-card-pending" : ""}" data-id="${escapeHtml(item.id)}">
       <div class="card-photo">
         <img src="${item.thumb}" alt="${escapeHtml(displayUmbrellaId(item))}" loading="lazy" decoding="async" />
         <span class="card-tap-hint">${tapHint}</span>
+        ${contributedMark}
         ${flagDot}
         ${badges.length ? `<div class="card-badges">${badges.join("")}</div>` : ""}
         <button type="button" class="card-edit" data-card-edit aria-label="编辑此记录" title="编辑此记录">✎</button>
@@ -7494,7 +7532,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=204", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=209", { updateViaCache: "none" });
   }
 }
 
@@ -9236,6 +9274,13 @@ function buildTextsEditor() {
             <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
           </div>
         </fieldset>
+        <fieldset class="texts-section is-collapsed" data-texts-typeall>
+          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>Type 标签 all 说明文 (type intro)</span></button></legend>
+          <div class="texts-section-body">
+            <label>日本語（段落用空行分隔）<textarea data-texts-field="typeall-ja" rows="4"></textarea></label>
+            <label>English<textarea data-texts-field="typeall-en" rows="4"></textarea></label>
+          </div>
+        </fieldset>
         <fieldset class="texts-section is-collapsed" data-texts-about="section1">
           <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第一段（观察のきっかけ）</span></button></legend>
           <div class="texts-section-body">
@@ -9292,6 +9337,8 @@ function fillTextsEditor() {
   const overlay = textsEditor.overlay;
   overlay.querySelector('[data-texts-field="stats-ja"]').value = TEXTS.statsIntro.ja || "";
   overlay.querySelector('[data-texts-field="stats-en"]').value = TEXTS.statsIntro.en || "";
+  overlay.querySelector('[data-texts-field="typeall-ja"]').value = parasToText(TEXTS.typeAllIntro?.ja);
+  overlay.querySelector('[data-texts-field="typeall-en"]').value = parasToText(TEXTS.typeAllIntro?.en);
   overlay.querySelectorAll("[data-texts-about]").forEach((section) => {
     const sec = (TEXTS.about || {})[section.dataset.textsAbout] || {};
     section.querySelector('[data-texts-field="about-title-ja"]').value = sec.titleJa || "";
@@ -9313,6 +9360,10 @@ async function saveTextsEditor() {
     statsIntro: {
       ja: overlay.querySelector('[data-texts-field="stats-ja"]').value.trim(),
       en: overlay.querySelector('[data-texts-field="stats-en"]').value.trim(),
+    },
+    typeAllIntro: {
+      ja: textToParas(overlay.querySelector('[data-texts-field="typeall-ja"]').value),
+      en: textToParas(overlay.querySelector('[data-texts-field="typeall-en"]').value),
     },
     about: {},
     typeDescriptions: {},

@@ -3,6 +3,14 @@
     "ja": "本ページは、「忘れられた傘」の記録を蓄積したアーカイブである。記録は、時間・種類・場所・type の視点から横断的に閲覧できる。type は、傘がどのような状況や環境の中で残されていたかをもとに分類したものであり、「hookable」「drop」「disposal」など、周囲との関係性によって構成されている。また、統計を通して、傘の種類や状態、繰り返し現れる行動や配置の傾向を観察することができる。",
     "en": "This page is an archive accumulating records of \"Forgotten Umbrellas.\" The records can be browsed across the perspectives of time, kind, place, and type. \"Type\" classifies each umbrella by the situation and environment in which it was left behind, and is built around its relationship to the surroundings — \"hookable,\" \"drop,\" \"disposal,\" and so on. Through these statistics, one can also observe the kinds and states of umbrellas, along with recurring tendencies in behaviour and placement."
   },
+  "typeAllIntro": {
+    "ja": [
+      "ここは「type（タイプ）」の一覧である。傘がどのような状況・環境の中で残されていたか、その周囲との関係にもとづいて分類している。上のタイプ名を選ぶと、それぞれの詳しい説明が表示される。（この文はあとで自由に書き換えられます。）"
+    ],
+    "en": [
+      "This is the list of \"types.\" Each umbrella is classified by the situation and environment in which it was left behind, based on its relationship to the surroundings. Select a type above to read its full description. (This text can be freely edited later.)"
+    ]
+  },
   "typeDescriptions": {
     "hookable(affordance)": {
       "ja": [
