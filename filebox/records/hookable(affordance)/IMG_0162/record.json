@@ -48,7 +48,7 @@
     }
   ],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "black",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "IMG_8622",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -74,9 +74,16 @@
   // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
   "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "DAY 53 に「傘No.2」が姿を消したことで、このジムの前に忘れられていた——それぞれ異なる運命をたどった二本の傘についての記録も、そこで途切れていた。\nだが2026年6月26日、DAY 109。雨の降る夕暮れに、また一本の傘が店先のフェンスに掛けられていた。フェンスの内側に掛けられていたうえ、その日は雨だったこともあり、客が意図的に掛けたのではないかとも思ったが、忘れられた傘である可能性も捨てきれない。とにかく、まずは写真を撮っておいた。\n7月3日、DAY 116。ふたたびこの店の前を通りかかると、その傘はまだそこにあった。これはもう、忘れられた「傘No.3」で間違いない。\nDAY 130、それはなお、そこにあり続けている。この傘は、あとどれくらいここに留まるのだろう。まだ使えそうに見えるこの「傘No.3」は、いつの雨の日に誰かに持ち去られるのだろうか。そして「傘No.1」は、この店の前にいつまで留まり続けるのだろう。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "DAY 53 に「傘No.2」が姿を消したことで、このジムの前に忘れられていた——それぞれ異なる運命をたどった二本の傘についての記録も、そこで途切れていた。\nだが2026年6月26日、DAY 109。雨の降る夕暮れに、また一本の傘が店先のフェンスに掛けられていた。フェンスの内側に掛けられていたうえ、その日は雨だったこともあり、客が意図的に掛けたのではないかとも思ったが、忘れられた傘である可能性も捨てきれない。とにかく、まずは写真を撮っておいた。\n7月3日、DAY 116。ふたたびこの店の前を通りかかると、その傘はまだそこにあった。これはもう、忘れられた「傘No.3」で間違いない。\nDAY 130、それはなお、そこにあり続けている。この傘は、あとどれくらいここに留まるのだろう。まだ使えそうに見えるこの「傘No.3」は、いつの雨の日に誰かに持ち去られるのだろうか。そして「傘No.1」は、この店の前にいつまで留まり続けるのだろう。",
+        "en": "With the disappearance of \"Umbrella No.2\" on DAY 53, my record of the two umbrellas of differing fates that had been left in front of this gym came to an end.\nBut on 26 June 2026, DAY 109, on a rainy evening, yet another umbrella had been hung on the fence in front of the shop. Since it hung on the inner side of the fence, and it was a rainy day, I suspected a customer might have hung it there on purpose—though I could not rule out that it was a forgotten umbrella. In any case, I took a photo first.\nOn 3 July, DAY 116, when I passed by the shop again, the umbrella was still there. There was no doubt now: it was a forgotten \"Umbrella No.3.\"\nBy DAY 130, it was still there. How much longer will this umbrella stay here? On which rainy day will this \"Umbrella No.3,\" which still looks usable, be carried off by someone? And \"Umbrella No.1\"—how long will it linger in front of this shop?"
+      }
+    },
     {
       "type": "photo",
       "file": "IMG_0160.jpeg"

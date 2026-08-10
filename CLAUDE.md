@@ -2,6 +2,7 @@
 
 > 这个文件会被 Claude Code 自动读取。新会话**先读这里**，再看 `交接.md`（当前进度/待办，每次交接**重写**、只留最近 5 轮）。`修改记录.md`（改动历史）**只在确实要查历史时才读**，平时不用读。`未来可能需要注意的事.md` 记「现在不用做、但以后可能要」的想法/坑，做相关功能前可翻一下。
 > 用户是**非技术小白**，请用最普通易懂的中文沟通，解释任何文件/命令先说"它是干嘛的"。
+> **用户说「翻译」时**：先读 `翻译流程.md`，并**先问一句**「翻译改动/新增的，还是全库扫描？」，等回答再动手。侦测用固定脚本 `npm run i18n:scan`（改动）/ `-- --all`（全库），别现写。
 
 ## 这是什么项目
 「被遗忘的伞 / Forgotten Umbrella」——记录城市公共空间里被遗忘雨伞的**艺术地图网站 + 可安装 PWA**。纯前端静态站，Google Maps 标点，中/日/英三语，GitHub Pages 发布。**当前处于原型阶段**。
@@ -23,17 +24,17 @@
 
 ## record.json 当前字段（重要！结构演进过）
 - `schemaVersion`, `sourceIndex`
-- `locationText`（手填显示地址）、`locationLevels`（罗马音数组，由级联下拉生成）
+- `locationText`（手填显示地址，**规定纯英文罗马字**）、`locationLevels`（罗马音数组，由级联下拉生成）
 - `photoCoordinates`（EXIF）、`locationCoordinates`（手动覆盖/拖动设定）
 - `photoTime`（EXIF）、`time`（手动覆盖）
-- `title`（目前单语；用户要改双语 en/ja，**待办**）
+- `title`：**双语** `{ja, en}`（ja 日语、en 英文；英文可空则回退日文）
 - `umbrellaType`/`umbrellaColor`（旧字段，已不用于展示）
 - `umbrellaCount`："1"~"5"/"unknown"/""
 - `umbrellaUnits`：**每把伞一个对象** `{color, colorDetail, kind, status:[], statusOther}`，随数量增减。这是为**后期统计**铺垫的核心结构。
 - `editFlag`："yellow"/"black"/"white"/""（编辑用标记色，仅编辑模式地图显示）
 - `story`（由 blocks 的文字段落合并，用于卡片简介）
 - `blocks`：详情页图文顺序 `[{type:"text",text} | {type:"photo",file}]`
-- `media`：`[{id, file, role, title, photoTime, story, legacyThumb, weather, showWeather}]`，role ∈ primary/supplement/detail/illustration。`weather/showWeather` 是每张图自己的天气显示数据：主图通常是拍摄前 24 小时，补充/细节图通常只抓拍摄当时 1 点。（旧的灯箱准星 `crosshair` 字段已于 v82 删除。）
+- `media`：`[{id, file, role, title, photoTime, story, legacyThumb, weather, showWeather}]`，role ∈ primary/supplement/detail/illustration。`title` 是**单语字符串**（中英显示同一份，**规定纯英文**）。`weather/showWeather` 是每张图自己的天气显示数据：主图通常是拍摄前 24 小时，补充/细节图通常只抓拍摄当时 1 点。（旧的灯箱准星 `crosshair` 字段已于 v82 删除。）
 
 ## 公开展示规则
 - 详情页（点标记的聚焦页）：**固定头部**（id(title)/地点/时间）+ **可滚动文章**（封面图 + INFORMATION 网格 + blocks 图文流）。

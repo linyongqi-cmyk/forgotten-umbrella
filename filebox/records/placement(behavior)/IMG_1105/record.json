@@ -48,7 +48,7 @@
     }
   ],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "black",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -62,7 +62,7 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "地址翻译，标题",
+  "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
@@ -74,9 +74,16 @@
   // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
   "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "その日の午後、区役所へ用事があって出かけた。入り口の駐輪場に自転車を停めると、壁際に一本の傘が掛けられているのに気づき、すぐにスマートフォンを取り出して撮影した。撮ってから、その傘のそばにもう一台自転車が停まっていることに気づいた。これはおそらく「忘れられた傘」ではなく、この自転車の持ち主が掛けたものだろう——だとすれば、せいぜい「忘れられた傘の疑い」止まりだと思った。\n三十分あまりが過ぎ、用事を済ませて帰ろうとしたとき、傘のそばにあったはずの自転車がもう無くなっていることに気づいた。こうなると、この傘についての判断は二つの可能性しか残らない。（1）それがあの持ち主の傘で、数分前に立ち去るときに持ち忘れた。（2）それはあの持ち主の傘ではなく、もともとここに置き去りにされていた。どちらであっても、私にははっきりと言える——この傘は、まぎれもなく「忘れられた傘」だ！",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "その日の午後、区役所へ用事があって出かけた。入り口の駐輪場に自転車を停めると、壁際に一本の傘が掛けられているのに気づき、すぐにスマートフォンを取り出して撮影した。撮ってから、その傘のそばにもう一台自転車が停まっていることに気づいた。これはおそらく「忘れられた傘」ではなく、この自転車の持ち主が掛けたものだろう——だとすれば、せいぜい「忘れられた傘の疑い」止まりだと思った。\n三十分あまりが過ぎ、用事を済ませて帰ろうとしたとき、傘のそばにあったはずの自転車がもう無くなっていることに気づいた。こうなると、この傘についての判断は二つの可能性しか残らない。（1）それがあの持ち主の傘で、数分前に立ち去るときに持ち忘れた。（2）それはあの持ち主の傘ではなく、もともとここに置き去りにされていた。どちらであっても、私にははっきりと言える——この傘は、まぎれもなく「忘れられた傘」だ！",
+        "en": "That afternoon I set out for the ward office to run an errand. After parking my bicycle in the lot by the entrance, I noticed an umbrella hanging against the wall and immediately took out my phone to photograph it. Only after taking the shot did I notice that another bicycle was parked right beside the umbrella. I thought it probably wasn't a \"forgotten umbrella\"—more likely the owner of that bicycle had hung it there, so at most it was a \"suspected forgotten umbrella.\"\nA little over half an hour later, as I finished my errand and was about to leave, I noticed that the bicycle beside the umbrella was gone. Now only two possibilities remained for this umbrella: (1) it belonged to that cyclist, who forgot to take it when leaving a few minutes earlier; or (2) it was not that cyclist's umbrella and had been left here all along. Either way, I could say for certain—this umbrella was, without doubt, a \"forgotten umbrella\"!"
+      }
+    },
     {
       "type": "photo",
       "file": "IMG_1110.jpeg"

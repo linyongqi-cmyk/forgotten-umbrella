@@ -4,7 +4,7 @@
   // 旧 umbrellas.json 中的顺序。当前用于稳定输出顺序，平时不需要手改。
   "sourceIndex": 167,
   // 手动填写的展示地址。
-  "locationText": "",
+  "locationText": "Higashikujo Nishiaketacho, Minami Ward, Kyoto",
   // 地址层级。按从大到小填写，例如 ["Tokyo", "Shibuya"]。
   "locationLevels": [
     "Kyoto",
@@ -62,7 +62,7 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "地址",
+  "remarks": "这把伞拿走了",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。

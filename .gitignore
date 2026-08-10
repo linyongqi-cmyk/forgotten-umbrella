@@ -26,3 +26,9 @@ scripts/google-credentials.json
 scripts/.google-token.json
 scripts/.submissions-state.json
 scripts/submissions.config.json
+
+# 书籍导出包（几百 MB，随时可 npm run book:export 重生，不进仓库）
+book-export/
+
+# records:export 生成的总览表（网站不读，本地看用，不进仓库）
+导出表格/

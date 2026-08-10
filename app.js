@@ -16,9 +16,10 @@ const state = {
   focusMarkerId: null,
   focusPositionedId: null,
   suppressNextFit: false,
-  // Zoom the entry animation should settle on (usually DEFAULT_MAP_ZOOM, but the
-  // 用户 task 2 fallback lands wider at CLUSTER_FALLBACK_ZOOM).
+  // Zoom the entry animation should settle on（A=15 停原地 / B+C=15 移到最近伞 / D·EFG=13 东京）。
   entryTargetZoom: null,
+  // 开站定位后要显示的一次性提示 key（sparse/outside/failed），null=不提示。进场动画结束时弹一次。
+  entryNotice: null,
   cameraAnimationFrame: null,
   projectionOverlay: null,
   archiveMode: "time",
@@ -111,12 +112,29 @@ const DEFAULT_MAP_CENTER = { lat: 35.681236, lng: 139.767125 };
 // Rough bounding box of Japan; geolocation only jumps to the user when inside it.
 const JAPAN_BOUNDS = { minLat: 24, maxLat: 46, minLng: 122, maxLng: 154 };
 const DEFAULT_MAP_ZOOM = 15;
-// 用户 task 2: when the user is in Japan but their default-zoom screen shows no
-// markers, we drop to this wider zoom over the nearest cluster of ≥3 markers.
-const CLUSTER_FALLBACK_ZOOM = 11;
-// 任务5：没有定位授权（或拒绝/超时/在日本以外）时的回退。旧逻辑落在东京站(15级)，
-// 但那一带没有标点，看着很空。改成 13 级、并把「离东京站最近的那个标点」放到画面正中。
+// 定位成功、在日本、但默认级别看不到伞时：保持 15 级、移到「离定位点最近的伞」，
+// 并提示已自动移动（用户 2026-08-04 重定义，取代旧的 11 级聚簇回退）。
+const NEAREST_MARKER_ZOOM = DEFAULT_MAP_ZOOM;
+// 定位在日本以外 / 拒绝 / 超时 / 不支持时的回退：13 级、把「离东京站最近的标点」放正中。
 const TOKYO_FALLBACK_ZOOM = 13;
+// 开站定位后的一次性提示（日英两行一起显示）。null=不提示（A 情况：脚下就有伞）。
+//   sparse  —— 在日本但周边没伞，已移到最近的伞（仍 15 级）
+//   outside —— 定位点在日本境外，已移到东京
+//   failed  —— 定位失败/拒绝/超时/不支持，已移到东京
+const ENTRY_NOTICES = {
+  sparse: {
+    ja: "現在地の周辺に記録が少ないため、最寄りの記録へ移動しました",
+    en: "Few records near your location — moved to the nearest one",
+  },
+  outside: {
+    ja: "現在地が日本国外のため、東京へ移動しました",
+    en: "Your location is outside Japan — moved to Tokyo",
+  },
+  failed: {
+    ja: "現在地を取得できなかったため、東京へ移動しました",
+    en: "Couldn't get your location — moved to Tokyo",
+  },
+};
 // Floor on zoom-out: keeps the map from receding past the "whole of Japan" scale
 // (without this the user could zoom out to the whole globe).
 const MIN_MAP_ZOOM = 5;
@@ -2362,9 +2380,19 @@ function playEntryZoom() {
       requestAnimationFrame(step);
     } else {
       setMapCamera(targetCenter, endZoom);
+      flashEntryNotice();
     }
   };
   requestAnimationFrame(step);
+}
+
+// 进场动画结束后弹一次定位提示（日英两行）。只弹一次，弹完清空。
+function flashEntryNotice() {
+  const notice = ENTRY_NOTICES[state.entryNotice];
+  state.entryNotice = null;
+  if (notice) {
+    flashMapToast(`${notice.ja}\n${notice.en}`);
+  }
 }
 
 function togglePanel() {
@@ -2451,6 +2479,7 @@ async function initGoogleMap() {
   const initialView = await getInitialMapCenter();
   state.map.setCenter(initialView.center);
   state.entryTargetZoom = initialView.zoom;
+  state.entryNotice = initialView.notice || null;
   // Pre-position at the whole-main-island scale so the very first frame the
   // user sees (when they leave the welcome screen) is already the island view;
   // playEntryZoom then zooms in. This avoids a flash of the default city view.
@@ -2506,27 +2535,6 @@ function countMarkersOnScreen(center, zoom, items, canvasW, canvasH) {
   return count;
 }
 
-// 用户 task 2「聚集判定」: the user is in Japan but their default-zoom screen shows
-// no markers. Find the NEAREST spot whose CLUSTER_FALLBACK_ZOOM screen holds ≥3
-// markers — try each marker as a candidate centre, keep those seeing ≥3, then
-// pick the one closest to the user. Returns null if no such cluster exists.
-function findNearestClusterCenter(userLoc, items, zoom, canvasW, canvasH) {
-  let best = null;
-  let bestDist = Infinity;
-  for (const cand of items) {
-    if (countMarkersOnScreen(cand.coordinates, zoom, items, canvasW, canvasH) >= 3) {
-      const dLat = cand.coordinates.lat - userLoc.lat;
-      const dLng = cand.coordinates.lng - userLoc.lng;
-      const dist = dLat * dLat + dLng * dLng;
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = cand.coordinates;
-      }
-    }
-  }
-  return best;
-}
-
 // 任务5：在一堆标点里找离 point 最近的一个（经纬度平方距离，够用）。无标点返回 null。
 function nearestMarkerTo(point, items) {
   let best = null;
@@ -2554,31 +2562,34 @@ function getTokyoFallbackView() {
   };
 }
 
-// User is confirmed inside Japan. Default view = their spot at DEFAULT_MAP_ZOOM.
-// But if that screen shows no markers, drop to CLUSTER_FALLBACK_ZOOM over the
-// nearest ≥3-marker cluster (用户 task 2). Falls back to Tokyo if no cluster.
+// 定位成功且在日本境内的落点（用户 2026-08-04 规则）：
+//   A —— 默认 15 级屏幕上已经能看到伞 → 就停在你所在位置，不提示。
+//   B+C —— 看不到伞 → 保持 15 级、移到「离你最近的那把伞」，提示 sparse。
 function resolveInJapanView(here) {
   const items = state.umbrellas.filter(hasCoordinates);
   const canvas = els.mapCanvas;
   const canvasW = canvas?.clientWidth || window.innerWidth || 1280;
   const canvasH = canvas?.clientHeight || window.innerHeight || 800;
   if (countMarkersOnScreen(here, DEFAULT_MAP_ZOOM, items, canvasW, canvasH) > 0) {
-    return { center: here, zoom: DEFAULT_MAP_ZOOM };
+    return { center: here, zoom: DEFAULT_MAP_ZOOM, notice: null };
   }
-  const cluster = findNearestClusterCenter(here, items, CLUSTER_FALLBACK_ZOOM, canvasW, canvasH);
-  if (cluster) {
-    return { center: cluster, zoom: CLUSTER_FALLBACK_ZOOM };
-  }
-  return getTokyoFallbackView();
+  const nearest = nearestMarkerTo(here, items);
+  return {
+    center: nearest ? nearest.coordinates : DEFAULT_MAP_CENTER,
+    zoom: NEAREST_MARKER_ZOOM,
+    notice: "sparse",
+  };
 }
 
-// Resolves to { center, zoom }. Rules: (1) default Tokyo at DEFAULT_MAP_ZOOM;
-// (2) geolocation granted & inside Japan → their spot (with the task-2 fallback
-// above); (3) outside Japan / denied / timeout → Tokyo.
+// Resolves to { center, zoom, notice }. 规则（用户 2026-08-04）：
+//   定位成功·在日本 → resolveInJapanView（A 无提示 / B+C sparse）
+//   定位成功·境外   → 东京兜底 + outside
+//   拒绝/超时/不支持 → 东京兜底 + failed
 function getInitialMapCenter() {
-  const fallback = getTokyoFallbackView();
+  const tokyo = getTokyoFallbackView();
+  const failed = { ...tokyo, notice: "failed" };
   if (!navigator.geolocation) {
-    return Promise.resolve(fallback);
+    return Promise.resolve(failed);
   }
 
   return new Promise((resolve) => {
@@ -2591,19 +2602,18 @@ function getInitialMapCenter() {
       resolve(result);
     };
 
-    const timeoutId = window.setTimeout(() => finish(fallback), GEOLOCATION_TIMEOUT_MS);
+    const timeoutId = window.setTimeout(() => finish(failed), GEOLOCATION_TIMEOUT_MS);
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         window.clearTimeout(timeoutId);
         const here = { lat: position.coords.latitude, lng: position.coords.longitude };
-        // Only jump to the user's real position when they are inside Japan;
-        // outside Japan we treat it like "no location" and fall back to Tokyo.
-        finish(isInsideJapan(here) ? resolveInJapanView(here) : fallback);
+        // 只有确认在日本境内才跳到真实位置；境外当作「已移到东京」处理并提示 outside。
+        finish(isInsideJapan(here) ? resolveInJapanView(here) : { ...tokyo, notice: "outside" });
       },
       () => {
         window.clearTimeout(timeoutId);
-        finish(fallback);
+        finish(failed);
       },
       {
         enableHighAccuracy: true,
@@ -4416,12 +4426,19 @@ function looseDateKey(value) {
 function contributedSubmitterLabels(items) {
   const byName = {};
   items.forEach((it) => {
-    const n = it.submitter || "(unknown)";
+    // 投稿者留空默认「Anonymous」，与详情页 by: 一致（用户要求）。
+    const n = (it.submitter || "").trim() || "Anonymous";
     (byName[n] = byName[n] || []).push(it);
   });
   const labels = new Map();
   Object.entries(byName).forEach(([name, list]) => {
-    list.sort((a, b) => looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime) || String(a.id).localeCompare(b.id));
+    // 编号顺序：投稿时间 → 同一天再按拍摄时间细分 → 最后才用 id 兜底。
+    list.sort(
+      (a, b) =>
+        looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime) ||
+        looseDateKey(a.time || a.photoTime) - looseDateKey(b.time || b.photoTime) ||
+        String(a.id).localeCompare(b.id),
+    );
     list.forEach((it, i) => labels.set(it.id, list.length > 1 ? `${name}(${i + 1})` : name));
   });
   return labels;
@@ -4576,6 +4593,9 @@ function renderContributedOverview(items) {
     place: (it) => (it.location || "").toLowerCase(),
   };
   const kf = keyFns[key] || keyFns.submitter;
+  // 名字里带 (n) 的按数字感知排序，让 yueliang(2) 排在 yueliang(10) 前面（不是字符串序 1,10,2）。
+  // 同名之间用投稿时间兜底，等同「按投稿时间」。
+  const natural = (x, y) => String(x).localeCompare(String(y), undefined, { numeric: true });
   const sorted = items.slice().sort((a, b) => {
     const ka = kf(a);
     const kb = kf(b);
@@ -4583,9 +4603,10 @@ function renderContributedOverview(items) {
     if (typeof ka === "number") {
       d = ka - kb;
     } else {
-      d = String(ka).localeCompare(String(kb));
+      d = natural(ka, kb);
     }
-    return (d || String(labels.get(a.id)).localeCompare(String(labels.get(b.id)))) * dir;
+    if (!d) d = looseDateKey(a.submissionTime) - looseDateKey(b.submissionTime);
+    return (d || natural(labels.get(a.id), labels.get(b.id))) * dir;
   });
   // Same arrow glyphs as the Fieldwork overview (item 9).
   const arrow = (k) => (key === k ? (dir === 1 ? " ↑" : " ↓") : "");
@@ -4791,6 +4812,19 @@ function renderArchivePlaceDesktop(groups, options = {}) {
   if (selected) {
     state[selectedKeyName] = selected.key;
   }
+  // 右侧网格 HTML（选中「全部」时是分组网格，否则是单个地点网格）。
+  const gridHTML = (sel) =>
+    sel?.key === "all"
+      ? renderArchivePlaceAllGrid(orderedGroups)
+      : sel
+        ? `
+          <div class="archive-place-grid-head">
+            <h3>${escapeHtml(sel.label)}</h3>
+            <p>${sel.items.length} item</p>
+          </div>
+          <div class="photo-grid">${sel.items.map((item) => renderPhotoCard(item)).join("")}</div>
+        `
+        : "";
   const html = `
     <div class="archive-place-desktop ${orderedGroups.every((group) => !group.children?.length) ? "is-flat-tree" : ""}">
       <aside class="archive-place-tree" aria-label="place hierarchy">
@@ -4798,19 +4832,7 @@ function renderArchivePlaceDesktop(groups, options = {}) {
         ${orderedGroups.map((group) => renderArchivePlaceTreeRow(group, selected?.key, 0)).join("")}
       </aside>
       <section class="archive-place-grid" aria-label="place records">
-        ${
-          selected?.key === "all"
-            ? renderArchivePlaceAllGrid(orderedGroups)
-            : selected
-              ? `
-              <div class="archive-place-grid-head">
-                <h3>${escapeHtml(selected.label)}</h3>
-                <p>${selected.items.length} item</p>
-              </div>
-              <div class="photo-grid">${selected.items.map((item) => renderPhotoCard(item)).join("")}</div>
-            `
-              : ""
-        }
+        ${gridHTML(selected)}
       </section>
     </div>
   `;
@@ -4819,10 +4841,25 @@ function renderArchivePlaceDesktop(groups, options = {}) {
   } else {
     root.innerHTML = html;
   }
-  root.querySelectorAll("[data-place-desktop-key]").forEach((button) => {
+  // 点地点筛选时只替换右侧网格 + 更新左侧高亮，不整块重渲染——否则
+  // sticky 的地址树会重建、滚动条与页面都被顶回顶部（用户反馈的 bug）。
+  const desktopRoot = root.querySelector(".archive-place-desktop");
+  const gridSection = desktopRoot?.querySelector(".archive-place-grid");
+  desktopRoot?.querySelectorAll("[data-place-desktop-key]").forEach((button) => {
     button.addEventListener("click", () => {
-      state[selectedKeyName] = button.dataset.placeDesktopKey;
-      renderAgain();
+      const key = button.dataset.placeDesktopKey;
+      if (state[selectedKeyName] === key) return;
+      state[selectedKeyName] = key;
+      const nextSelected =
+        key === "all" ? allGroup : findPlaceGroupByKey(orderedGroups, key) || allGroup;
+      if (gridSection) {
+        gridSection.innerHTML = gridHTML(nextSelected);
+        gridSection.scrollTop = 0;
+      }
+      desktopRoot.querySelectorAll(".archive-place-tree-row").forEach((row) => {
+        const rowKey = row.querySelector("[data-place-desktop-key]")?.dataset.placeDesktopKey;
+        row.classList.toggle("is-active", rowKey === key);
+      });
     });
   });
 }
@@ -7011,6 +7048,10 @@ function fitMapToItems(items) {
 
 // Edit-mode marker flags (a colour to help find points that need work).
 const FLAG_COLORS = { yellow: "#f2c200", black: "#1a1a1a", white: "#ffffff" };
+// 待改（editFlag）标点的显示样式：外圈黑、内部填白——比旧的整体纯黑更醒目也更好看。
+// 无论存的是 black（自拍）还是 white（投稿），地图上都统一显示成这个样式。
+const FLAG_PIN_OUTLINE = "#111111";
+const FLAG_PIN_FILL = "#ffffff";
 
 function flagColorFor(item) {
   return state.editMode && item && FLAG_COLORS[item.editFlag] ? FLAG_COLORS[item.editFlag] : null;
@@ -7438,12 +7479,19 @@ function markerSvgMarkup(category, options = {}) {
   const toRegionOpacityMultiplier = stateConfig ? clampNumber(stateConfig.regionOpacityMultiplier, 0, 4, 1) : 1;
   const regionOpacityMultiplier = lerp(fromRegionOpacityMultiplier, toRegionOpacityMultiplier, transitionT);
   const suffix = `${category}-${options.stateKey || "normal"}-${options.fromStateKey || "same"}-${Math.round(transitionT * 100)}-${options.inline ? "inline" : "marker"}-${String(parts.viewBox).replace(/[^0-9a-z_-]/gi, "-")}`;
+  // 待改标点：主体 region1/region2 填不透明白（形成"内部白色"），其余照旧。
+  const flagFillRegion = (regionKey) => regionKey === "region1" || regionKey === "region2";
   const regionMarkup = parts.regions.slice(0, 3).map((el, index) => {
     const regionKey = `region${index + 1}`;
-    const opacity = Math.min(Math.max((Number(settings.regionOpacity?.[regionKey]) || 0) * regionOpacityMultiplier, 0), 1);
-    const fromColor = options.fromOverrideColor || markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = options.overrideColor || markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const baseOpacity = Math.min(Math.max((Number(settings.regionOpacity?.[regionKey]) || 0) * regionOpacityMultiplier, 0), 1);
+    const fromFlag = Boolean(options.fromOverrideColor);
+    const toFlag = Boolean(options.overrideColor);
+    const fromColor = fromFlag ? FLAG_PIN_FILL : markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = toFlag ? FLAG_PIN_FILL : markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     const color = mixMarkerColor(fromColor, toColor, transitionT);
+    const fromOpacity = fromFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
+    const toOpacity = toFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
+    const opacity = lerp(fromOpacity, toOpacity, transitionT);
     if (opacity <= 0) {
       return "";
     }
@@ -7461,8 +7509,8 @@ function markerSvgMarkup(category, options = {}) {
   }).join("");
   const lineMarkup = parts.lines.slice(0, 3).map((el, index) => {
     const lineKey = `line${index + 1}`;
-    const fromColor = options.fromOverrideColor || markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = options.overrideColor || markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const fromColor = options.fromOverrideColor ? FLAG_PIN_OUTLINE : markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = options.overrideColor ? FLAG_PIN_OUTLINE : markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     return markerElementMarkup(el, {
       fill: "none",
       stroke: mixMarkerColor(fromColor, toColor, transitionT),
@@ -7532,7 +7580,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=209", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=217", { updateViaCache: "none" });
   }
 }
 

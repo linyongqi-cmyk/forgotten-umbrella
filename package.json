@@ -13,6 +13,8 @@
     "records:format": "node scripts/format-records.mjs",
     "records:sync-media": "node scripts/sync-record-media.mjs",
     "images:build": "node scripts/build-image-derivatives.mjs",
+    "i18n:scan": "node scripts/scan-untranslated.mjs",
+    "book:export": "node scripts/export-book.mjs",
     "submissions:auth": "node scripts/google-auth.mjs",
     "submissions:pull": "node scripts/pull-submissions.mjs"
   },

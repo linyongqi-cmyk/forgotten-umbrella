@@ -1365,16 +1365,23 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-linejoin: round;
 }
 
-/* 地图上的一次性小提示（定位失败等）：底部居中浮出、毛玻璃、几秒自动淡出。 */
+/* 地图上的一次性小提示（定位失败等）：屏幕正中浮出、毛玻璃、几秒自动淡出。 */
 .map-toast {
   position: fixed;
   left: 50%;
-  bottom: 92px;
+  top: 50%;
   z-index: 9;
-  max-width: min(84vw, 420px);
-  padding: 10px 16px;
+  /* fixed + left:50% 会把收缩宽度限制在右半屏，导致提前换行；用 max-content 按内容定宽，
+     再靠 transform 居中，max-width 才真正生效。 */
+  width: max-content;
+  max-width: min(88vw, 480px);
+  /* 文字左右两端到胶囊边缘各留约 36px。 */
+  padding: 10px 36px;
   border-radius: 999px;
   border: 1px solid var(--line);
+  /* 和 random 按钮(.map-fab)一致：地图区强制深色 color-scheme 会让 --panel 取深色玻璃、
+     看着发黑；这里固定浅色 color-scheme，得到同款浅色毛玻璃胶囊。 */
+  color-scheme: light;
   background: var(--panel);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
@@ -1383,16 +1390,16 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   font-size: 13px;
   line-height: 1.4;
   text-align: center;
-  white-space: nowrap;
+  white-space: pre-line;
   opacity: 0;
-  transform: translate(-50%, 8px);
+  transform: translate(-50%, calc(-50% + 8px));
   pointer-events: none;
   transition: opacity 200ms ease, transform 200ms ease;
 }
 
 .map-toast.is-show {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
 }
 
 /* 地图切换按钮：双层图例，中间叠一个当前地图编号（1/2/3）。 */

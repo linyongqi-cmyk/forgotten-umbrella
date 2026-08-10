@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": {"ja":"","en":""},
+  "title": {"ja":"かさをかけないで下さい","en":"Please Do Not Hang Umbrellas"},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
   "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
@@ -38,7 +38,7 @@
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [],
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
-  "editFlag": "black",
+  "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
@@ -52,7 +52,7 @@
   // 投稿者原话/备注（投稿者说的背景话，可能展示在详情页）。
   "submitterNote": "",
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
-  "remarks": "地址，标题，故事",
+  "remarks": "故事",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
   "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
@@ -64,9 +64,17 @@
   // T7 模糊聚焦时标点下方显示的文字（留空=用显示地址 locationText）。
   "blurLabel": "",
   // 这个标点整体的文字说明（由正文段落合并而来，用于卡片简介）。
-  "story": "",
+  "story": "この傘は、稲荷神社へと続く山道の途中にある一軒の店の、窓の柵に掛けられていた。おそらくこの界隈は観光客がとても多く、店で水や食べ物を買ったあと、そのまま店先で一休みする人が多いのだろう。そうしているうちに、傘が窓の柵に掛けられることもたびたびあったにちがいない。\nこうしたことがあまりに頻繁に起きるので、店の人はとうとう貼り紙を出し、観光客に傘を掛けないよう注意を促したのだ。",
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
-  "blocks": [],
+  "blocks": [
+    {
+      "type": "text",
+      "text": {
+        "ja": "この傘は、稲荷神社へと続く山道の途中にある一軒の店の、窓の柵に掛けられていた。おそらくこの界隈は観光客がとても多く、店で水や食べ物を買ったあと、そのまま店先で一休みする人が多いのだろう。そうしているうちに、傘が窓の柵に掛けられることもたびたびあったにちがいない。\nこうしたことがあまりに頻繁に起きるので、店の人はとうとう貼り紙を出し、観光客に傘を掛けないよう注意を促したのだ。",
+        "en": "This umbrella was hung on the window railing of a shop partway up the mountain trail leading to the Inari Shrine. I imagine that, because this area draws so many tourists, many people buy water or food at the shops and then rest right at the entrance—and in doing so, umbrellas often end up hung on the window railings.\nIt was precisely because this happened so often that the shopkeeper finally put up a notice, asking visitors not to hang their umbrellas here."
+      }
+    }
+  ],
   // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
   // 「拍摄前 24 小时」逐时天气。null=还没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
   "weather": null,
