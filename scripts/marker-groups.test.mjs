@@ -55,6 +55,39 @@ test("group count is a Google Maps label over the unchanged configured marker ic
   });
 });
 
+test("hovered collection grows its count label with the existing marker hover size", () => {
+  const baseIcon = {
+    url: "data:image/svg+xml;base64,existing-configured-marker",
+    scaledSize: { width: 45, height: 45 },
+    anchor: { x: 22.5, y: 43 },
+  };
+
+  const normal = markerGroups.markerGroupPresentation(baseIcon, 2, { x: 22.5, y: 18.75 });
+  const hovered = markerGroups.markerGroupPresentation(baseIcon, 2, { x: 22.5, y: 18.75 }, { hover: true });
+
+  assert.equal(normal.label.fontSize, "12px");
+  assert.equal(hovered.label.fontSize, "14px");
+});
+
+test("collection focus mask center is the viewport-space center of the map", () => {
+  assert.equal(typeof markerGroups.markerGroupFocusMaskCenter, "function");
+
+  assert.deepEqual(markerGroups.markerGroupFocusMaskCenter({ left: 48, top: 24, width: 640, height: 480 }), {
+    x: 368,
+    y: 264,
+  });
+});
+
+test("only user map movement clears a stationary collection blur", () => {
+  assert.equal(typeof markerGroups.shouldClearMarkerGroupFocus, "function");
+
+  assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: true, cameraAnimating: false, interactionType: "dragstart" }), true);
+  assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: true, cameraAnimating: false, interactionType: "zoom_changed" }), true);
+  assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: true, cameraAnimating: true, interactionType: "zoom_changed" }), false);
+  assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: true, cameraAnimating: false, interactionType: "idle" }), false);
+  assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: false, cameraAnimating: false, interactionType: "dragstart" }), false);
+});
+
 test("marker focus and blur settings are independent per group and default when unset", () => {
   assert.equal(typeof markerGroups.markerGroupSettingsFor, "function");
   assert.equal(typeof markerGroups.updateMarkerGroupSettings, "function");

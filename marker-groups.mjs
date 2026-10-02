@@ -23,10 +23,11 @@ export function markerGroupCenter(members = []) {
   }), { lat: 0, lng: 0 });
 }
 
-export function markerGroupPresentation(icon, count, labelOrigin) {
+export function markerGroupPresentation(icon, count, labelOrigin, { hover = false } = {}) {
   const safeCount = Math.max(0, Math.floor(Number(count) || 0));
   const text = safeCount > 99 ? "99+" : String(safeCount);
-  const fontSize = text.length === 1 ? "12px" : text.length === 2 ? "10px" : "8px";
+  const baseFontSize = text.length === 1 ? 12 : text.length === 2 ? 10 : 8;
+  const fontSize = `${hover ? Math.round(baseFontSize * 1.125) : baseFontSize}px`;
   return {
     icon: { ...icon, labelOrigin },
     label: {
@@ -38,6 +39,17 @@ export function markerGroupPresentation(icon, count, labelOrigin) {
       className: "marker-group-count-label",
     },
   };
+}
+
+export function markerGroupFocusMaskCenter(mapRect) {
+  return {
+    x: mapRect.left + mapRect.width / 2,
+    y: mapRect.top + mapRect.height / 2,
+  };
+}
+
+export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interactionType }) {
+  return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }
 
 export const DEFAULT_MARKER_GROUP_SETTINGS = Object.freeze({

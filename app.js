@@ -4,7 +4,9 @@ import {
   listMarkerGroups,
   markerGroupCenter,
   markerGroupPresentation,
+  markerGroupFocusMaskCenter,
   markerGroupSettingsFor,
+  shouldClearMarkerGroupFocus,
   updateMarkerGroupSettings,
   sanitizeMarkerGroupSettingsMap,
 } from "./marker-groups.mjs";
@@ -2493,8 +2495,8 @@ async function initGoogleMap() {
   state.projectionOverlay.onRemove = () => {};
   state.projectionOverlay.setMap(state.map);
 
-  state.map.addListener("dragstart", dismissFocusAfterUserMapInteraction);
-  state.map.addListener("zoom_changed", dismissFocusAfterUserMapInteraction);
+  state.map.addListener("dragstart", () => dismissFocusAfterUserMapInteraction("dragstart"));
+  state.map.addListener("zoom_changed", () => dismissFocusAfterUserMapInteraction("zoom_changed"));
   state.map.addListener("zoom_changed", refreshSatellitePoi);
   // 任务4：地图停下时刷新「回到最近的标点」按钮显隐。
   state.map.addListener("idle", updateNearestFabVisibility);
@@ -3301,11 +3303,11 @@ function renderMapMarkers(items) {
   }
 }
 
-function renderMarkerGroupMarker(groupId, members) {
+function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   const center = markerGroupCenter(members);
   if (!center) return;
   const representative = members[0];
-  const visual = markerVisualForItem(representative);
+  const visual = markerVisualForItem(representative, { hover });
   const groupIcon = markerIcon(visual);
   const markerSize = groupIcon.scaledSize.width;
   const parts = parseMarkerSvg(markerSvgForCategory(visual.category));
@@ -3315,7 +3317,7 @@ function renderMarkerGroupMarker(groupId, members) {
     x: ((markerCenter.x - viewX) / viewWidth) * markerSize,
     y: ((markerCenter.y - viewY) / viewHeight) * markerSize,
   };
-  const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin);
+  const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin, { hover });
   presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
   const groupName = representative.markerGroupName || groupId;
   const existing = state.markerGroupMarkers.get(groupId);
@@ -3335,10 +3337,21 @@ function renderMarkerGroupMarker(groupId, members) {
     zIndex: markerZIndex(representative) + 1,
     optimized: true,
   });
+  const refreshGroupHover = (isHovered) => {
+    const currentMembers = filteredUmbrellas()
+      .filter((item) => item.markerGroupId === groupId && hasCoordinates(item))
+      .filter((item) => state.markerFilter[markerCategory(item)] !== false);
+    renderMarkerGroupMarker(groupId, currentMembers, { hover: isHovered });
+  };
   marker.addListener("click", (event) => {
     event.domEvent?.stopPropagation?.();
-    expandMarkerGroup(groupId, members);
+    const currentMembers = filteredUmbrellas()
+      .filter((item) => item.markerGroupId === groupId && hasCoordinates(item))
+      .filter((item) => state.markerFilter[markerCategory(item)] !== false);
+    expandMarkerGroup(groupId, currentMembers);
   });
+  marker.addListener("mouseover", () => refreshGroupHover(true));
+  marker.addListener("mouseout", () => refreshGroupHover(false));
   state.markerGroupMarkers.set(groupId, marker);
 }
 
@@ -3366,10 +3379,9 @@ function startMarkerGroupFocus(groupId, center, settings, { preview = false } = 
   state.markerGroupFocusCenter = center;
   els.mapView?.classList.add("is-marker-group-focus");
   els.mapView?.classList.remove("is-blur-approx");
-  const target = getMapCenterScreenPoint();
-  const mapRect = els.mapCanvas.getBoundingClientRect();
-  els.focusBlur?.style.setProperty("--focus-x", `${mapRect.left + target.x}px`);
-  els.focusBlur?.style.setProperty("--focus-y", `${mapRect.top + target.y}px`);
+  const target = markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect());
+  els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
+  els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
   els.focusBlur?.style.setProperty("--fb-blur", `${settings.blur}px`);
   els.focusBlur?.style.setProperty("--fb-radius", `${settings.radius}px`);
   els.focusBlur?.style.setProperty("--fb-feather", `${settings.feather}px`);
@@ -6985,12 +6997,19 @@ function setupMobileDoubleTapZoomGuard() {
   );
 }
 
-function dismissFocusAfterUserMapInteraction() {
+function dismissFocusAfterUserMapInteraction(interactionType) {
   els.topbar?.classList.remove("is-nav-open");
   els.navToggle?.setAttribute("aria-expanded", "false");
   if (state.markerFilterOpen) {
     state.markerFilterOpen = false;
     syncMarkerFilter();
+  }
+  if (shouldClearMarkerGroupFocus({
+    active: Boolean(state.markerGroupFocusId),
+    cameraAnimating: state.markerGroupCameraAnimating || state.isFocusCameraAnimating,
+    interactionType,
+  })) {
+    stopMarkerGroupFocus();
   }
   if (!els.mapView.classList.contains("is-focus-mode") || state.isFocusCameraAnimating) {
     return;
@@ -7047,7 +7066,9 @@ function zoomToDefaultAroundMarker(item) {
 }
 
 function setFocusMaskPosition() {
-  const target = getFocusTargetScreenPoint();
+  const target = state.markerGroupFocusId
+    ? markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect())
+    : getFocusTargetScreenPoint();
   els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
   // Park the under-pin approx label just below the marker (item 3).
@@ -7781,7 +7802,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=222", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=223", { updateViaCache: "none" });
   }
 }
 
