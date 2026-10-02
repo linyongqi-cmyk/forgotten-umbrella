@@ -243,6 +243,9 @@ export async function saveRecord(payload) {
   if (Object.prototype.hasOwnProperty.call(payload, "linkedId")) {
     record.linkedId = typeof payload.linkedId === "string" ? payload.linkedId.trim() : "";
   }
+  if (Object.prototype.hasOwnProperty.call(payload, "markerGroupId")) {
+    record.markerGroupId = typeof payload.markerGroupId === "string" ? payload.markerGroupId.trim().slice(0, 120) : "";
+  }
 
   // 对外显示名（替换页面上显示的 ID；不动文件夹/文件名，空=显示原文件名）。
   if (Object.prototype.hasOwnProperty.call(payload, "displayId")) {
@@ -290,6 +293,35 @@ export async function saveRecord(payload) {
   await rebuildDatabase();
 
   return { ok: true, id, media: merged.media, previous };
+}
+
+// Save manual map-group membership for several records with one database rebuild.
+export async function saveMarkerGroups(payload) {
+  const assignments = Array.isArray(payload?.assignments) ? payload.assignments : [];
+  if (!assignments.length || assignments.length > 500) {
+    throw new ApiError(400, "Invalid marker group assignments.");
+  }
+  const cleaned = new Map();
+  for (const entry of assignments) {
+    const id = typeof entry?.id === "string" ? entry.id.trim() : "";
+    if (!id) continue;
+    const markerGroupId = typeof entry.markerGroupId === "string" ? entry.markerGroupId.trim().slice(0, 120) : "";
+    cleaned.set(id, markerGroupId);
+  }
+  if (!cleaned.size) {
+    throw new ApiError(400, "No valid marker group assignments.");
+  }
+  for (const [id, markerGroupId] of cleaned) {
+    const recordPath = await findRecordPathById(id);
+    if (!recordPath) {
+      throw new ApiError(404, `No record found for id "${id}".`);
+    }
+    const record = await readRecordFile(recordPath);
+    record.markerGroupId = markerGroupId;
+    await fs.writeFile(recordPath, stringifyRecordWithComments(record), "utf8");
+  }
+  await rebuildDatabase();
+  return { ok: true, updated: cleaned.size };
 }
 
 const MEDIA_ROLES = new Set(["primary", "supplement", "detail", "illustration"]);
@@ -1265,6 +1297,8 @@ export async function handleEditorApi(pathname, payload) {
       return saveTheme(payload);
     case "/api/save-marker-settings":
       return saveMarkerSettings(payload);
+    case "/api/save-marker-groups":
+      return saveMarkerGroups(payload);
     case "/api/save-site-settings":
       return saveSiteSettings(payload);
     case "/api/upload-image":

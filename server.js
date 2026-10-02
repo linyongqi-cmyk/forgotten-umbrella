@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const port = Number(process.env.PORT || 4173);
+const host = process.env.HOST || "0.0.0.0";
 const root = __dirname;
 
 const types = {
@@ -104,7 +105,7 @@ const server = http.createServer((request, response) => {
 // 监听所有网卡（0.0.0.0），这样同一 Wi-Fi 下的手机/平板也能用 http://<Mac 局域网IP>:端口 打开测试。
 // 安全性：编辑器接口 /api/* 另有本机 IP 关卡（isLocalRequest），只认 127.0.0.1，
 // 手机访问看到的是普通访客版（IS_LOCAL 为 false，编辑器不渲染），改不了数据。
-// 想只对本机开放，把 "0.0.0.0" 改回 "127.0.0.1" 即可。
-server.listen(port, "0.0.0.0", () => {
-  console.log(`Forgotten Umbrella is running at http://127.0.0.1:${port}  (手机同 Wi-Fi 用 http://<Mac局域网IP>:${port})`);
+// 需要只供本机查看时，可用 HOST=127.0.0.1 启动；默认仍允许同 Wi-Fi 手机访问。
+server.listen(port, host, () => {
+  console.log(`Forgotten Umbrella is running at http://127.0.0.1:${port}${host === "0.0.0.0" ? `  (手机同 Wi-Fi 用 http://<Mac局域网IP>:${port})` : ""}`);
 });
