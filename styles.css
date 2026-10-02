@@ -1451,6 +1451,12 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   height: 100%;
 }
 
+.marker-group-count-label {
+  -webkit-text-stroke: 0.55px #263938;
+  paint-order: stroke fill;
+  text-shadow: 0 0 1px #263938;
+}
+
 .map-message {
   position: absolute;
   inset: 24px;

@@ -1,5 +1,5 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
-import { groupMarkerItems, listMarkerGroups, markerGroupCenter } from "./marker-groups.mjs";
+import { groupMarkerItems, listMarkerGroups, markerGroupCenter, markerGroupPresentation } from "./marker-groups.mjs";
 
 const state = {
   umbrellas: [],
@@ -3288,12 +3288,24 @@ function renderMarkerGroupMarker(groupId, members) {
   const center = markerGroupCenter(members);
   if (!center) return;
   const representative = members[0];
-  const groupIcon = markerIcon(markerVisualForItem(representative), { countBadge: members.length });
+  const visual = markerVisualForItem(representative);
+  const groupIcon = markerIcon(visual);
+  const markerSize = groupIcon.scaledSize.width;
+  const parts = parseMarkerSvg(markerSvgForCategory(visual.category));
+  const [viewX, viewY, viewWidth, viewHeight] = markerViewBoxNumbers(parts.viewBox);
+  const markerCenter = markerCenterPoint(parts);
+  const labelOrigin = {
+    x: ((markerCenter.x - viewX) / viewWidth) * markerSize,
+    y: ((markerCenter.y - viewY) / viewHeight) * markerSize,
+  };
+  const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin);
+  presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
   const groupName = representative.markerGroupName || groupId;
   const existing = state.markerGroupMarkers.get(groupId);
   if (existing) {
     existing.setPosition(center);
-    existing.setIcon(groupIcon);
+    existing.setIcon(presentation.icon);
+    existing.setLabel(presentation.label);
     existing.setTitle(`${groupName} · ${members.length}`);
     return;
   }
@@ -3301,7 +3313,8 @@ function renderMarkerGroupMarker(groupId, members) {
     map: state.map,
     position: center,
     title: `${groupName} · ${members.length}`,
-    icon: groupIcon,
+    icon: presentation.icon,
+    label: presentation.label,
     zIndex: markerZIndex(representative) + 1,
     optimized: true,
   });
@@ -7289,11 +7302,7 @@ function markerVisualSignature(visual) {
   return [visual?.stateKey || "normal", visual?.flagColor || "", visual?.category || "own", visual?.hover ? "hover" : "base"].join("|");
 }
 
-function markerIcon(visualOrState = "normal", flagColor = "", category = "own", options = {}) {
-  if (flagColor && typeof flagColor === "object") {
-    options = flagColor;
-    flagColor = "";
-  }
+function markerIcon(visualOrState = "normal", flagColor = "", category = "own") {
   const visual = typeof visualOrState === "object"
     ? visualOrState
     : { stateKey: visualOrState || "normal", flagColor: flagColor || "", category, hover: false };
@@ -7301,7 +7310,7 @@ function markerIcon(visualOrState = "normal", flagColor = "", category = "own", 
   const color = visual.flagColor || null;
   const size = Math.round((visual.hover ? 45 : 40) * markerStateScale(visual.stateKey));
   return {
-    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey, null, options.countBadge),
+    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
@@ -7627,21 +7636,12 @@ function markerSvgMarkup(category, options = {}) {
       "stroke-linejoin": "round",
     });
   }).join("");
-  const count = Number(options.countBadge);
-  const countMarkup = Number.isFinite(count) && count > 0
-    ? (() => {
-      const label = count > 99 ? "99+" : String(count);
-      const center = markerCenterPoint(parts);
-      const fontSize = label.length === 1 ? 8 : label.length === 2 ? 6.3 : 4.6;
-      return `<text x="${center.x}" y="${center.y + fontSize * 0.34}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${fontSize}" font-weight="700" fill="#ffffff" stroke="#263938" stroke-width="1.2" paint-order="stroke" stroke-linejoin="round">${escapeHtml(label)}</text>`;
-    })()
-    : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}${countMarkup}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}</svg>`;
 }
 
-function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null, countBadge = null) {
+function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null) {
   const settings = activeMarkerSettings();
-  const key = JSON.stringify({ category, overrideColor, stateKey, transition, countBadge, settings });
+  const key = JSON.stringify({ category, overrideColor, stateKey, transition, settings });
   if (markerIconCache.has(key)) {
     return markerIconCache.get(key);
   }
@@ -7652,7 +7652,6 @@ function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal"
     fromOverrideColor: transition?.fromFlagColor,
     fromStateKey: transition?.fromStateKey,
     progress: transition?.progress,
-    countBadge,
   });
   const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   markerIconCache.set(key, url);
@@ -7698,7 +7697,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=220", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=221", { updateViaCache: "none" });
   }
 }
 

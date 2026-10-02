@@ -32,3 +32,25 @@ test("listMarkerGroups sorts the closest collection first from the edited record
   assert.equal(groups[1].id, "spread");
   assert.equal(groups[2].id, "far");
 });
+
+test("group count is a Google Maps label over the unchanged configured marker icon", () => {
+  const baseIcon = {
+    url: "data:image/svg+xml;base64,existing-configured-marker",
+    scaledSize: { width: 40, height: 40 },
+    anchor: { x: 20, y: 38 },
+  };
+
+  const presentation = markerGroups.markerGroupPresentation(baseIcon, 2, { x: 20, y: 16.67 });
+
+  assert.equal(presentation.icon.url, baseIcon.url);
+  assert.equal(presentation.icon.scaledSize, baseIcon.scaledSize);
+  assert.deepEqual(presentation.icon.labelOrigin, { x: 20, y: 16.67 });
+  assert.deepEqual(presentation.label, {
+    text: "2",
+    color: "#ffffff",
+    fontFamily: "Arial, sans-serif",
+    fontSize: "12px",
+    fontWeight: "700",
+    className: "marker-group-count-label",
+  });
+});

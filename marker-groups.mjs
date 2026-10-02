@@ -23,6 +23,23 @@ export function markerGroupCenter(members = []) {
   }), { lat: 0, lng: 0 });
 }
 
+export function markerGroupPresentation(icon, count, labelOrigin) {
+  const safeCount = Math.max(0, Math.floor(Number(count) || 0));
+  const text = safeCount > 99 ? "99+" : String(safeCount);
+  const fontSize = text.length === 1 ? "12px" : text.length === 2 ? "10px" : "8px";
+  return {
+    icon: { ...icon, labelOrigin },
+    label: {
+      text,
+      color: "#ffffff",
+      fontFamily: "Arial, sans-serif",
+      fontSize,
+      fontWeight: "700",
+      className: "marker-group-count-label",
+    },
+  };
+}
+
 function distanceMeters(a, b) {
   if (!hasCoordinates({ coordinates: a }) || !hasCoordinates({ coordinates: b })) return Infinity;
   const radians = (degrees) => degrees * Math.PI / 180;
