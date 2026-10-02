@@ -60,8 +60,10 @@
   "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "IMG_0162",
-  // 地图集合编号。相同编号的多条独立记录会在地图上合成一个可展开标点。空=不属于集合。
+  // 地图集合编号。相同编号的多条独立记录会合成一个带数量的标点。空=不属于集合。
   "markerGroupId": "kyoto-chocozap-umbrellas",
+  // 地图集合名称。
+  "markerGroupName": "chocoZAP Kujo",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "own",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。

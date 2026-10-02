@@ -151,6 +151,7 @@ async function buildUmbrellaItem(recordPath, record) {
       weather: primaryWeather,
       linkedId: record.linkedId || "",
       markerGroupId: typeof record.markerGroupId === "string" ? record.markerGroupId : "",
+      markerGroupName: typeof record.markerGroupName === "string" ? record.markerGroupName : "",
       submissionType: record.submissionType === "contributed" ? "contributed" : "own",
       submitter: record.submitter || "",
       submissionChannel: record.submissionChannel || "",

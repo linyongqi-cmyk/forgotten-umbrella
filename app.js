@@ -1,4 +1,5 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
+import { groupMarkerItems, listMarkerGroups, markerGroupCenter } from "./marker-groups.mjs";
 
 const state = {
   umbrellas: [],
@@ -11,10 +12,7 @@ const state = {
   markers: new Map(),
   markerGroupMarkers: new Map(),
   markerGroupExpanded: new Set(),
-  markerGroupCollapsing: new Set(),
-  markerGroupPendingFan: new Set(),
-  markerGroupSelection: new Set(),
-  markerGroupEditMode: false,
+  markerGroupCameraAnimating: false,
   markerVisualStates: new Map(),
   markerIconAnimations: new Map(),
   googleReady: false,
@@ -913,6 +911,8 @@ function normalizeUmbrellaData(items) {
       return {
         ...item,
         title: item.title || "",
+        markerGroupId: typeof item.markerGroupId === "string" ? item.markerGroupId : "",
+        markerGroupName: typeof item.markerGroupName === "string" ? item.markerGroupName : "",
         displayName: item.id,
         thumb: item.thumb || item.image,
         location: locationText,
@@ -2482,9 +2482,8 @@ async function initGoogleMap() {
   // 任务4：地图停下时刷新「回到最近的标点」按钮显隐。
   state.map.addListener("idle", updateNearestFabVisibility);
   state.map.addListener("click", collapseExpandedMarkerGroups);
-  state.map.addListener("idle", refreshSpiderfiedMarkerGroups);
   state.map.addListener("zoom_changed", () => {
-    if ((state.map.getZoom() || 0) < 16) collapseExpandedMarkerGroups();
+    if ((state.map.getZoom() || 0) < 16 && !state.markerGroupCameraAnimating) collapseExpandedMarkerGroups();
   });
 
   const initialView = await getInitialMapCenter();
@@ -3163,15 +3162,10 @@ function renderMapMarkers(items) {
   const allVisible = items
     .filter(hasCoordinates)
     .filter((item) => state.markerFilter[markerCategory(item)] !== false);
-  const groups = new Map();
-  allVisible.forEach((item) => {
-    if (!item.markerGroupId) return;
-    if (!groups.has(item.markerGroupId)) groups.set(item.markerGroupId, []);
-    groups.get(item.markerGroupId).push(item);
-  });
+  const groups = groupMarkerItems(allVisible);
   const collapsedGroups = new Map(
     [...groups.entries()].filter(([groupId, members]) =>
-      members.length > 1 && !state.editMode && !state.markerGroupEditMode && !state.markerGroupExpanded.has(groupId),
+      members.length > 1 && !state.editMode && !state.markerGroupExpanded.has(groupId),
     ),
   );
   const collapsedMemberIds = new Set([...collapsedGroups.values()].flat().map((item) => item.id));
@@ -3202,7 +3196,7 @@ function renderMapMarkers(items) {
   visible.forEach((item) => {
     const visual = markerVisualForItem(item);
     const icon = markerIcon(visual);
-    const displayPosition = markerGroupPositionForItem(item) || item.coordinates;
+    const displayPosition = item.coordinates;
     const existing = state.markers.get(item.id);
     if (existing) {
       const pos = existing.getPosition();
@@ -3211,7 +3205,7 @@ function renderMapMarkers(items) {
       }
       setMarkerVisual(existing, item, { animate: true });
       existing.setZIndex(markerZIndex(item));
-      const draggable = state.editMode && !state.markerGroupEditMode;
+      const draggable = state.editMode;
       if (existing.getDraggable() !== draggable) {
         existing.setDraggable(draggable);
       }
@@ -3228,7 +3222,7 @@ function renderMapMarkers(items) {
       // must never swap front-to-back while zooming — with a DISTINCT zIndex per pin
       // the canvas renderer draws them in a fixed order, so close pairs never flicker.
       zIndex: markerZIndex(item),
-      draggable: state.editMode && !state.markerGroupEditMode,
+      draggable: state.editMode,
       // 用户 T3 (v122): OPTIMIZED markers (the default) are painted on the map's own
       // canvas, so during the focus zoom-in animation they move in perfect lockstep
       // with the tiles. `optimized:false` DOM markers lagged the camera by a frame
@@ -3249,15 +3243,8 @@ function renderMapMarkers(items) {
         return;
       }
       if (state.editMode) {
-        if (state.markerGroupEditMode) {
-          toggleMarkerGroupMember(id);
-          return;
-        }
         openEditor(id);
         return;
-      }
-      if (item.markerGroupId && state.markerGroupExpanded.has(item.markerGroupId)) {
-        collapseMarkerGroup(item.markerGroupId);
       }
       state.ignoreFocusCloseUntil = performance.now() + 180;
       // #5: clicking the already-focused marker again (after panning/zooming it
@@ -3297,151 +3284,53 @@ function renderMapMarkers(items) {
   }
 }
 
-function markerGroupCenter(members) {
-  const total = members.length || 1;
-  return members.reduce((center, item) => ({
-    lat: center.lat + item.coordinates.lat / total,
-    lng: center.lng + item.coordinates.lng / total,
-  }), { lat: 0, lng: 0 });
-}
-
-function markerGroupPositionForItem(item) {
-  const groupId = item?.markerGroupId;
-  if (!groupId || !state.markerGroupExpanded.has(groupId) || state.markerGroupPendingFan.has(groupId)) return null;
-  if (state.markerGroupCollapsing.has(groupId)) return item.coordinates;
-  const members = filteredUmbrellas().filter((candidate) =>
-    candidate.markerGroupId === groupId && hasCoordinates(candidate) && state.markerFilter[markerCategory(candidate)] !== false,
-  );
-  if (members.length < 2) return item.coordinates;
-  const index = members.findIndex((candidate) => candidate.id === item.id);
-  if (index < 0) return null;
-  const projection = state.projectionOverlay?.getProjection?.();
-  if (!projection) return item.coordinates;
-  const center = markerGroupCenter(members);
-  const origin = projection.fromLatLngToDivPixel(new google.maps.LatLng(center.lat, center.lng));
-  if (!origin) return item.coordinates;
-  const angle = -Math.PI / 2 + (Math.PI * 2 * index) / members.length;
-  const radius = Math.min(104, Math.max(58, 34 + members.length * 10));
-  const point = new google.maps.Point(origin.x + Math.cos(angle) * radius, origin.y + Math.sin(angle) * radius);
-  const position = projection.fromDivPixelToLatLng(point);
-  return position ? { lat: position.lat(), lng: position.lng() } : item.coordinates;
-}
-
-function markerGroupIcon(count) {
-  const label = count > 99 ? "99+" : String(count);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="20" fill="#263938" fill-opacity=".96" stroke="#f6f1e7" stroke-width="2.4"/><circle cx="26" cy="26" r="15.2" fill="#d95d42"/><text x="26" y="31" text-anchor="middle" font-family="Arial,sans-serif" font-size="${label.length > 2 ? 12 : 16}" font-weight="700" fill="#fff">${label}</text><circle cx="42" cy="10" r="4" fill="#f6f1e7" fill-opacity=".9"/></svg>`;
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(52, 52),
-    anchor: new google.maps.Point(26, 26),
-  };
-}
-
 function renderMarkerGroupMarker(groupId, members) {
   const center = markerGroupCenter(members);
+  if (!center) return;
+  const representative = members[0];
+  const groupIcon = markerIcon(markerVisualForItem(representative), { countBadge: members.length });
+  const groupName = representative.markerGroupName || groupId;
   const existing = state.markerGroupMarkers.get(groupId);
   if (existing) {
     existing.setPosition(center);
-    existing.setIcon(markerGroupIcon(members.length));
-    existing.setTitle(`${members.length} umbrellas`);
+    existing.setIcon(groupIcon);
+    existing.setTitle(`${groupName} · ${members.length}`);
     return;
   }
   const marker = new google.maps.Marker({
     map: state.map,
     position: center,
-    title: `${members.length} umbrellas`,
-    icon: markerGroupIcon(members.length),
-    zIndex: 11000000,
+    title: `${groupName} · ${members.length}`,
+    icon: groupIcon,
+    zIndex: markerZIndex(representative) + 1,
     optimized: true,
   });
-  marker.setOpacity(0);
-  requestAnimationFrame(() => marker.setOpacity(1));
   marker.addListener("click", (event) => {
     event.domEvent?.stopPropagation?.();
-    expandMarkerGroup(groupId);
+    expandMarkerGroup(groupId, members);
   });
   state.markerGroupMarkers.set(groupId, marker);
 }
 
-function expandMarkerGroup(groupId) {
-  const members = state.umbrellas.filter((item) => item.markerGroupId === groupId && hasCoordinates(item));
-  if (members.length < 2) return;
-  state.markerGroupExpanded.add(groupId);
-  state.markerGroupPendingFan.add(groupId);
-  renderMapMarkers(filteredUmbrellas());
+function expandMarkerGroup(groupId, members) {
+  if (!members || members.length < 2) return;
   const center = markerGroupCenter(members);
-  const currentZoom = state.map.getZoom() || DEFAULT_MAP_ZOOM;
-  const targetZoom = Math.min(20, Math.max(currentZoom + 2, 17));
-  const fanOut = () => {
-    let finished = false;
-    let timeoutId = 0;
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      window.clearTimeout(timeoutId);
-      animateMarkerGroupFan(groupId);
-    };
-    const listener = google.maps.event.addListenerOnce(state.map, "idle", finish);
-    if (currentZoom !== targetZoom) state.map.setZoom(targetZoom);
-    requestAnimationFrame(() => state.map.panTo(center));
-    timeoutId = window.setTimeout(() => {
-      google.maps.event.removeListener(listener);
-      finish();
-    }, 1800);
-  };
-  fanOut();
-}
-
-function animateMarkerGroupFan(groupId, reverse = false) {
-  if (!state.markerGroupExpanded.has(groupId)) return;
-  state.markerGroupPendingFan.delete(groupId);
-  const members = state.umbrellas.filter((item) => item.markerGroupId === groupId && hasCoordinates(item));
-  const targets = members.map((item) => {
-    const marker = state.markers.get(item.id);
-    const from = marker?.getPosition();
-    const target = reverse ? item.coordinates : markerGroupPositionForItem(item);
-    return marker && from && target ? { marker, from: { lat: from.lat(), lng: from.lng() }, target } : null;
-  }).filter(Boolean);
-  const started = performance.now();
-  const duration = reverse ? 260 : 420;
-  const step = (now) => {
-    const t = Math.min(1, (now - started) / duration);
-    const eased = t * t * (3 - 2 * t);
-    targets.forEach(({ marker, from, target }) => marker.setPosition({
-      lat: from.lat + (target.lat - from.lat) * eased,
-      lng: from.lng + (target.lng - from.lng) * eased,
-    }));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-function collapseMarkerGroup(groupId) {
-  if (!state.markerGroupExpanded.has(groupId) || state.markerGroupCollapsing.has(groupId)) return;
-  state.markerGroupCollapsing.add(groupId);
-  animateMarkerGroupFan(groupId, true);
-  window.setTimeout(() => {
-    state.markerGroupExpanded.delete(groupId);
-    state.markerGroupCollapsing.delete(groupId);
-    renderMapMarkers(filteredUmbrellas());
-  }, 280);
+  if (!center) return;
+  state.markerGroupExpanded.add(groupId);
+  renderMapMarkers(filteredUmbrellas());
+  animateMarkerToFocus({ coordinates: center }, {
+    targetScreenPoint: getMapCenterScreenPoint(),
+    revealFocusUI: false,
+    onComplete: () => {
+      state.markerGroupCameraAnimating = false;
+    },
+  });
 }
 
 function collapseExpandedMarkerGroups() {
-  [...state.markerGroupExpanded].forEach(collapseMarkerGroup);
-}
-
-function refreshSpiderfiedMarkerGroups() {
-  if (state.markerGroupPendingFan.size) return;
-  state.markerGroupExpanded.forEach((groupId) => {
-    if (state.markerGroupCollapsing.has(groupId)) return;
-    state.umbrellas.forEach((item) => {
-      if (item.markerGroupId !== groupId) return;
-      const marker = state.markers.get(item.id);
-      const position = markerGroupPositionForItem(item);
-      if (marker && position) marker.setPosition(position);
-    });
-  });
+  if (!state.markerGroupExpanded.size) return;
+  state.markerGroupExpanded.clear();
+  renderMapMarkers(filteredUmbrellas());
 }
 
 // A media file is a (playable) video when its extension is a known video type.
@@ -7101,18 +6990,28 @@ function maybeShowMobileFocusGestureTip() {
   mobileFocusGestureTipTimer = window.setTimeout(hideMobileFocusGestureTip, 2800);
 }
 
-function animateMarkerToFocus(item) {
+function animateMarkerToFocus(item, options = {}) {
   if (!hasCoordinates(item)) {
     return;
   }
+  const onComplete = options.onComplete;
+  state.markerGroupCameraAnimating = Boolean(onComplete);
+  const finish = () => {
+    state.markerGroupCameraAnimating = false;
+    onComplete?.();
+  };
+  const targetScreen = options.targetScreenPoint || getFocusTargetScreenPoint();
 
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
     state.map.panTo(item.coordinates);
     const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
-    revealApproxLabel();
-    maybeShowMobileFocusGestureTip();
+    if (options.revealFocusUI !== false) {
+      revealApproxLabel();
+      maybeShowMobileFocusGestureTip();
+    }
+    finish();
     return;
   }
 
@@ -7128,7 +7027,7 @@ function animateMarkerToFocus(item) {
   const approxZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : null;
   const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, focusMapZoom());
   const startScreen = getLatLngScreenPoint(markerLatLng, startZoom); // 用户 T1: see recenter note
-  const endScreen = getFocusTargetScreenPoint();
+  const endScreen = targetScreen;
   const startTime = performance.now();
 
   const step = (now) => {
@@ -7150,9 +7049,12 @@ function animateMarkerToFocus(item) {
       state.cameraAnimationFrame = null;
       setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, endZoom, endScreen), endZoom);
       setFocusMaskPosition();
-      // Map has settled on the point — now fade the under-pin label in (item 3).
-      revealApproxLabel();
-      maybeShowMobileFocusGestureTip();
+      if (options.revealFocusUI !== false) {
+        // Map has settled on the point — now fade the under-pin label in (item 3).
+        revealApproxLabel();
+        maybeShowMobileFocusGestureTip();
+      }
+      finish();
       window.setTimeout(() => {
         state.isFocusCameraAnimating = false;
       }, 80);
@@ -7224,6 +7126,11 @@ function getFocusTargetScreenPoint() {
     x: Math.round(window.innerWidth * (isMobile ? FOCUS_MARKER_SCREEN.xMobile : FOCUS_MARKER_SCREEN.xDesktop)),
     y: Math.round(window.innerHeight * (isMobile ? FOCUS_MARKER_SCREEN.yMobile : FOCUS_MARKER_SCREEN.yDesktop)),
   };
+}
+
+function getMapCenterScreenPoint() {
+  const rect = els.mapCanvas.getBoundingClientRect();
+  return { x: rect.width / 2, y: rect.height / 2 };
 }
 
 function fitMapToItems(items) {
@@ -7343,9 +7250,6 @@ function markerStateForItem(item) {
   if (!item) {
     return "normal";
   }
-  if (state.markerGroupSelection.has(item.id)) {
-    return "focused";
-  }
   if (item.id === state.focusMarkerId) {
     return "focused";
   }
@@ -7385,7 +7289,11 @@ function markerVisualSignature(visual) {
   return [visual?.stateKey || "normal", visual?.flagColor || "", visual?.category || "own", visual?.hover ? "hover" : "base"].join("|");
 }
 
-function markerIcon(visualOrState = "normal", flagColor = "", category = "own") {
+function markerIcon(visualOrState = "normal", flagColor = "", category = "own", options = {}) {
+  if (flagColor && typeof flagColor === "object") {
+    options = flagColor;
+    flagColor = "";
+  }
   const visual = typeof visualOrState === "object"
     ? visualOrState
     : { stateKey: visualOrState || "normal", flagColor: flagColor || "", category, hover: false };
@@ -7393,7 +7301,7 @@ function markerIcon(visualOrState = "normal", flagColor = "", category = "own") 
   const color = visual.flagColor || null;
   const size = Math.round((visual.hover ? 45 : 40) * markerStateScale(visual.stateKey));
   return {
-    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey),
+    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey, null, options.countBadge),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
@@ -7719,12 +7627,21 @@ function markerSvgMarkup(category, options = {}) {
       "stroke-linejoin": "round",
     });
   }).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}</svg>`;
+  const count = Number(options.countBadge);
+  const countMarkup = Number.isFinite(count) && count > 0
+    ? (() => {
+      const label = count > 99 ? "99+" : String(count);
+      const center = markerCenterPoint(parts);
+      const fontSize = label.length === 1 ? 8 : label.length === 2 ? 6.3 : 4.6;
+      return `<text x="${center.x}" y="${center.y + fontSize * 0.34}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${fontSize}" font-weight="700" fill="#ffffff" stroke="#263938" stroke-width="1.2" paint-order="stroke" stroke-linejoin="round">${escapeHtml(label)}</text>`;
+    })()
+    : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}${countMarkup}</svg>`;
 }
 
-function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null) {
+function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null, countBadge = null) {
   const settings = activeMarkerSettings();
-  const key = JSON.stringify({ category, overrideColor, stateKey, transition, settings });
+  const key = JSON.stringify({ category, overrideColor, stateKey, transition, countBadge, settings });
   if (markerIconCache.has(key)) {
     return markerIconCache.get(key);
   }
@@ -7735,6 +7652,7 @@ function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal"
     fromOverrideColor: transition?.fromFlagColor,
     fromStateKey: transition?.fromStateKey,
     progress: transition?.progress,
+    countBadge,
   });
   const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   markerIconCache.set(key, url);
@@ -7780,7 +7698,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=219", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=220", { updateViaCache: "none" });
   }
 }
 
@@ -7845,7 +7763,6 @@ function setupEditor() {
   setupTextsEditor();
   setupThemeEditor();
   setupMarkerEditor();
-  setupMarkerGroupEditor();
 
   const drawer = document.createElement("aside");
   drawer.className = "editor-drawer";
@@ -7858,6 +7775,11 @@ function setupEditor() {
         <label class="editor-head-check" title="勾选后在下方填写关联标点"><span>关联</span><input type="checkbox" id="editor-linked-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方给这个标点起个对外显示名（不改文件夹/文件名）"><span>显示名</span><input type="checkbox" id="editor-displayid-toggle" /></label>
+        <label class="editor-head-check editor-collection-check" title="把这条记录加入一个命名集合"><span>集合</span><input type="checkbox" id="editor-group-toggle" /></label>
+      </div>
+      <div class="editor-group-picker" id="editor-group-picker" hidden>
+        <select id="editor-group-select" aria-label="选择集合"></select>
+        <input id="editor-group-name" type="text" maxlength="80" placeholder="给新集合起名" aria-label="新集合名称" hidden />
       </div>
       <button type="button" class="editor-hide-record" title="隐藏此标点（从地图/档案/统计/列表移除，数据保留，可在「已隐藏」面板恢复）" aria-label="隐藏此标点">${EDITOR_ICON_HIDE}</button>
       <button type="button" class="editor-close" aria-label="close">×</button>
@@ -7874,6 +7796,12 @@ function setupEditor() {
   document.body.appendChild(drawer);
   editor.root = drawer;
   editor.titleEl = drawer.querySelector("#editor-title");
+  editor.groupToggle = drawer.querySelector("#editor-group-toggle");
+  editor.groupPicker = drawer.querySelector("#editor-group-picker");
+  editor.groupSelect = drawer.querySelector("#editor-group-select");
+  editor.groupName = drawer.querySelector("#editor-group-name");
+  editor.groupToggle.addEventListener("change", syncEditorMarkerGroupControl);
+  editor.groupSelect.addEventListener("change", syncEditorMarkerGroupControl);
 
   const body = drawer.querySelector(".editor-col-left");
   const rightCol = drawer.querySelector(".editor-col-right");
@@ -9420,12 +9348,6 @@ function collectLevelsForSave() {
 function toggleEditMode() {
   state.editMode = !state.editMode;
   state.markerGroupExpanded.clear();
-  state.markerGroupCollapsing.clear();
-  state.markerGroupPendingFan.clear();
-  if (!state.editMode) {
-    state.markerGroupEditMode = false;
-    state.markerGroupSelection.clear();
-  }
   document.body.classList.toggle("edit-mode", state.editMode);
   editor.toggle.classList.toggle("is-active", state.editMode);
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
@@ -9437,7 +9359,6 @@ function toggleEditMode() {
     closeEditor();
   }
   render();
-  syncMarkerGroupEditor();
   // Entering edit mode while a point is open jumps straight into editing it.
   if (state.editMode) {
     const openId = state.selectedId || state.focusMarkerId;
@@ -9446,143 +9367,6 @@ function toggleEditMode() {
       openEditor(openId);
     }
   }
-}
-
-const EDITOR_ICON_GROUP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3.5 7.5 12 12l8.5-4.5L12 3Z"/><path d="m3.5 12 8.5 4.5 8.5-4.5M3.5 16.5 12 21l8.5-4.5"/></svg>';
-
-function setupMarkerGroupEditor() {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.id = "marker-group-toggle";
-  button.className = "editor-toggle marker-group-toggle";
-  button.innerHTML = EDITOR_ICON_GROUP;
-  button.title = "集合编辑";
-  button.setAttribute("aria-label", "集合编辑");
-  button.addEventListener("click", () => {
-    state.markerGroupEditMode = !state.markerGroupEditMode;
-    state.markerGroupSelection.clear();
-    document.body.classList.toggle("is-marker-group-edit-mode", state.markerGroupEditMode);
-    render();
-    syncMarkerGroupEditor();
-  });
-  (editor.toolbar || document.body).appendChild(button);
-  editor.markerGroupToggle = button;
-
-  const panel = document.createElement("div");
-  panel.id = "marker-group-tools";
-  panel.className = "marker-group-tools";
-  panel.hidden = true;
-  panel.innerHTML = `
-    <span class="marker-group-selection-count">选择地图上的标点（至少 2 个）</span>
-    <details class="marker-group-picker">
-      <summary>列表选择（标点重叠时）</summary>
-      <input type="search" data-marker-group-search placeholder="搜索 ID 或地点" autocomplete="off" />
-      <div class="marker-group-picker-results" data-marker-group-results></div>
-    </details>
-    <button type="button" data-marker-group-action="save">创建 / 更新集合</button>
-    <button type="button" data-marker-group-action="split">从集合中拆出</button>
-    <button type="button" data-marker-group-action="cancel" aria-label="退出集合编辑">完成</button>`;
-  document.body.appendChild(panel);
-  editor.markerGroupTools = panel;
-  panel.addEventListener("input", (event) => {
-    if (event.target.matches?.("[data-marker-group-search]")) renderMarkerGroupPicker();
-  });
-  panel.addEventListener("click", (event) => {
-    const pick = event.target.closest?.("[data-marker-group-pick]");
-    if (pick) {
-      toggleMarkerGroupMember(pick.dataset.markerGroupPick);
-      return;
-    }
-    const action = event.target.closest?.("[data-marker-group-action]")?.dataset.markerGroupAction;
-    if (!action) return;
-    if (action === "cancel") {
-      state.markerGroupEditMode = false;
-      state.markerGroupSelection.clear();
-      document.body.classList.remove("is-marker-group-edit-mode");
-      render();
-      syncMarkerGroupEditor();
-      return;
-    }
-    if (action === "save") saveSelectedMarkerGroup();
-    if (action === "split") splitSelectedMarkerGroupMembers();
-  });
-  syncMarkerGroupEditor();
-  renderMarkerGroupPicker();
-}
-
-function syncMarkerGroupEditor() {
-  const active = Boolean(state.editMode && state.markerGroupEditMode);
-  document.body.classList.toggle("is-marker-group-edit-mode", active);
-  if (editor.markerGroupToggle) {
-    editor.markerGroupToggle.classList.toggle("is-active", active);
-    editor.markerGroupToggle.title = active ? "退出集合编辑" : "集合编辑";
-    editor.markerGroupToggle.setAttribute("aria-label", editor.markerGroupToggle.title);
-  }
-  if (editor.markerGroupTools) {
-    editor.markerGroupTools.hidden = !active;
-    const count = state.markerGroupSelection.size;
-    const label = editor.markerGroupTools.querySelector(".marker-group-selection-count");
-    if (label) label.textContent = count ? `已选 ${count} 个标点` : "点选地图上的标点（至少 2 个）";
-    editor.markerGroupTools.querySelector('[data-marker-group-action="save"]').disabled = count < 2;
-    editor.markerGroupTools.querySelector('[data-marker-group-action="split"]').disabled = count < 1;
-  }
-}
-
-function toggleMarkerGroupMember(id) {
-  if (state.markerGroupSelection.has(id)) state.markerGroupSelection.delete(id);
-  else state.markerGroupSelection.add(id);
-  renderMapMarkers(filteredUmbrellas());
-  syncMarkerGroupEditor();
-  renderMarkerGroupPicker();
-}
-
-function renderMarkerGroupPicker() {
-  const host = editor.markerGroupTools?.querySelector("[data-marker-group-results]");
-  if (!host) return;
-  const query = String(editor.markerGroupTools.querySelector("[data-marker-group-search]")?.value || "").trim().toLowerCase();
-  const candidates = state.umbrellas
-    .filter((item) => hasCoordinates(item) && state.markerFilter[markerCategory(item)] !== false)
-    .filter((item) => {
-      const haystack = `${item.id} ${item.displayId || ""} ${item.location || ""} ${item.title?.ja || ""} ${item.title?.en || ""}`.toLowerCase();
-      return haystack.includes(query);
-    })
-    .slice(0, 24);
-  host.innerHTML = candidates.length
-    ? candidates.map((item) => {
-      const selected = state.markerGroupSelection.has(item.id);
-      return `<button type="button" data-marker-group-pick="${escapeHtml(item.id)}" class="${selected ? "is-selected" : ""}"><span>${selected ? "✓" : "+"}</span><strong>${escapeHtml(displayUmbrellaId(item))}</strong><small>${escapeHtml(item.location || "")}</small></button>`;
-    }).join("")
-    : `<p>${query ? "没有符合的记录" : "没有可选标点"}</p>`;
-}
-
-function markerGroupAssignmentsForSelection(groupId) {
-  return [...state.markerGroupSelection].map((id) => ({ id, markerGroupId: groupId }));
-}
-
-async function applyMarkerGroupAssignments(assignments, successMessage) {
-  if (!IS_LOCAL || !assignments.length) return;
-  try {
-    await apiPost("/api/save-marker-groups", { assignments });
-    state.markerGroupSelection.clear();
-    state.markerGroupExpanded.clear();
-    state.umbrellas = await loadUmbrellaData();
-    render();
-    syncMarkerGroupEditor();
-    showEditorToast(successMessage);
-  } catch (error) {
-    showEditorToast(`集合保存失败：${error.message}`, true);
-  }
-}
-
-function saveSelectedMarkerGroup() {
-  if (state.markerGroupSelection.size < 2) return;
-  const groupId = `group-${window.crypto?.randomUUID?.() || Date.now().toString(36)}`;
-  applyMarkerGroupAssignments(markerGroupAssignmentsForSelection(groupId), "集合已保存 ✓");
-}
-
-function splitSelectedMarkerGroupMembers() {
-  if (!state.markerGroupSelection.size) return;
-  applyMarkerGroupAssignments(markerGroupAssignmentsForSelection(""), "已从集合拆出 ✓");
 }
 
 // ---- 文案編集: edit the bilingual UI copy in data/texts.json (item 12) -------
@@ -10486,6 +10270,31 @@ function getEditorSource() {
   return checked ? checked.value : "own";
 }
 
+function populateEditorMarkerGroupChoices(raw) {
+  const groups = listMarkerGroups(state.umbrellas, editor.draftCoords);
+  const currentGroupId = raw.markerGroupId || "";
+  const groupOptions = groups.map((group, index) => {
+    const distance = Number.isFinite(group.distanceMeters)
+      ? group.distanceMeters >= 1000 ? `${(group.distanceMeters / 1000).toFixed(1)} km` : `${Math.round(group.distanceMeters)} m`
+      : "";
+    const nearPrefix = index === 0 && distance ? "最近 · " : "";
+    const suffix = distance ? ` · ${distance}` : "";
+    return `<option value="${escapeHtml(group.id)}">${escapeHtml(`${nearPrefix}${group.name} · ${group.count} 条${suffix}`)}</option>`;
+  }).join("");
+  editor.groupSelect.innerHTML = `<option value="">选择集合…</option>${groupOptions}<option value="__create__">＋ 新建集合…</option>`;
+  editor.groupToggle.checked = Boolean(currentGroupId);
+  editor.groupSelect.value = currentGroupId || groups[0]?.id || "__create__";
+  const currentGroup = groups.find((group) => group.id === currentGroupId);
+  editor.groupName.value = currentGroup?.name || raw.markerGroupName || "";
+  syncEditorMarkerGroupControl();
+}
+
+function syncEditorMarkerGroupControl() {
+  if (!editor.groupPicker || !editor.groupToggle || !editor.groupSelect) return;
+  editor.groupPicker.hidden = !editor.groupToggle.checked;
+  editor.groupName.hidden = !editor.groupToggle.checked || editor.groupSelect.value !== "__create__";
+}
+
 function openEditor(id) {
   const raw = getRawById(id);
   if (!raw) {
@@ -10496,6 +10305,7 @@ function openEditor(id) {
   if (editor.titleEl) {
     editor.titleEl.textContent = `编辑：${id}`;
   }
+  populateEditorMarkerGroupChoices(raw);
   populateCategorySelects();
   editor.category.value = categoryFolderOf(raw);
   syncFlagCheckbox(raw.editFlag || "");
@@ -10704,6 +10514,30 @@ async function saveEditor() {
     return;
   }
   const payload = { id, locationCoordinates: editor.draftCoords };
+  if (editor.groupToggle?.checked) {
+    const selectedGroupId = editor.groupSelect?.value || "";
+    if (selectedGroupId === "__create__") {
+      const name = editor.groupName?.value.trim() || "";
+      if (!name) {
+        showEditorToast("先给新集合起个名字。", true);
+        editor.groupName?.focus();
+        return;
+      }
+      payload.markerGroupId = `group-${window.crypto?.randomUUID?.() || Date.now().toString(36)}`;
+      payload.markerGroupName = name;
+    } else if (selectedGroupId) {
+      const group = listMarkerGroups(state.umbrellas).find((entry) => entry.id === selectedGroupId);
+      payload.markerGroupId = selectedGroupId;
+      payload.markerGroupName = group?.name || "";
+    } else {
+      showEditorToast("请选择一个集合，或新建集合。", true);
+      editor.groupSelect?.focus();
+      return;
+    }
+  } else {
+    payload.markerGroupId = "";
+    payload.markerGroupName = "";
+  }
   PLAIN_FIELD_KEYS.forEach((key) => {
     payload[key] = editor.fields[key].value;
   });

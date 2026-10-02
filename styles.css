@@ -4630,183 +4630,8 @@ body.editor-open .editor-toolbar {
 
 /* 文案 + 新增 only appear once edit mode is on (item 11). */
 body:not(.edit-mode) .texts-toggle,
-body:not(.edit-mode) .marker-settings-toggle,
-body:not(.edit-mode) .marker-group-toggle {
+body:not(.edit-mode) .marker-settings-toggle {
   display: none;
-}
-
-.marker-group-tools {
-  position: fixed;
-  left: 50%;
-  bottom: max(22px, env(safe-area-inset-bottom));
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  max-width: calc(100vw - 24px);
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  border-radius: 16px;
-  color: #263938;
-  background: rgba(250, 248, 241, 0.94);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.22);
-  transform: translateX(-50%);
-  backdrop-filter: blur(16px);
-}
-
-.marker-group-tools[hidden] {
-  display: none;
-}
-
-.marker-group-selection-count {
-  padding: 0 6px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.marker-group-picker {
-  position: relative;
-}
-
-.marker-group-picker summary {
-  min-height: 38px;
-  padding: 9px 11px;
-  border: 1px solid rgba(38, 57, 56, 0.2);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.75);
-  cursor: pointer;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.marker-group-picker[open] summary {
-  border-radius: 10px 10px 0 0;
-}
-
-.marker-group-picker > input {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 12px);
-  width: min(340px, calc(100vw - 32px));
-  padding: 10px 12px;
-  border: 1px solid rgba(38, 57, 56, 0.18);
-  border-radius: 10px 10px 0 0;
-  background: #fff;
-  transform: translateX(-50%);
-}
-
-.marker-group-picker-results {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 52px);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  width: min(340px, calc(100vw - 32px));
-  max-height: min(42vh, 360px);
-  overflow: auto;
-  padding: 8px;
-  border: 1px solid rgba(38, 57, 56, 0.18);
-  border-radius: 10px 10px 0 0;
-  background: rgba(250, 248, 241, 0.98);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.18);
-  transform: translateX(-50%);
-}
-
-.marker-group-picker[open] > input {
-  bottom: calc(100% + 12px);
-}
-
-.marker-group-picker[open] .marker-group-picker-results {
-  bottom: calc(100% + 52px);
-}
-
-.marker-group-picker-results button {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  align-items: center;
-  justify-content: start;
-  gap: 2px 6px;
-  min-width: 0;
-  padding: 7px;
-  border: 1px solid rgba(38, 57, 56, 0.12);
-  border-radius: 8px;
-  text-align: left;
-  white-space: normal;
-}
-
-.marker-group-picker-results button > span {
-  grid-row: span 2;
-  color: #d95d42;
-  font-size: 17px;
-}
-
-.marker-group-picker-results button > strong,
-.marker-group-picker-results button > small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.marker-group-picker-results button > small {
-  opacity: 0.7;
-  font-size: 10px;
-}
-
-.marker-group-picker-results button.is-selected {
-  border-color: #d95d42;
-  background: rgba(217, 93, 66, 0.1);
-}
-
-.marker-group-picker-results p {
-  grid-column: 1 / -1;
-  margin: 8px;
-  font-size: 12px;
-}
-
-.marker-group-tools button {
-  min-height: 38px;
-  padding: 0 12px;
-  border: 1px solid rgba(38, 57, 56, 0.2);
-  border-radius: 10px;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.75);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.marker-group-tools button:hover:not(:disabled) {
-  background: #fff;
-}
-
-.marker-group-tools button:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-body.is-marker-group-edit-mode .gm-style {
-  cursor: crosshair;
-}
-
-@media (max-width: 620px) {
-  .marker-group-tools {
-    bottom: max(12px, env(safe-area-inset-bottom));
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px;
-  }
-
-  .marker-group-selection-count {
-    flex: 1 0 100%;
-    text-align: center;
-  }
-
-  .marker-group-tools button {
-    min-height: 36px;
-    padding: 0 9px;
-    font-size: 12px;
-  }
 }
 
 /* 文案編集 overlay (item 12). */
@@ -5514,6 +5339,7 @@ body.edit-mode .map-stage {
 }
 
 .editor-head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -5543,6 +5369,42 @@ body.edit-mode .map-stage {
 .editor-head-check input {
   width: auto;
   margin: 0;
+}
+
+.editor-collection-check {
+  color: #9a4e39;
+}
+
+.editor-group-picker {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 16px;
+  z-index: 20;
+  display: grid;
+  gap: 7px;
+  width: min(280px, calc(100vw - 32px));
+  padding: 10px;
+  border: 1px solid rgba(31, 45, 45, 0.18);
+  border-radius: 10px;
+  background: #f4f3ed;
+  box-shadow: 0 8px 24px rgba(31, 45, 45, 0.2);
+}
+
+.editor-group-picker[hidden],
+.editor-group-picker input[hidden] {
+  display: none;
+}
+
+.editor-group-picker select,
+.editor-group-picker input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 7px;
+  color: #263938;
+  background: #fff;
+  font: inherit;
 }
 
 .editor-flag-check {

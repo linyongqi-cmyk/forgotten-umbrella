@@ -31,7 +31,7 @@
 - `umbrellaCount`："1"~"5"/"unknown"/""
 - `umbrellaUnits`：**每把伞一个对象** `{color, colorDetail, kind, status:[], statusOther}`，随数量增减。这是为**后期统计**铺垫的核心结构。
 - `editFlag`："yellow"/"black"/"white"/""（编辑用标记色，仅编辑模式地图显示）
-- `markerGroupId`：相同编号表示手动地图集合；每条记录仍独立保留，空字符串表示不属于集合。
+- `markerGroupId` / `markerGroupName`：集合编号和名称；每条记录仍独立保留，空编号表示不属于集合。地图用现有标点加数字呈现集合；点开后原位显示成员。
 - `story`（由 blocks 的文字段落合并，用于卡片简介）
 - `blocks`：详情页图文顺序 `[{type:"text",text} | {type:"photo",file}]`
 - `media`：`[{id, file, role, title, photoTime, story, legacyThumb, weather, showWeather}]`，role ∈ primary/supplement/detail/illustration。`title` 是**单语字符串**（中英显示同一份，**规定纯英文**）。`weather/showWeather` 是每张图自己的天气显示数据。（旧的灯箱准星 `crosshair` 字段已于 v82 删除。）
@@ -44,7 +44,7 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v219**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v220**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。
