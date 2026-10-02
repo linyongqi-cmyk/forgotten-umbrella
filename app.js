@@ -1,5 +1,13 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
-import { groupMarkerItems, listMarkerGroups, markerGroupCenter, markerGroupPresentation } from "./marker-groups.mjs";
+import {
+  groupMarkerItems,
+  listMarkerGroups,
+  markerGroupCenter,
+  markerGroupPresentation,
+  markerGroupSettingsFor,
+  updateMarkerGroupSettings,
+  sanitizeMarkerGroupSettingsMap,
+} from "./marker-groups.mjs";
 
 const state = {
   umbrellas: [],
@@ -13,6 +21,9 @@ const state = {
   markerGroupMarkers: new Map(),
   markerGroupExpanded: new Set(),
   markerGroupCameraAnimating: false,
+  markerGroupFocusId: null,
+  markerGroupFocusPreview: false,
+  markerGroupFocusCenter: null,
   markerVisualStates: new Map(),
   markerIconAnimations: new Map(),
   googleReady: false,
@@ -573,7 +584,11 @@ async function loadSiteSettings() {
     const raw = await response.json();
     const blur = raw && typeof raw.blur === "object" ? raw.blur : null;
     const mapLayers = raw && typeof raw.mapLayers === "object" ? raw.mapLayers : null;
-    return { blur, mapLayers };
+    return {
+      blur,
+      mapLayers,
+      markerGroups: sanitizeMarkerGroupSettingsMap(raw?.markerGroups),
+    };
   } catch (error) {
     console.error(error);
     return null;
@@ -1862,6 +1877,7 @@ function persistSiteSettings() {
     const payload = {
       blur: state.blurSettings || defaultBlurSettings(),
       mapLayers: state.mapCategoryState || undefined,
+      markerGroups: SITE_SETTINGS?.markerGroups || {},
     };
     apiPost("/api/save-site-settings", payload).catch((error) => {
       console.error("save-site-settings failed", error);
@@ -1941,6 +1957,7 @@ function updateFocusApproxLabelGeometry() {
 // Show the blur overlay (a chosen kind) WITHOUT opening a detail page, centred a bit
 // right of the toolbar so both the sliders and the clear/white circle are visible.
 function startBlurPreview(kind) {
+  stopMarkerGroupFocus();
   state.blurPreviewKind = kind === "approx" ? "approx" : "normal";
   els.mapView?.classList.add("is-blur-preview");
   els.mapView?.classList.toggle("is-blur-approx", state.blurPreviewKind === "approx");
@@ -3331,8 +3348,11 @@ function expandMarkerGroup(groupId, members) {
   if (!center) return;
   state.markerGroupExpanded.add(groupId);
   renderMapMarkers(filteredUmbrellas());
+  const settings = siteMarkerGroupSettingsFor(groupId);
+  startMarkerGroupFocus(groupId, center, settings, { preview: false });
   animateMarkerToFocus({ coordinates: center }, {
     targetScreenPoint: getMapCenterScreenPoint(),
+    targetZoom: settings.focusZoom,
     revealFocusUI: false,
     onComplete: () => {
       state.markerGroupCameraAnimating = false;
@@ -3340,9 +3360,67 @@ function expandMarkerGroup(groupId, members) {
   });
 }
 
+function startMarkerGroupFocus(groupId, center, settings, { preview = false } = {}) {
+  state.markerGroupFocusId = groupId;
+  state.markerGroupFocusPreview = preview;
+  state.markerGroupFocusCenter = center;
+  els.mapView?.classList.add("is-marker-group-focus");
+  els.mapView?.classList.remove("is-blur-approx");
+  const target = getMapCenterScreenPoint();
+  const mapRect = els.mapCanvas.getBoundingClientRect();
+  els.focusBlur?.style.setProperty("--focus-x", `${mapRect.left + target.x}px`);
+  els.focusBlur?.style.setProperty("--focus-y", `${mapRect.top + target.y}px`);
+  els.focusBlur?.style.setProperty("--fb-blur", `${settings.blur}px`);
+  els.focusBlur?.style.setProperty("--fb-radius", `${settings.radius}px`);
+  els.focusBlur?.style.setProperty("--fb-feather", `${settings.feather}px`);
+  els.focusBlur?.style.setProperty("--fb-veil", String(settings.veil));
+  els.focusBlur?.style.setProperty("--fb-tint", "rgba(255, 255, 255, 0.5)");
+  renderMarkerGroupSettingsControl();
+}
+
+function stopMarkerGroupFocus() {
+  if (!state.markerGroupFocusId && !state.markerGroupFocusPreview) return;
+  state.markerGroupFocusId = null;
+  state.markerGroupFocusPreview = false;
+  state.markerGroupFocusCenter = null;
+  els.mapView?.classList.remove("is-marker-group-focus");
+  ["--fb-blur", "--fb-radius", "--fb-feather", "--fb-veil", "--fb-tint"].forEach((name) => {
+    els.focusBlur?.style.removeProperty(name);
+  });
+  renderMarkerGroupSettingsControl();
+}
+
+function defaultSiteMarkerGroupSettings() {
+  const blur = state.blurSettings || defaultBlurSettings();
+  return {
+    focusZoom: 18,
+    blur: blur.blurA,
+    radius: blur.radiusA,
+    feather: blur.featherA,
+    veil: blur.veilA,
+  };
+}
+
+function siteMarkerGroupSettingsFor(groupId) {
+  const saved = SITE_SETTINGS?.markerGroups?.[groupId] || {};
+  return markerGroupSettingsFor({ [groupId]: { ...defaultSiteMarkerGroupSettings(), ...saved } }, groupId);
+}
+
+function updateSiteMarkerGroupSettings(groupId, patch) {
+  SITE_SETTINGS ||= { blur: null, mapLayers: null, markerGroups: {} };
+  const current = siteMarkerGroupSettingsFor(groupId);
+  SITE_SETTINGS.markerGroups = updateMarkerGroupSettings(
+    { ...SITE_SETTINGS.markerGroups, [groupId]: current },
+    groupId,
+    patch,
+  );
+  return siteMarkerGroupSettingsFor(groupId);
+}
+
 function collapseExpandedMarkerGroups() {
-  if (!state.markerGroupExpanded.size) return;
+  if (!state.markerGroupExpanded.size && !state.markerGroupFocusPreview) return;
   state.markerGroupExpanded.clear();
+  stopMarkerGroupFocus();
   renderMapMarkers(filteredUmbrellas());
 }
 
@@ -5622,6 +5700,7 @@ function panListSelectionToMap(item) {
 }
 
 function focusUmbrellaOnMap(item, id) {
+  stopMarkerGroupFocus();
   // v122 用户 T1/T2: 普通标点 and 模糊标点 now share ONE blur — the full-screen
   // `.focus-blur` overlay (see CSS). We only toggle the mode class; the overlay's
   // radius / white veil / blur strength swap via CSS variables, and it animates
@@ -6077,6 +6156,7 @@ function animateSheetExit() {
 }
 
 function closeFocusMode(options = {}) {
+  stopMarkerGroupFocus();
   if (state.cameraAnimationFrame) {
     cancelAnimationFrame(state.cameraAnimationFrame);
     state.cameraAnimationFrame = null;
@@ -7018,7 +7098,9 @@ function animateMarkerToFocus(item, options = {}) {
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
     state.map.panTo(item.coordinates);
-    const fallbackZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
+    const fallbackZoom = Number.isFinite(options.targetZoom)
+      ? options.targetZoom
+      : item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
     if (options.revealFocusUI !== false) {
       revealApproxLabel();
@@ -7038,7 +7120,9 @@ function animateMarkerToFocus(item, options = {}) {
   // T7: a 模糊地址 point can pin a specific (usually lower) focus zoom so the
   // location stays vague; otherwise zoom in to at least FOCUS_MAP_ZOOM.
   const approxZoom = item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : null;
-  const endZoom = approxZoom !== null ? approxZoom : Math.max(startZoom, focusMapZoom());
+  const endZoom = Number.isFinite(options.targetZoom)
+    ? options.targetZoom
+    : approxZoom !== null ? approxZoom : Math.max(startZoom, focusMapZoom());
   const startScreen = getLatLngScreenPoint(markerLatLng, startZoom); // 用户 T1: see recenter note
   const endScreen = targetScreen;
   const startTime = performance.now();
@@ -7697,7 +7781,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=221", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=222", { updateViaCache: "none" });
   }
 }
 
@@ -7719,6 +7803,7 @@ const editor = {
   coordReadout: null,
   draftCoords: null,
   unitsDraft: [],
+  groupSettingsDraft: null,
 };
 
 // Icon-only logos for the bottom-right toolbar buttons (item 11).
@@ -7779,6 +7864,16 @@ function setupEditor() {
       <div class="editor-group-picker" id="editor-group-picker" hidden>
         <select id="editor-group-select" aria-label="选择集合"></select>
         <input id="editor-group-name" type="text" maxlength="80" placeholder="给新集合起名" aria-label="新集合名称" hidden />
+        <div class="editor-group-settings" id="editor-group-settings" hidden>
+          <div class="editor-group-settings-title">合集聚焦设置</div>
+          <label class="editor-group-zoom-row"><span>聚焦缩放</span><input type="number" data-group-setting="focusZoom" min="3" max="21" step="0.1" aria-label="合集聚焦缩放" /></label>
+          <label class="editor-group-range-row"><span>模糊强度</span><input type="range" data-group-setting="blur" min="0" max="16" step="0.5" /><output data-group-setting-out="blur"></output></label>
+          <label class="editor-group-range-row"><span>清晰圈半径</span><input type="range" data-group-setting="radius" min="40" max="420" step="2" /><output data-group-setting-out="radius"></output></label>
+          <label class="editor-group-range-row"><span>边缘羽化</span><input type="range" data-group-setting="feather" min="0" max="180" step="2" /><output data-group-setting-out="feather"></output></label>
+          <label class="editor-group-range-row"><span>中心白雾</span><input type="range" data-group-setting="veil" min="0" max="0.8" step="0.02" /><output data-group-setting-out="veil"></output></label>
+          <button type="button" class="editor-group-preview" data-group-preview>预览聚焦</button>
+          <div class="editor-group-settings-hint">设置自动保存，仅影响当前合集</div>
+        </div>
       </div>
       <button type="button" class="editor-hide-record" title="隐藏此标点（从地图/档案/统计/列表移除，数据保留，可在「已隐藏」面板恢复）" aria-label="隐藏此标点">${EDITOR_ICON_HIDE}</button>
       <button type="button" class="editor-close" aria-label="close">×</button>
@@ -7799,8 +7894,17 @@ function setupEditor() {
   editor.groupPicker = drawer.querySelector("#editor-group-picker");
   editor.groupSelect = drawer.querySelector("#editor-group-select");
   editor.groupName = drawer.querySelector("#editor-group-name");
+  editor.groupSettingsPanel = drawer.querySelector("#editor-group-settings");
   editor.groupToggle.addEventListener("change", syncEditorMarkerGroupControl);
-  editor.groupSelect.addEventListener("change", syncEditorMarkerGroupControl);
+  editor.groupSelect.addEventListener("change", () => {
+    if (state.markerGroupFocusPreview && state.markerGroupFocusId !== editor.groupSelect.value) {
+      stopMarkerGroupFocus();
+    }
+    syncEditorMarkerGroupControl();
+  });
+  editor.groupPicker.addEventListener("input", handleEditorMarkerGroupSettingsInput);
+  editor.groupPicker.addEventListener("change", handleEditorMarkerGroupSettingsInput);
+  editor.groupPicker.addEventListener("click", handleEditorMarkerGroupSettingsClick);
 
   const body = drawer.querySelector(".editor-col-left");
   const rightCol = drawer.querySelector(".editor-col-right");
@@ -9347,6 +9451,7 @@ function collectLevelsForSave() {
 function toggleEditMode() {
   state.editMode = !state.editMode;
   state.markerGroupExpanded.clear();
+  stopMarkerGroupFocus();
   document.body.classList.toggle("edit-mode", state.editMode);
   editor.toggle.classList.toggle("is-active", state.editMode);
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
@@ -10285,13 +10390,106 @@ function populateEditorMarkerGroupChoices(raw) {
   editor.groupSelect.value = currentGroupId || groups[0]?.id || "__create__";
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   editor.groupName.value = currentGroup?.name || raw.markerGroupName || "";
+  editor.groupSettingsDraft = defaultSiteMarkerGroupSettings();
   syncEditorMarkerGroupControl();
 }
 
 function syncEditorMarkerGroupControl() {
   if (!editor.groupPicker || !editor.groupToggle || !editor.groupSelect) return;
+  if (!editor.groupToggle.checked && state.markerGroupFocusPreview) {
+    stopMarkerGroupFocus();
+  }
   editor.groupPicker.hidden = !editor.groupToggle.checked;
   editor.groupName.hidden = !editor.groupToggle.checked || editor.groupSelect.value !== "__create__";
+  renderMarkerGroupSettingsControl();
+}
+
+function selectedEditorMarkerGroupSettings() {
+  const groupId = editor.groupSelect?.value || "";
+  if (groupId === "__create__") {
+    return editor.groupSettingsDraft || defaultSiteMarkerGroupSettings();
+  }
+  return siteMarkerGroupSettingsFor(groupId);
+}
+
+function renderMarkerGroupSettingsControl() {
+  if (!editor.groupSettingsPanel) return;
+  const groupId = editor.groupSelect?.value || "";
+  const visible = Boolean(editor.groupToggle?.checked && groupId);
+  editor.groupSettingsPanel.hidden = !visible;
+  if (!visible) return;
+  const settings = selectedEditorMarkerGroupSettings();
+  editor.groupSettingsPanel.querySelectorAll("[data-group-setting]").forEach((input) => {
+    const key = input.dataset.groupSetting;
+    input.value = String(settings[key]);
+    const output = editor.groupSettingsPanel.querySelector(`[data-group-setting-out="${key}"]`);
+    if (output) {
+      output.textContent = key === "veil" ? `${Math.round(settings[key] * 100)}%` : `${settings[key]} px`;
+    }
+  });
+  const previewButton = editor.groupSettingsPanel.querySelector("[data-group-preview]");
+  if (previewButton) {
+    const isPreviewing = state.markerGroupFocusPreview && state.markerGroupFocusId === groupId;
+    previewButton.textContent = isPreviewing ? "结束预览" : "预览聚焦";
+  }
+}
+
+function handleEditorMarkerGroupSettingsInput(event) {
+  const input = event.target.closest?.("[data-group-setting]");
+  if (!input) return;
+  event.stopPropagation();
+  if (input?.dataset.groupSetting === "focusZoom" && event.type === "input") return;
+  if (input.value.trim() === "") return;
+  const groupId = editor.groupSelect?.value || "";
+  const key = input.dataset.groupSetting;
+  const value = Number(input.value);
+  if (groupId === "__create__") {
+    editor.groupSettingsDraft = updateMarkerGroupSettings(
+      { draft: editor.groupSettingsDraft || defaultSiteMarkerGroupSettings() },
+      "draft",
+      { [key]: value },
+    ).draft;
+  } else if (groupId) {
+    updateSiteMarkerGroupSettings(groupId, { [key]: value });
+    persistSiteSettings();
+  } else {
+    return;
+  }
+  const settings = selectedEditorMarkerGroupSettings();
+  if (event.type === "change" || key !== "focusZoom") input.value = String(settings[key]);
+  const output = editor.groupSettingsPanel.querySelector(`[data-group-setting-out="${key}"]`);
+  if (output) output.textContent = key === "veil" ? `${Math.round(settings[key] * 100)}%` : `${settings[key]} px`;
+  if (state.markerGroupFocusId === groupId) {
+    if (state.markerGroupFocusCenter) {
+      startMarkerGroupFocus(groupId, state.markerGroupFocusCenter, settings, { preview: state.markerGroupFocusPreview });
+    }
+  }
+}
+
+function handleEditorMarkerGroupSettingsClick(event) {
+  const button = event.target.closest?.("[data-group-preview]");
+  if (!button) return;
+  event.preventDefault();
+  const groupId = editor.groupSelect?.value || "";
+  if (!groupId) return;
+  if (state.markerGroupFocusPreview && state.markerGroupFocusId === groupId) {
+    stopMarkerGroupFocus();
+    return;
+  }
+  const isNew = groupId === "__create__";
+  const group = isNew ? null : listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId);
+  const center = group?.center || editor.draftCoords || state.umbrellas.find((item) => item.id === state.editingId)?.coordinates;
+  if (!center) return;
+  const settings = selectedEditorMarkerGroupSettings();
+  startMarkerGroupFocus(groupId, center, settings, { preview: true });
+  animateMarkerToFocus({ coordinates: center }, {
+    targetScreenPoint: getMapCenterScreenPoint(),
+    targetZoom: settings.focusZoom,
+    revealFocusUI: false,
+    onComplete: () => {
+      state.markerGroupCameraAnimating = false;
+    },
+  });
 }
 
 function openEditor(id) {
@@ -10417,6 +10615,9 @@ function onEditorInput() {
 // closeEditor({ force }) — when there are unsaved edits, ask whether to save
 // first (item 13). force skips the prompt (used after a successful save).
 function closeEditor({ force = false } = {}) {
+  if (state.markerGroupFocusPreview) {
+    stopMarkerGroupFocus();
+  }
   if (!force && state.editingId && editor.dirty) {
     const save = window.confirm("有未保存的修改。\n点「确定」保存后退出，点「取消」放弃修改退出。");
     if (save) {
@@ -10513,6 +10714,7 @@ async function saveEditor() {
     return;
   }
   const payload = { id, locationCoordinates: editor.draftCoords };
+  let createdMarkerGroupId = "";
   if (editor.groupToggle?.checked) {
     const selectedGroupId = editor.groupSelect?.value || "";
     if (selectedGroupId === "__create__") {
@@ -10524,6 +10726,7 @@ async function saveEditor() {
       }
       payload.markerGroupId = `group-${window.crypto?.randomUUID?.() || Date.now().toString(36)}`;
       payload.markerGroupName = name;
+      createdMarkerGroupId = payload.markerGroupId;
     } else if (selectedGroupId) {
       const group = listMarkerGroups(state.umbrellas).find((entry) => entry.id === selectedGroupId);
       payload.markerGroupId = selectedGroupId;
@@ -10609,6 +10812,10 @@ async function saveEditor() {
     const result = await response.json();
     if (!response.ok || !result.ok) {
       throw new Error(result.error || `保存失败（${response.status}）`);
+    }
+    if (createdMarkerGroupId) {
+      updateSiteMarkerGroupSettings(createdMarkerGroupId, editor.groupSettingsDraft || {});
+      persistSiteSettings();
     }
     // The dragged position is now persisted; drop the pending copy.
     delete state.pendingCoords[id];

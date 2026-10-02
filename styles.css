@@ -1527,7 +1527,8 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   );
   transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
     --fb-radius 480ms cubic-bezier(0.22, 1, 0.36, 1),
-    --fb-veil 480ms ease, --fb-blur 480ms ease, background-color 480ms ease;
+    --fb-veil 480ms ease, --fb-blur 480ms ease, --fb-feather 480ms ease,
+    --fb-tint 480ms ease, background-color 480ms ease;
 }
 
 /* Registered so the mode-switch (normal ↔ 模糊地址) TRANSITIONS smoothly instead of
@@ -1546,6 +1547,16 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   syntax: "<length>";
   inherits: true;
   initial-value: 6px;
+}
+@property --fb-feather {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 36px;
+}
+@property --fb-tint {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 0, 0, 0.22);
 }
 @property --sheet-bottom-mask {
   syntax: "<length>";
@@ -2411,6 +2422,11 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
 }
 
 .workspace.is-focus-mode .focus-blur {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.workspace.is-marker-group-focus .focus-blur {
   opacity: 1;
   pointer-events: none;
 }
@@ -5389,6 +5405,8 @@ body.edit-mode .map-stage {
   display: grid;
   gap: 7px;
   width: min(280px, calc(100vw - 32px));
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
   padding: 10px;
   border: 1px solid rgba(31, 45, 45, 0.18);
   border-radius: 10px;
@@ -5411,6 +5429,70 @@ body.edit-mode .map-stage {
   color: #263938;
   background: #fff;
   font: inherit;
+}
+
+.editor-group-settings {
+  display: grid;
+  gap: 8px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(31, 45, 45, 0.16);
+}
+
+.editor-group-settings[hidden] {
+  display: none;
+}
+
+.editor-group-settings-title {
+  color: #263938;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editor-group-zoom-row,
+.editor-group-range-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 7px;
+  color: #455756;
+  font-size: 11px;
+}
+
+.editor-group-zoom-row {
+  grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.editor-group-picker .editor-group-range-row input[type="range"] {
+  min-height: 18px;
+  padding: 0;
+  accent-color: #647d75;
+}
+
+.editor-group-range-row output {
+  color: #687875;
+  font-size: 10px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.editor-group-preview {
+  min-height: 34px;
+  border: 1px solid rgba(31, 45, 45, 0.2);
+  border-radius: 7px;
+  color: #263938;
+  background: #e9ece6;
+  font: inherit;
+  cursor: pointer;
+}
+
+.editor-group-preview:hover {
+  background: #dfe5dd;
+}
+
+.editor-group-settings-hint {
+  color: #788582;
+  font-size: 10px;
+  text-align: center;
 }
 
 .editor-flag-check {

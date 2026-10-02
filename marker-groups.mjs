@@ -40,6 +40,60 @@ export function markerGroupPresentation(icon, count, labelOrigin) {
   };
 }
 
+export const DEFAULT_MARKER_GROUP_SETTINGS = Object.freeze({
+  focusZoom: 18,
+  blur: 6,
+  radius: 126,
+  feather: 138,
+  veil: 0.3,
+});
+
+const MARKER_GROUP_SETTING_RANGES = {
+  focusZoom: [3, 21],
+  blur: [0, 16],
+  radius: [40, 420],
+  feather: [0, 180],
+  veil: [0, 0.8],
+};
+
+function clampMarkerGroupSetting(key, value, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  const [minimum, maximum] = MARKER_GROUP_SETTING_RANGES[key];
+  return Math.min(maximum, Math.max(minimum, number));
+}
+
+export function markerGroupSettingsFor(settingsById, groupId) {
+  const saved = settingsById && typeof settingsById === "object" ? settingsById[groupId] : null;
+  const out = {};
+  for (const [key, fallback] of Object.entries(DEFAULT_MARKER_GROUP_SETTINGS)) {
+    out[key] = clampMarkerGroupSetting(key, saved?.[key], fallback);
+  }
+  return out;
+}
+
+export function updateMarkerGroupSettings(settingsById, groupId, patch) {
+  if (typeof groupId !== "string" || !/^[\w.-]{1,128}$/.test(groupId)) return { ...(settingsById || {}) };
+  const current = markerGroupSettingsFor(settingsById, groupId);
+  const next = { ...current };
+  for (const key of Object.keys(DEFAULT_MARKER_GROUP_SETTINGS)) {
+    if (patch && Object.hasOwn(patch, key)) {
+      next[key] = clampMarkerGroupSetting(key, patch[key], current[key]);
+    }
+  }
+  return { ...(settingsById || {}), [groupId]: next };
+}
+
+export function sanitizeMarkerGroupSettingsMap(raw) {
+  const out = {};
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  for (const [groupId, settings] of Object.entries(raw)) {
+    if (!/^[\w.-]{1,128}$/.test(groupId)) continue;
+    out[groupId] = markerGroupSettingsFor({ [groupId]: settings }, groupId);
+  }
+  return out;
+}
+
 function distanceMeters(a, b) {
   if (!hasCoordinates({ coordinates: a }) || !hasCoordinates({ coordinates: b })) return Infinity;
   const radians = (degrees) => degrees * Math.PI / 180;

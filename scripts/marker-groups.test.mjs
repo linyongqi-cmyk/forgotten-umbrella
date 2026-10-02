@@ -54,3 +54,49 @@ test("group count is a Google Maps label over the unchanged configured marker ic
     className: "marker-group-count-label",
   });
 });
+
+test("marker focus and blur settings are independent per group and default when unset", () => {
+  assert.equal(typeof markerGroups.markerGroupSettingsFor, "function");
+  assert.equal(typeof markerGroups.updateMarkerGroupSettings, "function");
+
+  const settings = markerGroups.updateMarkerGroupSettings({}, "kyoto", {
+    focusZoom: 16.5,
+    blur: 9,
+  });
+  const first = markerGroups.markerGroupSettingsFor(settings, "kyoto");
+  const second = markerGroups.markerGroupSettingsFor(settings, "another-group");
+
+  assert.deepEqual(first, {
+    focusZoom: 16.5,
+    blur: 9,
+    radius: 126,
+    feather: 138,
+    veil: 0.3,
+  });
+  assert.deepEqual(second, {
+    focusZoom: 18,
+    blur: 6,
+    radius: 126,
+    feather: 138,
+    veil: 0.3,
+  });
+  assert.equal(markerGroups.markerGroupSettingsFor(settings, "kyoto").focusZoom, 16.5);
+});
+
+test("marker group settings are bounded before they can affect the map", () => {
+  const settings = markerGroups.updateMarkerGroupSettings({}, "safe", {
+    focusZoom: 40,
+    blur: -5,
+    radius: 900,
+    feather: -3,
+    veil: 2,
+  });
+
+  assert.deepEqual(markerGroups.markerGroupSettingsFor(settings, "safe"), {
+    focusZoom: 21,
+    blur: 0,
+    radius: 420,
+    feather: 0,
+    veil: 0.8,
+  });
+});
