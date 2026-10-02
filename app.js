@@ -4026,7 +4026,7 @@ function buildStatsUnits(items) {
     // Normalise the month key: some records store the time with "." separators
     // (e.g. "2026.05.02, 19:56"), others with "-", which split one month into two
     // cross-tab buckets ("2026.05" vs "2026-05"). Force "-" (#5 follow-up).
-    const month = item.time ? String(item.time).slice(0, 7).replace(/[./]/g, "-") : "no-time";
+    const month = statsMonthKey(item.time);
     const place = item.prefecture || "unknown";
     const raw = Array.isArray(item.umbrellaUnits) ? item.umbrellaUnits : [];
     const first = raw[0] || {};
@@ -4380,6 +4380,13 @@ function parseLooseDateParts(value) {
   }
   const [, y, mo, da, hh, mm] = m;
   return { y: Number(y), mo: Number(mo), da: da ? Number(da) : 0, hh: hh != null ? Number(hh) : null, mm: mm != null ? Number(mm) : 0 };
+}
+
+// Return one stable YYYY-MM bucket for the stats cross-tab, including dates
+// whose month/day are not zero-padded (e.g. "2026.5.29").
+function statsMonthKey(value) {
+  const parts = parseLooseDateParts(value);
+  return parts ? `${parts.y}-${String(parts.mo).padStart(2, "0")}` : "no-time";
 }
 
 // Display a loose date with "/" separators; drop a meaningless 00:00 and any
@@ -7580,7 +7587,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=217", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=218", { updateViaCache: "none" });
   }
 }
 

@@ -31,7 +31,7 @@
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
   "umbrellaColor": "",
   // 伞的数量。可填 "1"~"5" 或 "unknown"，空白表示未填。
-  "umbrellaCount": "3",
+  "umbrellaCount": "4",
   // 每把伞的属性列表。{ color, colorDetail, kind, status:[], statusOther }，随数量增减。
   "umbrellaUnits": [
     {
@@ -58,6 +58,16 @@
       "kind": "long umbrella",
       "status": [
         "fastened"
+      ],
+      "statusOther": ""
+    },
+    {
+      "color": "transparent",
+      "colorDetail": "",
+      "kind": "long umbrella",
+      "status": [
+        "fastened",
+        "worn"
       ],
       "statusOther": ""
     }
@@ -102,6 +112,10 @@
         "ja": "ここは京都駅の近くにある最大級の百貨店のひとつ、ヨドバシの駐輪場です。買い物に来る人がとても多く、忘れ物もとても多いです。そのため管理人が精算機の横に簡単な「落とし物置き場」を設けていて、ほぼ毎日違った落とし物が入っています。もちろん傘も例外ではありません。",
         "en": "This is the bicycle parking area of Yodobashi, one of the largest department stores near Kyoto Station. So many people come here to shop, and just as many things get left behind. That is why the attendant has set up a simple “lost-and-found spot” beside the payment machine, and almost every day there are different lost items in it. Umbrellas, of course, are no exception."
       }
+    },
+    {
+      "type": "photo",
+      "file": "IMG_1929.jpeg"
     }
   ],
   // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
@@ -152,6 +166,29 @@
       // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
       // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
       "weather": {"source":"open-meteo","fetchedAt":"2026-07-02T19:15:08.946Z","lat":34.98840278,"lon":135.75891111,"referenceTime":"2026-06-25T18:47:25+09:00","hourly":[{"time":"2026-06-25T18:00","code":55,"temp":22.2}]},
+      // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
+      "showWeather": true
+    },
+    {
+      // 媒体 ID。主图通常和文件夹名一致。
+      "id": "IMG_1929",
+      // 文件名。文件本体放在当前 record.json 所在文件夹里。
+      "file": "IMG_1929.jpeg",
+      // 角色。建议使用 primary、detail、illustration。
+      "role": "supplement",
+      // 这张媒体自己的标题。没有就保持空字符串。
+      "title": "",
+      // 这张媒体自己的拍摄时间。没有就保持空字符串。
+      "photoTime": "2026-09-23T19:11:28+09:00",
+      // 这张媒体自己的说明文字。
+      "story": "",
+      // 旧缩略图路径。当前保留给过渡期网站使用，先不要手改。
+      "legacyThumb": "",
+      // 非破坏性裁剪（不改本地文件，只影响网站显示）。null=原图，否则 {aspect,scale,posX,posY}。
+      "crop": null,
+      // 这张图自己的天气（编辑器点「获取天气」抓，勿手改）。主图=拍摄前24小时逐时(画横轴)，
+      // 补充/细节图=只拍摄当时1点(显示单个图例)。null=没抓。{source,fetchedAt,lat,lon,referenceTime,hourly:[{time,code,temp}]}
+      "weather": null,
       // 是否在网站上显示这张图的天气。主图默认 true，补充/细节默认 false（勾选「显示天气」才 true）。
       "showWeather": true
     }

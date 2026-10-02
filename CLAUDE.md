@@ -44,7 +44,7 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v209**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v218**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。

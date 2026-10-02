@@ -26,7 +26,7 @@
   // 如果你想手动覆盖显示时间，可以填写；没有就保持空字符串。
   "time": "",
   // 手动标题。没有就保持空字符串。
-  "title": {"ja":"忘れられた傘の集積地","en":"A gathering place for forgotten umbrellas"},
+  "title": {"ja":"忘れられた傘の集積地 1","en":"A gathering place for forgotten umbrellas 1"},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
   "displayId": "",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
@@ -40,7 +40,7 @@
   // 编辑用的标记颜色（yellow/black/white，空=无标记）。仅编辑模式地图上显示。
   "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
-  "linkedId": "",
+  "linkedId": "IMG_1796",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "own",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。

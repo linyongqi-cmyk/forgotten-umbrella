@@ -27,7 +27,7 @@
   // 手动标题。没有就保持空字符串。
   "title": {"ja":"自分の傘を忘れてしまった","en":"I forgot my own umbrella"},
   // 对外显示名：填了就替换所有页面上显示的 ID（不改文件夹/文件名，只改显示）。空=显示原文件名。
-  "displayId": "yueliang(10)",
+  "displayId": "yueliang(8)",
   // 伞的类型，例如 transparent、folding。没有就保持空字符串。
   "umbrellaType": "",
   // 伞的颜色（旧字段，保留兼容，当前展示改用 umbrellaUnits）。
@@ -67,15 +67,15 @@
   // 详情页的图文编排顺序。每项是 {"type":"text","text":...} 或 {"type":"photo","file":...}。
   "blocks": [
     {
-      "type": "photo",
-      "file": "IMG_8625.mov"
-    },
-    {
       "type": "dialogue",
       "text": {
         "ja": "投稿者：この傘は少しぼやけて写っていますが、間違いなく忘れられた傘です！\n編者：どうしてですか？\n投稿者：これは私自身がうっかり忘れてしまい、電車に乗ってから思い出したものだからです☹️",
         "en": "Sender: This umbrella came out a little blurry, but it is definitely a forgotten umbrella!\nEditor: How do you know?\nSender: Because I was the one who carelessly left it behind—I only remembered after I had already boarded the train ☹️"
       }
+    },
+    {
+      "type": "photo",
+      "file": "IMG_8625.mov"
     }
   ],
   // 天气（自动抓取，勿手改）：编辑器点「抓取天气」时用坐标+拍摄时间从 Open-Meteo 查回来的
