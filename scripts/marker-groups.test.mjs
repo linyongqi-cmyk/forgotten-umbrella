@@ -104,6 +104,13 @@ test("entering collection focus closes an open detail only in browse mode", () =
   assert.equal(shouldClose({ focusMode: true, editMode: true }), false);
 });
 
+test("Google Maps marker clicks are not selected a second time by the document fallback", () => {
+  assert.equal(typeof markerGroups.shouldHandleFallbackMarkerClick, "function");
+
+  assert.equal(markerGroups.shouldHandleFallbackMarkerClick({ insideGoogleMap: true }), false);
+  assert.equal(markerGroups.shouldHandleFallbackMarkerClick({ insideGoogleMap: false }), true);
+});
+
 test("only user map movement clears a stationary collection blur", () => {
   assert.equal(typeof markerGroups.shouldClearMarkerGroupFocus, "function");
 

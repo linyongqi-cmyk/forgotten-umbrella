@@ -60,6 +60,10 @@ export function shouldCloseFocusBeforeMarkerGroupExpansion({ focusMode, editMode
   return Boolean(focusMode && !editMode);
 }
 
+export function shouldHandleFallbackMarkerClick({ insideGoogleMap }) {
+  return !insideGoogleMap;
+}
+
 export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interactionType }) {
   return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }

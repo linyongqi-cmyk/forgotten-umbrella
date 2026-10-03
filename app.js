@@ -11,6 +11,7 @@ import {
   shouldStopMarkerGroupPreview,
   interpolateFocusMaskPoint,
   shouldCloseFocusBeforeMarkerGroupExpansion,
+  shouldHandleFallbackMarkerClick,
   isCurrentCameraAnimation,
   nextExpandedMarkerGroup,
   sanitizeMarkerGroupStyle,
@@ -1668,6 +1669,12 @@ function bindEvents() {
   document.addEventListener(
     "click",
     (event) => {
+      // Google Maps markers already have their own click listeners. This document
+      // fallback runs in capture phase, so handling a Maps marker here would start
+      // focus twice and the second pass would snap the blur circle to its endpoint.
+      if (!shouldHandleFallbackMarkerClick({ insideGoogleMap: Boolean(event.target.closest?.(".gm-style")) })) {
+        return;
+      }
       const markerElement = event.target.closest?.("[title]");
       const item = state.umbrellas.find((entry) => entry.id === markerElement?.getAttribute("title"));
       if (item) {
@@ -7933,7 +7940,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=228", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=230", { updateViaCache: "none" });
   }
 }
 
