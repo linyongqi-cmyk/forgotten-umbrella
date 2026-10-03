@@ -125,13 +125,34 @@ test("filter and view changes always close an expanded collection", () => {
   assert.equal(next("a", { type: "view-change" }), null);
 });
 
-test("collection marker color defaults safely, accepts a custom hex value, and rejects invalid text", () => {
-  assert.equal(typeof markerGroups.sanitizeMarkerGroupColor, "function");
-  const sanitize = markerGroups.sanitizeMarkerGroupColor;
+test("collection style inherits ordinary marker colors until collection parts are customized", () => {
+  assert.equal(typeof markerGroups.sanitizeMarkerGroupStyle, "function");
 
-  assert.equal(sanitize(undefined), "#d95d42");
-  assert.equal(sanitize("#237ac4"), "#237ac4");
-  assert.equal(sanitize("not-a-color"), "#d95d42");
+  assert.deepEqual(markerGroups.sanitizeMarkerGroupStyle(undefined), {
+    lineColors: {},
+    regionColors: {},
+  });
+});
+
+test("collection style saves valid colors independently for each marker part", () => {
+  const style = markerGroups.sanitizeMarkerGroupStyle({
+    lineColors: { line1: "#237ac4", line4: "#111111", line2: "bad" },
+    regionColors: { region2: "#39a96b", region1: "#fff" },
+  });
+
+  assert.deepEqual(style, {
+    lineColors: { line1: "#237ac4" },
+    regionColors: { region2: "#39a96b" },
+  });
+});
+
+test("legacy collection color migrates to the existing marker-part color shape", () => {
+  const style = markerGroups.sanitizeMarkerGroupStyle(undefined, "#237ac4");
+
+  assert.deepEqual(style, {
+    lineColors: { line1: "#237ac4", line2: "#237ac4", line3: "#237ac4" },
+    regionColors: { region1: "#237ac4", region2: "#237ac4", region3: "#237ac4" },
+  });
 });
 
 test("marker focus and blur settings are independent per group and default when unset", () => {

@@ -4937,10 +4937,32 @@ body:not(.edit-mode) .marker-settings-toggle {
 }
 
 .marker-editor-section h3,
-.marker-category-editor legend {
+.marker-category-editor legend,
+.marker-category-editor summary strong {
   margin: 0;
   font-size: 14px;
   font-weight: 650;
+}
+
+.marker-advanced-section > summary,
+.marker-category-editor > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.marker-advanced-section > summary span,
+.marker-category-editor > summary span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.marker-advanced-section > summary h3 {
+  display: inline;
 }
 
 .marker-section-note {
@@ -5038,6 +5060,10 @@ body:not(.edit-mode) .marker-settings-toggle {
   border: 1px solid rgba(19, 34, 34, 0.14);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.44);
+}
+
+.marker-category-editor:not([open]) {
+  gap: 0;
 }
 
 .marker-category-toolbar {
@@ -5198,8 +5224,8 @@ body:not(.edit-mode) .marker-settings-toggle {
 
 .marker-group-style-row {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 12px;
   padding: 8px 0 2px;
 }
 
@@ -5207,29 +5233,105 @@ body:not(.edit-mode) .marker-settings-toggle {
   position: relative;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
   flex: none;
 }
 
-.marker-group-style-pin,
+.marker-group-style-pin {
+  display: block;
+  flex: none;
+}
+
 .marker-group-style-pin svg {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 100%;
+  height: 100%;
 }
 
 .marker-group-style-count {
   position: absolute;
-  top: 12px;
-  left: 50%;
   color: #fff;
-  font: 700 11px/1 Arial, sans-serif;
-  transform: translateX(-50%);
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  transform: translate(-50%, -50%);
 }
 
-.marker-group-color-control {
+.marker-group-style-controls {
   flex: 1;
+  min-width: 0;
+}
+
+.marker-group-part-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.marker-group-part-list > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 6px;
+}
+
+.marker-group-part-list > div > strong {
+  grid-column: 1 / -1;
+  color: #30444a;
+  font-size: 12px;
+}
+
+.marker-group-part-list .marker-color-row {
+  grid-template-columns: minmax(0, 1fr) 30px;
+  gap: 4px 5px;
+}
+
+.marker-group-part-list .marker-color-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marker-group-part-list .marker-color-row input[type="color"] {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.marker-group-part-list .marker-color-row input[type="text"] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+@media (max-width: 620px) {
+  .marker-preview-panel {
+    position: static;
+  }
+
+  .marker-preview-row {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .marker-preview-icons {
+    gap: 4px;
+  }
+
+  .marker-preview-item {
+    min-width: 0;
+    padding: 6px 2px;
+    font-size: 10px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .marker-group-style-row {
+    flex-direction: column;
+  }
+
+  .marker-group-part-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 视觉设定面板：按类分组，每行 名称 | 滑块 | 数值(当前/默认) | 恢复默认 */
@@ -5396,6 +5498,10 @@ body.edit-mode .map-stage {
   transform: translateX(0);
 }
 
+.editor-drawer.is-group-editor {
+  width: min(420px, 92vw);
+}
+
 .editor-head {
   position: relative;
   display: flex;
@@ -5492,7 +5598,7 @@ body.edit-mode .map-stage {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 18px;
+  padding: 14px;
 }
 
 .editor-group-editor-name {

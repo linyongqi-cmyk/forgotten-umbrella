@@ -72,11 +72,24 @@ export function nextExpandedMarkerGroup(currentGroupId, action = {}) {
   }
 }
 
-export const DEFAULT_MARKER_GROUP_COLOR = "#d95d42";
-
-export function sanitizeMarkerGroupColor(value) {
-  const color = typeof value === "string" ? value.trim() : "";
-  return /^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_MARKER_GROUP_COLOR;
+export function sanitizeMarkerGroupStyle(raw, legacyColor = "") {
+  const out = { lineColors: {}, regionColors: {} };
+  const oldColor = typeof legacyColor === "string" && /^#[0-9a-f]{6}$/i.test(legacyColor.trim())
+    ? legacyColor.trim()
+    : "";
+  for (const group of ["lineColors", "regionColors"]) {
+    const prefix = group === "lineColors" ? "line" : "region";
+    for (let index = 1; index <= 3; index += 1) {
+      const key = `${prefix}${index}`;
+      const value = raw?.[group]?.[key];
+      if (typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value.trim())) {
+        out[group][key] = value.trim();
+      } else if (!raw?.[group] && oldColor) {
+        out[group][key] = oldColor;
+      }
+    }
+  }
+  return out;
 }
 
 export const DEFAULT_MARKER_GROUP_SETTINGS = Object.freeze({

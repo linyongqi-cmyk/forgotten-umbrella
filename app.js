@@ -8,8 +8,7 @@ import {
   markerGroupSettingsFor,
   shouldClearMarkerGroupFocus,
   nextExpandedMarkerGroup,
-  DEFAULT_MARKER_GROUP_COLOR,
-  sanitizeMarkerGroupColor,
+  sanitizeMarkerGroupStyle,
   updateMarkerGroupSettings,
   sanitizeMarkerGroupSettingsMap,
 } from "./marker-groups.mjs";
@@ -654,7 +653,7 @@ const MARKER_STATE_DEFAULTS = {
 };
 const DEFAULT_MARKER_SETTINGS = {
   svg: DEFAULT_MARKER_SVG,
-  markerGroupColor: DEFAULT_MARKER_GROUP_COLOR,
+  markerGroupStyle: { lineColors: {}, regionColors: {} },
   strokeWidth: 1.2,
   regionOpacity: { region1: 0.16, region2: 0, region3: 0 },
   categories: {
@@ -718,7 +717,7 @@ function sanitizeMarkerSettings(raw) {
   if (typeof raw.svg === "string" && raw.svg.trim().startsWith("<svg")) {
     out.svg = raw.svg.trim();
   }
-  out.markerGroupColor = sanitizeMarkerGroupColor(raw.markerGroupColor);
+  out.markerGroupStyle = sanitizeMarkerGroupStyle(raw.markerGroupStyle, raw.markerGroupColor);
   const stroke = Number(raw.strokeWidth);
   if (Number.isFinite(stroke)) {
     out.strokeWidth = Math.min(Math.max(stroke, 0.5), 8);
@@ -3323,19 +3322,15 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   if (!center) return;
   const representative = members[0];
   const visual = {
-    ...markerVisualForItem(representative, { hover }),
+    category: "own",
+    stateKey: "normal",
+    hover,
     flagColor: "",
-    uniformColor: activeMarkerSettings().markerGroupColor,
+    partColors: activeMarkerSettings().markerGroupStyle,
   };
   const groupIcon = markerIcon(visual);
   const markerSize = groupIcon.scaledSize.width;
-  const parts = parseMarkerSvg(markerSvgForCategory(visual.category));
-  const [viewX, viewY, viewWidth, viewHeight] = markerViewBoxNumbers(parts.viewBox);
-  const markerCenter = markerCenterPoint(parts);
-  const labelOrigin = {
-    x: ((markerCenter.x - viewX) / viewWidth) * markerSize,
-    y: ((markerCenter.y - viewY) / viewHeight) * markerSize,
-  };
+  const labelOrigin = markerGroupLabelOrigin(visual.category, markerSize);
   const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin, { hover });
   presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
   const groupName = representative.markerGroupName || groupId;
@@ -3385,6 +3380,16 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   marker.addListener("mouseover", () => refreshGroupHover(true));
   marker.addListener("mouseout", () => refreshGroupHover(false));
   state.markerGroupMarkers.set(groupId, marker);
+}
+
+function markerGroupLabelOrigin(category, size) {
+  const parts = parseMarkerSvg(markerSvgForCategory(category));
+  const [viewX, viewY, viewWidth, viewHeight] = markerViewBoxNumbers(parts.viewBox);
+  const center = markerCenterPoint(parts);
+  return {
+    x: ((center.x - viewX) / viewWidth) * size,
+    y: ((center.y - viewY) / viewHeight) * size,
+  };
 }
 
 function expandMarkerGroup(groupId, members) {
@@ -7472,7 +7477,7 @@ function markerIcon(visualOrState = "normal", flagColor = "", category = "own") 
   const color = visual.flagColor || null;
   const size = Math.round((visual.hover ? 45 : 40) * markerStateScale(visual.stateKey));
   return {
-    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey, null, visual.uniformColor || ""),
+    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey, null, visual.partColors || null),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
@@ -7765,8 +7770,8 @@ function markerSvgMarkup(category, options = {}) {
     const baseOpacity = Math.min(Math.max((Number(settings.regionOpacity?.[regionKey]) || 0) * regionOpacityMultiplier, 0), 1);
     const fromFlag = Boolean(options.fromOverrideColor);
     const toFlag = Boolean(options.overrideColor);
-    const fromColor = fromFlag ? FLAG_PIN_FILL : options.uniformColor || markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = toFlag ? FLAG_PIN_FILL : options.uniformColor || markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const fromColor = fromFlag ? FLAG_PIN_FILL : options.partColors?.regionColors?.[regionKey] || markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = toFlag ? FLAG_PIN_FILL : options.partColors?.regionColors?.[regionKey] || markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     const color = mixMarkerColor(fromColor, toColor, transitionT);
     const fromOpacity = fromFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
     const toOpacity = toFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
@@ -7788,8 +7793,8 @@ function markerSvgMarkup(category, options = {}) {
   }).join("");
   const lineMarkup = parts.lines.slice(0, 3).map((el, index) => {
     const lineKey = `line${index + 1}`;
-    const fromColor = options.fromOverrideColor ? FLAG_PIN_OUTLINE : options.uniformColor || markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = options.overrideColor ? FLAG_PIN_OUTLINE : options.uniformColor || markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const fromColor = options.fromOverrideColor ? FLAG_PIN_OUTLINE : options.partColors?.lineColors?.[lineKey] || markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = options.overrideColor ? FLAG_PIN_OUTLINE : options.partColors?.lineColors?.[lineKey] || markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     return markerElementMarkup(el, {
       fill: "none",
       stroke: mixMarkerColor(fromColor, toColor, transitionT),
@@ -7801,9 +7806,9 @@ function markerSvgMarkup(category, options = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}</svg>`;
 }
 
-function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null, uniformColor = "") {
+function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null, partColors = null) {
   const settings = activeMarkerSettings();
-  const key = JSON.stringify({ category, overrideColor, stateKey, transition, uniformColor, settings });
+  const key = JSON.stringify({ category, overrideColor, stateKey, transition, partColors, settings });
   if (markerIconCache.has(key)) {
     return markerIconCache.get(key);
   }
@@ -7814,7 +7819,7 @@ function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal"
     fromOverrideColor: transition?.fromFlagColor,
     fromStateKey: transition?.fromStateKey,
     progress: transition?.progress,
-    uniformColor,
+    partColors,
   });
   const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   markerIconCache.set(key, url);
@@ -7860,7 +7865,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=224", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=225", { updateViaCache: "none" });
   }
 }
 
@@ -10105,17 +10110,19 @@ function renderMarkerEditorBody() {
     </section>
     <section class="marker-editor-section">
       <div class="marker-editor-section-head">
-        <h3>集合标点（所有集合共用）</h3>
-        <span class="marker-section-note">只改集合标点颜色，不影响普通标点。</span>
+        <h3>集合标点（所有集合共用样式）</h3>
+        <span class="marker-section-note">可分别调整标点的线条和填色。</span>
       </div>
       <div class="marker-group-style-row">
         <div class="marker-group-style-preview" data-marker-group-style-preview aria-label="集合标点预览"></div>
-        ${markerGroupColorControl(draft.markerGroupColor)}
+        <div class="marker-group-style-controls">
+          ${markerGroupStyleControls(draft)}
+        </div>
       </div>
     </section>
-    <section class="marker-editor-section">
+    <details class="marker-editor-section marker-advanced-section">
+      <summary><h3>统一调整（线宽、透明度、图案）</h3></summary>
       <div class="marker-editor-section-head">
-        <h3>统一修改</h3>
         <label class="marker-upload-btn">更换统一 SVG<input type="file" accept=".svg,image/svg+xml" data-marker-svg-upload="global" /></label>
       </div>
       <div class="marker-editor-grid">
@@ -10123,32 +10130,42 @@ function renderMarkerEditorBody() {
         ${["region1", "region2", "region3"].map((key, i) => markerOpacityRow(key, `区域${i + 1}不透明度`, draft.regionOpacity?.[key] ?? 0)).join("")}
       </div>
       ${markerPartsList(sharedParts)}
-    </section>
-    <section class="marker-editor-section">
-      <div class="marker-editor-section-head">
-        <h3>5 个类型分别修改</h3>
-      </div>
+    </details>
+    <details class="marker-editor-section marker-advanced-section">
+      <summary><h3>按类型调整</h3><span>5 类标点的图案与颜色</span></summary>
       <div class="marker-category-stack">
         ${MARKER_CATEGORIES.map((cat) => markerCategoryEditor(cat, draft)).join("")}
       </div>
-    </section>
-    <section class="marker-editor-section">
-      <div class="marker-editor-section-head">
-        <h3>两种状态分别修改</h3>
-        <span class="marker-section-note">普通状态就是上面的基础设置，这里只叠加变化。</span>
-      </div>
+    </details>
+    <details class="marker-editor-section marker-advanced-section">
+      <summary><h3>特殊状态调整</h3><span>待改和关联状态的附加视觉</span></summary>
+      <p class="marker-section-note">普通状态使用上面的基础样式；这里只设置状态变化。</p>
       <div class="marker-state-stack">
         ${MARKER_STATE_KEYS.map((stateKey) => markerStateEditor(stateKey, draft)).join("")}
       </div>
-    </section>`;
+    </details>`;
   updateMarkerPreview();
 }
 
-function markerGroupColorControl(value) {
-  return `<label class="marker-color-row marker-group-color-control">
-    <span>集合颜色</span>
-    <input type="color" value="${colorInputValue(value)}" data-marker-group-color />
-    <input type="text" value="${escapeHtml(value)}" data-marker-group-color-text />
+function markerGroupStyleControls(draft) {
+  const parts = markerPartSummary(markerSvgFromSettings(draft, "own"));
+  const lines = parts.lines.map((part) => markerGroupPartColorControl(draft, "lineColors", part.key, part.label)).join("");
+  const regions = parts.regions.map((part) => markerGroupPartColorControl(draft, "regionColors", part.key, part.label)).join("");
+  return `<div class="marker-group-part-list">
+    <div><strong>线条</strong>${lines || "<span>没有可编辑线条</span>"}</div>
+    <div><strong>填色</strong>${regions || "<span>没有可编辑区域</span>"}</div>
+  </div>`;
+}
+
+function markerGroupPartColorControl(draft, group, key, label) {
+  const fallback = group === "lineColors"
+    ? draft.categories.own.lineColors?.[key] || MARKER_COLORS.own
+    : draft.categories.own.regionColors?.[key] || MARKER_COLORS.own;
+  const value = draft.markerGroupStyle[group]?.[key] || fallback;
+  return `<label class="marker-color-row">
+    <span>${label}</span>
+    <input type="color" value="${colorInputValue(value)}" data-marker-group-color="${group}" data-marker-group-color-key="${key}" />
+    <input type="text" value="${escapeHtml(value)}" data-marker-group-color-text="${group}" data-marker-group-color-key="${key}" />
   </label>`;
 }
 
@@ -10176,7 +10193,9 @@ function updateMarkerPreview() {
   }
   const groupPreview = markerEditor.overlay?.querySelector("[data-marker-group-style-preview]");
   if (groupPreview) {
-    groupPreview.innerHTML = `<span class="marker-group-style-pin">${markerSvgMarkup("own", { inline: true, uniformColor: markerDraft().markerGroupColor })}</span><span class="marker-group-style-count">2</span>`;
+    const size = 52;
+    const origin = markerGroupLabelOrigin("own", size);
+    groupPreview.innerHTML = `<span class="marker-group-style-pin" style="width:${size}px;height:${size}px">${markerSvgMarkup("own", { inline: true, partColors: markerDraft().markerGroupStyle })}</span><span class="marker-group-style-count" style="left:${origin.x}px;top:${origin.y}px;font-size:${12 * size / 40}px">2</span>`;
   }
 }
 
@@ -10194,8 +10213,8 @@ function markerPartsList(parts) {
 function markerCategoryEditor(cat, draft) {
   const config = draft.categories[cat];
   const parts = markerPartSummary(markerSvgFromSettings(draft, cat));
-  return `<fieldset class="marker-category-editor" data-marker-cat-panel="${cat}">
-    <legend>${escapeHtml(markerLabel(cat))}</legend>
+  return `<details class="marker-category-editor" data-marker-cat-panel="${cat}">
+    <summary><strong>${escapeHtml(markerLabel(cat))}</strong><span>${config.svg ? "使用独立图案" : "跟随统一图案"}</span></summary>
     <div class="marker-category-toolbar">
       <label class="marker-upload-btn">更换 SVG（覆盖）<input type="file" accept=".svg,image/svg+xml" data-marker-svg-upload="${cat}" /></label>
       <button type="button" data-marker-clear-svg="${cat}" ${config.svg ? "" : "disabled"}>取消覆盖</button>
@@ -10206,7 +10225,7 @@ function markerCategoryEditor(cat, draft) {
       ${parts.lines.map((part) => markerColorControl(cat, "lineColors", part.key, part.label, config.lineColors?.[part.key] || MARKER_COLORS[cat])).join("")}
       ${parts.regions.map((part) => markerColorControl(cat, "regionColors", part.key, part.label, config.regionColors?.[part.key] || MARKER_COLORS[cat])).join("")}
     </div>
-  </fieldset>`;
+  </details>`;
 }
 
 function markerColorControl(cat, group, key, label, value) {
@@ -10337,10 +10356,10 @@ function handleMarkerEditorInput(event) {
   const groupColor = event.target.closest?.("[data-marker-group-color], [data-marker-group-color-text]");
   if (groupColor) {
     if (groupColor.matches("[data-marker-group-color-text]")) return;
-    const value = sanitizeMarkerGroupColor(groupColor.value);
-    draft.markerGroupColor = value;
-    markerEditor.overlay.querySelectorAll("[data-marker-group-color]").forEach((input) => { input.value = value; });
-    markerEditor.overlay.querySelectorAll("[data-marker-group-color-text]").forEach((input) => { input.value = value; });
+    const colorGroup = groupColor.dataset.markerGroupColor;
+    const key = groupColor.dataset.markerGroupColorKey;
+    draft.markerGroupStyle[colorGroup][key] = groupColor.value;
+    syncMarkerGroupColorInputs(colorGroup, key, groupColor.value);
     applyMarkerDraft();
     return;
   }
@@ -10398,10 +10417,18 @@ function handleMarkerEditorInput(event) {
 async function handleMarkerEditorChange(event) {
   const groupColor = event.target.closest?.("[data-marker-group-color-text]");
   if (groupColor) {
-    const value = sanitizeMarkerGroupColor(groupColor.value);
-    markerDraft().markerGroupColor = value;
-    markerEditor.overlay.querySelectorAll("[data-marker-group-color]").forEach((input) => { input.value = value; });
-    markerEditor.overlay.querySelectorAll("[data-marker-group-color-text]").forEach((input) => { input.value = value; });
+    const colorGroup = groupColor.dataset.markerGroupColorText;
+    const key = groupColor.dataset.markerGroupColorKey;
+    const draft = markerDraft();
+    draft.markerGroupStyle = sanitizeMarkerGroupStyle({
+      ...draft.markerGroupStyle,
+      [colorGroup]: { ...draft.markerGroupStyle[colorGroup], [key]: groupColor.value.trim() },
+    });
+    const fallback = colorGroup === "lineColors"
+      ? draft.categories.own.lineColors?.[key] || MARKER_COLORS.own
+      : draft.categories.own.regionColors?.[key] || MARKER_COLORS.own;
+    const value = draft.markerGroupStyle[colorGroup][key] || fallback;
+    syncMarkerGroupColorInputs(colorGroup, key, value);
     applyMarkerDraft();
     return;
   }
@@ -10429,6 +10456,15 @@ async function handleMarkerEditorChange(event) {
   } catch (error) {
     showEditorToast(`SVG 读取失败：${error.message}`, true);
   }
+}
+
+function syncMarkerGroupColorInputs(group, key, value) {
+  markerEditor.overlay.querySelectorAll(`[data-marker-group-color="${group}"][data-marker-group-color-key="${key}"]`).forEach((input) => {
+    input.value = colorInputValue(value);
+  });
+  markerEditor.overlay.querySelectorAll(`[data-marker-group-color-text="${group}"][data-marker-group-color-key="${key}"]`).forEach((input) => {
+    input.value = value;
+  });
 }
 
 function handleMarkerEditorClick(event) {

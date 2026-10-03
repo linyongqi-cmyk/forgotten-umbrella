@@ -24,7 +24,7 @@ import { parseExif } from "./exif.mjs";
 import { fetchWeatherData } from "./weather.mjs";
 import {
   sanitizeMarkerGroupSettingsMap,
-  sanitizeMarkerGroupColor,
+  sanitizeMarkerGroupStyle,
 } from "../marker-groups.mjs";
 import { generateDerivatives, removeDerivatives, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
 import {
@@ -1081,7 +1081,7 @@ export async function saveMarkerSettings(payload) {
   const stroke = Number(payload?.strokeWidth);
   const out = {
     svg: cleanMarkerSvg(payload?.svg, DEFAULT_MARKER_SVG_TEXT),
-    markerGroupColor: sanitizeMarkerGroupColor(payload?.markerGroupColor),
+    markerGroupStyle: sanitizeMarkerGroupStyle(payload?.markerGroupStyle, payload?.markerGroupColor),
     strokeWidth: Number.isFinite(stroke) ? Math.min(Math.max(stroke, 0.5), 8) : 1.2,
     regionOpacity: {},
     categories: {},
