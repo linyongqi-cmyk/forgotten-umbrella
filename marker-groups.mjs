@@ -48,6 +48,18 @@ export function markerGroupFocusMaskCenter(mapRect) {
   };
 }
 
+export function interpolateFocusMaskPoint(from, to, progress) {
+  const amount = Math.min(1, Math.max(0, Number(progress) || 0));
+  return {
+    x: from.x + (to.x - from.x) * amount,
+    y: from.y + (to.y - from.y) * amount,
+  };
+}
+
+export function shouldCloseFocusBeforeMarkerGroupExpansion({ focusMode, editMode }) {
+  return Boolean(focusMode && !editMode);
+}
+
 export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interactionType }) {
   return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }

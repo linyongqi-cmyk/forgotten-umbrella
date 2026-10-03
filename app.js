@@ -9,6 +9,8 @@ import {
   markerGroupNameFor,
   shouldClearMarkerGroupFocus,
   shouldStopMarkerGroupPreview,
+  interpolateFocusMaskPoint,
+  shouldCloseFocusBeforeMarkerGroupExpansion,
   isCurrentCameraAnimation,
   nextExpandedMarkerGroup,
   sanitizeMarkerGroupStyle,
@@ -3383,6 +3385,14 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
       applyExpandedMarkerGroupAction({ type: "group-click", groupId });
       return;
     }
+    if (shouldCloseFocusBeforeMarkerGroupExpansion({
+      focusMode: els.mapView?.classList.contains("is-focus-mode"),
+      editMode: state.editMode,
+    })) {
+      // Keep the current map camera. The collection focus animation will start
+      // from this exact view, while the stale ordinary detail/blur state is removed.
+      closeFocusMode();
+    }
     expandMarkerGroup(groupId, currentMembers);
   });
   marker.addListener("mouseover", () => refreshGroupHover(true));
@@ -5766,11 +5776,12 @@ function selectUmbrella(id, options = {}) {
 
   render();
 
+  let focusMaskHandoffStartPoint = null;
   if (state.googleReady) {
     const item = state.umbrellas.find((entry) => entry.id === id);
     if (item) {
       if (options.focus) {
-        focusUmbrellaOnMap(item, id);
+        focusMaskHandoffStartPoint = focusUmbrellaOnMap(item, id);
       } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
         if (els.mapView?.classList.contains("is-focus-mode")) {
@@ -5782,7 +5793,7 @@ function selectUmbrella(id, options = {}) {
   }
 
   if (options.focus) {
-    openFocusMode();
+    openFocusMode({ preserveFocusMask: Boolean(focusMaskHandoffStartPoint) });
   }
 }
 
@@ -5806,6 +5817,9 @@ function panListSelectionToMap(item) {
 }
 
 function focusUmbrellaOnMap(item, id) {
+  const focusMaskHandoffStartPoint = state.markerGroupFocusId
+    ? markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect())
+    : null;
   stopMarkerGroupFocus();
   // v122 用户 T1/T2: 普通标点 and 模糊标点 now share ONE blur — the full-screen
   // `.focus-blur` overlay (see CSS). We only toggle the mode class; the overlay's
@@ -5825,14 +5839,19 @@ function focusUmbrellaOnMap(item, id) {
     const labelText = item.blurApprox ? item.blurLabel || item.location || "" : "";
     renderFocusApproxLabel(labelText, { pending: Boolean(labelText) });
   }
-  setFocusMaskPosition();
+  if (focusMaskHandoffStartPoint) {
+    setFocusMaskCenter(focusMaskHandoffStartPoint);
+  } else {
+    setFocusMaskPosition();
+  }
   // Always re-centre: clicking the focused marker again after the map has been
   // panned/zoomed should bring the marker back to the clear circle (#5).
   state.focusPositionedId = id;
-  animateMarkerToFocus(item);
+  animateMarkerToFocus(item, { focusMaskStartPoint: focusMaskHandoffStartPoint });
+  return focusMaskHandoffStartPoint;
 }
 
-function openFocusMode() {
+function openFocusMode({ preserveFocusMask = false } = {}) {
   setFocusBlurSuppressed(false);
   els.mapView.classList.add("is-focus-mode");
   els.focusPanel?.setAttribute("aria-hidden", "false");
@@ -5842,7 +5861,7 @@ function openFocusMode() {
   // 用户: opening a marker's detail always starts at the top (main image) — never
   // carry over the scroll position from a previously-viewed detail page.
   els.focusScroll?.scrollTo({ top: 0 });
-  setFocusMaskPosition();
+  if (!preserveFocusMask) setFocusMaskPosition();
 }
 
 function currentFocusedItem() {
@@ -7166,8 +7185,7 @@ function setFocusMaskPosition() {
   const target = state.markerGroupFocusId
     ? markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect())
     : getFocusTargetScreenPoint();
-  els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
-  els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
+  setFocusMaskCenter(target);
   // Park the under-pin approx label just below the marker (item 3).
   if (els.focusApproxLabel) {
     els.focusApproxLabel.style.left = `${target.x}px`;
@@ -7178,6 +7196,13 @@ function setFocusMaskPosition() {
     els.focusGestureTip.style.top = `${target.y + 76}px`;
   }
   updateFocusApproxLabelGeometry();
+}
+
+function setFocusMaskCenter(point) {
+  if (!point) return;
+  const target = { x: Math.round(point.x), y: Math.round(point.y) };
+  els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
+  els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
 }
 
 function hideMobileFocusGestureTip() {
@@ -7212,6 +7237,7 @@ function animateMarkerToFocus(item, options = {}) {
     onComplete?.();
   };
   const targetScreen = options.targetScreenPoint || getFocusTargetScreenPoint();
+  const focusMaskStartPoint = options.focusMaskStartPoint || null;
 
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
@@ -7220,6 +7246,7 @@ function animateMarkerToFocus(item, options = {}) {
       ? options.targetZoom
       : item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
+    if (focusMaskStartPoint) setFocusMaskCenter(targetScreen);
     if (options.revealFocusUI !== false) {
       revealApproxLabel();
       maybeShowMobileFocusGestureTip();
@@ -7258,6 +7285,9 @@ function animateMarkerToFocus(item, options = {}) {
     const center = getCenterForMarkerScreenPoint(markerLatLng, zoom, markerScreen);
 
     setMapCamera(center, zoom);
+    if (focusMaskStartPoint) {
+      setFocusMaskCenter(interpolateFocusMaskPoint(focusMaskStartPoint, targetScreen, eased));
+    }
 
     if (t < 1) {
       state.cameraAnimationFrame = requestAnimationFrame(step);
@@ -7903,7 +7933,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=227", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=228", { updateViaCache: "none" });
   }
 }
 

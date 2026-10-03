@@ -78,6 +78,32 @@ test("collection focus mask center is the viewport-space center of the map", () 
   });
 });
 
+test("focus mask center interpolates in step with the map camera animation", () => {
+  assert.equal(typeof markerGroups.interpolateFocusMaskPoint, "function");
+
+  assert.deepEqual(markerGroups.interpolateFocusMaskPoint({ x: 400, y: 300 }, { x: 100, y: 200 }, 0), {
+    x: 400,
+    y: 300,
+  });
+  assert.deepEqual(markerGroups.interpolateFocusMaskPoint({ x: 400, y: 300 }, { x: 100, y: 200 }, 0.5), {
+    x: 250,
+    y: 250,
+  });
+  assert.deepEqual(markerGroups.interpolateFocusMaskPoint({ x: 400, y: 300 }, { x: 100, y: 200 }, 1), {
+    x: 100,
+    y: 200,
+  });
+});
+
+test("entering collection focus closes an open detail only in browse mode", () => {
+  assert.equal(typeof markerGroups.shouldCloseFocusBeforeMarkerGroupExpansion, "function");
+  const shouldClose = markerGroups.shouldCloseFocusBeforeMarkerGroupExpansion;
+
+  assert.equal(shouldClose({ focusMode: true, editMode: false }), true);
+  assert.equal(shouldClose({ focusMode: false, editMode: false }), false);
+  assert.equal(shouldClose({ focusMode: true, editMode: true }), false);
+});
+
 test("only user map movement clears a stationary collection blur", () => {
   assert.equal(typeof markerGroups.shouldClearMarkerGroupFocus, "function");
 
