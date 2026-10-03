@@ -5196,6 +5196,42 @@ body:not(.edit-mode) .marker-settings-toggle {
   grid-template-columns: 52px 34px minmax(0, 1fr);
 }
 
+.marker-group-style-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0 2px;
+}
+
+.marker-group-style-preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  flex: none;
+}
+
+.marker-group-style-pin,
+.marker-group-style-pin svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.marker-group-style-count {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  color: #fff;
+  font: 700 11px/1 Arial, sans-serif;
+  transform: translateX(-50%);
+}
+
+.marker-group-color-control {
+  flex: 1;
+}
+
 /* 视觉设定面板：按类分组，每行 名称 | 滑块 | 数值(当前/默认) | 恢复默认 */
 /* 视觉设定：改成左侧贴边的滑出面板（用户 item9），不再遮住整屏——这样能一边拖滑块
    一边看/拖详情页。遮罩层去掉暗色背景并 pointer-events:none，让点击穿透到下面的详情页；
@@ -5393,6 +5429,20 @@ body.edit-mode .map-stage {
   margin: 0;
 }
 
+.editor-head-checks[hidden],
+.editor-body[hidden],
+.editor-actions[hidden],
+.editor-group-editor[hidden] {
+  display: none;
+}
+
+.editor-group-picker-toggle {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
 .editor-collection-check {
   color: #9a4e39;
 }
@@ -5436,6 +5486,29 @@ body.edit-mode .map-stage {
   gap: 8px;
   padding-top: 7px;
   border-top: 1px solid rgba(31, 45, 45, 0.16);
+}
+
+.editor-group-editor {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.editor-group-editor-name {
+  margin: 0 0 6px;
+  color: #263938;
+  font-size: 18px;
+}
+
+.editor-group-editor > p {
+  margin: 0;
+  color: #687875;
+  font-size: 12px;
+}
+
+.editor-group-editor .editor-group-settings {
+  margin-top: 16px;
 }
 
 .editor-group-settings[hidden] {
@@ -5625,6 +5698,10 @@ body.edit-mode .map-stage {
   background: none;
   cursor: pointer;
   color: rgba(31, 45, 45, 0.65);
+}
+
+.editor-hide-record[hidden] {
+  display: none;
 }
 
 .editor-hide-record:hover {

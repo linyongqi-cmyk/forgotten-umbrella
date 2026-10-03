@@ -22,7 +22,10 @@ import {
 } from "./record-utils.mjs";
 import { parseExif } from "./exif.mjs";
 import { fetchWeatherData } from "./weather.mjs";
-import { sanitizeMarkerGroupSettingsMap } from "../marker-groups.mjs";
+import {
+  sanitizeMarkerGroupSettingsMap,
+  sanitizeMarkerGroupColor,
+} from "../marker-groups.mjs";
 import { generateDerivatives, removeDerivatives, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
 import {
   loadConfig as loadSubmissionsConfig,
@@ -1078,6 +1081,7 @@ export async function saveMarkerSettings(payload) {
   const stroke = Number(payload?.strokeWidth);
   const out = {
     svg: cleanMarkerSvg(payload?.svg, DEFAULT_MARKER_SVG_TEXT),
+    markerGroupColor: sanitizeMarkerGroupColor(payload?.markerGroupColor),
     strokeWidth: Number.isFinite(stroke) ? Math.min(Math.max(stroke, 0.5), 8) : 1.2,
     regionOpacity: {},
     categories: {},

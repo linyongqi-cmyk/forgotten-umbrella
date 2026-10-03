@@ -7,6 +7,9 @@ import {
   markerGroupFocusMaskCenter,
   markerGroupSettingsFor,
   shouldClearMarkerGroupFocus,
+  nextExpandedMarkerGroup,
+  DEFAULT_MARKER_GROUP_COLOR,
+  sanitizeMarkerGroupColor,
   updateMarkerGroupSettings,
   sanitizeMarkerGroupSettingsMap,
 } from "./marker-groups.mjs";
@@ -651,6 +654,7 @@ const MARKER_STATE_DEFAULTS = {
 };
 const DEFAULT_MARKER_SETTINGS = {
   svg: DEFAULT_MARKER_SVG,
+  markerGroupColor: DEFAULT_MARKER_GROUP_COLOR,
   strokeWidth: 1.2,
   regionOpacity: { region1: 0.16, region2: 0, region3: 0 },
   categories: {
@@ -714,6 +718,7 @@ function sanitizeMarkerSettings(raw) {
   if (typeof raw.svg === "string" && raw.svg.trim().startsWith("<svg")) {
     out.svg = raw.svg.trim();
   }
+  out.markerGroupColor = sanitizeMarkerGroupColor(raw.markerGroupColor);
   const stroke = Number(raw.strokeWidth);
   if (Number.isFinite(stroke)) {
     out.strokeWidth = Math.min(Math.max(stroke, 0.5), 8);
@@ -1101,6 +1106,7 @@ function bindEvents() {
         closeFocusMode({ resetZoom: false });
       }
 
+      applyExpandedMarkerGroupAction({ type: "view-change" });
       els.tabs.forEach((item) => item.classList.toggle("is-active", item === tab));
       els.views.forEach((section) => section.classList.toggle("is-active", section.id === `${view}-view`));
       document.body.classList.toggle("view-map", view === "map");
@@ -1137,6 +1143,7 @@ function bindEvents() {
     }
     const cat = row.dataset.markerCat;
     state.markerFilter[cat] = !state.markerFilter[cat];
+    applyExpandedMarkerGroupAction({ type: "filter-change" });
     syncMarkerFilter();
     renderMapMarkers(filteredUmbrellas());
   });
@@ -3187,6 +3194,11 @@ function renderMapMarkers(items) {
       members.length > 1 && !state.editMode && !state.markerGroupExpanded.has(groupId),
     ),
   );
+  const groupMarkerGroups = new Map(
+    [...groups.entries()].filter(([groupId, members]) =>
+      members.length > 1 && (state.editMode || !state.markerGroupExpanded.has(groupId)),
+    ),
+  );
   const collapsedMemberIds = new Set([...collapsedGroups.values()].flat().map((item) => item.id));
   const visible = allVisible.filter((item) => !collapsedMemberIds.has(item.id));
   const visibleIds = new Set(visible.map((item) => item.id));
@@ -3204,7 +3216,7 @@ function renderMapMarkers(items) {
     }
   });
 
-  const activeGroupIds = new Set(collapsedGroups.keys());
+  const activeGroupIds = new Set(groupMarkerGroups.keys());
   state.markerGroupMarkers.forEach((marker, groupId) => {
     if (!activeGroupIds.has(groupId)) {
       marker.setMap(null);
@@ -3261,6 +3273,9 @@ function renderMapMarkers(items) {
       if (performance.now() < (state.suppressMarkerClickUntil || 0)) {
         return;
       }
+      applyExpandedMarkerGroupAction(item.markerGroupId
+        ? { type: "member-click", groupId: item.markerGroupId }
+        : { type: "other-marker-click" });
       if (state.editMode) {
         openEditor(id);
         return;
@@ -3296,7 +3311,7 @@ function renderMapMarkers(items) {
     state.markers.set(id, marker);
   });
 
-  collapsedGroups.forEach((members, groupId) => renderMarkerGroupMarker(groupId, members));
+  groupMarkerGroups.forEach((members, groupId) => renderMarkerGroupMarker(groupId, members));
 
   if (state.suppressNextFit) {
     state.suppressNextFit = false;
@@ -3307,7 +3322,11 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   const center = markerGroupCenter(members);
   if (!center) return;
   const representative = members[0];
-  const visual = markerVisualForItem(representative, { hover });
+  const visual = {
+    ...markerVisualForItem(representative, { hover }),
+    flagColor: "",
+    uniformColor: activeMarkerSettings().markerGroupColor,
+  };
   const groupIcon = markerIcon(visual);
   const markerSize = groupIcon.scaledSize.width;
   const parts = parseMarkerSvg(markerSvgForCategory(visual.category));
@@ -3348,6 +3367,19 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
     const currentMembers = filteredUmbrellas()
       .filter((item) => item.markerGroupId === groupId && hasCoordinates(item))
       .filter((item) => state.markerFilter[markerCategory(item)] !== false);
+    if (state.editMode) {
+      openMarkerGroupEditor(groupId);
+      return;
+    }
+    const nextGroupId = nextExpandedMarkerGroup(state.markerGroupExpanded.values().next().value || null, {
+      type: "group-click",
+      groupId,
+      editMode: false,
+    });
+    if (!nextGroupId) {
+      applyExpandedMarkerGroupAction({ type: "group-click", groupId });
+      return;
+    }
     expandMarkerGroup(groupId, currentMembers);
   });
   marker.addListener("mouseover", () => refreshGroupHover(true));
@@ -3359,7 +3391,7 @@ function expandMarkerGroup(groupId, members) {
   if (!members || members.length < 2) return;
   const center = markerGroupCenter(members);
   if (!center) return;
-  state.markerGroupExpanded.add(groupId);
+  applyExpandedMarkerGroupAction({ type: "group-click", groupId }, { render: false });
   renderMapMarkers(filteredUmbrellas());
   const settings = siteMarkerGroupSettingsFor(groupId);
   startMarkerGroupFocus(groupId, center, settings, { preview: false });
@@ -3429,11 +3461,29 @@ function updateSiteMarkerGroupSettings(groupId, patch) {
   return siteMarkerGroupSettingsFor(groupId);
 }
 
-function collapseExpandedMarkerGroups() {
-  if (!state.markerGroupExpanded.size && !state.markerGroupFocusPreview) return;
+function applyExpandedMarkerGroupAction(action, { render = true } = {}) {
+  const currentGroupId = state.markerGroupExpanded.values().next().value || null;
+  const nextGroupId = nextExpandedMarkerGroup(currentGroupId, {
+    ...action,
+    cameraAnimating: action.cameraAnimating ?? Boolean(state.markerGroupCameraAnimating || state.isFocusCameraAnimating),
+  });
+  if (nextGroupId === currentGroupId && !state.markerGroupFocusPreview) return false;
   state.markerGroupExpanded.clear();
-  stopMarkerGroupFocus();
-  renderMapMarkers(filteredUmbrellas());
+  if (nextGroupId) state.markerGroupExpanded.add(nextGroupId);
+  if (state.markerGroupFocusId && state.markerGroupFocusId !== nextGroupId) stopMarkerGroupFocus();
+  if (!nextGroupId && state.markerGroupFocusPreview) stopMarkerGroupFocus();
+  if (render) renderMapMarkers(filteredUmbrellas());
+  return true;
+}
+
+function collapseExpandedMarkerGroups() {
+  if (state.cameraAnimationFrame) {
+    cancelAnimationFrame(state.cameraAnimationFrame);
+    state.cameraAnimationFrame = null;
+    state.markerGroupCameraAnimating = false;
+    state.isFocusCameraAnimating = false;
+  }
+  applyExpandedMarkerGroupAction({ type: "map-interaction", interactionType: "click" });
 }
 
 // A media file is a (playable) video when its extension is a known video type.
@@ -7004,6 +7054,13 @@ function dismissFocusAfterUserMapInteraction(interactionType) {
     state.markerFilterOpen = false;
     syncMarkerFilter();
   }
+  if (interactionType === "dragstart" && state.cameraAnimationFrame) {
+    cancelAnimationFrame(state.cameraAnimationFrame);
+    state.cameraAnimationFrame = null;
+    state.markerGroupCameraAnimating = false;
+    state.isFocusCameraAnimating = false;
+  }
+  applyExpandedMarkerGroupAction({ type: "map-interaction", interactionType });
   if (shouldClearMarkerGroupFocus({
     active: Boolean(state.markerGroupFocusId),
     cameraAnimating: state.markerGroupCameraAnimating || state.isFocusCameraAnimating,
@@ -7415,7 +7472,7 @@ function markerIcon(visualOrState = "normal", flagColor = "", category = "own") 
   const color = visual.flagColor || null;
   const size = Math.round((visual.hover ? 45 : 40) * markerStateScale(visual.stateKey));
   return {
-    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey),
+    url: lucideMapPinDataUrl(visual.category, color, visual.stateKey, null, visual.uniformColor || ""),
     scaledSize: new google.maps.Size(size, size),
     anchor: new google.maps.Point(size / 2, size - 2),
   };
@@ -7708,8 +7765,8 @@ function markerSvgMarkup(category, options = {}) {
     const baseOpacity = Math.min(Math.max((Number(settings.regionOpacity?.[regionKey]) || 0) * regionOpacityMultiplier, 0), 1);
     const fromFlag = Boolean(options.fromOverrideColor);
     const toFlag = Boolean(options.overrideColor);
-    const fromColor = fromFlag ? FLAG_PIN_FILL : markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = toFlag ? FLAG_PIN_FILL : markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const fromColor = fromFlag ? FLAG_PIN_FILL : options.uniformColor || markerStateRegionColor(fromStateCat, regionKey) || fromCat.regionColors?.[regionKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = toFlag ? FLAG_PIN_FILL : options.uniformColor || markerStateRegionColor(stateCat, regionKey) || cat.regionColors?.[regionKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     const color = mixMarkerColor(fromColor, toColor, transitionT);
     const fromOpacity = fromFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
     const toOpacity = toFlag && flagFillRegion(regionKey) ? 1 : baseOpacity;
@@ -7731,8 +7788,8 @@ function markerSvgMarkup(category, options = {}) {
   }).join("");
   const lineMarkup = parts.lines.slice(0, 3).map((el, index) => {
     const lineKey = `line${index + 1}`;
-    const fromColor = options.fromOverrideColor ? FLAG_PIN_OUTLINE : markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
-    const toColor = options.overrideColor ? FLAG_PIN_OUTLINE : markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
+    const fromColor = options.fromOverrideColor ? FLAG_PIN_OUTLINE : options.uniformColor || markerStateLineColor(fromStateCat, lineKey) || fromCat.lineColors?.[lineKey] || MARKER_COLORS[fromCategory] || MARKER_COLORS.own;
+    const toColor = options.overrideColor ? FLAG_PIN_OUTLINE : options.uniformColor || markerStateLineColor(stateCat, lineKey) || cat.lineColors?.[lineKey] || MARKER_COLORS[category] || MARKER_COLORS.own;
     return markerElementMarkup(el, {
       fill: "none",
       stroke: mixMarkerColor(fromColor, toColor, transitionT),
@@ -7744,9 +7801,9 @@ function markerSvgMarkup(category, options = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeHtml(String(parts.viewBox))}" fill="none">${regionMarkup}${lineMarkup}${markerStateDecorationMarkup(parts, fromStateConfig, stateConfig, transitionT)}</svg>`;
 }
 
-function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null) {
+function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal", transition = null, uniformColor = "") {
   const settings = activeMarkerSettings();
-  const key = JSON.stringify({ category, overrideColor, stateKey, transition, settings });
+  const key = JSON.stringify({ category, overrideColor, stateKey, transition, uniformColor, settings });
   if (markerIconCache.has(key)) {
     return markerIconCache.get(key);
   }
@@ -7757,6 +7814,7 @@ function lucideMapPinDataUrl(category, overrideColor = null, stateKey = "normal"
     fromOverrideColor: transition?.fromFlagColor,
     fromStateKey: transition?.fromStateKey,
     progress: transition?.progress,
+    uniformColor,
   });
   const url = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   markerIconCache.set(key, url);
@@ -7802,7 +7860,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=223", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=224", { updateViaCache: "none" });
   }
 }
 
@@ -7880,21 +7938,12 @@ function setupEditor() {
         <label class="editor-head-check" title="勾选后在下方填写关联标点"><span>关联</span><input type="checkbox" id="editor-linked-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方给这个标点起个对外显示名（不改文件夹/文件名）"><span>显示名</span><input type="checkbox" id="editor-displayid-toggle" /></label>
-        <label class="editor-head-check editor-collection-check" title="把这条记录加入一个命名集合"><span>集合</span><input type="checkbox" id="editor-group-toggle" /></label>
+        <button type="button" class="editor-head-check editor-collection-check editor-group-picker-toggle" id="editor-group-picker-toggle" aria-expanded="false">集合</button>
+        <label class="editor-head-check editor-collection-check" title="把这条记录加入一个命名集合"><input type="checkbox" id="editor-group-toggle" aria-label="加入集合" /></label>
       </div>
       <div class="editor-group-picker" id="editor-group-picker" hidden>
         <select id="editor-group-select" aria-label="选择集合"></select>
         <input id="editor-group-name" type="text" maxlength="80" placeholder="给新集合起名" aria-label="新集合名称" hidden />
-        <div class="editor-group-settings" id="editor-group-settings" hidden>
-          <div class="editor-group-settings-title">合集聚焦设置</div>
-          <label class="editor-group-zoom-row"><span>聚焦缩放</span><input type="number" data-group-setting="focusZoom" min="3" max="21" step="0.1" aria-label="合集聚焦缩放" /></label>
-          <label class="editor-group-range-row"><span>模糊强度</span><input type="range" data-group-setting="blur" min="0" max="16" step="0.5" /><output data-group-setting-out="blur"></output></label>
-          <label class="editor-group-range-row"><span>清晰圈半径</span><input type="range" data-group-setting="radius" min="40" max="420" step="2" /><output data-group-setting-out="radius"></output></label>
-          <label class="editor-group-range-row"><span>边缘羽化</span><input type="range" data-group-setting="feather" min="0" max="180" step="2" /><output data-group-setting-out="feather"></output></label>
-          <label class="editor-group-range-row"><span>中心白雾</span><input type="range" data-group-setting="veil" min="0" max="0.8" step="0.02" /><output data-group-setting-out="veil"></output></label>
-          <button type="button" class="editor-group-preview" data-group-preview>预览聚焦</button>
-          <div class="editor-group-settings-hint">设置自动保存，仅影响当前合集</div>
-        </div>
       </div>
       <button type="button" class="editor-hide-record" title="隐藏此标点（从地图/档案/统计/列表移除，数据保留，可在「已隐藏」面板恢复）" aria-label="隐藏此标点">${EDITOR_ICON_HIDE}</button>
       <button type="button" class="editor-close" aria-label="close">×</button>
@@ -7903,6 +7952,10 @@ function setupEditor() {
       <div class="editor-col editor-col-left"></div>
       <div class="editor-col editor-col-right"></div>
     </div>
+    <section class="editor-group-editor" id="editor-group-editor" hidden>
+      <h2 class="editor-group-editor-name"></h2>
+      <p>此处的聚焦与模糊参数只影响当前集合。设置自动保存。</p>
+    </section>
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
       <button type="button" class="editor-cancel">取消</button>
@@ -7912,20 +7965,47 @@ function setupEditor() {
   editor.root = drawer;
   editor.titleEl = drawer.querySelector("#editor-title");
   editor.groupToggle = drawer.querySelector("#editor-group-toggle");
+  editor.groupPickerToggle = drawer.querySelector("#editor-group-picker-toggle");
   editor.groupPicker = drawer.querySelector("#editor-group-picker");
   editor.groupSelect = drawer.querySelector("#editor-group-select");
   editor.groupName = drawer.querySelector("#editor-group-name");
-  editor.groupSettingsPanel = drawer.querySelector("#editor-group-settings");
-  editor.groupToggle.addEventListener("change", syncEditorMarkerGroupControl);
+  editor.groupEditorPanel = drawer.querySelector("#editor-group-editor");
+  editor.groupEditorName = drawer.querySelector(".editor-group-editor-name");
+  editor.body = drawer.querySelector(".editor-body");
+  editor.headChecks = drawer.querySelector(".editor-head-checks");
+  editor.hideRecordButton = drawer.querySelector(".editor-hide-record");
+  editor.groupSettingsPanel = document.createElement("div");
+  editor.groupSettingsPanel.className = "editor-group-settings";
+  editor.groupSettingsPanel.id = "editor-group-settings";
+  editor.groupSettingsPanel.innerHTML = `
+    <div class="editor-group-settings-title">集合聚焦设置</div>
+    <label class="editor-group-zoom-row"><span>聚焦缩放</span><input type="number" data-group-setting="focusZoom" min="3" max="21" step="0.1" aria-label="集合聚焦缩放" /></label>
+    <label class="editor-group-range-row"><span>模糊强度</span><input type="range" data-group-setting="blur" min="0" max="16" step="0.5" /><output data-group-setting-out="blur"></output></label>
+    <label class="editor-group-range-row"><span>清晰圈半径</span><input type="range" data-group-setting="radius" min="40" max="420" step="2" /><output data-group-setting-out="radius"></output></label>
+    <label class="editor-group-range-row"><span>边缘羽化</span><input type="range" data-group-setting="feather" min="0" max="180" step="2" /><output data-group-setting-out="feather"></output></label>
+    <label class="editor-group-range-row"><span>中心白雾</span><input type="range" data-group-setting="veil" min="0" max="0.8" step="0.02" /><output data-group-setting-out="veil"></output></label>
+    <button type="button" class="editor-group-preview" data-group-preview>预览聚焦</button>
+    <div class="editor-group-settings-hint">只影响这个集合</div>`;
+  editor.groupEditorPanel.appendChild(editor.groupSettingsPanel);
+  editor.groupEditorId = null;
+  editor.groupPickerCollapsed = false;
+  editor.groupPickerToggle.addEventListener("click", () => {
+    editor.groupPickerCollapsed = !editor.groupPickerCollapsed;
+    syncEditorMarkerGroupControl();
+  });
+  editor.groupToggle.addEventListener("change", () => {
+    if (editor.groupToggle.checked) editor.groupPickerCollapsed = false;
+    syncEditorMarkerGroupControl();
+  });
   editor.groupSelect.addEventListener("change", () => {
     if (state.markerGroupFocusPreview && state.markerGroupFocusId !== editor.groupSelect.value) {
       stopMarkerGroupFocus();
     }
     syncEditorMarkerGroupControl();
   });
-  editor.groupPicker.addEventListener("input", handleEditorMarkerGroupSettingsInput);
-  editor.groupPicker.addEventListener("change", handleEditorMarkerGroupSettingsInput);
-  editor.groupPicker.addEventListener("click", handleEditorMarkerGroupSettingsClick);
+  editor.groupSettingsPanel.addEventListener("input", handleEditorMarkerGroupSettingsInput);
+  editor.groupSettingsPanel.addEventListener("change", handleEditorMarkerGroupSettingsInput);
+  editor.groupSettingsPanel.addEventListener("click", handleEditorMarkerGroupSettingsClick);
 
   const body = drawer.querySelector(".editor-col-left");
   const rightCol = drawer.querySelector(".editor-col-right");
@@ -10025,6 +10105,16 @@ function renderMarkerEditorBody() {
     </section>
     <section class="marker-editor-section">
       <div class="marker-editor-section-head">
+        <h3>集合标点（所有集合共用）</h3>
+        <span class="marker-section-note">只改集合标点颜色，不影响普通标点。</span>
+      </div>
+      <div class="marker-group-style-row">
+        <div class="marker-group-style-preview" data-marker-group-style-preview aria-label="集合标点预览"></div>
+        ${markerGroupColorControl(draft.markerGroupColor)}
+      </div>
+    </section>
+    <section class="marker-editor-section">
+      <div class="marker-editor-section-head">
         <h3>统一修改</h3>
         <label class="marker-upload-btn">更换统一 SVG<input type="file" accept=".svg,image/svg+xml" data-marker-svg-upload="global" /></label>
       </div>
@@ -10051,6 +10141,15 @@ function renderMarkerEditorBody() {
         ${MARKER_STATE_KEYS.map((stateKey) => markerStateEditor(stateKey, draft)).join("")}
       </div>
     </section>`;
+  updateMarkerPreview();
+}
+
+function markerGroupColorControl(value) {
+  return `<label class="marker-color-row marker-group-color-control">
+    <span>集合颜色</span>
+    <input type="color" value="${colorInputValue(value)}" data-marker-group-color />
+    <input type="text" value="${escapeHtml(value)}" data-marker-group-color-text />
+  </label>`;
 }
 
 function renderMarkerPreviewItems() {
@@ -10074,6 +10173,10 @@ function updateMarkerPreview() {
   const preview = markerEditor.overlay?.querySelector("[data-marker-preview]");
   if (preview) {
     preview.innerHTML = renderMarkerPreviewItems();
+  }
+  const groupPreview = markerEditor.overlay?.querySelector("[data-marker-group-style-preview]");
+  if (groupPreview) {
+    groupPreview.innerHTML = `<span class="marker-group-style-pin">${markerSvgMarkup("own", { inline: true, uniformColor: markerDraft().markerGroupColor })}</span><span class="marker-group-style-count">2</span>`;
   }
 }
 
@@ -10231,6 +10334,16 @@ function syncMarkerStateColorInputs(input, value) {
 
 function handleMarkerEditorInput(event) {
   const draft = markerDraft();
+  const groupColor = event.target.closest?.("[data-marker-group-color], [data-marker-group-color-text]");
+  if (groupColor) {
+    if (groupColor.matches("[data-marker-group-color-text]")) return;
+    const value = sanitizeMarkerGroupColor(groupColor.value);
+    draft.markerGroupColor = value;
+    markerEditor.overlay.querySelectorAll("[data-marker-group-color]").forEach((input) => { input.value = value; });
+    markerEditor.overlay.querySelectorAll("[data-marker-group-color-text]").forEach((input) => { input.value = value; });
+    applyMarkerDraft();
+    return;
+  }
   const field = event.target.closest?.("[data-marker-field]");
   if (field) {
     draft[field.dataset.markerField] = Number(field.value);
@@ -10283,6 +10396,15 @@ function handleMarkerEditorInput(event) {
 }
 
 async function handleMarkerEditorChange(event) {
+  const groupColor = event.target.closest?.("[data-marker-group-color-text]");
+  if (groupColor) {
+    const value = sanitizeMarkerGroupColor(groupColor.value);
+    markerDraft().markerGroupColor = value;
+    markerEditor.overlay.querySelectorAll("[data-marker-group-color]").forEach((input) => { input.value = value; });
+    markerEditor.overlay.querySelectorAll("[data-marker-group-color-text]").forEach((input) => { input.value = value; });
+    applyMarkerDraft();
+    return;
+  }
   const toggle = event.target.closest?.("[data-marker-state-toggle]");
   if (toggle) {
     const draft = markerDraft();
@@ -10346,6 +10468,7 @@ function applyMarkerDraft() {
   MARKER_SETTINGS = sanitizeMarkerSettings(markerDraft());
   markerIconCache.clear();
   updateMarkerIcons({ force: true });
+  renderMapMarkers(filteredUmbrellas());
   syncMarkerFilter();
   renderLegend();
   updateMarkerPreview();
@@ -10408,6 +10531,7 @@ function populateEditorMarkerGroupChoices(raw) {
   }).join("");
   editor.groupSelect.innerHTML = `<option value="">选择集合…</option>${groupOptions}<option value="__create__">＋ 新建集合…</option>`;
   editor.groupToggle.checked = Boolean(currentGroupId);
+  editor.groupPickerCollapsed = false;
   editor.groupSelect.value = currentGroupId || groups[0]?.id || "__create__";
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   editor.groupName.value = currentGroup?.name || raw.markerGroupName || "";
@@ -10420,13 +10544,14 @@ function syncEditorMarkerGroupControl() {
   if (!editor.groupToggle.checked && state.markerGroupFocusPreview) {
     stopMarkerGroupFocus();
   }
-  editor.groupPicker.hidden = !editor.groupToggle.checked;
+  editor.groupPicker.hidden = !editor.groupToggle.checked || editor.groupPickerCollapsed;
+  editor.groupPickerToggle?.setAttribute("aria-expanded", String(editor.groupToggle.checked && !editor.groupPickerCollapsed));
   editor.groupName.hidden = !editor.groupToggle.checked || editor.groupSelect.value !== "__create__";
   renderMarkerGroupSettingsControl();
 }
 
 function selectedEditorMarkerGroupSettings() {
-  const groupId = editor.groupSelect?.value || "";
+  const groupId = editor.groupEditorId || editor.groupSelect?.value || "";
   if (groupId === "__create__") {
     return editor.groupSettingsDraft || defaultSiteMarkerGroupSettings();
   }
@@ -10435,8 +10560,8 @@ function selectedEditorMarkerGroupSettings() {
 
 function renderMarkerGroupSettingsControl() {
   if (!editor.groupSettingsPanel) return;
-  const groupId = editor.groupSelect?.value || "";
-  const visible = Boolean(editor.groupToggle?.checked && groupId);
+  const groupId = editor.groupEditorId || "";
+  const visible = Boolean(groupId);
   editor.groupSettingsPanel.hidden = !visible;
   if (!visible) return;
   const settings = selectedEditorMarkerGroupSettings();
@@ -10461,7 +10586,7 @@ function handleEditorMarkerGroupSettingsInput(event) {
   event.stopPropagation();
   if (input?.dataset.groupSetting === "focusZoom" && event.type === "input") return;
   if (input.value.trim() === "") return;
-  const groupId = editor.groupSelect?.value || "";
+  const groupId = editor.groupEditorId || editor.groupSelect?.value || "";
   const key = input.dataset.groupSetting;
   const value = Number(input.value);
   if (groupId === "__create__") {
@@ -10491,7 +10616,7 @@ function handleEditorMarkerGroupSettingsClick(event) {
   const button = event.target.closest?.("[data-group-preview]");
   if (!button) return;
   event.preventDefault();
-  const groupId = editor.groupSelect?.value || "";
+  const groupId = editor.groupEditorId || "";
   if (!groupId) return;
   if (state.markerGroupFocusPreview && state.markerGroupFocusId === groupId) {
     stopMarkerGroupFocus();
@@ -10513,12 +10638,59 @@ function handleEditorMarkerGroupSettingsClick(event) {
   });
 }
 
+function openMarkerGroupEditor(groupId) {
+  const open = () => {
+    const group = listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId);
+    if (!group) return;
+    if (state.markerGroupFocusPreview) stopMarkerGroupFocus();
+    state.editingId = null;
+    editor.dirty = false;
+    editor.groupEditorId = groupId;
+    editor.groupEditorName.textContent = group.name;
+    editor.titleEl.textContent = "编辑集合";
+    editor.groupPicker.hidden = true;
+    editor.headChecks.hidden = true;
+    editor.hideRecordButton.hidden = true;
+    editor.body.hidden = true;
+    editor.groupEditorPanel.hidden = false;
+    editor.root.querySelector(".editor-actions").hidden = true;
+    editor.root.classList.add("is-group-editor", "is-open");
+    editor.preview?.classList.remove("is-open");
+    document.body.classList.add("editor-open");
+    renderMarkerGroupSettingsControl();
+  };
+
+  if (editor.editingId && editor.dirty) {
+    const save = window.confirm("有未保存的修改。\n点「确定」保存后切换到集合，点「取消」放弃修改并切换。");
+    if (!save) {
+      editor.dirty = false;
+      closeEditor({ force: true });
+      open();
+      return;
+    }
+    const recordId = editor.editingId;
+    saveEditor().then(() => {
+      if (!editor.dirty && editor.editingId === recordId) open();
+    });
+    return;
+  }
+  if (editor.editingId) closeEditor({ force: true });
+  open();
+}
+
 function openEditor(id) {
   const raw = getRawById(id);
   if (!raw) {
     return;
   }
   state.editingId = id;
+  editor.groupEditorId = null;
+  editor.root?.classList.remove("is-group-editor");
+  if (editor.groupEditorPanel) editor.groupEditorPanel.hidden = true;
+  if (editor.body) editor.body.hidden = false;
+  if (editor.headChecks) editor.headChecks.hidden = false;
+  if (editor.hideRecordButton) editor.hideRecordButton.hidden = false;
+  if (editor.root) editor.root.querySelector(".editor-actions").hidden = false;
   editor.draftCoords = state.pendingCoords[id] || raw.locationCoordinates || null;
   if (editor.titleEl) {
     editor.titleEl.textContent = `编辑：${id}`;
@@ -10648,7 +10820,14 @@ function closeEditor({ force = false } = {}) {
     }
   }
   state.editingId = null;
+  editor.groupEditorId = null;
   editor.dirty = false;
+  editor.groupEditorPanel && (editor.groupEditorPanel.hidden = true);
+  editor.body && (editor.body.hidden = false);
+  editor.headChecks && (editor.headChecks.hidden = false);
+  editor.hideRecordButton && (editor.hideRecordButton.hidden = false);
+  editor.root?.classList.remove("is-group-editor");
+  if (editor.root) editor.root.querySelector(".editor-actions").hidden = false;
   editor.root?.classList.remove("is-open");
   editor.preview?.classList.remove("is-open");
   document.body.classList.remove("editor-open");

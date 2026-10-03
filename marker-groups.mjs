@@ -52,6 +52,33 @@ export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interacti
   return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }
 
+export function nextExpandedMarkerGroup(currentGroupId, action = {}) {
+  switch (action.type) {
+    case "group-click":
+      if (action.editMode || typeof action.groupId !== "string" || !action.groupId) return null;
+      return currentGroupId === action.groupId ? null : action.groupId;
+    case "member-click":
+      return currentGroupId && currentGroupId === action.groupId ? currentGroupId : null;
+    case "map-interaction":
+      return (action.cameraAnimating && action.interactionType === "zoom_changed") || !["dragstart", "zoom_changed", "click"].includes(action.interactionType)
+        ? currentGroupId || null
+        : null;
+    case "other-marker-click":
+    case "filter-change":
+    case "view-change":
+      return null;
+    default:
+      return currentGroupId || null;
+  }
+}
+
+export const DEFAULT_MARKER_GROUP_COLOR = "#d95d42";
+
+export function sanitizeMarkerGroupColor(value) {
+  const color = typeof value === "string" ? value.trim() : "";
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_MARKER_GROUP_COLOR;
+}
+
 export const DEFAULT_MARKER_GROUP_SETTINGS = Object.freeze({
   focusZoom: 18,
   blur: 6,

@@ -88,6 +88,52 @@ test("only user map movement clears a stationary collection blur", () => {
   assert.equal(markerGroups.shouldClearMarkerGroupFocus({ active: false, cameraAnimating: false, interactionType: "dragstart" }), false);
 });
 
+test("collection expansion is exclusive, toggles on repeat, and is disabled in edit mode", () => {
+  assert.equal(typeof markerGroups.nextExpandedMarkerGroup, "function");
+  const next = markerGroups.nextExpandedMarkerGroup;
+
+  assert.equal(next(null, { type: "group-click", groupId: "a" }), "a");
+  assert.equal(next("a", { type: "group-click", groupId: "b" }), "b");
+  assert.equal(next("a", { type: "group-click", groupId: "a" }), null);
+  assert.equal(next("a", { type: "group-click", groupId: "b", editMode: true }), null);
+});
+
+test("clicking a member preserves only its currently expanded collection", () => {
+  const next = markerGroups.nextExpandedMarkerGroup;
+
+  assert.equal(next("a", { type: "member-click", groupId: "a" }), "a");
+  assert.equal(next("a", { type: "member-click", groupId: "b" }), null);
+  assert.equal(next("a", { type: "other-marker-click" }), null);
+});
+
+test("map interaction closes an expanded collection unless a focus animation is running", () => {
+  const next = markerGroups.nextExpandedMarkerGroup;
+
+  assert.equal(next("a", { type: "map-interaction", interactionType: "dragstart" }), null);
+  assert.equal(next("a", { type: "map-interaction", interactionType: "zoom_changed" }), null);
+  assert.equal(next("a", { type: "map-interaction", interactionType: "zoom_changed", cameraAnimating: true }), "a");
+  assert.equal(next("a", { type: "map-interaction", interactionType: "dragstart", cameraAnimating: true }), null);
+  assert.equal(next("a", { type: "map-interaction", interactionType: "click", cameraAnimating: true }), null);
+  assert.equal(next("a", { type: "map-interaction", interactionType: "idle" }), "a");
+  assert.equal(next(null, { type: "map-interaction", interactionType: "dragstart" }), null);
+});
+
+test("filter and view changes always close an expanded collection", () => {
+  const next = markerGroups.nextExpandedMarkerGroup;
+
+  assert.equal(next("a", { type: "filter-change" }), null);
+  assert.equal(next("a", { type: "view-change" }), null);
+});
+
+test("collection marker color defaults safely, accepts a custom hex value, and rejects invalid text", () => {
+  assert.equal(typeof markerGroups.sanitizeMarkerGroupColor, "function");
+  const sanitize = markerGroups.sanitizeMarkerGroupColor;
+
+  assert.equal(sanitize(undefined), "#d95d42");
+  assert.equal(sanitize("#237ac4"), "#237ac4");
+  assert.equal(sanitize("not-a-color"), "#d95d42");
+});
+
 test("marker focus and blur settings are independent per group and default when unset", () => {
   assert.equal(typeof markerGroups.markerGroupSettingsFor, "function");
   assert.equal(typeof markerGroups.updateMarkerGroupSettings, "function");
