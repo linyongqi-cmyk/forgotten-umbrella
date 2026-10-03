@@ -18,6 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { readRecordFile } from "./record-utils.mjs";
+import { collectionNameTranslationHits } from "./translation-scan.mjs";
 
 const ROOTS = ["filebox/records", "filebox/hidden"];
 const CJK = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힣]/; // 假名/汉字/扩展/谚文
@@ -116,6 +117,11 @@ function changedRecordFiles() {
   return [...set];
 }
 
+function siteSettingsChanged() {
+  const raw = execSync("git -c core.quotepath=false status --porcelain", { encoding: "utf8" });
+  return raw.split("\n").some((line) => line.slice(3).trim().replace(/^"|"$/g, "") === "data/site-settings.json");
+}
+
 function scanRecord(file, hits) {
   const j = record(file);
   const id = path.basename(path.dirname(file));
@@ -163,28 +169,43 @@ function record(file) {
 async function main() {
   const all = process.argv.includes("--all");
   let files = all ? (() => { const o = []; ROOTS.forEach((r) => walk(r, o)); return o.sort(); })() : changedRecordFiles().sort();
-  if (!all && files.length === 0) {
+  const settingsChanged = !all && siteSettingsChanged();
+  if (!all && files.length === 0 && !settingsChanged) {
     console.log("没有 git 改动/新增的记录。要全库扫描用：npm run i18n:scan -- --all");
     return;
   }
   for (const f of files) _cache.set(f, await readRecordFile(f));
 
   const hits = [];
+  const records = files.map((file) => _cache.get(file));
   for (const f of files) scanRecord(f, hits);
+  if (all || settingsChanged) {
+    const groupFiles = all ? files : (() => { const o = []; ROOTS.forEach((r) => walk(r, o)); return o.sort(); })();
+    const allRecords = all ? records : await Promise.all(groupFiles.map((file) => readRecordFile(file)));
+    const rawSettings = JSON.parse(fs.readFileSync("data/site-settings.json", "utf8"));
+    collectionNameTranslationHits(allRecords, rawSettings?.markerGroups).forEach((hit) => {
+      hits.push({ file: "data/site-settings.json", id: hit.id, field: hit.field, value: hit.value, tag: hit.tag });
+    });
+  } else {
+    collectionNameTranslationHits(records, {}).forEach((hit) => {
+      hits.push({ file: "data/site-settings.json", id: hit.id, field: hit.field, value: hit.value, tag: hit.tag });
+    });
+  }
 
   const byId = new Map();
   for (const h of hits) {
     if (!byId.has(h.file)) byId.set(h.file, []);
     byId.get(h.file).push(h);
   }
-  console.log(`模式：${all ? "全库" : "只看改动/新增"}　扫描 ${files.length} 条记录\n`);
+  const collectionCount = new Set(hits.filter((hit) => hit.file === "data/site-settings.json").map((hit) => hit.id)).size;
+  console.log(`模式：${all ? "全库" : "只看改动/新增"}　扫描 ${files.length} 条记录${all || settingsChanged ? `及 ${collectionCount} 个待检查集合` : ""}\n`);
   if (hits.length === 0) {
     console.log("✓ 没有发现需要翻译的地方。");
     return;
   }
   for (const [file, list] of byId) {
-    console.log("=== " + path.basename(path.dirname(file)) + "  (" + file + ")");
-    for (const h of list) console.log(`  [${h.tag}] ${h.field} = ${JSON.stringify(h.value)}`);
+    console.log("=== " + (file === "data/site-settings.json" ? "集合名称" : path.basename(path.dirname(file))) + "  (" + file + ")");
+    for (const h of list) console.log(`  [${h.tag}] ${h.id !== path.basename(path.dirname(file)) ? `${h.id} ` : ""}${h.field} = ${JSON.stringify(h.value)}`);
   }
   const tally = {};
   hits.forEach((h) => (tally[h.tag] = (tally[h.tag] || 0) + 1));

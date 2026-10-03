@@ -98,6 +98,9 @@ export const DEFAULT_MARKER_GROUP_SETTINGS = Object.freeze({
   radius: 126,
   feather: 138,
   veil: 0.3,
+  labelDistance: 260,
+  labelRotate: -135,
+  name: Object.freeze({ ja: "", en: "" }),
 });
 
 const MARKER_GROUP_SETTING_RANGES = {
@@ -106,6 +109,8 @@ const MARKER_GROUP_SETTING_RANGES = {
   radius: [40, 420],
   feather: [0, 180],
   veil: [0, 0.8],
+  labelDistance: [-600, 600],
+  labelRotate: [-180, 180],
 };
 
 function clampMarkerGroupSetting(key, value, fallback) {
@@ -115,13 +120,29 @@ function clampMarkerGroupSetting(key, value, fallback) {
   return Math.min(maximum, Math.max(minimum, number));
 }
 
-export function markerGroupSettingsFor(settingsById, groupId) {
+function sanitizeMarkerGroupName(raw) {
+  const clean = (value) => typeof value === "string" ? value.trim().slice(0, 80) : "";
+  return { ja: clean(raw?.ja), en: clean(raw?.en) };
+}
+
+export function markerGroupSettingsFor(settingsById, groupId, defaults = DEFAULT_MARKER_GROUP_SETTINGS) {
   const saved = settingsById && typeof settingsById === "object" ? settingsById[groupId] : null;
   const out = {};
   for (const [key, fallback] of Object.entries(DEFAULT_MARKER_GROUP_SETTINGS)) {
-    out[key] = clampMarkerGroupSetting(key, saved?.[key], fallback);
+    if (key === "name") continue;
+    const supplied = defaults?.[key];
+    const resolvedFallback = Number.isFinite(Number(supplied)) ? Number(supplied) : fallback;
+    out[key] = clampMarkerGroupSetting(key, saved?.[key], resolvedFallback);
   }
+  out.name = sanitizeMarkerGroupName(saved?.name);
   return out;
+}
+
+export function markerGroupNameFor(settingsById, groupId, legacyName = "", language = "ja") {
+  const name = sanitizeMarkerGroupName(settingsById?.[groupId]?.name);
+  const primary = language === "en" ? name.en : name.ja;
+  const fallback = language === "en" ? name.ja : name.en;
+  return primary || fallback || (typeof legacyName === "string" ? legacyName.trim() : "") || groupId;
 }
 
 export function updateMarkerGroupSettings(settingsById, groupId, patch) {
@@ -129,19 +150,21 @@ export function updateMarkerGroupSettings(settingsById, groupId, patch) {
   const current = markerGroupSettingsFor(settingsById, groupId);
   const next = { ...current };
   for (const key of Object.keys(DEFAULT_MARKER_GROUP_SETTINGS)) {
+    if (key === "name") continue;
     if (patch && Object.hasOwn(patch, key)) {
       next[key] = clampMarkerGroupSetting(key, patch[key], current[key]);
     }
   }
+  if (patch && Object.hasOwn(patch, "name")) next.name = sanitizeMarkerGroupName(patch.name);
   return { ...(settingsById || {}), [groupId]: next };
 }
 
-export function sanitizeMarkerGroupSettingsMap(raw) {
+export function sanitizeMarkerGroupSettingsMap(raw, defaults = DEFAULT_MARKER_GROUP_SETTINGS) {
   const out = {};
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
   for (const [groupId, settings] of Object.entries(raw)) {
     if (!/^[\w.-]{1,128}$/.test(groupId)) continue;
-    out[groupId] = markerGroupSettingsFor({ [groupId]: settings }, groupId);
+    out[groupId] = markerGroupSettingsFor({ [groupId]: settings }, groupId, defaults);
   }
   return out;
 }

@@ -1158,7 +1158,10 @@ export async function saveSiteSettings(payload) {
   for (const mapKey of SITE_MAP_KEYS) {
     mapLayers[mapKey] = sanitizeCategorySet(rawMap[mapKey]);
   }
-  const markerGroups = sanitizeMarkerGroupSettingsMap(payload?.markerGroups);
+  const markerGroups = sanitizeMarkerGroupSettingsMap(payload?.markerGroups, {
+    labelDistance: blur.labelDistanceA ?? 260,
+    labelRotate: blur.labelRotateA ?? -135,
+  });
   const out = { blur, mapLayers, markerGroups };
   await fs.writeFile(siteSettingsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
   return { ok: true };

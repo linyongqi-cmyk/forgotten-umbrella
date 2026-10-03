@@ -6,6 +6,7 @@ import {
   markerGroupPresentation,
   markerGroupFocusMaskCenter,
   markerGroupSettingsFor,
+  markerGroupNameFor,
   shouldClearMarkerGroupFocus,
   nextExpandedMarkerGroup,
   sanitizeMarkerGroupStyle,
@@ -591,7 +592,10 @@ async function loadSiteSettings() {
     return {
       blur,
       mapLayers,
-      markerGroups: sanitizeMarkerGroupSettingsMap(raw?.markerGroups),
+      markerGroups: sanitizeMarkerGroupSettingsMap(raw?.markerGroups, {
+        labelDistance: blur?.labelDistanceA ?? 260,
+        labelRotate: blur?.labelRotateA ?? -135,
+      }),
     };
   } catch (error) {
     console.error(error);
@@ -1950,9 +1954,10 @@ function updateFocusApproxLabelGeometry() {
   if (!els.focusApproxLabel || els.focusApproxLabel.hidden) {
     return;
   }
-  const settings = state.blurSettings || defaultBlurSettings();
-  const distance = Number(settings.labelDistanceA);
-  const rotation = Number(settings.labelRotateA);
+  const groupSettings = state.markerGroupFocusId ? siteMarkerGroupSettingsFor(state.markerGroupFocusId) : null;
+  const settings = groupSettings || state.blurSettings || defaultBlurSettings();
+  const distance = Number(groupSettings ? settings.labelDistance : settings.labelDistanceA);
+  const rotation = Number(groupSettings ? settings.labelRotate : settings.labelRotateA);
   const radius = Math.max(1, Math.abs(Number.isFinite(distance) ? distance : 245));
   const extraRotation = distance < 0 ? 180 : 0;
   const path = els.focusApproxLabel.querySelector("#focus-approx-label-path");
@@ -3333,7 +3338,7 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   const labelOrigin = markerGroupLabelOrigin(visual.category, markerSize);
   const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin, { hover });
   presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
-  const groupName = representative.markerGroupName || groupId;
+  const groupName = siteMarkerGroupName(groupId, representative.markerGroupName || groupId);
   const existing = state.markerGroupMarkers.get(groupId);
   if (existing) {
     existing.setPosition(center);
@@ -3399,18 +3404,19 @@ function expandMarkerGroup(groupId, members) {
   applyExpandedMarkerGroupAction({ type: "group-click", groupId }, { render: false });
   renderMapMarkers(filteredUmbrellas());
   const settings = siteMarkerGroupSettingsFor(groupId);
-  startMarkerGroupFocus(groupId, center, settings, { preview: false });
+  startMarkerGroupFocus(groupId, center, settings, { preview: false, pending: true });
   animateMarkerToFocus({ coordinates: center }, {
     targetScreenPoint: getMapCenterScreenPoint(),
     targetZoom: settings.focusZoom,
     revealFocusUI: false,
     onComplete: () => {
       state.markerGroupCameraAnimating = false;
+      revealApproxLabel();
     },
   });
 }
 
-function startMarkerGroupFocus(groupId, center, settings, { preview = false } = {}) {
+function startMarkerGroupFocus(groupId, center, settings, { preview = false, pending = false } = {}) {
   state.markerGroupFocusId = groupId;
   state.markerGroupFocusPreview = preview;
   state.markerGroupFocusCenter = center;
@@ -3424,6 +3430,9 @@ function startMarkerGroupFocus(groupId, center, settings, { preview = false } = 
   els.focusBlur?.style.setProperty("--fb-feather", `${settings.feather}px`);
   els.focusBlur?.style.setProperty("--fb-veil", String(settings.veil));
   els.focusBlur?.style.setProperty("--fb-tint", "rgba(255, 255, 255, 0.5)");
+  const legacyName = state.umbrellas.find((item) => item.markerGroupId === groupId)?.markerGroupName || "";
+  const names = { ...(SITE_SETTINGS?.markerGroups || {}), [groupId]: settings };
+  renderFocusApproxLabel(markerGroupNameFor(names, groupId, legacyName, state.lang), { preview, pending });
   renderMarkerGroupSettingsControl();
 }
 
@@ -3433,6 +3442,7 @@ function stopMarkerGroupFocus() {
   state.markerGroupFocusPreview = false;
   state.markerGroupFocusCenter = null;
   els.mapView?.classList.remove("is-marker-group-focus");
+  renderFocusApproxLabel("");
   ["--fb-blur", "--fb-radius", "--fb-feather", "--fb-veil", "--fb-tint"].forEach((name) => {
     els.focusBlur?.style.removeProperty(name);
   });
@@ -3447,12 +3457,21 @@ function defaultSiteMarkerGroupSettings() {
     radius: blur.radiusA,
     feather: blur.featherA,
     veil: blur.veilA,
+    labelDistance: blur.labelDistanceA,
+    labelRotate: blur.labelRotateA,
+    name: { ja: "", en: "" },
   };
 }
 
 function siteMarkerGroupSettingsFor(groupId) {
   const saved = SITE_SETTINGS?.markerGroups?.[groupId] || {};
   return markerGroupSettingsFor({ [groupId]: { ...defaultSiteMarkerGroupSettings(), ...saved } }, groupId);
+}
+
+function siteMarkerGroupName(groupId, legacyName = "", settings = null) {
+  const groups = { ...(SITE_SETTINGS?.markerGroups || {}) };
+  if (settings) groups[groupId] = settings;
+  return markerGroupNameFor(groups, groupId, legacyName, state.lang);
 }
 
 function updateSiteMarkerGroupSettings(groupId, patch) {
@@ -7865,7 +7884,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=225", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=226", { updateViaCache: "none" });
   }
 }
 
@@ -7984,11 +8003,16 @@ function setupEditor() {
   editor.groupSettingsPanel.id = "editor-group-settings";
   editor.groupSettingsPanel.innerHTML = `
     <div class="editor-group-settings-title">集合聚焦设置</div>
+    <label class="editor-group-name-row"><span>集合名称（日文）</span><input type="text" data-group-name="ja" maxlength="80" /></label>
+    <label class="editor-group-name-row"><span>集合名称（英文）</span><input type="text" data-group-name="en" maxlength="80" /></label>
     <label class="editor-group-zoom-row"><span>聚焦缩放</span><input type="number" data-group-setting="focusZoom" min="3" max="21" step="0.1" aria-label="集合聚焦缩放" /></label>
     <label class="editor-group-range-row"><span>模糊强度</span><input type="range" data-group-setting="blur" min="0" max="16" step="0.5" /><output data-group-setting-out="blur"></output></label>
     <label class="editor-group-range-row"><span>清晰圈半径</span><input type="range" data-group-setting="radius" min="40" max="420" step="2" /><output data-group-setting-out="radius"></output></label>
     <label class="editor-group-range-row"><span>边缘羽化</span><input type="range" data-group-setting="feather" min="0" max="180" step="2" /><output data-group-setting-out="feather"></output></label>
     <label class="editor-group-range-row"><span>中心白雾</span><input type="range" data-group-setting="veil" min="0" max="0.8" step="0.02" /><output data-group-setting-out="veil"></output></label>
+    <div class="editor-group-settings-title">环绕文字</div>
+    <label class="editor-group-range-row"><span>文字距离中心</span><input type="range" data-group-setting="labelDistance" min="-600" max="600" step="5" /><output data-group-setting-out="labelDistance"></output></label>
+    <label class="editor-group-range-row"><span>文字旋转角度</span><input type="range" data-group-setting="labelRotate" min="-180" max="180" step="1" /><output data-group-setting-out="labelRotate"></output></label>
     <button type="button" class="editor-group-preview" data-group-preview>预览聚焦</button>
     <div class="editor-group-settings-hint">只影响这个集合</div>`;
   editor.groupEditorPanel.appendChild(editor.groupSettingsPanel);
@@ -10563,7 +10587,8 @@ function populateEditorMarkerGroupChoices(raw) {
       : "";
     const nearPrefix = index === 0 && distance ? "最近 · " : "";
     const suffix = distance ? ` · ${distance}` : "";
-    return `<option value="${escapeHtml(group.id)}">${escapeHtml(`${nearPrefix}${group.name} · ${group.count} 条${suffix}`)}</option>`;
+    const displayName = siteMarkerGroupName(group.id, group.name);
+    return `<option value="${escapeHtml(group.id)}">${escapeHtml(`${nearPrefix}${displayName} · ${group.count} 条${suffix}`)}</option>`;
   }).join("");
   editor.groupSelect.innerHTML = `<option value="">选择集合…</option>${groupOptions}<option value="__create__">＋ 新建集合…</option>`;
   editor.groupToggle.checked = Boolean(currentGroupId);
@@ -10601,12 +10626,20 @@ function renderMarkerGroupSettingsControl() {
   editor.groupSettingsPanel.hidden = !visible;
   if (!visible) return;
   const settings = selectedEditorMarkerGroupSettings();
+  const group = listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId);
+  const fallbackName = group?.name || (groupId === "__create__" ? editor.groupName?.value : "") || "";
+  editor.groupSettingsPanel.querySelectorAll("[data-group-name]").forEach((input) => {
+    const language = input.dataset.groupName;
+    input.value = settings.name?.[language] || (language === "ja" ? fallbackName : "");
+  });
   editor.groupSettingsPanel.querySelectorAll("[data-group-setting]").forEach((input) => {
     const key = input.dataset.groupSetting;
     input.value = String(settings[key]);
     const output = editor.groupSettingsPanel.querySelector(`[data-group-setting-out="${key}"]`);
     if (output) {
-      output.textContent = key === "veil" ? `${Math.round(settings[key] * 100)}%` : `${settings[key]} px`;
+      output.textContent = key === "veil"
+        ? `${Math.round(settings[key] * 100)}%`
+        : key === "labelRotate" ? `${settings[key]}°` : `${settings[key]} px`;
     }
   });
   const previewButton = editor.groupSettingsPanel.querySelector("[data-group-preview]");
@@ -10617,12 +10650,32 @@ function renderMarkerGroupSettingsControl() {
 }
 
 function handleEditorMarkerGroupSettingsInput(event) {
-  const input = event.target.closest?.("[data-group-setting]");
+  const input = event.target.closest?.("[data-group-setting], [data-group-name]");
   if (!input) return;
   event.stopPropagation();
+  const groupId = editor.groupEditorId || editor.groupSelect?.value || "";
+  if (input.dataset.groupName) {
+    const language = input.dataset.groupName;
+    const current = selectedEditorMarkerGroupSettings();
+    const name = { ...(current.name || { ja: "", en: "" }), [language]: input.value.trim() };
+    if (groupId === "__create__") {
+      editor.groupSettingsDraft = updateMarkerGroupSettings(
+        { draft: editor.groupSettingsDraft || defaultSiteMarkerGroupSettings() }, "draft", { name },
+      ).draft;
+    } else if (groupId) {
+      updateSiteMarkerGroupSettings(groupId, { name });
+      persistSiteSettings();
+    }
+    const fallbackName = listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId)?.name || editor.groupName?.value || groupId;
+    editor.groupEditorName.textContent = siteMarkerGroupName(groupId, fallbackName, { ...current, name });
+    if (state.markerGroupFocusId === groupId) {
+      startMarkerGroupFocus(groupId, state.markerGroupFocusCenter, { ...current, name }, { preview: state.markerGroupFocusPreview });
+    }
+    state.markerGroupMarkers.get(groupId)?.setTitle(`${siteMarkerGroupName(groupId, fallbackName, { ...current, name })} · ${listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId)?.count || 0}`);
+    return;
+  }
   if (input?.dataset.groupSetting === "focusZoom" && event.type === "input") return;
   if (input.value.trim() === "") return;
-  const groupId = editor.groupEditorId || editor.groupSelect?.value || "";
   const key = input.dataset.groupSetting;
   const value = Number(input.value);
   if (groupId === "__create__") {
@@ -10640,7 +10693,9 @@ function handleEditorMarkerGroupSettingsInput(event) {
   const settings = selectedEditorMarkerGroupSettings();
   if (event.type === "change" || key !== "focusZoom") input.value = String(settings[key]);
   const output = editor.groupSettingsPanel.querySelector(`[data-group-setting-out="${key}"]`);
-  if (output) output.textContent = key === "veil" ? `${Math.round(settings[key] * 100)}%` : `${settings[key]} px`;
+  if (output) output.textContent = key === "veil"
+    ? `${Math.round(settings[key] * 100)}%`
+    : key === "labelRotate" ? `${settings[key]}°` : `${settings[key]} px`;
   if (state.markerGroupFocusId === groupId) {
     if (state.markerGroupFocusCenter) {
       startMarkerGroupFocus(groupId, state.markerGroupFocusCenter, settings, { preview: state.markerGroupFocusPreview });
@@ -10682,7 +10737,7 @@ function openMarkerGroupEditor(groupId) {
     state.editingId = null;
     editor.dirty = false;
     editor.groupEditorId = groupId;
-    editor.groupEditorName.textContent = group.name;
+    editor.groupEditorName.textContent = siteMarkerGroupName(groupId, group.name);
     editor.titleEl.textContent = "编辑集合";
     editor.groupPicker.hidden = true;
     editor.headChecks.hidden = true;
@@ -11050,7 +11105,10 @@ async function saveEditor() {
       throw new Error(result.error || `保存失败（${response.status}）`);
     }
     if (createdMarkerGroupId) {
-      updateSiteMarkerGroupSettings(createdMarkerGroupId, editor.groupSettingsDraft || {});
+      updateSiteMarkerGroupSettings(createdMarkerGroupId, {
+        ...(editor.groupSettingsDraft || {}),
+        name: { ja: editor.groupName?.value.trim() || "", en: "" },
+      });
       persistSiteSettings();
     }
     // The dragged position is now persisted; drop the pending copy.

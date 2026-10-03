@@ -172,6 +172,9 @@ test("marker focus and blur settings are independent per group and default when 
     radius: 126,
     feather: 138,
     veil: 0.3,
+    labelDistance: 260,
+    labelRotate: -135,
+    name: { ja: "", en: "" },
   });
   assert.deepEqual(second, {
     focusZoom: 18,
@@ -179,8 +182,73 @@ test("marker focus and blur settings are independent per group and default when 
     radius: 126,
     feather: 138,
     veil: 0.3,
+    labelDistance: 260,
+    labelRotate: -135,
+    name: { ja: "", en: "" },
   });
   assert.equal(markerGroups.markerGroupSettingsFor(settings, "kyoto").focusZoom, 16.5);
+});
+
+test("collection settings keep localized names and ring-text controls per group", () => {
+  const settings = markerGroups.updateMarkerGroupSettings({}, "kyoto", {
+    name: { ja: "京都の集合", en: "Kyoto group" },
+    labelDistance: 310,
+    labelRotate: -42,
+  });
+
+  assert.deepEqual(markerGroups.markerGroupSettingsFor(settings, "kyoto"), {
+    focusZoom: 18,
+    blur: 6,
+    radius: 126,
+    feather: 138,
+    veil: 0.3,
+    labelDistance: 310,
+    labelRotate: -42,
+    name: { ja: "京都の集合", en: "Kyoto group" },
+  });
+  assert.equal(markerGroups.markerGroupNameFor(settings, "kyoto", "旧名称", "en"), "Kyoto group");
+  assert.equal(markerGroups.markerGroupNameFor(settings, "kyoto", "旧名称", "ja"), "京都の集合");
+  assert.equal(markerGroups.markerGroupNameFor({}, "legacy", "旧名称", "en"), "旧名称");
+});
+
+test("new collection ring text uses supplied defaults and invalid names fall back safely", () => {
+  const settings = markerGroups.updateMarkerGroupSettings({}, "new", {
+    labelDistance: 9999,
+    labelRotate: -9999,
+    name: { ja: "  新集合  ", en: "  " },
+  });
+
+  assert.deepEqual(markerGroups.markerGroupSettingsFor(settings, "new", {
+    labelDistance: 280,
+    labelRotate: -90,
+  }), {
+    focusZoom: 18,
+    blur: 6,
+    radius: 126,
+    feather: 138,
+    veil: 0.3,
+    labelDistance: 600,
+    labelRotate: -180,
+    name: { ja: "新集合", en: "" },
+  });
+  assert.equal(markerGroups.markerGroupNameFor(settings, "new", "旧名称", "en"), "新集合");
+});
+
+test("site settings sanitizer preserves bilingual collection names and inherited ring defaults", () => {
+  const sanitized = markerGroups.sanitizeMarkerGroupSettingsMap({
+    group: { name: { ja: "集合", en: "Group" } },
+  }, { labelDistance: 315, labelRotate: 22 });
+
+  assert.deepEqual(sanitized.group, {
+    focusZoom: 18,
+    blur: 6,
+    radius: 126,
+    feather: 138,
+    veil: 0.3,
+    labelDistance: 315,
+    labelRotate: 22,
+    name: { ja: "集合", en: "Group" },
+  });
 });
 
 test("marker group settings are bounded before they can affect the map", () => {
@@ -198,5 +266,8 @@ test("marker group settings are bounded before they can affect the map", () => {
     radius: 420,
     feather: 0,
     veil: 0.8,
+    labelDistance: 260,
+    labelRotate: -135,
+    name: { ja: "", en: "" },
   });
 });
