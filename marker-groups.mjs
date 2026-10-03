@@ -52,6 +52,15 @@ export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interacti
   return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }
 
+export function shouldStopMarkerGroupPreview({ previewActive, actionType, interactionType, cameraAnimating }) {
+  if (!previewActive) return false;
+  return !(actionType === "map-interaction" && interactionType === "zoom_changed" && cameraAnimating);
+}
+
+export function isCurrentCameraAnimation(currentAnimationId, completionAnimationId) {
+  return currentAnimationId === completionAnimationId;
+}
+
 export function nextExpandedMarkerGroup(currentGroupId, action = {}) {
   switch (action.type) {
     case "group-click":

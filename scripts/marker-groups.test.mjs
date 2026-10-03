@@ -118,6 +118,24 @@ test("map interaction closes an expanded collection unless a focus animation is 
   assert.equal(next(null, { type: "map-interaction", interactionType: "dragstart" }), null);
 });
 
+test("programmatic zoom changes keep a collection focus preview alive until the camera settles", () => {
+  assert.equal(typeof markerGroups.shouldStopMarkerGroupPreview, "function");
+  const shouldStop = markerGroups.shouldStopMarkerGroupPreview;
+
+  assert.equal(shouldStop({ previewActive: true, actionType: "map-interaction", interactionType: "zoom_changed", cameraAnimating: true }), false);
+  assert.equal(shouldStop({ previewActive: true, actionType: "map-interaction", interactionType: "zoom_changed", cameraAnimating: false }), true);
+  assert.equal(shouldStop({ previewActive: true, actionType: "map-interaction", interactionType: "dragstart", cameraAnimating: true }), true);
+  assert.equal(shouldStop({ previewActive: true, actionType: "other-marker-click", cameraAnimating: false }), true);
+  assert.equal(shouldStop({ previewActive: false, actionType: "map-interaction", interactionType: "zoom_changed", cameraAnimating: false }), false);
+});
+
+test("only the newest focus-camera animation may finish its blur state", () => {
+  assert.equal(typeof markerGroups.isCurrentCameraAnimation, "function");
+
+  assert.equal(markerGroups.isCurrentCameraAnimation(8, 8), true);
+  assert.equal(markerGroups.isCurrentCameraAnimation(9, 8), false);
+});
+
 test("filter and view changes always close an expanded collection", () => {
   const next = markerGroups.nextExpandedMarkerGroup;
 

@@ -8,6 +8,8 @@ import {
   markerGroupSettingsFor,
   markerGroupNameFor,
   shouldClearMarkerGroupFocus,
+  shouldStopMarkerGroupPreview,
+  isCurrentCameraAnimation,
   nextExpandedMarkerGroup,
   sanitizeMarkerGroupStyle,
   updateMarkerGroupSettings,
@@ -41,6 +43,7 @@ const state = {
   // 开站定位后要显示的一次性提示 key（sparse/outside/failed），null=不提示。进场动画结束时弹一次。
   entryNotice: null,
   cameraAnimationFrame: null,
+  cameraAnimationId: 0,
   projectionOverlay: null,
   archiveMode: "time",
   // Archive page has two scopes toggled from the big heading: own (Fieldwork) or
@@ -3438,6 +3441,9 @@ function startMarkerGroupFocus(groupId, center, settings, { preview = false, pen
 
 function stopMarkerGroupFocus() {
   if (!state.markerGroupFocusId && !state.markerGroupFocusPreview) return;
+  if (state.markerGroupFocusPreview && (state.cameraAnimationFrame || state.isFocusCameraAnimating)) {
+    cancelFocusCameraAnimation();
+  }
   state.markerGroupFocusId = null;
   state.markerGroupFocusPreview = false;
   state.markerGroupFocusCenter = null;
@@ -3447,6 +3453,16 @@ function stopMarkerGroupFocus() {
     els.focusBlur?.style.removeProperty(name);
   });
   renderMarkerGroupSettingsControl();
+}
+
+function cancelFocusCameraAnimation() {
+  if (state.cameraAnimationFrame) {
+    cancelAnimationFrame(state.cameraAnimationFrame);
+    state.cameraAnimationFrame = null;
+  }
+  state.cameraAnimationId += 1;
+  state.markerGroupCameraAnimating = false;
+  state.isFocusCameraAnimating = false;
 }
 
 function defaultSiteMarkerGroupSettings() {
@@ -3487,25 +3503,29 @@ function updateSiteMarkerGroupSettings(groupId, patch) {
 
 function applyExpandedMarkerGroupAction(action, { render = true } = {}) {
   const currentGroupId = state.markerGroupExpanded.values().next().value || null;
+  const cameraAnimating = action.cameraAnimating ?? Boolean(state.markerGroupCameraAnimating || state.isFocusCameraAnimating);
   const nextGroupId = nextExpandedMarkerGroup(currentGroupId, {
     ...action,
-    cameraAnimating: action.cameraAnimating ?? Boolean(state.markerGroupCameraAnimating || state.isFocusCameraAnimating),
+    cameraAnimating,
   });
-  if (nextGroupId === currentGroupId && !state.markerGroupFocusPreview) return false;
+  const shouldStopPreview = shouldStopMarkerGroupPreview({
+    previewActive: state.markerGroupFocusPreview,
+    actionType: action.type,
+    interactionType: action.interactionType,
+    cameraAnimating,
+  });
+  if (nextGroupId === currentGroupId && !shouldStopPreview) return false;
   state.markerGroupExpanded.clear();
   if (nextGroupId) state.markerGroupExpanded.add(nextGroupId);
   if (state.markerGroupFocusId && state.markerGroupFocusId !== nextGroupId) stopMarkerGroupFocus();
-  if (!nextGroupId && state.markerGroupFocusPreview) stopMarkerGroupFocus();
+  if (!nextGroupId && shouldStopPreview) stopMarkerGroupFocus();
   if (render) renderMapMarkers(filteredUmbrellas());
   return true;
 }
 
 function collapseExpandedMarkerGroups() {
-  if (state.cameraAnimationFrame) {
-    cancelAnimationFrame(state.cameraAnimationFrame);
-    state.cameraAnimationFrame = null;
-    state.markerGroupCameraAnimating = false;
-    state.isFocusCameraAnimating = false;
+  if (state.cameraAnimationFrame || state.markerGroupCameraAnimating || state.isFocusCameraAnimating) {
+    cancelFocusCameraAnimation();
   }
   applyExpandedMarkerGroupAction({ type: "map-interaction", interactionType: "click" });
 }
@@ -6243,11 +6263,7 @@ function animateSheetExit() {
 
 function closeFocusMode(options = {}) {
   stopMarkerGroupFocus();
-  if (state.cameraAnimationFrame) {
-    cancelAnimationFrame(state.cameraAnimationFrame);
-    state.cameraAnimationFrame = null;
-  }
-  state.isFocusCameraAnimating = false;
+  cancelFocusCameraAnimation();
 
   const item = state.umbrellas.find((entry) => entry.id === state.focusMarkerId || entry.id === state.selectedId);
   if (options.resetZoom && state.googleReady && item && hasCoordinates(item)) {
@@ -7078,11 +7094,8 @@ function dismissFocusAfterUserMapInteraction(interactionType) {
     state.markerFilterOpen = false;
     syncMarkerFilter();
   }
-  if (interactionType === "dragstart" && state.cameraAnimationFrame) {
-    cancelAnimationFrame(state.cameraAnimationFrame);
-    state.cameraAnimationFrame = null;
-    state.markerGroupCameraAnimating = false;
-    state.isFocusCameraAnimating = false;
+  if (interactionType === "dragstart" && (state.cameraAnimationFrame || state.markerGroupCameraAnimating || state.isFocusCameraAnimating)) {
+    cancelFocusCameraAnimation();
   }
   applyExpandedMarkerGroupAction({ type: "map-interaction", interactionType });
   if (shouldClearMarkerGroupFocus({
@@ -7119,6 +7132,7 @@ function zoomToDefaultAroundMarker(item) {
   if (Math.round(startZoom) === targetZoom) {
     return;
   }
+  const cameraAnimationId = ++state.cameraAnimationId;
   const startTime = performance.now();
 
   state.isFocusCameraAnimating = true;
@@ -7138,7 +7152,9 @@ function zoomToDefaultAroundMarker(item) {
       state.cameraAnimationFrame = null;
       setMapCamera(getCenterForMarkerScreenPoint(markerLatLng, targetZoom, markerScreen), targetZoom);
       window.setTimeout(() => {
-        state.isFocusCameraAnimating = false;
+        if (isCurrentCameraAnimation(state.cameraAnimationId, cameraAnimationId)) {
+          state.isFocusCameraAnimating = false;
+        }
       }, 80);
     }
   };
@@ -7216,6 +7232,7 @@ function animateMarkerToFocus(item, options = {}) {
     cancelAnimationFrame(state.cameraAnimationFrame);
     state.cameraAnimationFrame = null;
   }
+  const cameraAnimationId = ++state.cameraAnimationId;
 
   const markerLatLng = new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng);
   const startZoom = state.map.getZoom();
@@ -7255,7 +7272,9 @@ function animateMarkerToFocus(item, options = {}) {
       }
       finish();
       window.setTimeout(() => {
-        state.isFocusCameraAnimating = false;
+        if (isCurrentCameraAnimation(state.cameraAnimationId, cameraAnimationId)) {
+          state.isFocusCameraAnimating = false;
+        }
       }, 80);
     }
   };
@@ -7884,7 +7903,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=226", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=227", { updateViaCache: "none" });
   }
 }
 
