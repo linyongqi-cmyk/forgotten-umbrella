@@ -48,8 +48,11 @@ export function markerGroupFocusMaskCenter(mapRect) {
   };
 }
 
-export function markerGroupFocusHandoffPoint(activeGroupId, mapRect) {
-  return activeGroupId ? markerGroupFocusMaskCenter(mapRect) : null;
+export function markerGroupFocusHandoffPoint(activeGroupId, mapRect, { focusMode = false, focusScreenPoint = null } = {}) {
+  if (activeGroupId) return markerGroupFocusMaskCenter(mapRect);
+  return focusMode && Number.isFinite(focusScreenPoint?.x) && Number.isFinite(focusScreenPoint?.y)
+    ? { x: focusScreenPoint.x, y: focusScreenPoint.y }
+    : null;
 }
 
 function sanitizeMarkerGroupPosition(value) {

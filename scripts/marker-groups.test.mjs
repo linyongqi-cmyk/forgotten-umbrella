@@ -88,6 +88,20 @@ test("switching from a collection focus to an outside marker captures the curren
   assert.equal(markerGroups.markerGroupFocusHandoffPoint(null, { left: 20, top: 30, width: 800, height: 600 }), null);
 });
 
+test("switching from an ordinary detail focus to a collection preserves the ordinary mask position", () => {
+  assert.deepEqual(markerGroups.markerGroupFocusHandoffPoint(null, { left: 20, top: 30, width: 800, height: 600 }, {
+    focusMode: true,
+    focusScreenPoint: { x: 184, y: 330 },
+  }), { x: 184, y: 330 });
+});
+
+test("switching between collections begins from the already-centered collection mask", () => {
+  assert.deepEqual(markerGroups.markerGroupFocusHandoffPoint("group-a", { left: 20, top: 30, width: 800, height: 600 }), {
+    x: 420,
+    y: 330,
+  });
+});
+
 test("focus mask center interpolates in step with the map camera animation", () => {
   assert.equal(typeof markerGroups.interpolateFocusMaskPoint, "function");
 

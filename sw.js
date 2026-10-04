@@ -1,9 +1,11 @@
-const CACHE_NAME = "forgotten-umbrella-v231";
+const CACHE_NAME = "forgotten-umbrella-v232";
 const ASSETS = [
   ".",
   "index.html",
   "styles.css",
   "app.js",
+  "marker-groups.mjs",
+  "auto-marker-groups.mjs",
   "config.js",
   "data/umbrellas.json",
   "data/texts.json",
@@ -38,6 +40,7 @@ self.addEventListener("fetch", (event) => {
     (requestUrl.pathname.endsWith(".html") ||
       requestUrl.pathname.endsWith(".css") ||
       requestUrl.pathname.endsWith(".js") ||
+      requestUrl.pathname.endsWith(".mjs") ||
       requestUrl.pathname.endsWith(".json") ||
       requestUrl.pathname === "/");
 

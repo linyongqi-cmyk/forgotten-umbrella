@@ -1,5 +1,9 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
 import {
+  autoClusterMarkerItems,
+  sanitizeAutoMarkerClusterMaxZoom,
+} from "./auto-marker-groups.mjs";
+import {
   groupMarkerItems,
   listMarkerGroups,
   markerGroupCenter,
@@ -31,6 +35,8 @@ const state = {
   map: null,
   markers: new Map(),
   markerGroupMarkers: new Map(),
+  autoMarkerGroupMarkers: new Map(),
+  lastAutoClusterZoom: null,
   markerGroupExpanded: new Set(),
   markerGroupCameraAnimating: false,
   markerGroupFocusId: null,
@@ -91,6 +97,7 @@ const state = {
   markerFilterOpen: false,
   // Map layers (T8): whole-category label/line on/off switches for the plain map.
   mapLayersOpen: false,
+  workbenchOpen: false,
   mapCategoryState: null, // filled from defaults + localStorage on init (T8 dev tuning)
   // 模糊度 adjuster (v122 T1): live focus-blur params + panel state.
   blurAdjustOpen: false,
@@ -140,6 +147,7 @@ const DEFAULT_MAP_CENTER = { lat: 35.681236, lng: 139.767125 };
 // Rough bounding box of Japan; geolocation only jumps to the user when inside it.
 const JAPAN_BOUNDS = { minLat: 24, maxLat: 46, minLng: 122, maxLng: 154 };
 const DEFAULT_MAP_ZOOM = 15;
+const AUTO_MARKER_CLUSTER_RADIUS = 64;
 // 定位成功、在日本、但默认级别看不到伞时：保持 15 级、移到「离定位点最近的伞」，
 // 并提示已自动移动（用户 2026-08-04 重定义，取代旧的 11 级聚簇回退）。
 const NEAREST_MARKER_ZOOM = DEFAULT_MAP_ZOOM;
@@ -600,6 +608,7 @@ async function loadSiteSettings() {
     return {
       blur,
       mapLayers,
+      autoMarkerClusterMaxZoom: sanitizeAutoMarkerClusterMaxZoom(raw?.autoMarkerClusterMaxZoom),
       markerGroups: sanitizeMarkerGroupSettingsMap(raw?.markerGroups, {
         labelDistance: blur?.labelDistanceA ?? 260,
         labelRotate: blur?.labelRotateA ?? -135,
@@ -1189,6 +1198,20 @@ function bindEvents() {
   // Per-category zoom threshold inputs (用户 #4: min = show from this zoom, max =
   // hide again past this zoom; blank = no limit on that side).
   els.mapLayersPanel?.addEventListener("input", (event) => {
+    const clusterZoom = event.target.closest?.("[data-auto-cluster-zoom]");
+    if (clusterZoom) {
+      const enteredZoom = Number(clusterZoom.value);
+      if (clusterZoom.value.trim() === "" || !Number.isFinite(enteredZoom) || enteredZoom < 3 || enteredZoom > 18) return;
+      SITE_SETTINGS ||= { blur: null, mapLayers: null, markerGroups: {} };
+      SITE_SETTINGS.autoMarkerClusterMaxZoom = sanitizeAutoMarkerClusterMaxZoom(clusterZoom.value);
+      clusterZoom.value = String(SITE_SETTINGS.autoMarkerClusterMaxZoom);
+      const thresholdNote = clusterZoom.closest(".auto-cluster-setting")?.querySelector("small");
+      if (thresholdNote) thresholdNote.textContent = `≥ ${SITE_SETTINGS.autoMarkerClusterMaxZoom}`;
+      state.lastAutoClusterZoom = null;
+      renderMapMarkers(filteredUmbrellas());
+      persistSiteSettings();
+      return;
+    }
     const input = event.target.closest?.("[data-map-zoom], [data-map-zoom-max]");
     if (!input) {
       return;
@@ -1810,6 +1833,9 @@ function syncMapLayers() {
   }[key];
   const heading = state.lang === "ja" ? `表示調整：${mapName}` : `Tuning: ${mapName}`;
   const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}</div>`;
+  const clusteringLabel = state.lang === "ja" ? "自動集合を解除するズーム" : "Show individual markers at zoom";
+  const clusterZoom = autoMarkerClusterMaxZoom();
+  const clusterZoomHtml = `<label class="auto-cluster-setting"><span>${escapeHtml(clusteringLabel)}</span><input type="number" data-auto-cluster-zoom min="3" max="18" step="0.5" value="${clusterZoom}" /><small>≥ ${clusterZoom}</small></label>`;
   // 用户 #4: TWO zoom thresholds per category — visible from `zoom` (ズーム≥min で
   // 表示) up to `zoomMax` (max を超えたら再び非表示). Blank = no limit on that side.
   const zMinPlaceholder = state.lang === "ja" ? "から" : "min";
@@ -1818,7 +1844,7 @@ function syncMapLayers() {
   const zMaxHint = state.lang === "ja" ? "このズームを超えたら隠す（空欄=制限なし）" : "Hidden past this zoom (blank = no limit)";
   // 用户 T7: each category shows a ROW of 4 single-select buttons (自動/表示/淡化/隠す)
   // instead of one cycling button.
-  els.mapLayersPanel.innerHTML = headerHtml + MAP_LAYER_CATEGORIES.map((c) => {
+  els.mapLayersPanel.innerHTML = headerHtml + clusterZoomHtml + MAP_LAYER_CATEGORIES.map((c) => {
     const s = set[c.key] || { vis: "auto", zoom: "", zoomMax: "" };
     const label = c.labels[state.lang] || c.labels.en;
     const segs = MAP_VIS_CYCLE.map((v) => {
@@ -1903,6 +1929,7 @@ function persistSiteSettings() {
     const payload = {
       blur: state.blurSettings || defaultBlurSettings(),
       mapLayers: state.mapCategoryState || undefined,
+      autoMarkerClusterMaxZoom: autoMarkerClusterMaxZoom(),
       markerGroups: SITE_SETTINGS?.markerGroups || {},
     };
     apiPost("/api/save-site-settings", payload).catch((error) => {
@@ -2525,6 +2552,7 @@ async function initGoogleMap() {
   state.map.addListener("zoom_changed", refreshSatellitePoi);
   // 任务4：地图停下时刷新「回到最近的标点」按钮显隐。
   state.map.addListener("idle", updateNearestFabVisibility);
+  state.map.addListener("idle", refreshAutoMarkerClustersAfterZoom);
   state.map.addListener("click", collapseExpandedMarkerGroups);
   state.map.addListener("zoom_changed", () => {
     if ((state.map.getZoom() || 0) < 16 && !state.markerGroupCameraAnimating) collapseExpandedMarkerGroups();
@@ -3217,7 +3245,19 @@ function renderMapMarkers(items) {
       members.length > 1 && (state.editMode || !state.markerGroupExpanded.has(groupId)),
     ),
   );
-  const collapsedMemberIds = new Set([...collapsedGroups.values()].flat().map((item) => item.id));
+  const autoGroups = state.editMode || !getWorldProjection() ? [] : autoClusterMarkerItems(
+    allVisible.filter((item) => !item.markerGroupId),
+    (item) => getLatLngScreenPoint(new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng)),
+    {
+      zoom: state.map.getZoom(),
+      maxZoom: autoMarkerClusterMaxZoom(),
+      radius: AUTO_MARKER_CLUSTER_RADIUS,
+    },
+  );
+  const collapsedMemberIds = new Set([
+    ...[...collapsedGroups.values()].flat().map((item) => item.id),
+    ...autoGroups.flatMap((group) => group.members.map((item) => item.id)),
+  ]);
   const visible = allVisible.filter((item) => !collapsedMemberIds.has(item.id));
   const visibleIds = new Set(visible.map((item) => item.id));
 
@@ -3239,6 +3279,14 @@ function renderMapMarkers(items) {
     if (!activeGroupIds.has(groupId)) {
       marker.setMap(null);
       state.markerGroupMarkers.delete(groupId);
+    }
+  });
+
+  const activeAutoGroupIds = new Set(autoGroups.map((group) => group.id));
+  state.autoMarkerGroupMarkers.forEach((marker, groupId) => {
+    if (!activeAutoGroupIds.has(groupId)) {
+      marker.setMap(null);
+      state.autoMarkerGroupMarkers.delete(groupId);
     }
   });
 
@@ -3334,6 +3382,7 @@ function renderMapMarkers(items) {
   });
 
   groupMarkerGroups.forEach((members, groupId) => renderMarkerGroupMarker(groupId, members));
+  autoGroups.forEach(renderAutoMarkerGroupMarker);
 
   if (state.suppressNextFit) {
     state.suppressNextFit = false;
@@ -3400,15 +3449,24 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
       applyExpandedMarkerGroupAction({ type: "group-click", groupId });
       return;
     }
+    const focusMode = els.mapView?.classList.contains("is-focus-mode");
+    const focusMaskHandoffStartPoint = markerGroupFocusHandoffPoint(
+      state.markerGroupFocusId,
+      els.mapCanvas.getBoundingClientRect(),
+      {
+        focusMode,
+        focusScreenPoint: currentFocusMaskScreenPoint() || (focusMode ? getFocusTargetScreenPoint() : null),
+      },
+    );
     if (shouldCloseFocusBeforeMarkerGroupExpansion({
-      focusMode: els.mapView?.classList.contains("is-focus-mode"),
+      focusMode,
       editMode: state.editMode,
     })) {
       // Keep the current map camera. The collection focus animation will start
       // from this exact view, while the stale ordinary detail/blur state is removed.
       closeFocusMode();
     }
-    expandMarkerGroup(groupId, currentMembers);
+    expandMarkerGroup(groupId, currentMembers, { focusMaskHandoffStartPoint });
   });
   marker.addListener("mouseover", () => refreshGroupHover(true));
   marker.addListener("mouseout", () => refreshGroupHover(false));
@@ -3423,6 +3481,65 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   state.markerGroupMarkers.set(groupId, marker);
 }
 
+function autoMarkerClusterMaxZoom() {
+  const value = Number(SITE_SETTINGS?.autoMarkerClusterMaxZoom);
+  return Number.isFinite(value)
+    ? Math.min(18, Math.max(3, value))
+    : DEFAULT_AUTO_MARKER_CLUSTER_MAX_ZOOM;
+}
+
+function refreshAutoMarkerClustersAfterZoom() {
+  if (!state.googleReady || !state.map) return;
+  const zoom = Number(state.map.getZoom());
+  if (state.lastAutoClusterZoom === zoom) return;
+  state.lastAutoClusterZoom = zoom;
+  renderMapMarkers(filteredUmbrellas());
+}
+
+function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
+  if (!group?.members?.length) return;
+  const representative = group.members[0];
+  const visual = {
+    category: "own",
+    stateKey: "normal",
+    hover,
+    flagColor: "",
+    partColors: activeMarkerSettings().markerGroupStyle,
+  };
+  const icon = markerIcon(visual);
+  const labelOrigin = markerGroupLabelOrigin(visual.category, icon.scaledSize.width);
+  const presentation = markerGroupPresentation(icon, group.members.length, labelOrigin, { hover });
+  presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
+  const position = markerGroupCenter(group.members);
+  const existing = state.autoMarkerGroupMarkers.get(group.id);
+  if (existing) {
+    existing.setPosition(position);
+    existing.setIcon(presentation.icon);
+    existing.setLabel(presentation.label);
+    existing.setTitle(`自动集合 · ${group.members.length}`);
+    return;
+  }
+  const marker = new google.maps.Marker({
+    map: state.map,
+    position,
+    title: `自动集合 · ${group.members.length}`,
+    icon: presentation.icon,
+    label: presentation.label,
+    zIndex: markerZIndex(representative) + 1,
+    optimized: true,
+  });
+  marker.addListener("click", (event) => {
+    event.domEvent?.stopPropagation?.();
+    if (els.mapView?.classList.contains("is-focus-mode")) closeFocusMode();
+    collapseExpandedMarkerGroups();
+    state.map.panTo(position);
+    state.map.setZoom(autoMarkerClusterMaxZoom());
+  });
+  marker.addListener("mouseover", () => renderAutoMarkerGroupMarker(group, { hover: true }));
+  marker.addListener("mouseout", () => renderAutoMarkerGroupMarker(group));
+  state.autoMarkerGroupMarkers.set(group.id, marker);
+}
+
 function markerGroupLabelOrigin(category, size) {
   const parts = parseMarkerSvg(markerSvgForCategory(category));
   const [viewX, viewY, viewWidth, viewHeight] = markerViewBoxNumbers(parts.viewBox);
@@ -3433,16 +3550,18 @@ function markerGroupLabelOrigin(category, size) {
   };
 }
 
-function expandMarkerGroup(groupId, members) {
+function expandMarkerGroup(groupId, members, { focusMaskHandoffStartPoint = null } = {}) {
   if (!members || members.length < 2) return;
   const center = markerGroupPositionFor(members, siteMarkerGroupSettingsFor(groupId));
   if (!center) return;
   applyExpandedMarkerGroupAction({ type: "group-click", groupId }, { render: false });
   renderMapMarkers(filteredUmbrellas());
   const settings = siteMarkerGroupSettingsFor(groupId);
-  startMarkerGroupFocus(groupId, center, settings, { preview: false, pending: true });
+  startMarkerGroupFocus(groupId, center, settings, { preview: false, pending: true, focusMaskHandoffStartPoint });
   animateMarkerToFocus({ coordinates: center }, {
     targetScreenPoint: getMapCenterScreenPoint(),
+    focusMaskStartPoint: focusMaskHandoffStartPoint,
+    focusMaskTargetPoint: markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect()),
     targetZoom: settings.focusZoom,
     revealFocusUI: false,
     onComplete: () => {
@@ -3452,15 +3571,16 @@ function expandMarkerGroup(groupId, members) {
   });
 }
 
-function startMarkerGroupFocus(groupId, center, settings, { preview = false, pending = false } = {}) {
+function startMarkerGroupFocus(groupId, center, settings, { preview = false, pending = false, focusMaskHandoffStartPoint = null } = {}) {
   state.markerGroupFocusId = groupId;
   state.markerGroupFocusPreview = preview;
   state.markerGroupFocusCenter = center;
   els.mapView?.classList.add("is-marker-group-focus");
   els.mapView?.classList.remove("is-blur-approx");
   const target = markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect());
-  els.focusBlur?.style.setProperty("--focus-x", `${target.x}px`);
-  els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
+  const initial = focusMaskHandoffStartPoint || target;
+  els.focusBlur?.style.setProperty("--focus-x", `${initial.x}px`);
+  els.focusBlur?.style.setProperty("--focus-y", `${initial.y}px`);
   els.focusBlur?.style.setProperty("--fb-blur", `${settings.blur}px`);
   els.focusBlur?.style.setProperty("--fb-radius", `${settings.radius}px`);
   els.focusBlur?.style.setProperty("--fb-feather", `${settings.feather}px`);
@@ -7228,6 +7348,12 @@ function setFocusMaskCenter(point) {
   els.focusBlur?.style.setProperty("--focus-y", `${target.y}px`);
 }
 
+function currentFocusMaskScreenPoint() {
+  const x = Number.parseFloat(els.focusBlur?.style.getPropertyValue("--focus-x") || "");
+  const y = Number.parseFloat(els.focusBlur?.style.getPropertyValue("--focus-y") || "");
+  return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+}
+
 function hideMobileFocusGestureTip() {
   if (mobileFocusGestureTipTimer) {
     window.clearTimeout(mobileFocusGestureTipTimer);
@@ -7261,6 +7387,7 @@ function animateMarkerToFocus(item, options = {}) {
   };
   const targetScreen = options.targetScreenPoint || getFocusTargetScreenPoint();
   const focusMaskStartPoint = options.focusMaskStartPoint || null;
+  const focusMaskTargetPoint = options.focusMaskTargetPoint || targetScreen;
 
   const projection = getWorldProjection();
   if (!projection || !state.map.getCenter()) {
@@ -7269,7 +7396,7 @@ function animateMarkerToFocus(item, options = {}) {
       ? options.targetZoom
       : item.blurApprox && Number.isFinite(item.approxZoom) ? item.approxZoom : Math.max(state.map.getZoom(), focusMapZoom());
     state.map.setZoom(fallbackZoom);
-    if (focusMaskStartPoint) setFocusMaskCenter(targetScreen);
+    if (focusMaskStartPoint) setFocusMaskCenter(focusMaskTargetPoint);
     if (options.revealFocusUI !== false) {
       revealApproxLabel();
       maybeShowMobileFocusGestureTip();
@@ -7309,7 +7436,7 @@ function animateMarkerToFocus(item, options = {}) {
 
     setMapCamera(center, zoom);
     if (focusMaskStartPoint) {
-      setFocusMaskCenter(interpolateFocusMaskPoint(focusMaskStartPoint, targetScreen, eased));
+      setFocusMaskCenter(interpolateFocusMaskPoint(focusMaskStartPoint, focusMaskTargetPoint, eased));
     }
 
     if (t < 1) {
@@ -7956,7 +8083,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=231", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=232", { updateViaCache: "none" });
   }
 }
 
@@ -7992,6 +8119,8 @@ const EDITOR_ICON_THEME =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>';
 const EDITOR_ICON_MARKER =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
+const EDITOR_ICON_WORKBENCH =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/></svg>';
 // 收件箱（信封）图标 —— 投稿收件箱按钮。
 const EDITOR_ICON_INBOX =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>';
@@ -8018,6 +8147,26 @@ function setupEditor() {
   toggle.addEventListener("click", toggleEditMode);
   toolbar.appendChild(toggle);
   editor.toggle = toggle;
+
+  const workbenchToggle = document.createElement("button");
+  workbenchToggle.type = "button";
+  workbenchToggle.className = "editor-workbench-toggle";
+  workbenchToggle.innerHTML = EDITOR_ICON_WORKBENCH;
+  workbenchToggle.title = "本地工作台";
+  workbenchToggle.setAttribute("aria-label", "本地工作台");
+  workbenchToggle.setAttribute("aria-expanded", "false");
+  workbenchToggle.addEventListener("click", () => {
+    state.workbenchOpen = !state.workbenchOpen;
+    syncEditorWorkbench();
+  });
+  toolbar.appendChild(workbenchToggle);
+  editor.workbenchToggle = workbenchToggle;
+  const workbench = document.createElement("div");
+  workbench.className = "editor-workbench";
+  workbench.hidden = true;
+  workbench.setAttribute("aria-label", "本地编辑工具");
+  toolbar.appendChild(workbench);
+  editor.workbench = workbench;
 
   setupTextsEditor();
   setupThemeEditor();
@@ -8456,6 +8605,8 @@ function setupEditor() {
   toolbar.insertBefore(hiddenButton, addButton);
   editor.hiddenButton = hiddenButton;
 
+  setupEditorWorkbench();
+
   buildCreateDialog();
   populateCategorySelects();
 
@@ -8508,6 +8659,71 @@ function setupEditor() {
     google.maps.event.addListener(state.map, "zoom_changed", editor.updateScale);
     google.maps.event.addListener(state.map, "idle", editor.updateScale);
   }
+}
+
+function setupEditorWorkbench() {
+  const groups = [
+    {
+      title: "记录管理",
+      controls: [
+        ["#editor-add", "新增标点"],
+        ["#editor-inbox-btn", "投稿收件箱"],
+        ["#editor-hidden-btn", "已隐藏标点"],
+      ],
+    },
+    {
+      title: "地图与标点",
+      controls: [
+        ["#map-layers", "地图图层"],
+        ["#blur-adjust", "聚焦模糊度"],
+        ["#marker-settings-toggle", "标点样式"],
+      ],
+    },
+    {
+      title: "视觉与文案",
+      controls: [
+        ["#theme-toggle", "视觉设定"],
+        ["#texts-toggle", "文案编辑"],
+      ],
+    },
+  ];
+
+  editor.workbench.innerHTML = groups.map((group) =>
+    `<section class="editor-workbench-section"><h2>${group.title}</h2><div class="editor-workbench-grid"></div></section>`,
+  ).join("");
+  const sections = editor.workbench.querySelectorAll(".editor-workbench-section");
+  groups.forEach((group, index) => {
+    const grid = sections[index].querySelector(".editor-workbench-grid");
+    group.controls.forEach(([selector, labelText]) => {
+      const control = document.querySelector(selector);
+      if (!control) return;
+      const action = document.createElement("div");
+      action.className = `editor-workbench-action${control.classList.contains("map-filter") ? " has-panel" : ""}`;
+      action.appendChild(control);
+      const label = document.createElement("span");
+      label.textContent = labelText;
+      action.appendChild(label);
+      if (control.matches("#map-layers, #blur-adjust")) {
+        const panel = control.querySelector(".map-filter-panel");
+        if (panel) action.appendChild(panel);
+      }
+      grid.appendChild(action);
+      if (["#marker-settings-toggle", "#theme-toggle", "#texts-toggle"].includes(selector)) {
+        control.addEventListener("click", () => {
+          state.workbenchOpen = false;
+          syncEditorWorkbench();
+        });
+      }
+    });
+  });
+  syncEditorWorkbench();
+}
+
+function syncEditorWorkbench() {
+  if (!editor.workbench) return;
+  editor.workbench.hidden = !state.editMode || !state.workbenchOpen;
+  editor.workbenchToggle?.setAttribute("aria-expanded", String(state.workbenchOpen));
+  editor.workbenchToggle?.classList.toggle("is-active", state.workbenchOpen);
 }
 
 // Show/hide the contributed-only block and the type row based on 来源 (item 3/6).
@@ -9657,6 +9873,8 @@ function toggleEditMode() {
   document.body.classList.toggle("edit-mode", state.editMode);
   editor.toggle.classList.toggle("is-active", state.editMode);
   editor.toggle.title = state.editMode ? "退出编辑" : "编辑模式";
+  if (!state.editMode) state.workbenchOpen = false;
+  syncEditorWorkbench();
   // The T8 map-style tuning panel only exists in edit mode.
   syncMapLayers();
   syncBlurAdjust(); // 模糊度 adjuster (edit mode only)

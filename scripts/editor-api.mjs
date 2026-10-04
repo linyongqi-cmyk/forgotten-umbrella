@@ -26,6 +26,7 @@ import {
   sanitizeMarkerGroupSettingsMap,
   sanitizeMarkerGroupStyle,
 } from "../marker-groups.mjs";
+import { sanitizeAutoMarkerClusterMaxZoom } from "../auto-marker-groups.mjs";
 import { generateDerivatives, removeDerivatives, isDerivableImage, isDerivativeFile } from "./image-derivatives.mjs";
 import {
   loadConfig as loadSubmissionsConfig,
@@ -1162,7 +1163,8 @@ export async function saveSiteSettings(payload) {
     labelDistance: blur.labelDistanceA ?? 260,
     labelRotate: blur.labelRotateA ?? -135,
   });
-  const out = { blur, mapLayers, markerGroups };
+  const autoMarkerClusterMaxZoom = sanitizeAutoMarkerClusterMaxZoom(payload?.autoMarkerClusterMaxZoom);
+  const out = { blur, mapLayers, autoMarkerClusterMaxZoom, markerGroups };
   await fs.writeFile(siteSettingsPath, `${JSON.stringify(out, null, 2)}\n`, "utf8");
   return { ok: true };
 }
