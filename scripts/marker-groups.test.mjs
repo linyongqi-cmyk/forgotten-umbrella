@@ -271,6 +271,16 @@ test("marker focus and blur settings are independent per group and default when 
   assert.equal(markerGroups.markerGroupSettingsFor(settings, "kyoto").focusZoom, 16.5);
 });
 
+test("new manual collection settings default center haze to zero without changing existing defaults", () => {
+  assert.equal(typeof markerGroups.newMarkerGroupSettingsDraft, "function");
+  const defaults = { ...markerGroups.DEFAULT_MARKER_GROUP_SETTINGS, blur: 9, veil: 0.42 };
+  const draft = markerGroups.newMarkerGroupSettingsDraft(defaults);
+
+  assert.equal(draft.blur, 9);
+  assert.equal(draft.veil, 0);
+  assert.equal(markerGroups.markerGroupSettingsFor({}, "existing").veil, 0.3);
+});
+
 test("collection settings keep localized names and ring-text controls per group", () => {
   const settings = markerGroups.updateMarkerGroupSettings({}, "kyoto", {
     name: { ja: "京都の集合", en: "Kyoto group" },

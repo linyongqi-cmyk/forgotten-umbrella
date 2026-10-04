@@ -1,6 +1,7 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
 import {
   autoClusterMarkerItems,
+  autoMarkerGroupFocusTarget,
   sanitizeAutoMarkerClusterMaxZoom,
 } from "./auto-marker-groups.mjs";
 import {
@@ -12,6 +13,7 @@ import {
   markerGroupFocusHandoffPoint,
   markerGroupPositionFor,
   markerGroupSettingsFor,
+  newMarkerGroupSettingsDraft,
   markerGroupNameFor,
   shouldClearMarkerGroupFocus,
   shouldCancelMarkerGroupCameraAnimation,
@@ -3572,14 +3574,14 @@ function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
     existing.setPosition(position);
     existing.setIcon(presentation.icon);
     existing.setLabel(presentation.label);
-    existing.setTitle(`自动集合 · ${group.recordCount}`);
+    existing.setTitle(group.regionLabel || "Unknown area");
     existing.autoClusterData = group;
     return;
   }
   const marker = new google.maps.Marker({
     map: state.map,
     position,
-    title: `自动集合 · ${group.recordCount}`,
+    title: group.regionLabel || "Unknown area",
     icon: presentation.icon,
     label: presentation.label,
     zIndex: markerZIndex(representative) + 1,
@@ -3591,13 +3593,13 @@ function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
     if (els.mapView?.classList.contains("is-focus-mode")) closeFocusMode();
     collapseExpandedMarkerGroups();
     const currentGroup = marker.autoClusterData;
-    const bounds = new google.maps.LatLngBounds();
-    flattenAutoGroupEntities(currentGroup).forEach((member) => bounds.extend(member.coordinates));
-    google.maps.event.addListenerOnce(state.map, "idle", () => {
-      const currentZoom = Number(state.map.getZoom()) || 0;
-      if (currentZoom < currentGroup.nextZoom) state.map.setZoom(currentGroup.nextZoom);
+    const focusTarget = autoMarkerGroupFocusTarget(currentGroup, state.map.getZoom());
+    if (!focusTarget) return;
+    animateMarkerToFocus({ coordinates: focusTarget.coordinates }, {
+      targetScreenPoint: getMapCenterScreenPoint(),
+      targetZoom: focusTarget.targetZoom,
+      revealFocusUI: false,
     });
-    state.map.fitBounds(bounds, 72);
   });
   marker.addListener("mouseover", () => renderAutoMarkerGroupMarker(marker.autoClusterData, { hover: true }));
   marker.addListener("mouseout", () => renderAutoMarkerGroupMarker(marker.autoClusterData));
@@ -8150,7 +8152,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=234", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=235", { updateViaCache: "none" });
   }
 }
 
@@ -10953,7 +10955,7 @@ function populateEditorMarkerGroupChoices(raw) {
   editor.groupSelect.value = currentGroupId || groups[0]?.id || "__create__";
   const currentGroup = groups.find((group) => group.id === currentGroupId);
   editor.groupName.value = currentGroup?.name || raw.markerGroupName || "";
-  editor.groupSettingsDraft = defaultSiteMarkerGroupSettings();
+  editor.groupSettingsDraft = newMarkerGroupSettingsDraft(defaultSiteMarkerGroupSettings());
   syncEditorMarkerGroupControl();
 }
 
@@ -10971,7 +10973,7 @@ function syncEditorMarkerGroupControl() {
 function selectedEditorMarkerGroupSettings() {
   const groupId = editor.groupEditorId || editor.groupSelect?.value || "";
   if (groupId === "__create__") {
-    return editor.groupSettingsDraft || defaultSiteMarkerGroupSettings();
+    return editor.groupSettingsDraft || newMarkerGroupSettingsDraft(defaultSiteMarkerGroupSettings());
   }
   return siteMarkerGroupSettingsFor(groupId);
 }
@@ -11017,7 +11019,7 @@ function handleEditorMarkerGroupSettingsInput(event) {
     const name = { ...(current.name || { ja: "", en: "" }), [language]: input.value.trim() };
     if (groupId === "__create__") {
       editor.groupSettingsDraft = updateMarkerGroupSettings(
-        { draft: editor.groupSettingsDraft || defaultSiteMarkerGroupSettings() }, "draft", { name },
+        { draft: editor.groupSettingsDraft || newMarkerGroupSettingsDraft(defaultSiteMarkerGroupSettings()) }, "draft", { name },
       ).draft;
     } else if (groupId) {
       updateSiteMarkerGroupSettings(groupId, { name });
@@ -11037,7 +11039,7 @@ function handleEditorMarkerGroupSettingsInput(event) {
   const value = Number(input.value);
   if (groupId === "__create__") {
     editor.groupSettingsDraft = updateMarkerGroupSettings(
-      { draft: editor.groupSettingsDraft || defaultSiteMarkerGroupSettings() },
+      { draft: editor.groupSettingsDraft || newMarkerGroupSettingsDraft(defaultSiteMarkerGroupSettings()) },
       "draft",
       { [key]: value },
     ).draft;

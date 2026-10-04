@@ -13,6 +13,42 @@ export function sanitizeAutoMarkerClusterMaxZoom(value) {
     : DEFAULT_AUTO_MARKER_CLUSTER_MAX_ZOOM;
 }
 
+export function autoMarkerGroupFocusTarget(group, currentZoom) {
+  const lat = Number(group?.coordinates?.lat);
+  const lng = Number(group?.coordinates?.lng);
+  const zoom = Number(group?.nextZoom);
+  const startZoom = Number(currentZoom);
+  if (![lat, lng, zoom, startZoom].every(Number.isFinite)) return null;
+  return {
+    coordinates: { lat, lng },
+    targetZoom: Math.min(18, Math.max(startZoom, zoom)),
+  };
+}
+
+function collectRegionLabels(item, areaLevel, labels) {
+  if (!item) return;
+  if (item.autoCluster) {
+    if (item.regionLabel) {
+      labels.add(item.regionLabel);
+      return;
+    }
+    item.members?.forEach((member) => collectRegionLabels(member, areaLevel, labels));
+    return;
+  }
+  const levels = Array.isArray(item.locationLevels)
+    ? item.locationLevels.map((level) => String(level || "").trim()).filter(Boolean)
+    : [];
+  const label = (Number.isInteger(areaLevel) ? levels[areaLevel] || levels.at(-1) : levels.at(-1))
+    || String(item.locationText || "").trim();
+  if (label) labels.add(label);
+}
+
+function regionLabelFor(entries, areaLevel) {
+  const labels = new Set();
+  entries.forEach(({ item }) => collectRegionLabels(item, areaLevel, labels));
+  return [...labels].sort((a, b) => a.localeCompare(b)).join(" / ") || "Unknown area";
+}
+
 export function autoClusterMarkerItems(items = [], projectPoint = () => null, {
   zoom = 0,
   maxZoom = 14,
@@ -141,6 +177,7 @@ function makeAutoGroup(entries, { id, areaLevel, nextZoom }) {
     recordCount,
     manualCollectionCount: members.reduce((sum, item) => sum + (item.manualCollection ? 1 : Number(item.manualCollectionCount) || 0), 0),
     areaLevel,
+    regionLabel: regionLabelFor(entries, areaLevel),
     nextZoom: Math.min(nextZoom, ...members.map((item) => Number(item.nextZoom) || nextZoom)),
   };
 }

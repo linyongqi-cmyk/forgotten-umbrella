@@ -190,6 +190,10 @@ export function markerGroupSettingsFor(settingsById, groupId, defaults = DEFAULT
   return out;
 }
 
+export function newMarkerGroupSettingsDraft(defaults = DEFAULT_MARKER_GROUP_SETTINGS) {
+  return { ...markerGroupSettingsFor({}, "new", defaults), veil: 0 };
+}
+
 export function markerGroupNameFor(settingsById, groupId, legacyName = "", language = "ja") {
   const name = sanitizeMarkerGroupName(settingsById?.[groupId]?.name);
   const primary = language === "en" ? name.en : name.ja;

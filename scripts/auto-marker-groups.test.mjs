@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { autoClusterMarkerItems, sanitizeAutoMarkerClusterMaxZoom } from "../auto-marker-groups.mjs";
+import { autoClusterMarkerItems, autoMarkerGroupFocusTarget, sanitizeAutoMarkerClusterMaxZoom } from "../auto-marker-groups.mjs";
 
 const project = (item) => ({ x: item.coordinates.lng, y: item.coordinates.lat });
 
@@ -21,6 +21,7 @@ test("distant records in the same prefecture are grouped at country scale", () =
   assert.ok(kyotoGroup);
   assert.deepEqual(flattenIds(kyotoGroup), ["a", "b"]);
   assert.equal(kyotoGroup.areaLevel, 0);
+  assert.equal(kyotoGroup.regionLabel, "Kyoto");
 });
 
 test("zooming in refines automatic grouping from prefecture to city and ward", () => {
@@ -37,7 +38,31 @@ test("zooming in refines automatic grouping from prefecture to city and ward", (
   assert.deepEqual(prefectureGroups[0].members.map((item) => item.id), ["a", "b", "c"]);
   assert.deepEqual(cityGroups[0].members.map((item) => item.id), ["a", "b"]);
   assert.equal(cityGroups[0].areaLevel, 1);
+  assert.equal(cityGroups[0].regionLabel, "Kyoto City");
   assert.equal(wardGroups.length, 0);
+});
+
+test("automatic nearby groups show their English region names", () => {
+  const items = [
+    { id: "a", locationLevels: ["Kyoto", "Kyoto City", "Minami Ward"], coordinates: { lat: 0, lng: 0 } },
+    { id: "b", locationLevels: ["Kyoto", "Kyoto City", "Fushimi Ward"], coordinates: { lat: 0, lng: 10 } },
+  ];
+
+  const groups = autoClusterMarkerItems(items, project, { zoom: 11, maxZoom: 14, radius: 64 });
+
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].regionLabel, "Fushimi Ward / Minami Ward");
+});
+
+test("automatic collection focus targets the group's center and next zoom level", () => {
+  assert.deepEqual(autoMarkerGroupFocusTarget({
+    coordinates: { lat: 35.01, lng: 135.72 },
+    nextZoom: 10,
+  }, 8.5), {
+    coordinates: { lat: 35.01, lng: 135.72 },
+    targetZoom: 10,
+  });
+  assert.equal(autoMarkerGroupFocusTarget({ coordinates: { lat: 35, lng: 135 } }, 8), null);
 });
 
 test("manual collection markers join regional groups and count their records", () => {
@@ -104,8 +129,8 @@ test("raw records already represented by a manual collection are not double-coun
 
 test("nearby items with incomplete address levels still use screen-distance grouping", () => {
   const items = [
-    { id: "a", coordinates: { lat: 0, lng: 0 } },
-    { id: "b", coordinates: { lat: 0, lng: 20 } },
+    { id: "a", locationText: "Sakyo Ward", coordinates: { lat: 0, lng: 0 } },
+    { id: "b", locationText: "Nakagyo Ward", coordinates: { lat: 0, lng: 20 } },
     { id: "far", coordinates: { lat: 0, lng: 100 } },
   ];
 
@@ -113,6 +138,7 @@ test("nearby items with incomplete address levels still use screen-distance grou
 
   assert.deepEqual(groups.map((group) => group.members.map((item) => item.id)), [["a", "b"]]);
   assert.equal(groups[0].areaLevel, null);
+  assert.equal(groups[0].regionLabel, "Nakagyo Ward / Sakyo Ward");
 });
 
 test("all markers, including manual collections, are unclustered at the configured zoom threshold", () => {
