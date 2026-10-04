@@ -33,6 +33,13 @@ test("listMarkerGroups sorts the closest collection first from the edited record
   assert.equal(groups[2].id, "far");
 });
 
+test("collapsing expanded marker groups does not cancel an ordinary marker focus animation", () => {
+  assert.equal(typeof markerGroups.shouldCancelMarkerGroupCameraAnimation, "function");
+  assert.equal(markerGroups.shouldCancelMarkerGroupCameraAnimation({ markerGroupCameraAnimating: false, markerGroupPreviewAnimating: false }), false);
+  assert.equal(markerGroups.shouldCancelMarkerGroupCameraAnimation({ markerGroupCameraAnimating: true, markerGroupPreviewAnimating: false }), true);
+  assert.equal(markerGroups.shouldCancelMarkerGroupCameraAnimation({ markerGroupCameraAnimating: false, markerGroupPreviewAnimating: true }), true);
+});
+
 test("group count is a Google Maps label over the unchanged configured marker icon", () => {
   const baseIcon = {
     url: "data:image/svg+xml;base64,existing-configured-marker",

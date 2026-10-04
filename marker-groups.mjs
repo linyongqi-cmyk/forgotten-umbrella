@@ -88,6 +88,10 @@ export function shouldClearMarkerGroupFocus({ active, cameraAnimating, interacti
   return Boolean(active && !cameraAnimating && ["dragstart", "zoom_changed"].includes(interactionType));
 }
 
+export function shouldCancelMarkerGroupCameraAnimation({ markerGroupCameraAnimating, markerGroupPreviewAnimating }) {
+  return Boolean(markerGroupCameraAnimating || markerGroupPreviewAnimating);
+}
+
 export function shouldStopMarkerGroupPreview({ previewActive, actionType, interactionType, cameraAnimating }) {
   if (!previewActive) return false;
   return !(actionType === "map-interaction" && interactionType === "zoom_changed" && cameraAnimating);
