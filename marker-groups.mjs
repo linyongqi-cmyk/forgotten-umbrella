@@ -48,6 +48,23 @@ export function markerGroupFocusMaskCenter(mapRect) {
   };
 }
 
+export function markerGroupFocusHandoffPoint(activeGroupId, mapRect) {
+  return activeGroupId ? markerGroupFocusMaskCenter(mapRect) : null;
+}
+
+function sanitizeMarkerGroupPosition(value) {
+  const lat = Number(value?.lat);
+  const lng = Number(value?.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null;
+  }
+  return { lat, lng };
+}
+
+export function markerGroupPositionFor(members = [], settings = {}) {
+  return sanitizeMarkerGroupPosition(settings?.position) || markerGroupCenter(members);
+}
+
 export function interpolateFocusMaskPoint(from, to, progress) {
   const amount = Math.min(1, Math.max(0, Number(progress) || 0));
   return {
@@ -160,6 +177,9 @@ export function markerGroupSettingsFor(settingsById, groupId, defaults = DEFAULT
     out[key] = clampMarkerGroupSetting(key, saved?.[key], resolvedFallback);
   }
   out.name = sanitizeMarkerGroupName(saved?.name);
+  if (saved && Object.hasOwn(saved, "position")) {
+    out.position = sanitizeMarkerGroupPosition(saved.position);
+  }
   return out;
 }
 
@@ -181,6 +201,7 @@ export function updateMarkerGroupSettings(settingsById, groupId, patch) {
     }
   }
   if (patch && Object.hasOwn(patch, "name")) next.name = sanitizeMarkerGroupName(patch.name);
+  if (patch && Object.hasOwn(patch, "position")) next.position = sanitizeMarkerGroupPosition(patch.position);
   return { ...(settingsById || {}), [groupId]: next };
 }
 

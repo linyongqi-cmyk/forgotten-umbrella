@@ -5,6 +5,8 @@ import {
   markerGroupCenter,
   markerGroupPresentation,
   markerGroupFocusMaskCenter,
+  markerGroupFocusHandoffPoint,
+  markerGroupPositionFor,
   markerGroupSettingsFor,
   markerGroupNameFor,
   shouldClearMarkerGroupFocus,
@@ -3289,6 +3291,10 @@ function renderMapMarkers(items) {
       if (performance.now() < (state.suppressMarkerClickUntil || 0)) {
         return;
       }
+      const focusMaskHandoffStartPoint = markerGroupFocusHandoffPoint(
+        state.markerGroupFocusId,
+        els.mapCanvas.getBoundingClientRect(),
+      );
       applyExpandedMarkerGroupAction(item.markerGroupId
         ? { type: "member-click", groupId: item.markerGroupId }
         : { type: "other-marker-click" });
@@ -3302,7 +3308,7 @@ function renderMapMarkers(items) {
       if (state.focusMarkerId === id) {
         state.focusPositionedId = null;
       }
-      selectUmbrella(id, { focus: true });
+      selectUmbrella(id, { focus: true, focusMaskHandoffStartPoint });
     });
     marker.addListener("dragend", (event) => {
       state.suppressMarkerClickUntil = performance.now() + 500;
@@ -3335,7 +3341,7 @@ function renderMapMarkers(items) {
 }
 
 function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
-  const center = markerGroupCenter(members);
+  const center = markerGroupPositionFor(members, siteMarkerGroupSettingsFor(groupId));
   if (!center) return;
   const representative = members[0];
   const visual = {
@@ -3357,6 +3363,7 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
     existing.setIcon(presentation.icon);
     existing.setLabel(presentation.label);
     existing.setTitle(`${groupName} · ${members.length}`);
+    existing.setDraggable(state.editMode);
     return;
   }
   const marker = new google.maps.Marker({
@@ -3367,6 +3374,7 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
     label: presentation.label,
     zIndex: markerZIndex(representative) + 1,
     optimized: true,
+    draggable: state.editMode,
   });
   const refreshGroupHover = (isHovered) => {
     const currentMembers = filteredUmbrellas()
@@ -3404,6 +3412,14 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   });
   marker.addListener("mouseover", () => refreshGroupHover(true));
   marker.addListener("mouseout", () => refreshGroupHover(false));
+  marker.addListener("dragend", (event) => {
+    state.suppressMarkerClickUntil = performance.now() + 500;
+    const lat = event.latLng?.lat();
+    const lng = event.latLng?.lng();
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    updateSiteMarkerGroupSettings(groupId, { position: { lat, lng } });
+    persistSiteSettings();
+  });
   state.markerGroupMarkers.set(groupId, marker);
 }
 
@@ -3419,7 +3435,7 @@ function markerGroupLabelOrigin(category, size) {
 
 function expandMarkerGroup(groupId, members) {
   if (!members || members.length < 2) return;
-  const center = markerGroupCenter(members);
+  const center = markerGroupPositionFor(members, siteMarkerGroupSettingsFor(groupId));
   if (!center) return;
   applyExpandedMarkerGroupAction({ type: "group-click", groupId }, { render: false });
   renderMapMarkers(filteredUmbrellas());
@@ -5759,7 +5775,7 @@ function selectUmbrella(id, options = {}) {
     if (state.googleReady) {
       const item = state.umbrellas.find((entry) => entry.id === id);
       if (item) {
-        focusUmbrellaOnMap(item, id);
+        focusUmbrellaOnMap(item, id, options.focusMaskHandoffStartPoint);
       }
     }
     setFocusBlurSuppressed(false); // 平移/缩放后模糊被抑制过，这里恢复
@@ -5788,7 +5804,7 @@ function selectUmbrella(id, options = {}) {
     const item = state.umbrellas.find((entry) => entry.id === id);
     if (item) {
       if (options.focus) {
-        focusMaskHandoffStartPoint = focusUmbrellaOnMap(item, id);
+        focusMaskHandoffStartPoint = focusUmbrellaOnMap(item, id, options.focusMaskHandoffStartPoint);
       } else if (hasCoordinates(item)) {
         state.focusPositionedId = null;
         if (els.mapView?.classList.contains("is-focus-mode")) {
@@ -5823,10 +5839,10 @@ function panListSelectionToMap(item) {
   });
 }
 
-function focusUmbrellaOnMap(item, id) {
-  const focusMaskHandoffStartPoint = state.markerGroupFocusId
+function focusUmbrellaOnMap(item, id, handoffStartPoint = null) {
+  const focusMaskHandoffStartPoint = handoffStartPoint || (state.markerGroupFocusId
     ? markerGroupFocusMaskCenter(els.mapCanvas.getBoundingClientRect())
-    : null;
+    : null);
   stopMarkerGroupFocus();
   // v122 用户 T1/T2: 普通标点 and 模糊标点 now share ONE blur — the full-screen
   // `.focus-blur` overlay (see CSS). We only toggle the mode class; the overlay's
@@ -7940,7 +7956,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=230", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=231", { updateViaCache: "none" });
   }
 }
 
@@ -8034,7 +8050,7 @@ function setupEditor() {
     </div>
     <section class="editor-group-editor" id="editor-group-editor" hidden>
       <h2 class="editor-group-editor-name"></h2>
-      <p>此处的聚焦与模糊参数只影响当前集合。设置自动保存。</p>
+      <p>此处的聚焦与模糊参数只影响当前集合。编辑模式下可直接拖动地图上的集合标点调整位置；设置自动保存。</p>
     </section>
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
@@ -10771,7 +10787,9 @@ function handleEditorMarkerGroupSettingsClick(event) {
   }
   const isNew = groupId === "__create__";
   const group = isNew ? null : listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId);
-  const center = group?.center || editor.draftCoords || state.umbrellas.find((item) => item.id === state.editingId)?.coordinates;
+  const center = group
+    ? markerGroupPositionFor(group.members, siteMarkerGroupSettingsFor(groupId))
+    : editor.draftCoords || state.umbrellas.find((item) => item.id === state.editingId)?.coordinates;
   if (!center) return;
   const settings = selectedEditorMarkerGroupSettings();
   startMarkerGroupFocus(groupId, center, settings, { preview: true });

@@ -78,6 +78,16 @@ test("collection focus mask center is the viewport-space center of the map", () 
   });
 });
 
+test("switching from a collection focus to an outside marker captures the current mask center", () => {
+  assert.equal(typeof markerGroups.markerGroupFocusHandoffPoint, "function");
+
+  assert.deepEqual(markerGroups.markerGroupFocusHandoffPoint("group-a", { left: 20, top: 30, width: 800, height: 600 }), {
+    x: 420,
+    y: 330,
+  });
+  assert.equal(markerGroups.markerGroupFocusHandoffPoint(null, { left: 20, top: 30, width: 800, height: 600 }), null);
+});
+
 test("focus mask center interpolates in step with the map camera animation", () => {
   assert.equal(typeof markerGroups.interpolateFocusMaskPoint, "function");
 
@@ -300,6 +310,31 @@ test("site settings sanitizer preserves bilingual collection names and inherited
     labelRotate: 22,
     name: { ja: "集合", en: "Group" },
   });
+});
+
+test("collection marker position can be independently saved and defaults to its member center", () => {
+  assert.equal(typeof markerGroups.markerGroupPositionFor, "function");
+
+  const members = [
+    { coordinates: { lat: 35, lng: 135 } },
+    { coordinates: { lat: 35.002, lng: 135.004 } },
+  ];
+  const memberCenter = markerGroups.markerGroupPositionFor(members, {});
+  assert.ok(Math.abs(memberCenter.lat - 35.001) < 1e-10);
+  assert.ok(Math.abs(memberCenter.lng - 135.002) < 1e-10);
+
+  const settings = markerGroups.updateMarkerGroupSettings({}, "kyoto", {
+    position: { lat: 35.01, lng: 135.02 },
+  });
+  assert.deepEqual(markerGroups.markerGroupPositionFor(members, settings.kyoto), { lat: 35.01, lng: 135.02 });
+  assert.deepEqual(markerGroups.sanitizeMarkerGroupSettingsMap(settings).kyoto.position, { lat: 35.01, lng: 135.02 });
+});
+
+test("collection marker positions reject out-of-range coordinates", () => {
+  const settings = markerGroups.updateMarkerGroupSettings({}, "safe", {
+    position: { lat: 91, lng: 181 },
+  });
+  assert.deepEqual(settings.safe.position, null);
 });
 
 test("marker group settings are bounded before they can affect the map", () => {
