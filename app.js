@@ -6,6 +6,8 @@ import {
 } from "./auto-marker-groups.mjs";
 import {
   groupMarkerItems,
+  markerGroupIdForSelection,
+  includeExpandedMarkerGroupMembers,
   listMarkerGroups,
   markerGroupCenter,
   markerGroupPresentation,
@@ -23,6 +25,7 @@ import {
   shouldHandleFallbackMarkerClick,
   isCurrentCameraAnimation,
   nextExpandedMarkerGroup,
+  shouldCollapseExpandedMarkerGroupOnZoom,
   sanitizeMarkerGroupStyle,
   updateMarkerGroupSettings,
   sanitizeMarkerGroupSettingsMap,
@@ -2558,7 +2561,13 @@ async function initGoogleMap() {
   state.map.addListener("idle", refreshAutoMarkerClustersAfterZoom);
   state.map.addListener("click", collapseExpandedMarkerGroups);
   state.map.addListener("zoom_changed", () => {
-    if ((state.map.getZoom() || 0) < 16 && !state.markerGroupCameraAnimating) collapseExpandedMarkerGroups();
+    if (shouldCollapseExpandedMarkerGroupOnZoom({
+      zoom: state.map.getZoom(),
+      markerGroupCameraAnimating: state.markerGroupCameraAnimating,
+      focusCameraAnimating: state.isFocusCameraAnimating,
+    })) {
+      collapseExpandedMarkerGroups();
+    }
   });
 
   const initialView = await getInitialMapCenter();
@@ -3246,9 +3255,13 @@ function renderMapMarkers(items) {
     return;
   }
 
+  // Search filters the sidebar and result count, but an opened collection must
+  // still reveal every member on the map at its own coordinates.
+  const expandedGroupId = state.markerGroupExpanded.values().next().value || null;
+  const mapItems = includeExpandedMarkerGroupMembers(items, state.umbrellas, expandedGroupId);
   // Hide categories switched off in the map filter (item 6/15/16). 用户 #3: the
   // filter now applies in edit mode too, so you can narrow the map while editing.
-  const allVisible = items
+  const allVisible = mapItems
     .filter(hasCoordinates)
     .filter((item) => state.markerFilter[markerCategory(item)] !== false);
   const groups = groupMarkerItems(allVisible);
@@ -3759,13 +3772,9 @@ function applyExpandedMarkerGroupAction(action, { render = true } = {}) {
 function revealMarkerGroupForSelection(item) {
   if (state.editMode) return false;
   const currentGroupId = state.markerGroupExpanded.values().next().value || null;
-  const candidateGroupId = typeof item?.markerGroupId === "string" ? item.markerGroupId.trim() : "";
-  const members = candidateGroupId
-    ? groupMarkerItems(filteredUmbrellas().filter(hasCoordinates)).get(candidateGroupId) || []
-    : [];
   const nextGroupId = nextExpandedMarkerGroup(currentGroupId, {
     type: "programmatic-selection",
-    groupId: members.length > 1 ? candidateGroupId : null,
+    groupId: markerGroupIdForSelection(item, state.umbrellas),
   });
   if (nextGroupId === currentGroupId) return false;
 
@@ -8189,7 +8198,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=236", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=237", { updateViaCache: "none" });
   }
 }
 

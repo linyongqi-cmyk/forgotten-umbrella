@@ -13,6 +13,25 @@ export function groupMarkerItems(items = []) {
   return groups;
 }
 
+export function markerGroupIdForSelection(item, records = []) {
+  const candidateGroupId = typeof item?.markerGroupId === "string" ? item.markerGroupId.trim() : "";
+  if (!candidateGroupId) return null;
+  const members = groupMarkerItems(records.filter(hasCoordinates)).get(candidateGroupId) || [];
+  return members.length > 1 ? candidateGroupId : null;
+}
+
+export function includeExpandedMarkerGroupMembers(items = [], records = [], expandedGroupId = null) {
+  if (typeof expandedGroupId !== "string" || !expandedGroupId) return items;
+  const includedIds = new Set(items.map((item) => item?.id).filter((id) => id !== undefined && id !== null));
+  const expandedMembers = records.filter((item) => {
+    const groupId = typeof item?.markerGroupId === "string" ? item.markerGroupId.trim() : "";
+    if (groupId !== expandedGroupId || includedIds.has(item?.id)) return false;
+    includedIds.add(item?.id);
+    return true;
+  });
+  return [...items, ...expandedMembers];
+}
+
 export function markerGroupCenter(members = []) {
   const located = members.filter(hasCoordinates);
   if (!located.length) return null;
@@ -121,6 +140,18 @@ export function nextExpandedMarkerGroup(currentGroupId, action = {}) {
     default:
       return currentGroupId || null;
   }
+}
+
+export function shouldCollapseExpandedMarkerGroupOnZoom({
+  zoom,
+  threshold = 16,
+  markerGroupCameraAnimating = false,
+  focusCameraAnimating = false,
+}) {
+  const zoomLevel = Number(zoom);
+  const collapseThreshold = Number(threshold);
+  return Number.isFinite(zoomLevel) && Number.isFinite(collapseThreshold) &&
+    zoomLevel < collapseThreshold && !markerGroupCameraAnimating && !focusCameraAnimating;
 }
 
 export function sanitizeMarkerGroupStyle(raw, legacyColor = "") {

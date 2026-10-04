@@ -179,6 +179,47 @@ test("programmatically selecting a record opens its collection and closes other 
   assert.equal(next("a", { type: "programmatic-selection", groupId: null }), null);
 });
 
+test("selection finds a record's full collection even when search returns only that record", () => {
+  assert.equal(typeof markerGroups.markerGroupIdForSelection, "function");
+  const records = [
+    { id: "match", markerGroupId: "shared", coordinates: { lat: 35, lng: 135 } },
+    { id: "not-matching-search", markerGroupId: "shared", coordinates: { lat: 35.001, lng: 135 } },
+  ];
+  const searchResults = records.filter((record) => record.id === "match");
+
+  assert.equal(markerGroups.markerGroupIdForSelection(searchResults[0], records), "shared");
+  assert.equal(markerGroups.markerGroupIdForSelection(searchResults[0], searchResults), null);
+});
+
+test("expanded collection rendering restores members omitted by the active search", () => {
+  assert.equal(typeof markerGroups.includeExpandedMarkerGroupMembers, "function");
+  const records = [
+    { id: "match", markerGroupId: "shared" },
+    { id: "hidden-by-search", markerGroupId: "shared" },
+    { id: "outside", markerGroupId: "other" },
+  ];
+  const searchResults = [records[0]];
+
+  assert.deepEqual(
+    markerGroups.includeExpandedMarkerGroupMembers(searchResults, records, "shared").map((record) => record.id),
+    ["match", "hidden-by-search"],
+  );
+  assert.deepEqual(
+    markerGroups.includeExpandedMarkerGroupMembers(searchResults, records, null).map((record) => record.id),
+    ["match"],
+  );
+});
+
+test("automatic zoom cleanup keeps a selected member's collection open during focus animation", () => {
+  assert.equal(typeof markerGroups.shouldCollapseExpandedMarkerGroupOnZoom, "function");
+  const shouldCollapse = markerGroups.shouldCollapseExpandedMarkerGroupOnZoom;
+
+  assert.equal(shouldCollapse({ zoom: 15, markerGroupCameraAnimating: false, focusCameraAnimating: true }), false);
+  assert.equal(shouldCollapse({ zoom: 15, markerGroupCameraAnimating: true, focusCameraAnimating: false }), false);
+  assert.equal(shouldCollapse({ zoom: 15, markerGroupCameraAnimating: false, focusCameraAnimating: false }), true);
+  assert.equal(shouldCollapse({ zoom: 16, markerGroupCameraAnimating: false, focusCameraAnimating: false }), false);
+});
+
 test("map interaction closes an expanded collection unless a focus animation is running", () => {
   const next = markerGroups.nextExpandedMarkerGroup;
 
