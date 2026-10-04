@@ -2827,6 +2827,20 @@ function goToNearestMarkerOnScreen() {
   if (!nearest) {
     return;
   }
+  // The zoom below may emit a zoom_changed event, which intentionally closes
+  // expanded collections. Open the destination collection only once the map
+  // has finished moving, so that event cannot immediately collapse it again.
+  applyExpandedMarkerGroupAction({ type: "other-marker-click" });
+  google.maps.event.addListenerOnce(state.map, "idle", () => {
+    const settledCenter = state.map.getCenter();
+    if (
+      settledCenter &&
+      Math.abs(settledCenter.lat() - nearest.coordinates.lat) < 0.001 &&
+      Math.abs(settledCenter.lng() - nearest.coordinates.lng) < 0.001
+    ) {
+      revealMarkerGroupForSelection(nearest);
+    }
+  });
   // 用户 item7：要动画移动过去，不要瞬移。先把 zoom 定好（比默认远就拉回默认级），
   // 再 panTo —— 顺序很关键：panTo 是动画，若在它之后再 setZoom 会打断动画导致中心不动。
   const z = state.map.getZoom() || DEFAULT_MAP_ZOOM;
@@ -3739,6 +3753,25 @@ function applyExpandedMarkerGroupAction(action, { render = true } = {}) {
   if (state.markerGroupFocusId && state.markerGroupFocusId !== nextGroupId) stopMarkerGroupFocus();
   if (!nextGroupId && shouldStopPreview) stopMarkerGroupFocus();
   if (render) renderMapMarkers(filteredUmbrellas());
+  return true;
+}
+
+function revealMarkerGroupForSelection(item) {
+  if (state.editMode) return false;
+  const currentGroupId = state.markerGroupExpanded.values().next().value || null;
+  const candidateGroupId = typeof item?.markerGroupId === "string" ? item.markerGroupId.trim() : "";
+  const members = candidateGroupId
+    ? groupMarkerItems(filteredUmbrellas().filter(hasCoordinates)).get(candidateGroupId) || []
+    : [];
+  const nextGroupId = nextExpandedMarkerGroup(currentGroupId, {
+    type: "programmatic-selection",
+    groupId: members.length > 1 ? candidateGroupId : null,
+  });
+  if (nextGroupId === currentGroupId) return false;
+
+  state.markerGroupExpanded.clear();
+  if (nextGroupId) state.markerGroupExpanded.add(nextGroupId);
+  renderMapMarkers(filteredUmbrellas());
   return true;
 }
 
@@ -5951,6 +5984,10 @@ function selectUmbrella(id, options = {}) {
     return;
   }
 
+  if (options.focus) {
+    revealMarkerGroupForSelection(state.umbrellas.find((entry) => entry.id === id));
+  }
+
   // 用户 bug 修复：已经在某标点的详情页时，再次点击同一个标点（不论是否平移/缩放过地图），
   // 应该只「重新聚焦地图 + 恢复模糊」，而**详情页保持原样不动**（不回顶部、不重渲染、不重置
   // 放大/图片索引）。之前会走下面的 render()+openFocusMode()→scrollTo(top:0)，把详情页拽回主图。
@@ -8152,7 +8189,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=235", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=236", { updateViaCache: "none" });
   }
 }
 

@@ -108,6 +108,8 @@ export function nextExpandedMarkerGroup(currentGroupId, action = {}) {
       return currentGroupId === action.groupId ? null : action.groupId;
     case "member-click":
       return currentGroupId && currentGroupId === action.groupId ? currentGroupId : null;
+    case "programmatic-selection":
+      return typeof action.groupId === "string" && action.groupId ? action.groupId : null;
     case "map-interaction":
       return (action.cameraAnimating && action.interactionType === "zoom_changed") || !["dragstart", "zoom_changed", "click"].includes(action.interactionType)
         ? currentGroupId || null

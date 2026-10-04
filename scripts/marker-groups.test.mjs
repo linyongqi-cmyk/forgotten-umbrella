@@ -170,6 +170,15 @@ test("clicking a member preserves only its currently expanded collection", () =>
   assert.equal(next("a", { type: "other-marker-click" }), null);
 });
 
+test("programmatically selecting a record opens its collection and closes other collections", () => {
+  const next = markerGroups.nextExpandedMarkerGroup;
+
+  assert.equal(next(null, { type: "programmatic-selection", groupId: "a" }), "a");
+  assert.equal(next("a", { type: "programmatic-selection", groupId: "a" }), "a");
+  assert.equal(next("a", { type: "programmatic-selection", groupId: "b" }), "b");
+  assert.equal(next("a", { type: "programmatic-selection", groupId: null }), null);
+});
+
 test("map interaction closes an expanded collection unless a focus animation is running", () => {
   const next = markerGroups.nextExpandedMarkerGroup;
 
