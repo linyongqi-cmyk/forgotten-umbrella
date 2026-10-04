@@ -3245,8 +3245,31 @@ function renderMapMarkers(items) {
       members.length > 1 && (state.editMode || !state.markerGroupExpanded.has(groupId)),
     ),
   );
+  const manualGroupCandidates = [...groupMarkerGroups.entries()].map(([groupId, members]) => {
+    const coordinates = markerGroupPositionFor(members, siteMarkerGroupSettingsFor(groupId));
+    if (!coordinates) return null;
+    return {
+      id: `manual:${groupId}`,
+      markerGroupId: groupId,
+      manualCollection: true,
+      recordCount: members.length,
+      locationLevels: sharedLocationLevels(members),
+      coordinates,
+      recordItems: members,
+    };
+  }).filter(Boolean);
+  const manualGroupMemberIds = new Set([...groups.values()]
+    .filter((members) => members.length > 1)
+    .flatMap((members) => members.map((item) => item.id)),
+  );
+  const autoCandidates = [
+    ...allVisible
+      .filter((item) => !manualGroupMemberIds.has(item.id))
+      .map((item) => item.markerGroupId ? { ...item, markerGroupId: "" } : item),
+    ...manualGroupCandidates,
+  ];
   const autoGroups = state.editMode || !getWorldProjection() ? [] : autoClusterMarkerItems(
-    allVisible.filter((item) => !item.markerGroupId),
+    autoCandidates,
     (item) => getLatLngScreenPoint(new google.maps.LatLng(item.coordinates.lat, item.coordinates.lng)),
     {
       zoom: state.map.getZoom(),
@@ -3254,9 +3277,17 @@ function renderMapMarkers(items) {
       radius: AUTO_MARKER_CLUSTER_RADIUS,
     },
   );
+  const autoGroupEntities = autoGroups.flatMap(flattenAutoGroupEntities);
+  const autoGroupedRecordIds = new Set(autoGroupEntities.flatMap((member) =>
+    member.manualCollection ? member.recordItems.map((item) => item.id) : [member.id],
+  ));
+  const autoGroupedManualGroupIds = new Set(autoGroupEntities
+    .filter((member) => member.manualCollection)
+    .map((member) => member.markerGroupId),
+  );
   const collapsedMemberIds = new Set([
     ...[...collapsedGroups.values()].flat().map((item) => item.id),
-    ...autoGroups.flatMap((group) => group.members.map((item) => item.id)),
+    ...autoGroupedRecordIds,
   ]);
   const visible = allVisible.filter((item) => !collapsedMemberIds.has(item.id));
   const visibleIds = new Set(visible.map((item) => item.id));
@@ -3274,7 +3305,7 @@ function renderMapMarkers(items) {
     }
   });
 
-  const activeGroupIds = new Set(groupMarkerGroups.keys());
+  const activeGroupIds = new Set([...groupMarkerGroups.keys()].filter((groupId) => !autoGroupedManualGroupIds.has(groupId)));
   state.markerGroupMarkers.forEach((marker, groupId) => {
     if (!activeGroupIds.has(groupId)) {
       marker.setMap(null);
@@ -3381,7 +3412,9 @@ function renderMapMarkers(items) {
     state.markers.set(id, marker);
   });
 
-  groupMarkerGroups.forEach((members, groupId) => renderMarkerGroupMarker(groupId, members));
+  groupMarkerGroups.forEach((members, groupId) => {
+    if (!autoGroupedManualGroupIds.has(groupId)) renderMarkerGroupMarker(groupId, members);
+  });
   autoGroups.forEach(renderAutoMarkerGroupMarker);
 
   if (state.suppressNextFit) {
@@ -3481,6 +3514,26 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   state.markerGroupMarkers.set(groupId, marker);
 }
 
+function sharedLocationLevels(items = []) {
+  const levels = items.map((item) => Array.isArray(item.locationLevels)
+    ? item.locationLevels.map((level) => String(level || "").trim()).filter(Boolean)
+    : [],
+  );
+  if (!levels.length) return [];
+  const shared = [];
+  for (let index = 0; index < Math.min(...levels.map((entry) => entry.length)); index += 1) {
+    const candidate = levels[0][index];
+    if (levels.some((entry) => entry[index].toLocaleLowerCase() !== candidate.toLocaleLowerCase())) break;
+    shared.push(candidate);
+  }
+  return shared;
+}
+
+function flattenAutoGroupEntities(group) {
+  if (!group?.members) return [];
+  return group.members.flatMap((item) => item.autoCluster ? flattenAutoGroupEntities(item) : [item]);
+}
+
 function autoMarkerClusterMaxZoom() {
   const value = Number(SITE_SETTINGS?.autoMarkerClusterMaxZoom);
   return Number.isFinite(value)
@@ -3498,7 +3551,9 @@ function refreshAutoMarkerClustersAfterZoom() {
 
 function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
   if (!group?.members?.length) return;
-  const representative = group.members[0];
+  const representativeEntity = flattenAutoGroupEntities(group).find((item) => !item.manualCollection)
+    || flattenAutoGroupEntities(group)[0];
+  const representative = representativeEntity?.recordItems?.[0] || representativeEntity || group.members[0];
   const visual = {
     category: "own",
     stateKey: "normal",
@@ -3508,7 +3563,7 @@ function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
   };
   const icon = markerIcon(visual);
   const labelOrigin = markerGroupLabelOrigin(visual.category, icon.scaledSize.width);
-  const presentation = markerGroupPresentation(icon, group.members.length, labelOrigin, { hover });
+  const presentation = markerGroupPresentation(icon, group.recordCount, labelOrigin, { hover });
   presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
   const position = markerGroupCenter(group.members);
   const existing = state.autoMarkerGroupMarkers.get(group.id);
@@ -3516,27 +3571,35 @@ function renderAutoMarkerGroupMarker(group, { hover = false } = {}) {
     existing.setPosition(position);
     existing.setIcon(presentation.icon);
     existing.setLabel(presentation.label);
-    existing.setTitle(`自动集合 · ${group.members.length}`);
+    existing.setTitle(`自动集合 · ${group.recordCount}`);
+    existing.autoClusterData = group;
     return;
   }
   const marker = new google.maps.Marker({
     map: state.map,
     position,
-    title: `自动集合 · ${group.members.length}`,
+    title: `自动集合 · ${group.recordCount}`,
     icon: presentation.icon,
     label: presentation.label,
     zIndex: markerZIndex(representative) + 1,
     optimized: true,
   });
+  marker.autoClusterData = group;
   marker.addListener("click", (event) => {
     event.domEvent?.stopPropagation?.();
     if (els.mapView?.classList.contains("is-focus-mode")) closeFocusMode();
     collapseExpandedMarkerGroups();
-    state.map.panTo(position);
-    state.map.setZoom(autoMarkerClusterMaxZoom());
+    const currentGroup = marker.autoClusterData;
+    const bounds = new google.maps.LatLngBounds();
+    flattenAutoGroupEntities(currentGroup).forEach((member) => bounds.extend(member.coordinates));
+    google.maps.event.addListenerOnce(state.map, "idle", () => {
+      const currentZoom = Number(state.map.getZoom()) || 0;
+      if (currentZoom < currentGroup.nextZoom) state.map.setZoom(currentGroup.nextZoom);
+    });
+    state.map.fitBounds(bounds, 72);
   });
-  marker.addListener("mouseover", () => renderAutoMarkerGroupMarker(group, { hover: true }));
-  marker.addListener("mouseout", () => renderAutoMarkerGroupMarker(group));
+  marker.addListener("mouseover", () => renderAutoMarkerGroupMarker(marker.autoClusterData, { hover: true }));
+  marker.addListener("mouseout", () => renderAutoMarkerGroupMarker(marker.autoClusterData));
   state.autoMarkerGroupMarkers.set(group.id, marker);
 }
 
@@ -8083,7 +8146,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=232", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=233", { updateViaCache: "none" });
   }
 }
 
