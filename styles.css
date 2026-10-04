@@ -6839,6 +6839,178 @@ body:not(.edit-mode) .editor-hidden-btn {
   color: #1f2d2d;
 }
 
+/* 本地编辑区统一规范：记录抽屉、参数面板、工作台和地图小面板共用同一套
+   颜色、控件高度、圆角、键盘焦点与按钮层级；不改变各面板各自的保存时机。 */
+.editor-drawer,
+.editor-workbench,
+.texts-editor-overlay,
+.editor-inbox-modal,
+.editor-create-dialog,
+#blur-adjust-panel {
+  --local-edit-ink: #1f2d2d;
+  --local-edit-muted: #68736e;
+  --local-edit-line: rgba(31, 45, 45, 0.16);
+  --local-edit-panel: #f4f3ed;
+  --local-edit-accent: #b4502f;
+  color-scheme: light;
+}
+
+.editor-workbench,
+.editor-workbench-action,
+.editor-drawer,
+.texts-editor,
+.editor-inbox-card,
+.editor-create-card,
+.map-filter-panel {
+  color: var(--local-edit-ink, #1f2d2d);
+}
+
+.editor-drawer input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-drawer select,
+.editor-drawer textarea,
+.texts-editor input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.texts-editor select,
+.texts-editor textarea,
+.editor-inbox-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-inbox-card select,
+.editor-inbox-card textarea,
+.editor-create-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-create-card select,
+.editor-create-card textarea {
+  border: 1px solid var(--local-edit-line, rgba(31, 45, 45, 0.16));
+  border-radius: 8px;
+  background: #fff;
+  color: var(--local-edit-ink, #1f2d2d);
+  font: inherit;
+}
+
+.editor-drawer input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-drawer select,
+.editor-inbox-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-inbox-card select,
+.editor-create-card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.editor-create-card select {
+  min-height: 36px;
+  padding: 7px 10px;
+}
+
+.texts-editor input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.texts-editor select,
+.texts-editor textarea,
+.editor-inbox-card textarea,
+.editor-create-card textarea {
+  padding: 8px 10px;
+}
+
+.editor-drawer input[type="range"],
+.texts-editor input[type="range"],
+.editor-workbench input[type="range"],
+#blur-adjust-panel input[type="range"] {
+  accent-color: var(--local-edit-accent, #b4502f);
+}
+
+.editor-toolbar button,
+.editor-workbench button,
+.editor-drawer button,
+.texts-editor button,
+.editor-inbox-card button,
+.editor-create-card button,
+.map-filter-panel button {
+  font-family: inherit;
+}
+
+.editor-workbench button:focus-visible,
+.editor-drawer button:focus-visible,
+.editor-drawer input:focus-visible,
+.editor-drawer select:focus-visible,
+.editor-drawer textarea:focus-visible,
+.texts-editor button:focus-visible,
+.texts-editor input:focus-visible,
+.texts-editor select:focus-visible,
+.texts-editor textarea:focus-visible,
+.editor-inbox-card button:focus-visible,
+.editor-inbox-card input:focus-visible,
+.editor-inbox-card select:focus-visible,
+.editor-inbox-card textarea:focus-visible,
+.editor-create-card button:focus-visible,
+.editor-create-card input:focus-visible,
+.editor-create-card select:focus-visible,
+#blur-adjust-panel button:focus-visible {
+  outline: 2px solid var(--local-edit-accent, #b4502f);
+  outline-offset: 2px;
+}
+
+.texts-editor {
+  background: var(--local-edit-panel, #f4f3ed);
+  color: var(--local-edit-ink, #1f2d2d);
+}
+
+.marker-editor {
+  --ink: #1f2d2d;
+  --muted: #68736e;
+  --line: rgba(31, 45, 45, 0.16);
+  background: var(--local-edit-panel, #f4f3ed);
+  color: var(--local-edit-ink, #1f2d2d);
+}
+
+.marker-editor .texts-editor-hint,
+.marker-preview-panel,
+.marker-editor-section,
+.marker-preview-item {
+  color: var(--local-edit-ink, #1f2d2d);
+  border-color: var(--local-edit-line, rgba(31, 45, 45, 0.16));
+}
+
+.texts-editor-actions,
+.editor-actions {
+  align-items: center;
+}
+
+.texts-editor-actions button,
+.editor-actions > button,
+.editor-create-actions button,
+.editor-group-preview {
+  min-height: 36px;
+  border-radius: 8px;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.texts-editor-save,
+.editor-actions .editor-save,
+.editor-create-pick {
+  background: var(--local-edit-ink, #1f2d2d);
+  color: var(--local-edit-panel, #f4f3ed);
+}
+
+.texts-editor-cancel,
+.texts-editor-reset,
+.editor-actions .editor-cancel,
+.editor-create-cancel {
+  background: rgba(31, 45, 45, 0.08);
+  color: var(--local-edit-ink, #1f2d2d);
+}
+
+.editor-workbench-action {
+  min-height: 50px;
+  border: 1px solid transparent;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.editor-workbench-action:hover {
+  border-color: var(--local-edit-line);
+  background: rgba(31, 45, 45, 0.075);
+}
+
+.editor-workbench-section h2,
+.texts-editor-hint,
+.editor-group-settings-hint {
+  color: var(--local-edit-muted, #68736e);
+}
+
+.editor-group-settings-hint {
+  font-size: 11px;
+}
+
 .editor-flags {
   display: flex;
   gap: 6px;

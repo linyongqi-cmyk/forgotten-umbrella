@@ -8198,7 +8198,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=237", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=238", { updateViaCache: "none" });
   }
 }
 
@@ -10012,7 +10012,19 @@ function toggleEditMode() {
 // Local-only. Edits existing copy only (no "add paragraph" — paragraphs are kept
 // in sync with what's already there, separated by a blank line in the textareas).
 
-const textsEditor = { overlay: null };
+const textsEditor = { overlay: null, savedSnapshot: "" };
+
+function snapshotEditorFields(overlay) {
+  if (!overlay) return "";
+  return JSON.stringify(Array.from(overlay.querySelectorAll("input:not([type=file]), textarea, select"), (input) => ({
+    value: input.value,
+    checked: input.type === "checkbox" || input.type === "radio" ? input.checked : undefined,
+  })));
+}
+
+function confirmDiscardEditorDraft(label, hasChanges) {
+  return !hasChanges || window.confirm(`${label}有尚未保存的修改。\n点「确定」放弃修改，点「取消」继续编辑。`);
+}
 
 function setupTextsEditor() {
   const btn = document.createElement("button");
@@ -10050,11 +10062,13 @@ function openTextsEditor() {
     button.setAttribute("aria-expanded", "false");
     button.innerHTML = `${renderChevronIcon(false)}<span>${button.textContent}</span>`;
   });
+  textsEditor.savedSnapshot = snapshotEditorFields(textsEditor.overlay);
   textsEditor.overlay.hidden = false;
 }
 
 function closeTextsEditor() {
   if (textsEditor.overlay) {
+    if (!confirmDiscardEditorDraft("文案", snapshotEditorFields(textsEditor.overlay) !== textsEditor.savedSnapshot)) return;
     textsEditor.overlay.hidden = true;
   }
 }
@@ -10205,6 +10219,7 @@ async function saveTextsEditor() {
   try {
     await apiPost("/api/save-texts", payload);
     TEXTS = payload;
+    textsEditor.savedSnapshot = snapshotEditorFields(overlay);
     renderAbout();
     render();
     closeTextsEditor();
@@ -10218,7 +10233,7 @@ async function saveTextsEditor() {
 // 本机专用。三个滑块，拖动即实时预览（改 :root 变量），保存后写回 data/theme.json，
 // 线上/别人打开也吃这套值。范围钳制在 THEME_RANGES 内。
 const themeEditor = { overlay: null };
-const markerEditor = { overlay: null, draft: null };
+const markerEditor = { overlay: null, draft: null, original: null };
 
 // 面板分组：图标线宽 + 详情页 4 类正文（每类 字号/行距/字重）。字重=CSS font-weight。
 const THEME_GROUPS = [
@@ -10308,6 +10323,9 @@ function openThemeEditor() {
 
 function closeThemeEditor() {
   if (themeEditor.overlay) {
+    const changed = JSON.stringify(sanitizeTheme(readThemeEditor())) !== JSON.stringify(sanitizeTheme(THEME));
+    if (!confirmDiscardEditorDraft("视觉设定", changed)) return;
+    applyTheme(THEME);
     themeEditor.overlay.hidden = true;
   }
 }
@@ -10389,20 +10407,16 @@ function buildThemeEditor() {
     setThemeEditorValues(THEME_DEFAULTS);
     applyTheme(THEME_DEFAULTS);
   });
-  // 取消：放弃未保存的预览，还原到已保存的 THEME。
-  overlay.querySelector(".texts-editor-cancel").addEventListener("click", () => {
-    applyTheme(THEME);
-    closeThemeEditor();
-  });
-  overlay.querySelector(".texts-editor-close").addEventListener("click", () => {
-    applyTheme(THEME);
-    closeThemeEditor();
-  });
+  // 取消/关闭共用同一套未保存提醒，并还原实时预览。
+  overlay.querySelector(".texts-editor-cancel").addEventListener("click", closeThemeEditor);
+  overlay.querySelector(".texts-editor-close").addEventListener("click", closeThemeEditor);
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
-      applyTheme(THEME);
       closeThemeEditor();
     }
+  });
+  overlay.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeThemeEditor();
   });
 }
 
@@ -10443,6 +10457,7 @@ async function saveThemeEditor() {
     await apiPost("/api/save-theme", payload);
     THEME = sanitizeTheme(payload);
     applyTheme(THEME);
+    setThemeEditorValues(THEME);
     closeThemeEditor();
     showEditorToast("视觉设定已保存 ✓");
   } catch (error) {
@@ -10466,13 +10481,18 @@ function openMarkerEditor() {
   if (!markerEditor.overlay) {
     buildMarkerEditor();
   }
-  markerEditor.draft = sanitizeMarkerSettings(MARKER_SETTINGS);
+  markerEditor.original = sanitizeMarkerSettings(MARKER_SETTINGS);
+  markerEditor.draft = sanitizeMarkerSettings(markerEditor.original);
   renderMarkerEditorBody();
   markerEditor.overlay.hidden = false;
 }
 
 function closeMarkerEditor() {
   if (markerEditor.overlay) {
+    const changed = JSON.stringify(sanitizeMarkerSettings(markerDraft())) !== JSON.stringify(markerEditor.original || MARKER_SETTINGS);
+    if (!confirmDiscardEditorDraft("标点设定", changed)) return;
+    markerEditor.draft = sanitizeMarkerSettings(markerEditor.original || MARKER_SETTINGS);
+    applyMarkerDraft();
     markerEditor.overlay.hidden = true;
   }
 }
@@ -10502,6 +10522,12 @@ function buildMarkerEditor() {
   overlay.addEventListener("input", handleMarkerEditorInput);
   overlay.addEventListener("change", handleMarkerEditorChange);
   overlay.addEventListener("click", handleMarkerEditorClick);
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) closeMarkerEditor();
+  });
+  overlay.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMarkerEditor();
+  });
 }
 
 function markerDraft() {
@@ -10945,6 +10971,7 @@ async function saveMarkerEditor() {
   try {
     await apiPost("/api/save-marker-settings", payload);
     MARKER_SETTINGS = payload;
+    markerEditor.original = sanitizeMarkerSettings(payload);
     markerEditor.draft = sanitizeMarkerSettings(payload);
     applyMarkerDraft();
     closeMarkerEditor();
