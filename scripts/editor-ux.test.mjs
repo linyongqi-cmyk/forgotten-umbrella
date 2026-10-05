@@ -36,6 +36,11 @@ test("marker preview is a separate compact window from marker settings", () => {
   assert.match(styles, /\.marker-preview-window\s*\{/);
 });
 
+test("marker preview compares categories in a compact status-by-status matrix", () => {
+  assert.match(styles, /\.marker-preview-window \.marker-preview-icons\s*\{[^}]*repeat\(5, minmax\(0, 1fr\)\)/s);
+  assert.match(styles, /@media \(max-width: 1280px\)\s*\{[^}]*\.marker-editor-overlay\s*\{[^}]*flex-direction: column/s);
+});
+
 test("copy editor groups editable copy under page-level headings", () => {
   for (const heading of ["统计页面", "Type 页面", "About 页面"]) {
     assert.ok(app.includes(heading), `missing page group: ${heading}`);
