@@ -36,17 +36,41 @@ test("marker preview is a separate compact window from marker settings", () => {
   assert.match(styles, /\.marker-preview-window\s*\{/);
 });
 
-test("marker preview uses category column headers and status row headers without repeated labels", () => {
+test("marker preview uses status columns and category rows with centered row labels", () => {
   const rendererStart = app.indexOf("function renderMarkerPreviewItems() {");
   const rendererEnd = app.indexOf("function updateMarkerPreview()", rendererStart);
   const renderer = app.slice(rendererStart, rendererEnd);
 
   assert.match(renderer, /<table class="marker-preview-table">/);
-  assert.match(renderer, /<th scope="col">状态<\/th>/);
-  assert.match(renderer, /<th scope="row">\$\{escapeHtml\(row\.label\)\}<\/th>/);
-  assert.doesNotMatch(renderer, /<span>\$\{escapeHtml\(markerLabel\(cat\)\)\}<\/span>/);
+  assert.match(renderer, /<th scope="col">类别<\/th>/);
+  assert.match(renderer, /MARKER_CATEGORIES\.map\(\(cat\) => `<tr>[\s\S]*?<th scope="row">/);
+  assert.match(renderer, /\$\{rows\.map\(\(row\) => `<td>/);
+  assert.match(styles, /\.marker-preview-table tbody th\[scope="row"\][^{]*\{[^}]*text-align:\s*center/s);
   assert.match(styles, /\.marker-preview-table\s*\{/);
   assert.match(styles, /\.marker-preview-table-wrap\s*\{[^}]*overflow: auto/s);
+});
+
+test("marker preview and settings are side by side on desktop", () => {
+  assert.match(styles, /\.marker-editor-overlay\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*minmax\(350px,\s*0\.78fr\)\s+minmax\(550px,\s*1\.22fr\)/s);
+});
+
+test("marker color controls use clear part names without SVG tag summaries", () => {
+  for (const label of ["外部线段", "内部线段", "外部填充", "中心填充"]) {
+    assert.ok(app.includes(label), `missing marker color label: ${label}`);
+  }
+  const categoryEditorStart = app.indexOf("function markerCategoryEditor(cat, draft) {");
+  const categoryEditorEnd = app.indexOf("function markerColorControl(", categoryEditorStart);
+  const categoryEditor = app.slice(categoryEditorStart, categoryEditorEnd);
+  assert.doesNotMatch(categoryEditor, /markerPartsList\(parts\)/);
+  assert.match(styles, /\.marker-color-grid\s*\{[^}]*repeat\(4,\s*minmax\(0,\s*1fr\)\)/s);
+  assert.match(styles, /\.marker-color-row\s*\{[^}]*grid-template-columns:\s*minmax\(44px,\s*0\.9fr\)\s+26px\s+minmax\(58px,\s*1\.1fr\)/s);
+});
+
+test("special marker state tuning is no longer rendered in the marker editor", () => {
+  const bodyStart = app.indexOf("function renderMarkerEditorBody() {");
+  const bodyEnd = app.indexOf("function markerGroupStyleControls(", bodyStart);
+  const body = app.slice(bodyStart, bodyEnd);
+  assert.doesNotMatch(body, /特殊状态调整|markerStateEditor\(stateKey/);
 });
 
 test("copy editor groups editable copy under page-level headings", () => {

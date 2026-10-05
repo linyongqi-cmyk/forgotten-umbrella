@@ -8202,7 +8202,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=242", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=243", { updateViaCache: "none" });
   }
 }
 
@@ -10578,15 +10578,24 @@ function markerSvgFromSettings(settings, cat) {
 function markerPartSummary(svgText) {
   const parts = parseMarkerSvg(svgText);
   return {
-    lines: parts.lines.slice(0, 3).map((el, i) => ({ key: `line${i + 1}`, label: `线段${i + 1}`, tag: el.tagName.toLowerCase() })),
-    regions: parts.regions.slice(0, 3).map((el, i) => ({ key: `region${i + 1}`, label: `区域${i + 1}`, tag: el.tagName.toLowerCase() })),
+    lines: parts.lines.slice(0, 3).map((el, i) => ({ key: `line${i + 1}`, label: markerPartLabel("line", i + 1) })),
+    regions: parts.regions.slice(0, 3).map((el, i) => ({ key: `region${i + 1}`, label: markerPartLabel("region", i + 1) })),
   };
+}
+
+function markerPartLabel(type, index) {
+  const knownLabels = {
+    line1: "外部线段",
+    line2: "内部线段",
+    region1: "外部填充",
+    region2: "中心填充",
+  };
+  return knownLabels[`${type}${index}`] || `${type === "line" ? "线段" : "区域"}${index}`;
 }
 
 function renderMarkerEditorBody() {
   const draft = markerDraft();
   const body = markerEditor.overlay.querySelector(".marker-editor-body");
-  const sharedParts = markerPartSummary(draft.svg);
   body.innerHTML = `
     <section class="marker-editor-section">
       <div class="marker-editor-section-head">
@@ -10609,7 +10618,6 @@ function renderMarkerEditorBody() {
         <label class="marker-range-row"><span>整体线宽</span><input type="range" min="0.5" max="8" step="0.1" value="${draft.strokeWidth}" data-marker-field="strokeWidth" /><output>${draft.strokeWidth}</output></label>
         ${["region1", "region2", "region3"].map((key, i) => markerOpacityRow(key, `区域${i + 1}不透明度`, draft.regionOpacity?.[key] ?? 0)).join("")}
       </div>
-      ${markerPartsList(sharedParts)}
     </details>
     <details class="marker-editor-section marker-advanced-section">
       <summary><h3>按类型调整</h3><span>5 类标点的图案与颜色</span></summary>
@@ -10617,12 +10625,6 @@ function renderMarkerEditorBody() {
         ${MARKER_CATEGORIES.map((cat) => markerCategoryEditor(cat, draft)).join("")}
       </div>
     </details>
-    <details class="marker-editor-section marker-advanced-section">
-      <summary><h3>特殊状态调整</h3><span>待改和关联状态的附加视觉</span></summary>
-      <p class="marker-section-note">普通状态使用上面的基础样式；这里只设置状态变化。</p>
-      <div class="marker-state-stack">
-        ${MARKER_STATE_KEYS.map((stateKey) => markerStateEditor(stateKey, draft)).join("")}
-      </div>
     </details>`;
   updateMarkerPreview();
 }
@@ -10656,12 +10658,12 @@ function renderMarkerPreviewItems() {
   ];
   return `<table class="marker-preview-table">
     <thead><tr>
-      <th scope="col">状态</th>
-      ${MARKER_CATEGORIES.map((cat) => `<th scope="col">${escapeHtml(markerLabel(cat))}</th>`).join("")}
+      <th scope="col">类别</th>
+      ${rows.map((row) => `<th scope="col">${escapeHtml(row.label)}</th>`).join("")}
     </tr></thead>
-    <tbody>${rows.map((row) => `<tr>
-      <th scope="row">${escapeHtml(row.label)}</th>
-      ${MARKER_CATEGORIES.map((cat) => `<td><span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true, stateKey: row.key })}</span></td>`).join("")}
+    <tbody>${MARKER_CATEGORIES.map((cat) => `<tr>
+      <th scope="row">${escapeHtml(markerLabel(cat))}</th>
+      ${rows.map((row) => `<td><span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true, stateKey: row.key })}</span></td>`).join("")}
     </tr>`).join("")}</tbody>
   </table>`;
 }
@@ -10684,12 +10686,6 @@ function markerOpacityRow(key, label, value) {
   return `<label class="marker-range-row"><span>${label}</span><input type="range" min="0" max="100" step="1" value="${pct}" data-marker-opacity="${key}" /><output>${pct}%</output></label>`;
 }
 
-function markerPartsList(parts) {
-  const lineHtml = parts.lines.length ? parts.lines.map((p) => `<span>${p.label} <small>${p.tag}</small></span>`).join("") : "<span>未识别线段</span>";
-  const regionHtml = parts.regions.length ? parts.regions.map((p) => `<span>${p.label} <small>${p.tag}</small></span>`).join("") : "<span>未识别封闭区域</span>";
-  return `<div class="marker-parts-list"><div><strong>线段</strong>${lineHtml}</div><div><strong>封闭区域</strong>${regionHtml}</div></div>`;
-}
-
 function markerCategoryEditor(cat, draft) {
   const config = draft.categories[cat];
   const parts = markerPartSummary(markerSvgFromSettings(draft, cat));
@@ -10700,7 +10696,6 @@ function markerCategoryEditor(cat, draft) {
       <button type="button" data-marker-clear-svg="${cat}" ${config.svg ? "" : "disabled"}>取消覆盖</button>
       <span>${config.svg ? "使用类型覆盖 SVG" : "跟随统一 SVG"}</span>
     </div>
-    ${markerPartsList(parts)}
     <div class="marker-color-grid">
       ${parts.lines.map((part) => markerColorControl(cat, "lineColors", part.key, part.label, config.lineColors?.[part.key] || MARKER_COLORS[cat])).join("")}
       ${parts.regions.map((part) => markerColorControl(cat, "regionColors", part.key, part.label, config.regionColors?.[part.key] || MARKER_COLORS[cat])).join("")}
