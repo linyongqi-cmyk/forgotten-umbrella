@@ -27,6 +27,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+        run: npm ci
+
       # Regenerate data/umbrellas.json from filebox/records so the
       # published database always matches the canonical record sources.
       - name: Build umbrella database
