@@ -4992,7 +4992,9 @@ body:not(.edit-mode) .marker-settings-toggle {
 }
 
 .marker-editor {
-  width: min(1040px, 100%);
+  width: min(1040px, calc(100vw - 380px));
+  min-width: 600px;
+  max-height: min(84vh, 760px);
   background: rgba(236, 242, 244, 0.98);
   color: #132222;
 }
@@ -5005,8 +5007,9 @@ body:not(.edit-mode) .marker-settings-toggle {
 
 .marker-editor-overlay {
   display: grid;
-  grid-template-columns: minmax(350px, 0.78fr) minmax(550px, 1.22fr);
-  align-items: start;
+  grid-template-columns: auto auto;
+  align-items: center;
+  align-content: center;
   justify-content: center;
   gap: 12px;
 }
@@ -5015,7 +5018,8 @@ body:not(.edit-mode) .marker-settings-toggle {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 100%;
+  width: min(420px, 20vw);
+  min-width: 280px;
   max-height: min(84vh, 760px);
   padding: 10px 14px;
   border: 1px solid rgba(19, 34, 34, 0.14);
@@ -5037,7 +5041,7 @@ body:not(.edit-mode) .marker-settings-toggle {
 
 .marker-preview-table {
   width: 100%;
-  min-width: 360px;
+  min-width: 280px;
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
@@ -5076,7 +5080,7 @@ body:not(.edit-mode) .marker-settings-toggle {
 }
 
 .marker-preview-table th:first-child {
-  width: 92px;
+  width: 64px;
 }
 
 .marker-preview-table thead th:first-child {
@@ -5093,7 +5097,9 @@ body:not(.edit-mode) .marker-settings-toggle {
   font-size: 11px;
   font-weight: 650;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
 }
 
 .marker-preview-table tbody td {
@@ -5386,52 +5392,6 @@ body:not(.edit-mode) .marker-settings-toggle {
   gap: 8px;
 }
 
-.marker-state-category-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 12px;
-}
-
-.marker-state-category-row {
-  display: grid;
-  grid-template-columns: 130px minmax(0, 1fr);
-  align-items: start;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid rgba(19, 34, 34, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.34);
-}
-
-.marker-state-category-row > strong {
-  grid-row: span 2;
-  font-size: 12px;
-  color: #30444a;
-}
-
-.marker-state-part-group {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: start;
-  gap: 8px;
-}
-
-.marker-state-part-group > span {
-  padding-top: 6px;
-  font-size: 12px;
-  color: #4f6268;
-}
-
-.marker-state-part-group > div {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 10px;
-}
-
-.marker-state-part-group small {
-  color: #4f6268;
-}
-
 .marker-state-color-row {
   grid-template-columns: 52px 34px minmax(0, 1fr);
 }
@@ -5527,27 +5487,30 @@ body:not(.edit-mode) .marker-settings-toggle {
   }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1000px) {
   .marker-editor-overlay {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
+    align-content: start;
     gap: 10px;
     padding: 16px;
   }
 
   .marker-editor-overlay > .marker-editor {
     width: min(760px, 100%);
+    min-width: 0;
     max-height: min(58vh, calc(100vh - 300px));
   }
 
-  .marker-preview-window {
-    width: min(760px, 100%);
+  .marker-editor-overlay > .marker-preview-window {
+    width: min(420px, 100%);
+    min-width: 0;
     max-height: min(34vh, 260px);
     padding: 10px 14px;
   }
 
   .marker-preview-table {
-    min-width: 360px;
+    min-width: 280px;
   }
 }
 

@@ -8202,7 +8202,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=243", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=244", { updateViaCache: "none" });
   }
 }
 
@@ -10597,18 +10597,6 @@ function renderMarkerEditorBody() {
   const draft = markerDraft();
   const body = markerEditor.overlay.querySelector(".marker-editor-body");
   body.innerHTML = `
-    <section class="marker-editor-section">
-      <div class="marker-editor-section-head">
-        <h3>集合标点（所有集合共用样式）</h3>
-        <span class="marker-section-note">可分别调整标点的线条和填色。</span>
-      </div>
-      <div class="marker-group-style-row">
-        <div class="marker-group-style-preview" data-marker-group-style-preview aria-label="集合标点预览"></div>
-        <div class="marker-group-style-controls">
-          ${markerGroupStyleControls(draft)}
-        </div>
-      </div>
-    </section>
     <details class="marker-editor-section marker-advanced-section">
       <summary><h3>统一调整（线宽、透明度、图案）</h3></summary>
       <div class="marker-editor-section-head">
@@ -10620,13 +10608,29 @@ function renderMarkerEditorBody() {
       </div>
     </details>
     <details class="marker-editor-section marker-advanced-section">
-      <summary><h3>按类型调整</h3><span>5 类标点的图案与颜色</span></summary>
+      <summary><h3>按类型调整</h3><span>5 类标点及集合标点的图案与颜色</span></summary>
       <div class="marker-category-stack">
+        ${markerGroupStyleEditor(draft)}
         ${MARKER_CATEGORIES.map((cat) => markerCategoryEditor(cat, draft)).join("")}
       </div>
     </details>
+    <details class="marker-editor-section marker-advanced-section">
+      <summary><h3>按状态调整</h3><span>各状态的比例、中心点与外环</span></summary>
+      <div class="marker-state-stack">
+        ${MARKER_STATE_KEYS.map((stateKey) => markerStateEditor(stateKey, draft)).join("")}
+      </div>
     </details>`;
   updateMarkerPreview();
+}
+
+function markerGroupStyleEditor(draft) {
+  return `<details class="marker-category-editor marker-group-category-editor">
+    <summary><strong>集合标点</strong><span>所有集合共用样式</span></summary>
+    <div class="marker-group-style-row">
+      <div class="marker-group-style-preview" data-marker-group-style-preview aria-label="集合标点预览"></div>
+      <div class="marker-group-style-controls">${markerGroupStyleControls(draft)}</div>
+    </div>
+  </details>`;
 }
 
 function markerGroupStyleControls(draft) {
@@ -10743,36 +10747,12 @@ function markerStateEditor(stateKey, draft) {
         </div>
       </div>
     </div>
-    <div class="marker-state-category-grid">
-      ${MARKER_CATEGORIES.map((cat) => markerStateCategoryRow(stateKey, cat, config.categories[cat])).join("")}
-    </div>
   </fieldset>`;
 }
 
 function markerStateRange(stateKey, path, label, value, min, max, step, suffix) {
   const display = `${Number(value).toFixed(step < 0.05 ? 2 : 1).replace(/\.0$/, "")}${suffix}`;
   return `<label class="marker-range-row"><span>${label}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" data-marker-state-range="${stateKey}" data-marker-state-path="${path}" data-marker-state-suffix="${suffix}" /><output>${display}</output></label>`;
-}
-
-function markerStateCategoryRow(stateKey, cat, config) {
-  const parts = markerPartSummary(markerSvgFromSettings(markerDraft(), cat));
-  const lineControls = parts.lines.map((part) =>
-    markerStateColorControl(stateKey, `categories.${cat}.lineColors.${part.key}`, part.label, config.lineColors?.[part.key] || "", MARKER_COLORS[cat], true),
-  ).join("");
-  const regionControls = parts.regions.map((part) =>
-    markerStateColorControl(stateKey, `categories.${cat}.regionColors.${part.key}`, part.label, config.regionColors?.[part.key] || "", MARKER_COLORS[cat], true),
-  ).join("");
-  return `<div class="marker-state-category-row">
-    <strong>${escapeHtml(markerLabel(cat))}</strong>
-    <div class="marker-state-part-group">
-      <span>线段</span>
-      <div>${lineControls || "<small>未识别线段</small>"}</div>
-    </div>
-    <div class="marker-state-part-group">
-      <span>区域</span>
-      <div>${regionControls || "<small>未识别区域</small>"}</div>
-    </div>
-  </div>`;
 }
 
 function markerStateColorControl(stateKey, path, label, value, fallback = "#000000", allowBlank = true) {

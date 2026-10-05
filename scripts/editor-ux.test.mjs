@@ -50,8 +50,35 @@ test("marker preview uses status columns and category rows with centered row lab
   assert.match(styles, /\.marker-preview-table-wrap\s*\{[^}]*overflow: auto/s);
 });
 
-test("marker preview and settings are side by side on desktop", () => {
-  assert.match(styles, /\.marker-editor-overlay\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*minmax\(350px,\s*0\.78fr\)\s+minmax\(550px,\s*1\.22fr\)/s);
+test("marker preview stays compact and the editor pair is centered vertically", () => {
+  assert.match(styles, /\.marker-editor-overlay\s*\{[^}]*display:\s*grid[^}]*align-items:\s*center[^}]*align-content:\s*center/s);
+  assert.match(styles, /\.marker-preview-window\s*\{[^}]*width:\s*min\(420px,\s*20vw\)/s);
+  assert.match(styles, /\.marker-preview-table\s*\{[^}]*min-width:\s*280px/s);
+  assert.match(styles, /\.marker-preview-table tbody th\[scope="row"\][^{]*\{[^}]*overflow-wrap:\s*anywhere/s);
+});
+
+test("collection marker style is grouped with the marker types", () => {
+  const bodyStart = app.indexOf("function renderMarkerEditorBody() {");
+  const bodyEnd = app.indexOf("function markerGroupStyleControls(", bodyStart);
+  const body = app.slice(bodyStart, bodyEnd);
+  assert.match(body, /<summary><h3>按类型调整<\/h3>/);
+  assert.match(body, /markerGroupStyleEditor\(draft\)[\s\S]*?MARKER_CATEGORIES\.map/);
+  assert.match(app, /function markerGroupStyleEditor\(draft\)/);
+});
+
+test("status adjustment controls remain except per-category line and region colors", () => {
+  const bodyStart = app.indexOf("function renderMarkerEditorBody() {");
+  const bodyEnd = app.indexOf("function markerGroupStyleControls(", bodyStart);
+  const body = app.slice(bodyStart, bodyEnd);
+  const stateEditorStart = app.indexOf("function markerStateEditor(stateKey, draft) {");
+  const stateEditorEnd = app.indexOf("function markerStateRange(", stateEditorStart);
+  const stateEditor = app.slice(stateEditorStart, stateEditorEnd);
+  assert.match(body, /<h3>按状态调整<\/h3>/);
+  assert.match(body, /MARKER_STATE_KEYS\.map\(\(stateKey\) => markerStateEditor/);
+  assert.match(stateEditor, /整体缩放/);
+  assert.match(stateEditor, /中心点/);
+  assert.match(stateEditor, /外环/);
+  assert.doesNotMatch(stateEditor, /markerStateCategoryRow/);
 });
 
 test("marker color controls use clear part names without SVG tag summaries", () => {
@@ -66,11 +93,13 @@ test("marker color controls use clear part names without SVG tag summaries", () 
   assert.match(styles, /\.marker-color-row\s*\{[^}]*grid-template-columns:\s*minmax\(44px,\s*0\.9fr\)\s+26px\s+minmax\(58px,\s*1\.1fr\)/s);
 });
 
-test("special marker state tuning is no longer rendered in the marker editor", () => {
+test("collection style is part of type adjustments and other state controls remain available", () => {
   const bodyStart = app.indexOf("function renderMarkerEditorBody() {");
   const bodyEnd = app.indexOf("function markerGroupStyleControls(", bodyStart);
   const body = app.slice(bodyStart, bodyEnd);
-  assert.doesNotMatch(body, /特殊状态调整|markerStateEditor\(stateKey/);
+  assert.match(body, /markerGroupStyleEditor\(draft\)/);
+  assert.match(body, /<h3>按状态调整<\/h3>/);
+  assert.match(body, /markerStateEditor\(stateKey, draft\)/);
 });
 
 test("copy editor groups editable copy under page-level headings", () => {
