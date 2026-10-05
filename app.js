@@ -8202,7 +8202,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=241", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=242", { updateViaCache: "none" });
   }
 }
 
@@ -10536,7 +10536,7 @@ function buildMarkerEditor() {
         <h3>实时预览</h3>
         <span>修改后立即更新</span>
       </div>
-      <div class="marker-preview-grid" data-marker-preview></div>
+      <div class="marker-preview-table-wrap" data-marker-preview></div>
     </section>
     <div class="texts-editor marker-editor" role="dialog" aria-label="标点设定">
       <header class="texts-editor-head">
@@ -10654,16 +10654,16 @@ function renderMarkerPreviewItems() {
     { key: "normal", label: "普通" },
     ...MARKER_STATE_KEYS.map((key) => ({ key, label: MARKER_STATE_SHORT_LABELS[key] })),
   ];
-  return rows.map((row) => `
-    <div class="marker-preview-row">
-      <strong>${escapeHtml(row.label)}</strong>
-      <div class="marker-preview-icons">
-        ${MARKER_CATEGORIES.map((cat) => `<div class="marker-preview-item">
-          <span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true, stateKey: row.key })}</span>
-          <span>${escapeHtml(markerLabel(cat))}</span>
-        </div>`).join("")}
-      </div>
-    </div>`).join("");
+  return `<table class="marker-preview-table">
+    <thead><tr>
+      <th scope="col">状态</th>
+      ${MARKER_CATEGORIES.map((cat) => `<th scope="col">${escapeHtml(markerLabel(cat))}</th>`).join("")}
+    </tr></thead>
+    <tbody>${rows.map((row) => `<tr>
+      <th scope="row">${escapeHtml(row.label)}</th>
+      ${MARKER_CATEGORIES.map((cat) => `<td><span class="marker-preview-icon">${markerSvgMarkup(cat, { inline: true, stateKey: row.key })}</span></td>`).join("")}
+    </tr>`).join("")}</tbody>
+  </table>`;
 }
 
 function updateMarkerPreview() {

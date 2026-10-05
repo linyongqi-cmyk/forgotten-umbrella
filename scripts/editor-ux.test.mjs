@@ -36,9 +36,17 @@ test("marker preview is a separate compact window from marker settings", () => {
   assert.match(styles, /\.marker-preview-window\s*\{/);
 });
 
-test("marker preview compares categories in a compact status-by-status matrix", () => {
-  assert.match(styles, /\.marker-preview-window \.marker-preview-icons\s*\{[^}]*repeat\(5, minmax\(0, 1fr\)\)/s);
-  assert.match(styles, /@media \(max-width: 1280px\)\s*\{[^}]*\.marker-editor-overlay\s*\{[^}]*flex-direction: column/s);
+test("marker preview uses category column headers and status row headers without repeated labels", () => {
+  const rendererStart = app.indexOf("function renderMarkerPreviewItems() {");
+  const rendererEnd = app.indexOf("function updateMarkerPreview()", rendererStart);
+  const renderer = app.slice(rendererStart, rendererEnd);
+
+  assert.match(renderer, /<table class="marker-preview-table">/);
+  assert.match(renderer, /<th scope="col">状态<\/th>/);
+  assert.match(renderer, /<th scope="row">\$\{escapeHtml\(row\.label\)\}<\/th>/);
+  assert.doesNotMatch(renderer, /<span>\$\{escapeHtml\(markerLabel\(cat\)\)\}<\/span>/);
+  assert.match(styles, /\.marker-preview-table\s*\{/);
+  assert.match(styles, /\.marker-preview-table-wrap\s*\{[^}]*overflow: auto/s);
 });
 
 test("copy editor groups editable copy under page-level headings", () => {
