@@ -1,4 +1,5 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
+import { autoSaveStatusMessage, draftCloseAction, editorEscapeAction } from "./scripts/editor-feedback.mjs";
 import {
   autoClusterMarkerItems,
   autoMarkerGroupFocusTarget,
@@ -1099,19 +1100,6 @@ function bindEvents() {
       closeMarkerFilterMenu();
     }
   });
-  // Esc 收起。
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeNavMenu();
-      if (textsEditor.overlay && !textsEditor.overlay.hidden) {
-        closeTextsEditor();
-      }
-      if (inboxState.modal && !inboxState.modal.hidden) {
-        closeInbox();
-      }
-    }
-  });
-
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       // 选了入口就收起汉堡菜单（Submit 会开新标签，也一样收起）。
@@ -1719,38 +1707,50 @@ function bindEvents() {
     if (event.key !== "Escape") {
       return;
     }
-
-    if (state.imageExpanded) {
-      closeExpandedImage(true);
-      return;
-    }
-
-    // Local editor (item 7): ESC peels back one layer at a time —
-    // create popup → open record editor (with unsaved-changes prompt) → edit
-    // mode. So ESC inside a record editor only closes that record; press again
-    // to leave edit mode.
-    if (IS_LOCAL && typeof editor !== "undefined" && editor.root) {
-      if (editor.createDialog && !editor.createDialog.hidden) {
-        closeCreateDialog();
-        return;
-      }
-      if (state.editingId) {
-        closeEditor();
-        return;
-      }
-      if (state.editMode) {
-        toggleEditMode();
-        return;
-      }
-    }
-
-    if (els.mapView.classList.contains("is-focus-mode")) {
-      closeFocusMode({ resetZoom: true });
-      return;
-    }
+    const action = editorEscapeAction({
+      imageExpanded: state.imageExpanded,
+      navMenuOpen: Boolean(els.topbar?.classList.contains("is-nav-open")),
+      inboxOpen: Boolean(inboxState.modal && !inboxState.modal.hidden),
+      hiddenOpen: Boolean(hiddenState.modal && !hiddenState.modal.hidden),
+      createOpen: Boolean(editor.createDialog && !editor.createDialog.hidden),
+      markerEditorOpen: Boolean(markerEditor.overlay && !markerEditor.overlay.hidden),
+      themeEditorOpen: Boolean(themeEditor.overlay && !themeEditor.overlay.hidden),
+      textsEditorOpen: Boolean(textsEditor.overlay && !textsEditor.overlay.hidden),
+      blurAdjustOpen: state.blurAdjustOpen,
+      mapLayersOpen: state.mapLayersOpen,
+      groupPickerOpen: Boolean(editor.groupPicker && !editor.groupPicker.hidden),
+      workbenchOpen: state.workbenchOpen,
+      recordEditorOpen: Boolean(state.editingId || editor.groupEditorId),
+      editMode: IS_LOCAL && state.editMode,
+      focusMode: els.mapView.classList.contains("is-focus-mode"),
+    });
+    if (action === "close-image") closeExpandedImage(true);
+    else if (action === "close-nav-menu") closeNavMenu();
+    else if (action === "close-inbox") closeInbox();
+    else if (action === "close-hidden") closeHiddenPanel();
+    else if (action === "close-create") closeCreateDialog();
+    else if (action === "close-marker-editor") closeMarkerEditor();
+    else if (action === "close-theme-editor") closeThemeEditor();
+    else if (action === "close-texts-editor") closeTextsEditor();
+    else if (action === "close-blur-adjust") {
+      state.blurAdjustOpen = false;
+      stopBlurPreview();
+      syncBlurAdjust();
+    } else if (action === "close-map-layers") {
+      state.mapLayersOpen = false;
+      syncMapLayers();
+    } else if (action === "close-group-picker") {
+      editor.groupPickerCollapsed = true;
+      syncEditorMarkerGroupControl();
+    } else if (action === "close-workbench") {
+      state.workbenchOpen = false;
+      syncEditorWorkbench();
+    } else if (action === "close-record-editor") closeEditor();
+    else if (action === "leave-edit-mode") toggleEditMode();
+    else if (action === "close-focus-mode") closeFocusMode({ resetZoom: true });
 
     // ESC also closes the expanded map sidebar list (item 17).
-    if (els.mapView && !els.mapView.classList.contains("is-list-collapsed")) {
+    if (action === "none" && els.mapView && !els.mapView.classList.contains("is-list-collapsed")) {
       collapseListPanel();
     }
   });
@@ -1838,7 +1838,7 @@ function syncMapLayers() {
     sat2: state.lang === "ja" ? "衛星②（文字あり）" : "Satellite 2 (labels)",
   }[key];
   const heading = state.lang === "ja" ? `表示調整：${mapName}` : `Tuning: ${mapName}`;
-  const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}</div>`;
+  const headerHtml = `<div class="map-layer-head">${escapeHtml(heading)}<small>自动保存 · 自动=沿用地图默认；显示=正常显示；淡化=低强调；隐藏=不显示。可设置缩放起止范围。</small></div>`;
   const clusteringLabel = state.lang === "ja" ? "自動集合を解除するズーム" : "Show individual markers at zoom";
   const clusterZoom = autoMarkerClusterMaxZoom();
   const clusterZoomHtml = `<label class="auto-cluster-setting"><span>${escapeHtml(clusteringLabel)}</span><input type="number" data-auto-cluster-zoom min="3" max="18" step="0.5" value="${clusterZoom}" /><small>≥ ${clusterZoom}</small></label>`;
@@ -1930,6 +1930,7 @@ function persistSiteSettings() {
   if (!IS_LOCAL) {
     return;
   }
+  showEditorToast(autoSaveStatusMessage("saving"));
   clearTimeout(siteSettingsSaveTimer);
   siteSettingsSaveTimer = setTimeout(() => {
     const payload = {
@@ -1938,8 +1939,11 @@ function persistSiteSettings() {
       autoMarkerClusterMaxZoom: autoMarkerClusterMaxZoom(),
       markerGroups: SITE_SETTINGS?.markerGroups || {},
     };
-    apiPost("/api/save-site-settings", payload).catch((error) => {
+    apiPost("/api/save-site-settings", payload).then(() => {
+      showEditorToast(autoSaveStatusMessage("saved"));
+    }).catch((error) => {
       console.error("save-site-settings failed", error);
+      showEditorToast(autoSaveStatusMessage("error", error.message), true);
     });
   }, 600);
 }
@@ -2125,7 +2129,7 @@ function renderBlurAdjust() {
       ${rows("label")}
     </div>
     <div class="blur-adjust-foot">
-      <span class="blur-adjust-hint">${inFocus ? "当前标点实时生效" : "打开后实时预览"}</span>
+      <span class="blur-adjust-hint">${inFocus ? "当前标点实时生效" : "打开后实时预览"} · 自动保存</span>
       <button type="button" class="blur-adjust-btn2" data-blur-reset>恢复默认</button>
     </div>`;
 }
@@ -8198,7 +8202,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=238", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=239", { updateViaCache: "none" });
   }
 }
 
@@ -8298,12 +8302,13 @@ function setupEditor() {
         <label class="editor-head-check" title="勾选后在下方填写关联标点"><span>关联</span><input type="checkbox" id="editor-linked-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方填写标题"><span>标题</span><input type="checkbox" id="editor-title-toggle" /></label>
         <label class="editor-head-check" title="勾选后在下方给这个标点起个对外显示名（不改文件夹/文件名）"><span>显示名</span><input type="checkbox" id="editor-displayid-toggle" /></label>
-        <button type="button" class="editor-head-check editor-collection-check editor-group-picker-toggle" id="editor-group-picker-toggle" aria-expanded="false">集合</button>
-        <label class="editor-head-check editor-collection-check" title="把这条记录加入一个命名集合"><input type="checkbox" id="editor-group-toggle" aria-label="加入集合" /></label>
+        <button type="button" class="editor-head-check editor-collection-check editor-group-picker-toggle" id="editor-group-picker-toggle" aria-expanded="false" hidden>集合设置</button>
+        <label class="editor-head-check editor-collection-check editor-group-join-check" title="勾选后，保存记录时会加入当前选中的集合"><span>加入集合</span><input type="checkbox" id="editor-group-toggle" aria-label="加入集合" /></label>
       </div>
       <div class="editor-group-picker" id="editor-group-picker" hidden>
         <select id="editor-group-select" aria-label="选择集合"></select>
         <input id="editor-group-name" type="text" maxlength="80" placeholder="给新集合起名" aria-label="新集合名称" hidden />
+        <p class="editor-group-picker-hint">最近的集合排在前面。勾选“加入集合”后，点下方“保存”生效。</p>
       </div>
       <button type="button" class="editor-hide-record" title="隐藏此标点（从地图/档案/统计/列表移除，数据保留，可在「已隐藏」面板恢复）" aria-label="隐藏此标点">${EDITOR_ICON_HIDE}</button>
       <button type="button" class="editor-close" aria-label="close">×</button>
@@ -8314,11 +8319,11 @@ function setupEditor() {
     </div>
     <section class="editor-group-editor" id="editor-group-editor" hidden>
       <h2 class="editor-group-editor-name"></h2>
-      <p>此处的聚焦与模糊参数只影响当前集合。编辑模式下可直接拖动地图上的集合标点调整位置；设置自动保存。</p>
+      <p>此处的聚焦与模糊参数只影响当前集合。地图上的集合标点可直接拖动调整位置；参数与位置自动保存，完成后会显示提示。</p>
     </section>
     <footer class="editor-actions">
       <button type="button" class="editor-save">保存</button>
-      <button type="button" class="editor-cancel">取消</button>
+      <button type="button" class="editor-cancel">关闭</button>
       <button type="button" class="editor-delete-record" title="删除此标点" aria-label="删除此标点"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke, 1.7)" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </footer>`;
   document.body.appendChild(drawer);
@@ -8789,16 +8794,16 @@ function setupEditorWorkbench() {
     {
       title: "地图与标点",
       controls: [
-        ["#map-layers", "地图图层"],
-        ["#blur-adjust", "聚焦模糊度"],
-        ["#marker-settings-toggle", "标点样式"],
+        ["#map-layers", "地图图层", "自动保存"],
+        ["#blur-adjust", "聚焦模糊度", "自动保存"],
+        ["#marker-settings-toggle", "标点样式", "预览后点保存"],
       ],
     },
     {
       title: "视觉与文案",
       controls: [
-        ["#theme-toggle", "视觉设定"],
-        ["#texts-toggle", "文案编辑"],
+        ["#theme-toggle", "视觉设定", "预览后点保存"],
+        ["#texts-toggle", "文案编辑", "编辑后点保存"],
       ],
     },
   ];
@@ -8809,15 +8814,24 @@ function setupEditorWorkbench() {
   const sections = editor.workbench.querySelectorAll(".editor-workbench-section");
   groups.forEach((group, index) => {
     const grid = sections[index].querySelector(".editor-workbench-grid");
-    group.controls.forEach(([selector, labelText]) => {
+    group.controls.forEach(([selector, labelText, saveMode]) => {
       const control = document.querySelector(selector);
       if (!control) return;
       const action = document.createElement("div");
       action.className = `editor-workbench-action${control.classList.contains("map-filter") ? " has-panel" : ""}`;
       action.appendChild(control);
+      const info = document.createElement("span");
+      info.className = "editor-workbench-action-info";
       const label = document.createElement("span");
       label.textContent = labelText;
-      action.appendChild(label);
+      info.appendChild(label);
+      if (saveMode) {
+        const mode = document.createElement("small");
+        mode.className = "editor-workbench-save-mode";
+        mode.textContent = saveMode;
+        info.appendChild(mode);
+      }
+      action.appendChild(info);
       if (control.matches("#map-layers, #blur-adjust")) {
         const panel = control.querySelector(".map-filter-panel");
         if (panel) action.appendChild(panel);
@@ -10022,8 +10036,8 @@ function snapshotEditorFields(overlay) {
   })));
 }
 
-function confirmDiscardEditorDraft(label, hasChanges) {
-  return !hasChanges || window.confirm(`${label}有尚未保存的修改。\n点「确定」放弃修改，点「取消」继续编辑。`);
+function confirmSaveEditorDraftOnClose(label, hasChanges) {
+  return !hasChanges || window.confirm(`${label}有尚未保存的修改。\n点「确定」保存并关闭，点「取消」放弃修改并关闭。`);
 }
 
 function setupTextsEditor() {
@@ -10068,7 +10082,14 @@ function openTextsEditor() {
 
 function closeTextsEditor() {
   if (textsEditor.overlay) {
-    if (!confirmDiscardEditorDraft("文案", snapshotEditorFields(textsEditor.overlay) !== textsEditor.savedSnapshot)) return;
+    const action = draftCloseAction(
+      snapshotEditorFields(textsEditor.overlay) !== textsEditor.savedSnapshot,
+      confirmSaveEditorDraftOnClose("文案", snapshotEditorFields(textsEditor.overlay) !== textsEditor.savedSnapshot),
+    );
+    if (action === "save") {
+      saveTextsEditor();
+      return;
+    }
     textsEditor.overlay.hidden = true;
   }
 }
@@ -10134,7 +10155,7 @@ function buildTextsEditor() {
       </div>
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save">保存</button>
-        <button type="button" class="texts-editor-cancel">取消</button>
+        <button type="button" class="texts-editor-cancel">关闭</button>
       </footer>
     </div>`;
 
@@ -10154,11 +10175,6 @@ function buildTextsEditor() {
   });
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
-      closeTextsEditor();
-    }
-  });
-  overlay.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
       closeTextsEditor();
     }
   });
@@ -10324,7 +10340,11 @@ function openThemeEditor() {
 function closeThemeEditor() {
   if (themeEditor.overlay) {
     const changed = JSON.stringify(sanitizeTheme(readThemeEditor())) !== JSON.stringify(sanitizeTheme(THEME));
-    if (!confirmDiscardEditorDraft("视觉设定", changed)) return;
+    const action = draftCloseAction(changed, confirmSaveEditorDraftOnClose("视觉设定", changed));
+    if (action === "save") {
+      saveThemeEditor();
+      return;
+    }
     applyTheme(THEME);
     themeEditor.overlay.hidden = true;
   }
@@ -10367,7 +10387,7 @@ function buildThemeEditor() {
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save theme-editor-save">保存</button>
         <button type="button" class="texts-editor-reset theme-editor-reset">恢复默认</button>
-        <button type="button" class="texts-editor-cancel">取消</button>
+        <button type="button" class="texts-editor-cancel">关闭</button>
       </footer>
     </div>`;
 
@@ -10407,16 +10427,13 @@ function buildThemeEditor() {
     setThemeEditorValues(THEME_DEFAULTS);
     applyTheme(THEME_DEFAULTS);
   });
-  // 取消/关闭共用同一套未保存提醒，并还原实时预览。
+  // 关闭时统一询问是否保存；放弃则还原实时预览。
   overlay.querySelector(".texts-editor-cancel").addEventListener("click", closeThemeEditor);
   overlay.querySelector(".texts-editor-close").addEventListener("click", closeThemeEditor);
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
       closeThemeEditor();
     }
-  });
-  overlay.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeThemeEditor();
   });
 }
 
@@ -10490,7 +10507,11 @@ function openMarkerEditor() {
 function closeMarkerEditor() {
   if (markerEditor.overlay) {
     const changed = JSON.stringify(sanitizeMarkerSettings(markerDraft())) !== JSON.stringify(markerEditor.original || MARKER_SETTINGS);
-    if (!confirmDiscardEditorDraft("标点设定", changed)) return;
+    const action = draftCloseAction(changed, confirmSaveEditorDraftOnClose("标点设定", changed));
+    if (action === "save") {
+      saveMarkerEditor();
+      return;
+    }
     markerEditor.draft = sanitizeMarkerSettings(markerEditor.original || MARKER_SETTINGS);
     applyMarkerDraft();
     markerEditor.overlay.hidden = true;
@@ -10511,7 +10532,7 @@ function buildMarkerEditor() {
       <div class="texts-editor-body marker-editor-body"></div>
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save marker-editor-save">保存</button>
-        <button type="button" class="texts-editor-cancel">取消</button>
+        <button type="button" class="texts-editor-cancel">关闭</button>
       </footer>
     </div>`;
   document.body.appendChild(overlay);
@@ -10524,9 +10545,6 @@ function buildMarkerEditor() {
   overlay.addEventListener("click", handleMarkerEditorClick);
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) closeMarkerEditor();
-  });
-  overlay.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeMarkerEditor();
   });
 }
 
@@ -11038,6 +11056,8 @@ function syncEditorMarkerGroupControl() {
     stopMarkerGroupFocus();
   }
   editor.groupPicker.hidden = !editor.groupToggle.checked || editor.groupPickerCollapsed;
+  editor.groupPickerToggle.hidden = !editor.groupToggle.checked;
+  editor.groupPickerToggle.textContent = editor.groupPickerCollapsed ? "选择集合" : "收起选项";
   editor.groupPickerToggle?.setAttribute("aria-expanded", String(editor.groupToggle.checked && !editor.groupPickerCollapsed));
   editor.groupName.hidden = !editor.groupToggle.checked || editor.groupSelect.value !== "__create__";
   renderMarkerGroupSettingsControl();
@@ -11186,7 +11206,7 @@ function openMarkerGroupEditor(groupId) {
   };
 
   if (editor.editingId && editor.dirty) {
-    const save = window.confirm("有未保存的修改。\n点「确定」保存后切换到集合，点「取消」放弃修改并切换。");
+    const save = window.confirm("这条记录有尚未保存的修改。\n点「确定」保存后切换，点「取消」放弃修改并切换。");
     if (!save) {
       editor.dirty = false;
       closeEditor({ force: true });
@@ -11337,7 +11357,7 @@ function closeEditor({ force = false } = {}) {
     stopMarkerGroupFocus();
   }
   if (!force && state.editingId && editor.dirty) {
-    const save = window.confirm("有未保存的修改。\n点「确定」保存后退出，点「取消」放弃修改退出。");
+    const save = window.confirm("这条记录有尚未保存的修改。\n点「确定」保存并退出，点「取消」放弃修改并退出。");
     if (save) {
       // Save, then close once it finishes.
       saveEditor().then(() => closeEditor({ force: true }));

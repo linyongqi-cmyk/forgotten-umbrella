@@ -1,9 +1,10 @@
-const CACHE_NAME = "forgotten-umbrella-v238";
+const CACHE_NAME = "forgotten-umbrella-v239";
 const ASSETS = [
   ".",
   "index.html",
   "styles.css",
   "app.js",
+  "scripts/editor-feedback.mjs",
   "marker-groups.mjs",
   "auto-marker-groups.mjs",
   "config.js",
