@@ -4673,7 +4673,8 @@ body.editor-open .editor-toolbar {
 .texts-toggle svg,
 .editor-add svg,
 .editor-inbox-btn svg,
-.editor-hidden-btn svg {
+.editor-hidden-btn svg,
+.map-layer-btn svg {
   width: 22px;
   height: 22px;
   fill: none;
@@ -4768,6 +4769,12 @@ body:not(.edit-mode) .editor-workbench-toggle {
   width: 42px;
   height: 42px;
   box-shadow: none;
+}
+
+/* 新增标点始终留在右侧常驻工具栏，不随工作台开合而移动。 */
+.editor-toolbar > .editor-add {
+  position: relative;
+  z-index: 1;
 }
 
 .editor-workbench-action.has-panel {
@@ -4870,6 +4877,19 @@ body:not(.edit-mode) .marker-settings-toggle {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.texts-page-group {
+  display: grid;
+  gap: 7px;
+}
+
+.texts-page-group > h2 {
+  margin: 8px 0 0;
+  padding: 0 2px 5px;
+  border-bottom: 1px solid var(--local-edit-line, rgba(31, 45, 45, 0.16));
+  color: var(--local-edit-muted, #68736e);
+  font-size: 12px;
 }
 
 .texts-section {
@@ -4981,6 +5001,56 @@ body:not(.edit-mode) .marker-settings-toggle {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
+}
+
+.marker-editor-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.marker-preview-window {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 1 330px;
+  width: min(330px, calc(100vw - 32px));
+  max-height: min(82vh, 760px);
+  padding: 12px;
+  border: 1px solid rgba(19, 34, 34, 0.14);
+  border-radius: 12px;
+  background: var(--local-edit-panel, #f4f3ed);
+  color: var(--local-edit-ink, #1f2d2d);
+  box-shadow: 0 18px 50px rgba(20, 26, 25, 0.35);
+  overflow: hidden;
+}
+
+.marker-preview-window .marker-preview-grid {
+  min-height: 0;
+  overflow: auto;
+}
+
+.marker-preview-window .marker-preview-row {
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 5px;
+}
+
+.marker-preview-window .marker-preview-icons {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.marker-preview-window .marker-preview-item {
+  min-height: 66px;
+  padding: 5px 3px;
+  gap: 3px;
+  font-size: 10px;
+}
+
+.marker-preview-window .marker-preview-icon svg {
+  width: 32px;
+  height: 32px;
 }
 
 .marker-editor .texts-editor-hint {
@@ -5485,6 +5555,34 @@ body:not(.edit-mode) .marker-settings-toggle {
 
   .marker-group-part-list {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .marker-editor-overlay {
+    flex-direction: column-reverse;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .marker-editor-overlay > .marker-editor {
+    width: min(760px, 100%);
+    max-height: 61vh;
+  }
+
+  .marker-preview-window {
+    flex: 0 1 auto;
+    width: min(760px, 100%);
+    max-height: 24vh;
+  }
+
+  .marker-preview-window .marker-preview-grid {
+    display: flex;
+    gap: 12px;
+  }
+
+  .marker-preview-window .marker-preview-row {
+    flex: 1 0 46%;
   }
 }
 

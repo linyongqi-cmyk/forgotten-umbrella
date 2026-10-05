@@ -5,6 +5,14 @@ export function autoSaveStatusMessage(status, detail = "") {
   return "";
 }
 
+export function submissionReadErrorMessage(message) {
+  const detail = String(message || "读取失败");
+  if (/invalid_grant/i.test(detail)) {
+    return "Google 投稿授权已过期或被撤销。请在项目文件夹的终端运行 npm run submissions:auth 重新授权，再刷新投稿箱。";
+  }
+  return detail;
+}
+
 export function draftCloseAction(hasChanges, saveConfirmed) {
   if (!hasChanges) return "close";
   return saveConfirmed ? "save" : "discard";

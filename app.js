@@ -1,5 +1,5 @@
 import { GOOGLE_MAPS_API_KEY } from "./config.js";
-import { autoSaveStatusMessage, draftCloseAction, editorEscapeAction } from "./scripts/editor-feedback.mjs";
+import { autoSaveStatusMessage, draftCloseAction, editorEscapeAction, submissionReadErrorMessage } from "./scripts/editor-feedback.mjs";
 import {
   autoClusterMarkerItems,
   autoMarkerGroupFocusTarget,
@@ -8202,7 +8202,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=239", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=240", { updateViaCache: "none" });
   }
 }
 
@@ -8786,7 +8786,6 @@ function setupEditorWorkbench() {
     {
       title: "记录管理",
       controls: [
-        ["#editor-add", "新增标点"],
         ["#editor-inbox-btn", "投稿收件箱"],
         ["#editor-hidden-btn", "已隐藏标点"],
       ],
@@ -10119,39 +10118,48 @@ function buildTextsEditor() {
       </header>
       <p class="texts-editor-hint">只能修改现有文案；多个段落之间用一个空行分隔。保存后写入 data/texts.json，线上看到的也会更新。</p>
       <div class="texts-editor-body">
-        <fieldset class="texts-section is-collapsed" data-texts-stats>
-          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>统计页 说明文 (stats intro)</span></button></legend>
-          <div class="texts-section-body">
-            <label>日本語<textarea data-texts-field="stats-ja" rows="4"></textarea></label>
-            <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
-          </div>
-        </fieldset>
-        <fieldset class="texts-section is-collapsed" data-texts-typeall>
-          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>Type 标签 all 说明文 (type intro)</span></button></legend>
-          <div class="texts-section-body">
-            <label>日本語（段落用空行分隔）<textarea data-texts-field="typeall-ja" rows="4"></textarea></label>
-            <label>English<textarea data-texts-field="typeall-en" rows="4"></textarea></label>
-          </div>
-        </fieldset>
-        <fieldset class="texts-section is-collapsed" data-texts-about="section1">
-          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第一段（观察のきっかけ）</span></button></legend>
-          <div class="texts-section-body">
-            <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
-            <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
-            <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
-            <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
-          </div>
-        </fieldset>
-        <fieldset class="texts-section is-collapsed" data-texts-about="section2">
-          <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第二段（記録の作法）</span></button></legend>
-          <div class="texts-section-body">
-            <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
-            <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
-            <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
-            <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
-          </div>
-        </fieldset>
-        ${typeSections}
+        <section class="texts-page-group">
+          <h2>统计页面</h2>
+          <fieldset class="texts-section is-collapsed" data-texts-stats>
+            <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>统计页说明文 (stats intro)</span></button></legend>
+            <div class="texts-section-body">
+              <label>日本語<textarea data-texts-field="stats-ja" rows="4"></textarea></label>
+              <label>English<textarea data-texts-field="stats-en" rows="4"></textarea></label>
+            </div>
+          </fieldset>
+        </section>
+        <section class="texts-page-group">
+          <h2>Type 页面</h2>
+          <fieldset class="texts-section is-collapsed" data-texts-typeall>
+            <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>Type 页总说明 (type intro)</span></button></legend>
+            <div class="texts-section-body">
+              <label>日本語（段落用空行分隔）<textarea data-texts-field="typeall-ja" rows="4"></textarea></label>
+              <label>English<textarea data-texts-field="typeall-en" rows="4"></textarea></label>
+            </div>
+          </fieldset>
+          ${typeSections}
+        </section>
+        <section class="texts-page-group">
+          <h2>About 页面</h2>
+          <fieldset class="texts-section is-collapsed" data-texts-about="section1">
+            <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第一段（观察のきっかけ）</span></button></legend>
+            <div class="texts-section-body">
+              <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+              <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+              <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+              <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+            </div>
+          </fieldset>
+          <fieldset class="texts-section is-collapsed" data-texts-about="section2">
+            <legend><button type="button" class="texts-section-toggle" data-texts-section-toggle aria-expanded="false">${renderChevronIcon(false)}<span>About 第二段（記録の作法）</span></button></legend>
+            <div class="texts-section-body">
+              <label>標題 日本語<input type="text" data-texts-field="about-title-ja" /></label>
+              <label>Title English<input type="text" data-texts-field="about-title-en" /></label>
+              <label>本文 日本語（段落用空行分隔）<textarea data-texts-field="about-body-ja" rows="6"></textarea></label>
+              <label>Body English<textarea data-texts-field="about-body-en" rows="6"></textarea></label>
+            </div>
+          </fieldset>
+        </section>
       </div>
       <footer class="texts-editor-actions">
         <button type="button" class="texts-editor-save">保存</button>
@@ -10523,6 +10531,13 @@ function buildMarkerEditor() {
   overlay.className = "texts-editor-overlay marker-editor-overlay";
   overlay.hidden = true;
   overlay.innerHTML = `
+    <section class="marker-preview-window" role="dialog" aria-label="标点样式实时预览">
+      <div class="marker-preview-head">
+        <h3>实时预览</h3>
+        <span>修改后立即更新</span>
+      </div>
+      <div class="marker-preview-grid" data-marker-preview></div>
+    </section>
     <div class="texts-editor marker-editor" role="dialog" aria-label="标点设定">
       <header class="texts-editor-head">
         <strong>标点设定</strong>
@@ -10537,6 +10552,7 @@ function buildMarkerEditor() {
     </div>`;
   document.body.appendChild(overlay);
   markerEditor.overlay = overlay;
+  markerEditor.previewWindow = overlay.querySelector(".marker-preview-window");
   overlay.querySelector(".texts-editor-close").addEventListener("click", closeMarkerEditor);
   overlay.querySelector(".texts-editor-cancel").addEventListener("click", closeMarkerEditor);
   overlay.querySelector(".marker-editor-save").addEventListener("click", saveMarkerEditor);
@@ -10572,15 +10588,6 @@ function renderMarkerEditorBody() {
   const body = markerEditor.overlay.querySelector(".marker-editor-body");
   const sharedParts = markerPartSummary(draft.svg);
   body.innerHTML = `
-    <section class="marker-preview-panel">
-      <div class="marker-preview-head">
-        <h3>实时预览</h3>
-        <span>拖动或改颜色会立即更新</span>
-      </div>
-      <div class="marker-preview-grid" data-marker-preview>
-        ${renderMarkerPreviewItems()}
-      </div>
-    </section>
     <section class="marker-editor-section">
       <div class="marker-editor-section-head">
         <h3>集合标点（所有集合共用样式）</h3>
@@ -10660,7 +10667,7 @@ function renderMarkerPreviewItems() {
 }
 
 function updateMarkerPreview() {
-  const preview = markerEditor.overlay?.querySelector("[data-marker-preview]");
+  const preview = markerEditor.previewWindow?.querySelector("[data-marker-preview]");
   if (preview) {
     preview.innerHTML = renderMarkerPreviewItems();
   }
@@ -11944,7 +11951,7 @@ async function loadInbox() {
     inboxState.submissions = res.submissions || [];
     renderInboxList();
   } catch (error) {
-    inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">读取失败：${escapeHtml(error.message)}</p>`;
+    inboxState.listEl.innerHTML = `<p class="editor-inbox-empty">读取失败：${escapeHtml(submissionReadErrorMessage(error.message))}</p>`;
   }
 }
 
