@@ -3472,7 +3472,7 @@ function renderMarkerGroupMarker(groupId, members, { hover = false } = {}) {
   const labelOrigin = markerGroupLabelOrigin(visual.category, markerSize);
   const presentation = markerGroupPresentation(groupIcon, members.length, labelOrigin, { hover });
   presentation.icon.labelOrigin = new google.maps.Point(labelOrigin.x, labelOrigin.y);
-  const groupName = siteMarkerGroupName(groupId, representative.markerGroupName || groupId);
+  const groupName = siteMarkerGroupName(groupId, representative.markerGroupName || groupId, null, "en");
   const existing = state.markerGroupMarkers.get(groupId);
   if (existing) {
     existing.setPosition(center);
@@ -3685,7 +3685,7 @@ function startMarkerGroupFocus(groupId, center, settings, { preview = false, pen
   els.focusBlur?.style.setProperty("--fb-tint", "rgba(255, 255, 255, 0.5)");
   const legacyName = state.umbrellas.find((item) => item.markerGroupId === groupId)?.markerGroupName || "";
   const names = { ...(SITE_SETTINGS?.markerGroups || {}), [groupId]: settings };
-  renderFocusApproxLabel(markerGroupNameFor(names, groupId, legacyName, state.lang), { preview, pending });
+  renderFocusApproxLabel(siteMarkerGroupName(groupId, legacyName, settings, "en"), { preview, pending });
   renderMarkerGroupSettingsControl();
 }
 
@@ -3734,10 +3734,10 @@ function siteMarkerGroupSettingsFor(groupId) {
   return markerGroupSettingsFor({ [groupId]: { ...defaultSiteMarkerGroupSettings(), ...saved } }, groupId);
 }
 
-function siteMarkerGroupName(groupId, legacyName = "", settings = null) {
+function siteMarkerGroupName(groupId, legacyName = "", settings = null, language = state.lang) {
   const groups = { ...(SITE_SETTINGS?.markerGroups || {}) };
   if (settings) groups[groupId] = settings;
-  return markerGroupNameFor(groups, groupId, legacyName, state.lang);
+  return markerGroupNameFor(groups, groupId, legacyName, language);
 }
 
 function updateSiteMarkerGroupSettings(groupId, patch) {
@@ -5756,10 +5756,6 @@ function renderPhotoCard(item) {
   `;
 }
 
-function formatDetailLine(...parts) {
-  return parts.filter(Boolean).join(" / ");
-}
-
 function hasCoordinates(item) {
   return Number.isFinite(Number(item.coordinates?.lat)) && Number.isFinite(Number(item.coordinates?.lng));
 }
@@ -5918,28 +5914,6 @@ function sortByTime(items, order) {
     const delta = getTimeValue(a) - getTimeValue(b);
     return order === "asc" ? delta : -delta;
   });
-}
-
-function groupByMonth(items) {
-  const groups = new Map();
-
-  items.forEach((item) => {
-    const date = new Date(item.time);
-    const hasTime = Number.isFinite(date.getTime());
-    // Always "YYYY/MM" regardless of site language (item 3) — no "2026年5月".
-    const yyyymm = hasTime ? `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}` : "";
-    const key = hasTime ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` : "no-time";
-    if (!groups.has(key)) {
-      groups.set(key, {
-        key,
-        label: hasTime ? yyyymm : "time needed",
-        items: [],
-      });
-    }
-    groups.get(key).items.push(item);
-  });
-
-  return Array.from(groups.values());
 }
 
 // Group by the address hierarchy: prefecture (level 0) → city (1) → ward (2),
@@ -8202,7 +8176,7 @@ function formatDateTime(value) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js?v=244", { updateViaCache: "none" });
+    navigator.serviceWorker.register("sw.js?v=246", { updateViaCache: "none" });
   }
 }
 
@@ -11105,7 +11079,7 @@ function handleEditorMarkerGroupSettingsInput(event) {
     if (state.markerGroupFocusId === groupId) {
       startMarkerGroupFocus(groupId, state.markerGroupFocusCenter, { ...current, name }, { preview: state.markerGroupFocusPreview });
     }
-    state.markerGroupMarkers.get(groupId)?.setTitle(`${siteMarkerGroupName(groupId, fallbackName, { ...current, name })} · ${listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId)?.count || 0}`);
+    state.markerGroupMarkers.get(groupId)?.setTitle(`${siteMarkerGroupName(groupId, fallbackName, { ...current, name }, "en")} · ${listMarkerGroups(state.umbrellas).find((entry) => entry.id === groupId)?.count || 0}`);
     return;
   }
   if (input?.dataset.groupSetting === "focusZoom" && event.type === "input") return;

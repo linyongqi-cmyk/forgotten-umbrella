@@ -212,5 +212,120 @@
         "zoomMax": ""
       }
     }
+  },
+  "autoMarkerClusterMaxZoom": 14,
+  "markerGroups": {
+    "kyoto-chocozap-umbrellas": {
+      "focusZoom": 20,
+      "blur": 6,
+      "radius": 70,
+      "feather": 92,
+      "veil": 0,
+      "labelDistance": 170,
+      "labelRotate": -135,
+      "name": {
+        "ja": "",
+        "en": ""
+      }
+    },
+    "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8": {
+      "focusZoom": 18.6,
+      "blur": 9.5,
+      "radius": 130,
+      "feather": 60,
+      "veil": 0,
+      "labelDistance": 210,
+      "labelRotate": -135,
+      "name": {
+        "ja": "九条河原町交差点",
+        "en": "Kujo Kawaramachi Intersection"
+      }
+    },
+    "group-6c40ce50-18ca-401d-a747-60192f3c0887": {
+      "focusZoom": 18,
+      "blur": 6,
+      "radius": 274,
+      "feather": 44,
+      "veil": 0,
+      "labelDistance": 345,
+      "labelRotate": -135,
+      "name": {
+        "ja": "京都市立芸術大学周辺",
+        "en": "Around Kyoto City University of Arts"
+      },
+      "position": {
+        "lat": 34.986210576129274,
+        "lng": 135.76385128751616
+      }
+    },
+    "group-aacdc73b-0b2f-44bd-9b9b-17817aa21e6f": {
+      "focusZoom": 18,
+      "blur": 6,
+      "radius": 126,
+      "feather": 60,
+      "veil": 0,
+      "labelDistance": 205,
+      "labelRotate": -135,
+      "name": {
+        "ja": "松ノ木町団地周辺",
+        "en": "Around Matsunokicho danchi"
+      }
+    },
+    "group-ff09cf51-64eb-436b-97b6-4353f056e8fb": {
+      "focusZoom": 18,
+      "blur": 6,
+      "radius": 148,
+      "feather": 66,
+      "veil": 0,
+      "labelDistance": 230,
+      "labelRotate": -135,
+      "name": {
+        "ja": "JR太秦駅周辺",
+        "en": "Around JR Uzumasa Station"
+      }
+    },
+    "group-4bf65082-3656-4b05-9045-77d4d7ae5650": {
+      "focusZoom": 19,
+      "blur": 6,
+      "radius": 140,
+      "feather": 78,
+      "veil": 0,
+      "labelDistance": 235,
+      "labelRotate": -135,
+      "name": {
+        "ja": "烏丸線北山駅周辺",
+        "en": "Around Kitayama Station (Karasuma Line)"
+      }
+    },
+    "group-e68db744-2509-42a9-84f7-4d8648b92b8f": {
+      "focusZoom": 19,
+      "blur": 6,
+      "radius": 176,
+      "feather": 50,
+      "veil": 0,
+      "labelDistance": 255,
+      "labelRotate": -135,
+      "name": {
+        "ja": "西千葉駅周辺",
+        "en": "Around Nishi-Chiba Station"
+      }
+    },
+    "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42": {
+      "focusZoom": 16.6,
+      "blur": 6,
+      "radius": 180,
+      "feather": 46,
+      "veil": 0,
+      "labelDistance": 250,
+      "labelRotate": -135,
+      "name": {
+        "ja": "千草台団地",
+        "en": "Chigusadai danchi"
+      },
+      "position": {
+        "lat": 35.63492339580005,
+        "lng": 140.12017997068926
+      }
+    }
   }
 }

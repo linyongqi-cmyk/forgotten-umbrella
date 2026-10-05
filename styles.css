@@ -2145,7 +2145,6 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   text-align: left;
   width: 100%;
   max-width: 100%;
-  overflow-y: auto;
 }
 
 .focus-image-panel figcaption h3,
@@ -2215,60 +2214,9 @@ body.view-map.is-roadmap .view-tabs .language-switcher.is-open .language-toggle 
   stroke-linejoin: round;
 }
 
-.focus-info-heading {
-  margin-top: 4px;
-}
-
 .focus-image-panel figcaption .item-detail,
-.focus-image-panel figcaption .item-story,
-.focus-image-panel figcaption .media-story {
+.focus-image-panel figcaption .item-story {
   color: inherit;
-}
-
-.focus-media-notes {
-  display: grid;
-  gap: 6px;
-}
-
-.focus-media-strip {
-  display: grid;
-  gap: 8px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.focus-media-thumb {
-  display: grid;
-  grid-template-columns: 76px 1fr;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  border: 1px solid rgba(24, 35, 34, 0.12);
-  border-radius: 10px;
-  padding: 8px;
-  background: var(--panel);
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.focus-media-thumb.is-active {
-  border-color: rgba(24, 35, 34, 0.5);
-}
-
-.focus-media-thumb img {
-  width: 76px;
-  height: 76px;
-  max-height: none;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-.focus-media-thumb span {
-  font-size: 12px;
-  line-height: 1.35;
 }
 
 .focus-image-panel.is-expanded {
@@ -3789,10 +3737,6 @@ body.edit-mode .card-edit {
     display: none;
   }
 
-  .workspace.is-active {
-    display: block;
-  }
-
   .side-panel {
     left: 12px;
     right: 12px;
@@ -4995,8 +4939,6 @@ body:not(.edit-mode) .marker-settings-toggle {
   width: min(1040px, calc(100vw - 380px));
   min-width: 600px;
   max-height: min(84vh, 760px);
-  background: rgba(236, 242, 244, 0.98);
-  color: #132222;
 }
 
 .marker-editor-body {
@@ -5133,18 +5075,6 @@ body:not(.edit-mode) .marker-settings-toggle {
   border-color: rgba(19, 34, 34, 0.16);
 }
 
-.marker-preview-panel {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: grid;
-  gap: 10px;
-  padding: 12px;
-  border: 1px solid rgba(19, 34, 34, 0.14);
-  border-radius: 8px;
-  background: rgba(236, 242, 244, 0.98);
-  box-shadow: 0 8px 24px rgba(19, 34, 34, 0.08);
-}
 
 .marker-preview-head {
   display: flex;
@@ -7026,7 +6956,6 @@ body:not(.edit-mode) .editor-hidden-btn {
 }
 
 .marker-editor .texts-editor-hint,
-.marker-preview-panel,
 .marker-editor-section {
   color: var(--local-edit-ink, #1f2d2d);
   border-color: var(--local-edit-line, rgba(31, 45, 45, 0.16));
@@ -8054,9 +7983,6 @@ body:not(.edit-mode) .editor-hidden-btn {
   position: fixed;
   left: 0;
   top: 0;
-  /* 用户: preview 高度收到 40vh，把下面的空间让给「修改记录」面板；内容字号也
-     整体调小（见 --detail-*-size 覆写 + .item-story/.focus-dialogue 覆写）。 */
-  height: 40vh;
   width: var(--preview-w);
   box-sizing: border-box;
   padding: 12px 14px;
@@ -8298,14 +8224,6 @@ body.editor-open .panel-resizer {
   margin: 0;
 }
 
-.editor-preview .focus-info-heading {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.6;
-  margin: 4px 0 0;
-}
-
 .editor-preview .item-detail,
 .editor-preview .item-story {
   /* 用户: 预览里的段落文字太大 → 调小。 */
@@ -8370,11 +8288,6 @@ body.editor-open .panel-resizer {
   --detail-id-size: 20px;
   --detail-id-line: 1.2;
   --detail-id-weight: 600;
-}
-
-/* Detail panel: fixed header (title/place/time) + scrollable body below */
-.focus-image-panel {
-  overflow: hidden;
 }
 
 /* 详情页文字全部强制白色（用户要求）——不管系统深浅色，ID/标题/地点/时间/

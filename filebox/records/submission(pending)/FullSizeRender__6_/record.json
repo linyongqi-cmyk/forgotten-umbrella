@@ -40,6 +40,10 @@
   "editFlag": "",
   // 关联标点：填另一个标点的 ID（如 "IMG_6383"），详情页主图右下角会显示可跳转链接。空=无。
   "linkedId": "",
+  // 地图集合编号。相同编号的多条独立记录会合成一个带数量的标点。空=不属于集合。
+  "markerGroupId": "",
+  // 地图集合名称。
+  "markerGroupName": "",
   // 来源："contributed"=外部投稿的伞（不是作者自己拍的）；"own" 或空=作者自己拍的。
   "submissionType": "contributed",
   // 投稿者署名（仅投稿伞用，详情页致谢显示）。没有就保持空字符串。
@@ -53,9 +57,9 @@
   // 备注栏（投稿伞总览表用，目前留空，未来再定用途）。
   "remarks": "",
   // 地点是否只是"大概"（投稿伞常常只知道城市）。true=详情页地点前加"约"。
-  "locationApprox": true,
+  "locationApprox": false,
   // 时间是否只是"大概"。true=详情页时间前加"约"。
-  "timeApprox": true,
+  "timeApprox": false,
   // T7 模糊地址：true=聚焦时用白色模糊特效（区别于普通深色模糊），清晰圈更大。仅投稿伞用。
   "blurApprox": false,
   // T7 该点专属聚焦缩放级别（数字，留空=用默认 18）。模糊地址时常调小一点让位置更含糊。

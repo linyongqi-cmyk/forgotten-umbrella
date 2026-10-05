@@ -4,7 +4,7 @@ An art-map website and installable PWA documenting forgotten umbrellas in public
 
 ## Local preview
 
-Requires [Node.js](https://nodejs.org/) 20 or newer (see `.nvmrc`). There are no third-party dependencies, so `npm install` is not needed.
+Requires [Node.js](https://nodejs.org/) 20 or newer (see `.nvmrc`). On a new clone, install the local tools with `npm install` (Google APIs for the submissions inbox and Sharp for image processing).
 
 The project must run through its local server. Opening `index.html` with a `file://` URL will not load the map or archive data correctly.
 
@@ -29,31 +29,28 @@ http://127.0.0.1:4173/
 
 ## Record workflow
 
-Records now live as one folder per entry under `filebox/records/`; `data/umbrellas.json` is generated from them. The typical editing loop:
+Records live as one folder per entry under `filebox/records/`; `data/umbrellas.json` is generated from them. The local editor rebuilds the aggregate when it saves a record. For manual edits:
 
-1. Seed the new source folders from the current aggregate:
-
-```powershell
-npm run records:seed
-```
-
-2. Rebuild the website/app aggregate after editing any `record.json`:
+1. Rebuild the website/app aggregate after editing a `record.json`:
 
 ```powershell
 npm run records:build
 ```
 
-3. If you want to rewrite all `record.json` files into the standard hand-editing format with Chinese notes:
+2. If you add, remove, or rename image files inside a record folder, update its `media` list, then rebuild:
+
+```powershell
+npm run records:sync-media
+npm run records:build
+```
+
+3. To rewrite all `record.json` files into the standard format with Chinese notes (this also syncs each `media` list):
 
 ```powershell
 npm run records:format
 ```
 
-4. If you add, remove, or rename image files inside a record folder, sync the `media` list before rebuilding:
-
-```powershell
-npm run records:sync-media
-```
+The old `records:seed` migration command is retired. Do not recreate source records from `data/umbrellas.json`; the seed script overwrote current records with an older field layout.
 
 Each record folder lives at:
 

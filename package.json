@@ -7,7 +7,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "records:seed": "node scripts/seed-records.mjs",
     "records:build": "node scripts/build-umbrellas.mjs",
     "records:export": "node scripts/export-tables.mjs",
     "records:format": "node scripts/format-records.mjs",

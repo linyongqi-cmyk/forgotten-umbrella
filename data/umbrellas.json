@@ -2842,7 +2842,10 @@
       "lng": 140.10359166999996
     },
     "locationText": "bench at Nishi-Chiba Station North Exit bus stop Lane 2, Nishi-Chiba Station, Chuo Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -2996,8 +2999,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-e68db744-2509-42a9-84f7-4d8648b92b8f",
+    "markerGroupName": "西千叶站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -3711,8 +3714,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -3728,20 +3731,6 @@
     "category": "disposal",
     "thumb": "filebox/records/disposal(behavior)/IMG_8056/IMG_8056.thumb.webp",
     "media": [
-      {
-        "id": "________",
-        "file": "________.png",
-        "src": "filebox/records/disposal(behavior)/IMG_8056/________.web.webp",
-        "thumb": "filebox/records/disposal(behavior)/IMG_8056/________.thumb.webp",
-        "original": "filebox/records/disposal(behavior)/IMG_8056/________.png",
-        "role": "illustration",
-        "title": "",
-        "photoTime": "",
-        "story": "",
-        "crop": null,
-        "weather": null,
-        "showWeather": false
-      },
       {
         "id": "IMG_8056",
         "file": "IMG_8056.jpeg",
@@ -3888,6 +3877,20 @@
           ]
         },
         "showWeather": true
+      },
+      {
+        "id": "________",
+        "file": "________.png",
+        "src": "filebox/records/disposal(behavior)/IMG_8056/________.web.webp",
+        "thumb": "filebox/records/disposal(behavior)/IMG_8056/________.thumb.webp",
+        "original": "filebox/records/disposal(behavior)/IMG_8056/________.png",
+        "role": "illustration",
+        "title": "",
+        "photoTime": "",
+        "story": "",
+        "crop": null,
+        "weather": null,
+        "showWeather": false
       }
     ],
     "locationLevels": [
@@ -4074,8 +4077,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-aacdc73b-0b2f-44bd-9b9b-17817aa21e6f",
+    "markerGroupName": "松ノ木町团地附近",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -7431,7 +7434,10 @@
       "lng": 140.11926489845663
     },
     "locationText": "vacant lot in Sakusabe, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -7808,7 +7814,10 @@
       "lng": 140.12094012323675
     },
     "locationText": "lawn area within Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -7962,8 +7971,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -8915,15 +8924,15 @@
         "file": "IMG_0147.jpeg"
       },
       {
+        "type": "photo",
+        "file": "IMG_1929.jpeg"
+      },
+      {
         "type": "text",
         "text": {
           "ja": "ここは京都駅の近くにある最大級の百貨店のひとつ、ヨドバシの駐輪場です。買い物に来る人がとても多く、忘れ物もとても多いです。そのため管理人が精算機の横に簡単な「落とし物置き場」を設けていて、ほぼ毎日違った落とし物が入っています。もちろん傘も例外ではありません。",
           "en": "This is the bicycle parking area of Yodobashi, one of the largest department stores near Kyoto Station. So many people come here to shop, and just as many things get left behind. That is why the attendant has set up a simple “lost-and-found spot” beside the payment machine, and almost every day there are different lost items in it. Umbrellas, of course, are no exception."
         }
-      },
-      {
-        "type": "photo",
-        "file": "IMG_1929.jpeg"
       }
     ],
     "editFlag": "",
@@ -9630,7 +9639,10 @@
       "lng": 135.76375960470054
     },
     "locationText": "Building C, Kyoto City University of Arts, Shimogyo Ward, Kyoto",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -9784,8 +9796,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -10491,8 +10503,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8",
+    "markerGroupName": "九条河原町十字路口",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -13271,8 +13283,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -13471,7 +13483,10 @@
       "lng": 140.12234725900257
     },
     "locationText": "parking lot along the outer perimeter, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -13625,8 +13640,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -16085,7 +16100,10 @@
       "lng": 135.76507535970293
     },
     "locationText": "Matsunokicho danchi, Minami Ward, Kyoto",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -16239,8 +16257,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-aacdc73b-0b2f-44bd-9b9b-17817aa21e6f",
+    "markerGroupName": "松ノ木町团地附近",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -18583,7 +18601,10 @@
     },
     "locationCoordinates": null,
     "locationText": "payment machine at Nishi-Chiba Station North Exit bicycle parking lot, Nishi-Chiba Station, Chuo Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -18738,8 +18759,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-e68db744-2509-42a9-84f7-4d8648b92b8f",
+    "markerGroupName": "西千叶站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -19632,11 +19653,14 @@
       "lng": 140.11885
     },
     "locationCoordinates": {
-      "lat": 35.63638632042985,
-      "lng": 140.11885938773156
+      "lat": 35.636248160312526,
+      "lng": 140.11918271110176
     },
     "locationText": "bicycle parking area, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -19790,8 +19814,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -19976,7 +20000,10 @@
       "lng": 140.11883314644874
     },
     "locationText": "bicycle parking area, Chigusadai danchi, Chigusadai, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -20131,8 +20158,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -20317,7 +20344,10 @@
       "lng": 140.1214562769101
     },
     "locationText": "bicycle parking area, Chigusadai danchi, Inage Ward, Chiba",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -20476,8 +20506,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-92cff7a7-3f11-4472-98ee-9d0c3dc83d42",
+    "markerGroupName": "千草台团地",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -21721,7 +21751,10 @@
       "lng": 135.76300080575223
     },
     "locationText": "Room B306, Sujin Campus, Kyoto City University of Arts, Shimogyo Ward, Kyoto",
-    "title": "",
+    "title": {
+      "ja": "",
+      "en": ""
+    },
     "displayId": "",
     "umbrellaType": "",
     "umbrellaColor": "",
@@ -21875,8 +21908,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -22968,8 +23001,8 @@
       ]
     },
     "linkedId": "IMG_6753",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-e68db744-2509-42a9-84f7-4d8648b92b8f",
+    "markerGroupName": "西千叶站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -25911,8 +25944,8 @@
     "editFlag": "",
     "weather": null,
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-e68db744-2509-42a9-84f7-4d8648b92b8f",
+    "markerGroupName": "西千叶站周边",
     "submissionType": "contributed",
     "submitter": "LIU SIJIA",
     "submissionChannel": "",
@@ -26951,8 +26984,8 @@
     "editFlag": "",
     "weather": null,
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "contributed",
     "submitter": "aaa",
     "submissionChannel": "",
@@ -32902,8 +32935,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -35895,8 +35928,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8",
+    "markerGroupName": "九条河原町十字路口",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -36601,8 +36634,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -37665,8 +37698,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -39432,8 +39465,8 @@
       ]
     },
     "linkedId": "IMG_9018",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -40141,8 +40174,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8",
+    "markerGroupName": "九条河原町十字路口",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -41582,8 +41615,8 @@
       ]
     },
     "linkedId": "IMG_8962",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -42330,8 +42363,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8",
+    "markerGroupName": "九条河原町十字路口",
     "submissionType": "contributed",
     "submitter": "yueliang",
     "submissionChannel": "",
@@ -42663,8 +42696,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-f78d3338-1a95-4ed8-b81d-4d9e230de5a8",
+    "markerGroupName": "九条河原町十字路口",
     "submissionType": "contributed",
     "submitter": "yueliang",
     "submissionChannel": "",
@@ -43363,8 +43396,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-aacdc73b-0b2f-44bd-9b9b-17817aa21e6f",
+    "markerGroupName": "松ノ木町团地附近",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -45866,8 +45899,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-6c40ce50-18ca-401d-a747-60192f3c0887",
+    "markerGroupName": "京都市立艺术大学周边",
     "submissionType": "contributed",
     "submitter": "yueliang",
     "submissionChannel": "",
@@ -47621,8 +47654,8 @@
     "submissionTime": "2026/08/05",
     "submitterNote": "",
     "remarks": "",
-    "locationApprox": true,
-    "timeApprox": true,
+    "locationApprox": false,
+    "timeApprox": false,
     "blurApprox": false,
     "approxZoom": null,
     "blurLabel": "",
@@ -48285,8 +48318,8 @@
     "submissionTime": "2026/08/08",
     "submitterNote": "",
     "remarks": "",
-    "locationApprox": true,
-    "timeApprox": true,
+    "locationApprox": false,
+    "timeApprox": false,
     "blurApprox": false,
     "approxZoom": null,
     "blurLabel": "",
@@ -48828,7 +48861,7 @@
     "submissionTime": "2026/08/08",
     "submitterNote": "",
     "remarks": "",
-    "locationApprox": true,
+    "locationApprox": false,
     "timeApprox": false,
     "blurApprox": false,
     "approxZoom": null,
@@ -49043,8 +49076,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-4bf65082-3656-4b05-9045-77d4d7ae5650",
+    "markerGroupName": "乌丸线北山站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -49392,8 +49425,8 @@
       ]
     },
     "linkedId": "IMG_1796",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-4bf65082-3656-4b05-9045-77d4d7ae5650",
+    "markerGroupName": "乌丸线北山站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -49753,8 +49786,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-ff09cf51-64eb-436b-97b6-4353f056e8fb",
+    "markerGroupName": "JR太秦站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -50101,8 +50134,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-ff09cf51-64eb-436b-97b6-4353f056e8fb",
+    "markerGroupName": "JR太秦站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -50464,8 +50497,8 @@
       ]
     },
     "linkedId": "",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-ff09cf51-64eb-436b-97b6-4353f056e8fb",
+    "markerGroupName": "JR太秦站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",
@@ -53467,8 +53500,8 @@
       ]
     },
     "linkedId": "IMG_1438",
-    "markerGroupId": "",
-    "markerGroupName": "",
+    "markerGroupId": "group-4bf65082-3656-4b05-9045-77d4d7ae5650",
+    "markerGroupName": "乌丸线北山站周边",
     "submissionType": "own",
     "submitter": "",
     "submissionChannel": "",

@@ -8,7 +8,7 @@
 「被遗忘的伞 / Forgotten Umbrella」——记录城市公共空间里被遗忘雨伞的**艺术地图网站 + 可安装 PWA**。纯前端静态站，Google Maps 标点，中/日/英三语，GitHub Pages 发布。**当前处于原型阶段**。
 
 ## 怎么跑 / 预览 / 构建
-- 必须用本地服务器（不能 `file://`）：`npm start` → http://127.0.0.1:4173/ 。需 Node 20+。**依赖 sharp（图片分级生成用，只本机后端跑，不影响线上静态站）——新克隆/新机器要先 `npm install`。**
+- 必须用本地服务器（不能 `file://`）：`npm start` → http://127.0.0.1:4173/ 。需 Node 20+。新克隆/新机器先运行 `npm install`；`googleapis` 用于本地投稿收件箱，`sharp` 用于图片处理。
 - 改了 `filebox/records/**/record.json` 后要重建：`npm run records:build`（输出 `data/umbrellas.json`）。
 - **图片分级（提速）**：每张原图旁自动生成 `NAME.thumb.webp`(400px 缩略图)+`NAME.web.webp`(1280px 网页版)，前端小图用 thumb、详情展示用 web、放大先 web 再后台下原图替换。存量批量补齐：`npm run images:build`（只新增、不动原图；`--force` 强制重生）。编辑器上传/新建图片时后端 `editor-api.mjs` 会自动生成。生成/尺寸逻辑在 `scripts/image-derivatives.mjs`（THUMB=400 q70 / WEB=1280 q78）。**注意 `.thumb.webp`/`.web.webp` 是生成物，`record-utils.mjs` 扫描文件夹时靠 `isDerivativeFile` 排除，别让它们进 media。**
 - 把所有 record.json 规范化成带中文注释格式：`npm run records:format`。
@@ -32,7 +32,7 @@
 - `umbrellaCount`："1"~"5"/"unknown"/""
 - `umbrellaUnits`：**每把伞一个对象** `{color, colorDetail, kind, status:[], statusOther}`，随数量增减。这是为**后期统计**铺垫的核心结构。
 - `editFlag`："yellow"/"black"/"white"/""（编辑用标记色，仅编辑模式地图显示）
-- `markerGroupId`：相同编号表示手动地图集合；每条记录仍独立保留，空字符串表示不属于集合。
+- `markerGroupId` / `markerGroupName`：集合编号和名称；每条记录仍独立保留，空编号表示不属于集合。
 - `story`（由 blocks 的文字段落合并，用于卡片简介）
 - `blocks`：详情页图文顺序 `[{type:"text",text} | {type:"photo",file}]`
 - `media`：`[{id, file, role, title, photoTime, story, legacyThumb, weather, showWeather}]`，role ∈ primary/supplement/detail/illustration。`title` 是**单语字符串**（中英显示同一份，**规定纯英文**）。`weather/showWeather` 是每张图自己的天气显示数据：主图通常是拍摄前 24 小时，补充/细节图通常只抓拍摄当时 1 点。（旧的灯箱准星 `crosshair` 字段已于 v82 删除。）
@@ -45,13 +45,13 @@
 - 详情页字体/行距可在 `styles.css` 搜 "详情页字体设置" 改变量数字。
 
 ## 版本号（缓存刷新）
-改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v219**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
+改了前端就把版本号一起 +1：`index.html` 的 `styles.css?v=NN` 和 `app.js?v=NN`、`app.js` 里 `sw.js?v=NN`、`sw.js` 里 `CACHE_NAME` 的 vNN。**当前 v246**。（四处必须一致；曾出现 sw.js 漏改不一致，bump 后顺手 grep `v=` 核对。）
 
 ## 工作约定（必须遵守，详见 memory + 仓库 `开发与上线流程.md`）
 1. 动手前**先确认+反思**需求（是否合理？有无更好方案？）。
 2. 分析**隐藏需求**。
 3. 每个任务结束给**小结**。
-4. **存档规则（用户 2026-07-05 更新，覆盖旧规则）**：**只有当改动较大、且会牵连到其他代码时**才自动 `git commit` 存档；**其余每个任务做完都要问一句"要存档吗"**，不要自作主张 commit。（判断：单文件小修/样式微调→做完问一句；跨多文件、迁移字段、改数据结构等大改→直接 commit。）预览链接只在确实需要用户看时再给。
+4. 在合适的检查点直接本地 `git commit` 存档，不用每次询问是否存档；只有用户明确说“上线/同步”时才 push。预览链接只在确实需要用户看时再给。
 5. **每次改过文件就更新 `修改记录.md`**（最上面追加，绝对日期，大白话，尽量简短）。但 `修改记录.md` **只在需要查历史时才读**，平时别读。
 6. **`交接.md` 每次交接时重写**，只保留**最近 5 轮**的修改，更早的不留（历史去 `修改记录.md` 查）。每次写/更新 `交接.md` 必须写明本次任务由哪个智能体完成（例如 codex / Claude Code）。
 - 原型期：**只本地开发**；「存档」=本地 `git commit`（直接提交 main，单人不开分支）；**只有用户说"上线/同步"才 push**。
